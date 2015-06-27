@@ -5,8 +5,11 @@ def get_schema():
     return {
         'schema': {
             'members': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                     'resource': 'contacts',
+                     'embeddable': True
+                }
             },
 
             'unknown_members': {
