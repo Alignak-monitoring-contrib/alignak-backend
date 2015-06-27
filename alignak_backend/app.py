@@ -66,15 +66,10 @@ class Application(Log):
         #self.settings['MONGO_PASSWORD'] = 'user'
         self.settings['MONGO_DBNAME'] = 'alignak-backend'
         self.app = Eve(
-            validator=ValidatorSQL,
-            data=SQL,
             settings=self.settings
         )
         self.log.debug(pformat(self.app.settings))
         self.app.debug = debug
-        self.db = self.app.data.driver
-        Base.metadata.bind = self.db.engine
-        self.db.Model = Base
 
     def get_settings_from_ini(self):
         settings = {}
@@ -134,15 +129,10 @@ class Application(Log):
                 )
             )
 
-    @register_command("Install application")
-    def install(self):
-        self.db.create_all()
-        self.load_driver('create_all')
-
-    @register_command("Populate database with random data")
-    def populate(self):
-        self.install()
-        alignak_backend.models.assets.populate_db(self.db)
+    #@register_command("Populate database with random data")
+    #def populate(self):
+    #    self.install()
+    #    alignak_backend.models.assets.populate_db(self.db)
 
     @register_command("Start serving")
     def run(self):

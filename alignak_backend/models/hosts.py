@@ -1,5 +1,8 @@
-class Hosts():
-    schema = {
+def get_name():
+    return 'hosts'
+
+def get_schema():
+    return {
         'schema': {
             'imported_from': {
                 'type': 'string',

@@ -9,7 +9,7 @@ def register_models():
     DOMAIN = {}
     files = pkgutil.walk_packages(path=__path__, prefix=__name__ + '.')
     for importer, modname, ispkg in files:
-        import_module(modname)
+        mod = import_module(modname)
 
-        DOMAIN[modname] = modname.schema
+        DOMAIN[mod.get_name()] = mod.get_schema()
     return DOMAIN
