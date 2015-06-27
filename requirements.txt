@@ -1,3 +1,4 @@
-Eve==0.5.2
+Eve==0.5.3
 docopt
 jsonschema
+Eve-docs

@@ -9,6 +9,8 @@ from configparser import ConfigParser
 import importlib
 
 from eve import Eve
+from flask.ext.bootstrap import Bootstrap
+from eve_docs import eve_docs
 
 import alignak_backend.models
 from alignak_backend.models import register_models
@@ -68,6 +70,8 @@ class Application(Log):
         self.app = Eve(
             settings=self.settings
         )
+        Bootstrap(self.app)
+        self.app.register_blueprint(eve_docs, url_prefix='/docs')
         self.log.debug(pformat(self.app.settings))
         self.app.debug = debug
 
