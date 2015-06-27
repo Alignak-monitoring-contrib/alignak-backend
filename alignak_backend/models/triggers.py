@@ -1,6 +1,7 @@
 def get_name():
     return 'triggers'
 
+
 def get_schema():
     return {
         'schema': {
@@ -37,5 +38,3 @@ def get_schema():
             },
         }
     }
-
-

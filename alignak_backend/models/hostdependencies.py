@@ -1,6 +1,7 @@
 def get_name():
     return 'hostdependencies'
 
+
 def get_schema():
     return {
         'schema': {
@@ -67,5 +68,3 @@ def get_schema():
             },
         }
     }
-
-

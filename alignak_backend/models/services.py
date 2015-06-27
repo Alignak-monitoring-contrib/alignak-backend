@@ -1,6 +1,7 @@
 def get_name():
     return 'services'
 
+
 def get_schema():
     return {
         'schema': {
@@ -179,16 +180,16 @@ def get_schema():
             'contacts': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'users',
-                     'embeddable': True
+                    'resource': 'users',
+                    'embeddable': True
                 }
             },
 
             'contact_groups': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'contact_groups',
-                     'embeddable': True
+                    'resource': 'contact_groups',
+                    'embeddable': True
                 }
             },
 
@@ -385,5 +386,3 @@ def get_schema():
             }
         }
     }
-
-

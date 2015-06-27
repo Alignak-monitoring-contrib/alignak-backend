@@ -1,6 +1,7 @@
 def get_name():
     return 'contacts'
 
+
 def get_schema():
     return {
         'schema': {
@@ -156,5 +157,3 @@ def get_schema():
             },
         }
     }
-
-

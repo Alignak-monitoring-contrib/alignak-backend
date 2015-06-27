@@ -1,6 +1,7 @@
 def get_name():
     return 'servicedependencies'
 
+
 def get_schema():
     return {
         'schema': {
@@ -80,5 +81,3 @@ def get_schema():
             },
         }
     }
-
-

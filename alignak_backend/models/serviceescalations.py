@@ -1,6 +1,7 @@
 def get_name():
     return 'serviceescalations'
 
+
 def get_schema():
     return {
         'schema': {
@@ -66,16 +67,16 @@ def get_schema():
             'contacts': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'contacts',
-                     'embeddable': True
+                    'resource': 'contacts',
+                    'embeddable': True
                 }
             },
 
             'contact_groups': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'contactgroups',
-                     'embeddable': True
+                    'resource': 'contactgroups',
+                    'embeddable': True
                 }
             },
 
@@ -88,5 +89,3 @@ def get_schema():
             },
         }
     }
-
-

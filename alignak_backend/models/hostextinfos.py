@@ -1,6 +1,7 @@
 def get_name():
     return 'hostextinfos'
 
+
 def get_schema():
     return {
         'schema': {
@@ -65,5 +66,3 @@ def get_schema():
             },
         }
     }
-
-

@@ -1,6 +1,7 @@
 def get_name():
     return 'escalations'
 
+
 def get_schema():
     return {
         'schema': {
@@ -66,19 +67,17 @@ def get_schema():
             'contacts': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'contacts',
-                     'embeddable': True
+                    'resource': 'contacts',
+                    'embeddable': True
                 }
             },
 
             'contact_groups': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'contactgroups',
-                     'embeddable': True
+                    'resource': 'contactgroups',
+                    'embeddable': True
                 }
             },
         }
     }
-
-

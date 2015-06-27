@@ -1,6 +1,7 @@
 def get_name():
     return 'hosts'
 
+
 def get_schema():
     return {
         'schema': {
@@ -47,24 +48,24 @@ def get_schema():
             'parents': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'hosts',
-                     'embeddable': True
+                    'resource': 'hosts',
+                    'embeddable': True
                 }
             },
 
             'hostgroups': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'hostgroups',
-                     'embeddable': True
+                    'resource': 'hostgroups',
+                    'embeddable': True
                 }
             },
 
             'check_command': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'commands',
-                     'embeddable': True
+                    'resource': 'commands',
+                    'embeddable': True
                 }
             },
 
@@ -166,16 +167,16 @@ def get_schema():
             'contacts': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'users',
-                     'embeddable': True
+                    'resource': 'users',
+                    'embeddable': True
                 }
             },
 
             'contact_groups': {
                 'type': 'objectid',
                 'data_relation': {
-                     'resource': 'contact_groups',
-                     'embeddable': True
+                    'resource': 'contact_groups',
+                    'embeddable': True
                 }
             },
 
@@ -397,5 +398,3 @@ def get_schema():
             }
         }
     }
-
-

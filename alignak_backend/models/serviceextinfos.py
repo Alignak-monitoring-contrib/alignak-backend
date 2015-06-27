@@ -1,6 +1,7 @@
 def get_name():
     return 'serviceextinfos'
 
+
 def get_schema():
     return {
         'schema': {
@@ -53,5 +54,3 @@ def get_schema():
             },
         }
     }
-
-

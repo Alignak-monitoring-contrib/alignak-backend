@@ -1,6 +1,7 @@
 def get_name():
     return 'commands'
 
+
 def get_schema():
     return {
         'schema': {
@@ -61,5 +62,3 @@ def get_schema():
             },
         }
     }
-
-

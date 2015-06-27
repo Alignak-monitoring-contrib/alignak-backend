@@ -6,13 +6,11 @@ import logging
 from pprint import pprint, pformat  # noqa
 from textwrap import dedent
 from configparser import ConfigParser
-import importlib
 
 from eve import Eve
 from flask.ext.bootstrap import Bootstrap
 from eve_docs import eve_docs
 
-import alignak_backend.models
 from alignak_backend.models import register_models
 from alignak_backend.log import Log
 
@@ -64,8 +62,8 @@ class Application(Log):
 
         self.settings['MONGO_HOST'] = 'localhost'
         self.settings['MONGO_PORT'] = 27017
-        #self.settings['MONGO_USERNAME'] = 'user'
-        #self.settings['MONGO_PASSWORD'] = 'user'
+        # self.settings['MONGO_USERNAME'] = 'user'
+        # self.settings['MONGO_PASSWORD'] = 'user'
         self.settings['MONGO_DBNAME'] = 'alignak-backend'
         self.app = Eve(
             settings=self.settings
@@ -133,10 +131,10 @@ class Application(Log):
                 )
             )
 
-    #@register_command("Populate database with random data")
-    #def populate(self):
-    #    self.install()
-    #    alignak_backend.models.assets.populate_db(self.db)
+    # @register_command("Populate database with random data")
+    # def populate(self):
+    #     self.install()
+    #     alignak_backend.models.assets.populate_db(self.db)
 
     @register_command("Start serving")
     def run(self):
