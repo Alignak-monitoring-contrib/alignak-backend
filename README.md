@@ -63,3 +63,10 @@ Alignak-backend run on port 5000, so use http://ip:5000/
 # API documentation
 Use browser to url of alignak-backend http://127.0.0.1:5000/docs
 
+# examples to add data
+
+## Add new Host
+
+```
+curl -X POST -H 'Content-Type: application/json' -d '{"name": "serverC001", "host_name": "serverC001", "address": "10.0.0.40"}' 127.0.0.1:5000/hosts
+```
