@@ -52,6 +52,11 @@ cd alignak-backend
 python3 setup.py install
 ```
 
+* run
+```
+alignak_backend run
+```
+
 # Use API
 Alignak-backend run on port 5000, so use http://ip:5000/
 
