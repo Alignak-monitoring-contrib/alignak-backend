@@ -1,33 +1,42 @@
 def get_name():
-    return 'hostgroups'
+    return 'serviceextinfo'
 
 
 def get_schema():
     return {
         'schema': {
-            'members': {
+            'imported_from': {
+                'type': 'string',
+                'default': 'unknown'
+            },
+
+            'use': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contacts',
+                    'resource': 'serviceextinfo',
                     'embeddable': True
-                }
+                },
             },
 
-            'unknown_members': {
-                'type': 'list',
-                'default': None
-            },
-
-            'id': {
-                'type': 'integer',
-                'default': 0
-            },
-
-            'hostgroup_name': {
+            'name': {
                 'type': 'string',
             },
 
-            'alias': {
+            'definition_order': {
+                'type': 'integer',
+                'default': 100
+            },
+
+            'register': {
+                'type': 'boolean',
+                'default': True
+            },
+
+            'host_name': {
+                'type': 'string',
+            },
+
+            'service_description': {
                 'type': 'string',
             },
 
@@ -39,11 +48,11 @@ def get_schema():
                 'type': 'string'
             },
 
-            'action_url': {
+            'icon_image': {
                 'type': 'string'
             },
 
-            'realm': {
+            'icon_image_alt': {
                 'type': 'string'
             },
         }

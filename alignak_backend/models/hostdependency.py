@@ -1,5 +1,5 @@
 def get_name():
-    return 'hostdependencies'
+    return 'hostdependency'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'hostdependency',
+                    'embeddable': True
+                },
             },
 
             'name': {

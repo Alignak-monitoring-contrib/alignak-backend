@@ -1,5 +1,5 @@
 def get_name():
-    return 'serviceescalations'
+    return 'escalation'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'escalation',
+                    'embeddable': True
+                },
             },
 
             'name': {
@@ -29,15 +32,7 @@ def get_schema():
                 'default': True
             },
 
-            'host_name': {
-                'type': 'string',
-            },
-
-            'hostgroup_name': {
-                'type': 'string',
-            },
-
-            'service_description': {
+            'escalation_name': {
                 'type': 'string',
             },
 
@@ -49,9 +44,17 @@ def get_schema():
                 'type': 'integer',
             },
 
+            'first_notification_time': {
+                'type': 'integer',
+            },
+
+            'last_notification_time': {
+                'type': 'integer',
+            },
+
             'notification_interval': {
                 'type': 'integer',
-                'default': 30
+                'default': -1
             },
 
             'escalation_period': {
@@ -67,7 +70,7 @@ def get_schema():
             'contacts': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contacts',
+                    'resource': 'contact',
                     'embeddable': True
                 }
             },
@@ -75,17 +78,9 @@ def get_schema():
             'contact_groups': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contactgroups',
+                    'resource': 'contactgroup',
                     'embeddable': True
                 }
-            },
-
-            'first_notification_time': {
-                'type': 'integer',
-            },
-
-            'last_notification_time': {
-                'type': 'integer',
             },
         }
     }

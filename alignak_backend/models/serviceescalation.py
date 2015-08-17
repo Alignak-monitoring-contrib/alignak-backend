@@ -1,5 +1,5 @@
 def get_name():
-    return 'hostescalations'
+    return 'serviceescalation'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'serviceescalation',
+                    'embeddable': True
+                },
             },
 
             'name': {
@@ -34,6 +37,10 @@ def get_schema():
             },
 
             'hostgroup_name': {
+                'type': 'string',
+            },
+
+            'service_description': {
                 'type': 'string',
             },
 
@@ -63,7 +70,7 @@ def get_schema():
             'contacts': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contacts',
+                    'resource': 'contact',
                     'embeddable': True
                 }
             },
@@ -71,7 +78,7 @@ def get_schema():
             'contact_groups': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contactgroups',
+                    'resource': 'contactgroup',
                     'embeddable': True
                 }
             },

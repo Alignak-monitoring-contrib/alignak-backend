@@ -1,9 +1,10 @@
 def get_name():
-    return 'services'
+    return 'host'
 
 
 def get_schema():
     return {
+        'allow_unknown': True,
         'schema': {
             'imported_from': {
                 'type': 'string',
@@ -11,8 +12,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'host',
+                    'embeddable': True
+                },
             },
 
             'name': {
@@ -31,13 +35,12 @@ def get_schema():
 
             'host_name': {
                 'type': 'string',
+                'required': True,
+                'unique': True,
+                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
 
-            'hostgroup_name': {
-                'type': 'string',
-            },
-
-            'service_description': {
+            'alias': {
                 'type': 'string',
             },
 
@@ -45,25 +48,40 @@ def get_schema():
                 'type': 'string',
             },
 
-            'servicegroups': {
-                'type': 'list',
-                'default': []
+            'address': {
+                'type': 'string',
             },
 
-            'is_volatile': {
-                'type': 'boolean',
-                'default': False
+            'parents': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'host',
+                    'embeddable': True
+                }
+            },
+
+            'hostgroups': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'hostgroup',
+                    'embeddable': True
+                }
             },
 
             'check_command': {
-                'type': 'string',
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'command',
+                    'embeddable': True
+                }
             },
 
             'initial_state': {
                 'type': 'string',
                 'minlength': 1,
                 'maxlength': 1,
-                'default': 'o'
+                'default': 'u',
+                'allowed': ["u", "d", "u"]
             },
 
             'max_check_attempts': {
@@ -77,7 +95,8 @@ def get_schema():
             },
 
             'retry_interval': {
-                'type': 'integer'
+                'type': 'integer',
+                'default': 0
             },
 
             'active_checks_enabled': {
@@ -120,12 +139,12 @@ def get_schema():
 
             'low_flap_threshold': {
                 'type': 'integer',
-                'default': -1
+                'default': 25
             },
 
-            'high_flap_threshold': {
+            'low_flap_threshold': {
                 'type': 'integer',
-                'default': -1
+                'default': 50
             },
 
             'flap_detection_enabled': {
@@ -135,7 +154,7 @@ def get_schema():
 
             'flap_detection_options': {
                 'type': 'list',
-                'default': ['o', 'w', 'c', 'u']
+                'default': ['o', 'd', 'u']
             },
 
             'process_perf_data': {
@@ -151,6 +170,22 @@ def get_schema():
             'retain_nonstatus_information': {
                 'type': 'boolean',
                 'default': True
+            },
+
+            'contacts': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'user',
+                    'embeddable': True
+                }
+            },
+
+            'contact_groups': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'contact_group',
+                    'embeddable': True
+                }
             },
 
             'notification_interval': {
@@ -169,28 +204,12 @@ def get_schema():
 
             'notification_options': {
                 'type': 'list',
-                'default': ['w', 'u', 'c', 'r', 'f', 's']
+                'default': ['d', 'u', 'r', 'f']
             },
 
             'notifications_enabled': {
                 'type': 'boolean',
                 'default': True
-            },
-
-            'contacts': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'users',
-                    'embeddable': True
-                }
-            },
-
-            'contact_groups': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'contact_groups',
-                    'embeddable': True
-                }
             },
 
             'stalking_options': {
@@ -222,14 +241,29 @@ def get_schema():
                 'type': 'string'
             },
 
+            'vrml_image': {
+                'type': 'string'
+            },
+
+            'statusmap_image': {
+                'type': 'string'
+            },
+
+            '2d_coords': {
+                'type': 'string'
+            },
+
+            '3d_coords': {
+                'type': 'string'
+            },
+
             'failure_prediction_enabled': {
                 'type': 'boolean',
                 'default': False
             },
 
-            'parallelize_check': {
-                'type': 'boolean',
-                'default': True
+            'realm': {
+                'type': 'string'
             },
 
             'poller_tag': {
@@ -266,19 +300,24 @@ def get_schema():
                 'default': 300
             },
 
-            'merge_host_contacts': {
-                'type': 'boolean',
-                'default': False
+            'service_overrides': {
+                'type': 'list',
+                'default': []
+            },
+
+            'service_excludes': {
+                'type': 'list',
+                'default': []
+            },
+
+            'service_includes': {
+                'type': 'list',
+                'default': []
             },
 
             'labels': {
                 'type': 'list',
                 'default': []
-            },
-
-            'host_dependency_enabled': {
-                'type': 'boolean',
-                'default': True
             },
 
             'business_rule_output_template': {
@@ -302,20 +341,6 @@ def get_schema():
 
             'business_rule_service_notification_options': {
                 'type': 'list',
-                'default': []
-            },
-
-            'service_dependencies': {
-                'type': 'list',
-                'default': []
-            },
-
-            'duplicate_foreach': {
-                'type': 'string'
-            },
-
-            'default_value': {
-                'type': 'string',
                 'default': []
             },
 
@@ -357,11 +382,6 @@ def get_schema():
                 'default': []
             },
 
-            'aggregation': {
-                'type': 'string',
-                'default': ''
-            },
-
             'snapshot_enabled': {
                 'type': 'boolean',
                 'default': False
@@ -377,7 +397,7 @@ def get_schema():
 
             'snapshot_criteria': {
                 'type': 'list',
-                'default': ['w', 'c', 'u']
+                'default': ['d', 'u']
             },
 
             'snapshot_interval': {

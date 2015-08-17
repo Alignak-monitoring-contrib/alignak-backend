@@ -1,5 +1,5 @@
 def get_name():
-    return 'contacts'
+    return 'contact'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'contact',
+                    'embeddable': True
+                },
             },
 
             'name': {
@@ -31,6 +34,9 @@ def get_schema():
 
             'contact_name': {
                 'type': 'string',
+                'required': True,
+                'unique': True,
+                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
 
             'alias': {

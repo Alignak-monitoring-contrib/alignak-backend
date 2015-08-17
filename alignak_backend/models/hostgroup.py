@@ -1,5 +1,5 @@
 def get_name():
-    return 'servicegroups'
+    return 'hostgroup'
 
 
 def get_schema():
@@ -8,7 +8,7 @@ def get_schema():
             'members': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contacts',
+                    'resource': 'contact',
                     'embeddable': True
                 }
             },
@@ -23,7 +23,7 @@ def get_schema():
                 'default': 0
             },
 
-            'servicegroup_name': {
+            'hostgroup_name': {
                 'type': 'string',
             },
 
@@ -40,6 +40,10 @@ def get_schema():
             },
 
             'action_url': {
+                'type': 'string'
+            },
+
+            'realm': {
                 'type': 'string'
             },
         }

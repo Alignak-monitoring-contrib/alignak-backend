@@ -1,5 +1,5 @@
 def get_name():
-    return 'contactgroups'
+    return 'servicegroup'
 
 
 def get_schema():
@@ -8,7 +8,7 @@ def get_schema():
             'members': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contacts',
+                    'resource': 'contact',
                     'embeddable': True
                 }
             },
@@ -23,12 +23,24 @@ def get_schema():
                 'default': 0
             },
 
-            'contactgroup_name': {
+            'servicegroup_name': {
                 'type': 'string',
             },
 
             'alias': {
                 'type': 'string',
+            },
+
+            'notes': {
+                'type': 'string'
+            },
+
+            'notes_url': {
+                'type': 'string'
+            },
+
+            'action_url': {
+                'type': 'string'
             },
         }
     }

@@ -1,5 +1,5 @@
 def get_name():
-    return 'contacts'
+    return 'command'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'command',
+                    'embeddable': True
+                },
             },
 
             'name': {
@@ -29,26 +32,34 @@ def get_schema():
                 'default': True
             },
 
-            'timeperiod_name': {
+            'command_name': {
                 'type': 'string',
             },
 
-            'alias': {
+            'command_line': {
                 'type': 'string',
-                'default': 'none'
             },
 
-            'dateranges': {
-                'type': 'list',
-                'default': []
+            'poller_tag': {
+                'type': 'string',
+                'default': 'None'
             },
 
-            'exclude': {
-                'type': 'list',
-                'default': []
+            'reactionner_tag': {
+                'type': 'string',
+                'default': 'None'
             },
 
-            'is_active': {
+            'module_type': {
+                'type': 'string',
+            },
+
+            'timeout': {
+                'type': 'integer',
+                'default': -1
+            },
+
+            'enable_environment_macros': {
                 'type': 'boolean',
                 'default': False
             },

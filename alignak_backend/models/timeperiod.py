@@ -1,5 +1,5 @@
 def get_name():
-    return 'serviceextinfos'
+    return 'timeperiod'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                },
             },
 
             'name': {
@@ -29,28 +32,28 @@ def get_schema():
                 'default': True
             },
 
-            'host_name': {
+            'timeperiod_name': {
                 'type': 'string',
             },
 
-            'service_description': {
+            'alias': {
                 'type': 'string',
+                'default': 'none'
             },
 
-            'notes': {
-                'type': 'string'
+            'dateranges': {
+                'type': 'list',
+                'default': []
             },
 
-            'notes_url': {
-                'type': 'string'
+            'exclude': {
+                'type': 'list',
+                'default': []
             },
 
-            'icon_image': {
-                'type': 'string'
-            },
-
-            'icon_image_alt': {
-                'type': 'string'
+            'is_active': {
+                'type': 'boolean',
+                'default': False
             },
         }
     }

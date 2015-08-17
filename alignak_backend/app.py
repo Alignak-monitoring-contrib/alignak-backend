@@ -39,7 +39,8 @@ class Application(Log):
     settings = {}
 
     def __init__(self):
-        super().__init__()
+        Log.__init__(self)
+        #super().__init__()
         command = os.path.basename(sys.argv[0])
         self.__doc__ = dedent(self.__doc__).format(
             command=command,

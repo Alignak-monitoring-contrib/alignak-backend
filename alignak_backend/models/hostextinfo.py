@@ -1,5 +1,5 @@
 def get_name():
-    return 'hostextinfos'
+    return 'hostextinfo'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'hostextinfo',
+                    'embeddable': True
+                },
             },
 
             'name': {

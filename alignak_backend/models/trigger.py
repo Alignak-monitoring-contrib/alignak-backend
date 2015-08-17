@@ -1,5 +1,5 @@
 def get_name():
-    return 'triggers'
+    return 'trigger'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'trigger',
+                    'embeddable': True
+                },
             },
 
             'name': {

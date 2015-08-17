@@ -1,4 +1,4 @@
-Eve==0.5.3
+Eve
 docopt
 jsonschema
 Eve-docs

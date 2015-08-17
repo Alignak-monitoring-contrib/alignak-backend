@@ -1,5 +1,5 @@
 def get_name():
-    return 'servicedependencies'
+    return 'servicedependency'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'servicedependency',
+                    'embeddable': True
+                },
             },
 
             'name': {

@@ -1,5 +1,5 @@
 def get_name():
-    return 'escalations'
+    return 'hostescalation'
 
 
 def get_schema():
@@ -11,8 +11,11 @@ def get_schema():
             },
 
             'use': {
-                'type': 'list',
-                'default': None
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'hostescalation',
+                    'embeddable': True
+                },
             },
 
             'name': {
@@ -29,7 +32,11 @@ def get_schema():
                 'default': True
             },
 
-            'escalation_name': {
+            'host_name': {
+                'type': 'string',
+            },
+
+            'hostgroup_name': {
                 'type': 'string',
             },
 
@@ -41,17 +48,9 @@ def get_schema():
                 'type': 'integer',
             },
 
-            'first_notification_time': {
-                'type': 'integer',
-            },
-
-            'last_notification_time': {
-                'type': 'integer',
-            },
-
             'notification_interval': {
                 'type': 'integer',
-                'default': -1
+                'default': 30
             },
 
             'escalation_period': {
@@ -67,7 +66,7 @@ def get_schema():
             'contacts': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contacts',
+                    'resource': 'contact',
                     'embeddable': True
                 }
             },
@@ -75,9 +74,17 @@ def get_schema():
             'contact_groups': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'contactgroups',
+                    'resource': 'contactgroup',
                     'embeddable': True
                 }
+            },
+
+            'first_notification_time': {
+                'type': 'integer',
+            },
+
+            'last_notification_time': {
+                'type': 'integer',
             },
         }
     }
