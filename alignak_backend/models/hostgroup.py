@@ -6,45 +6,57 @@ def get_schema():
     return {
         'schema': {
             'members': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'contact',
-                    'embeddable': True
-                }
-            },
-
-            'unknown_members': {
                 'type': 'list',
-                'default': None
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'host',
+                        'embeddable': True,
+                    }
+                },
             },
 
-            'id': {
-                'type': 'integer',
-                'default': 0
+            'hostgroup_members': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'hostgroup_name': {
                 'type': 'string',
+                'required': True,
+                'unique': True,
+                'default': ''
             },
 
             'alias': {
                 'type': 'string',
+                'default': ''
             },
 
             'notes': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'notes_url': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'action_url': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'realm': {
-                'type': 'string'
+                'type': 'string',
+                'default': None
             },
         }
     }

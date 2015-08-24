@@ -42,6 +42,10 @@ def get_schema():
             'services': {
                 'type': 'string',
                 'default': None
+            },
+            'perf_data': {
+                'type': 'string',
+                'default': None
             }
         }
     }

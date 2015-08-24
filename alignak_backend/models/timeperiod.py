@@ -7,7 +7,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': 'unknown'
+                'default': ''
             },
 
             'use': {
@@ -20,6 +20,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
+                'default': ''
             },
 
             'definition_order': {
@@ -34,11 +35,14 @@ def get_schema():
 
             'timeperiod_name': {
                 'type': 'string',
+                'required': True,
+                'unique': True,
+                'default': ''
             },
 
             'alias': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'dateranges': {

@@ -8,7 +8,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': 'unknown'
+                'default': ''
             },
 
             'use': {
@@ -21,6 +21,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
+                'default': ''
             },
 
             'definition_order': {
@@ -39,26 +40,33 @@ def get_schema():
                     'resource': 'host',
                     'embeddable': True
                 },
-                'required': True,
             },
 
             'hostgroup_name': {
                 'type': 'string',
+                'default': ''
             },
 
             'service_description': {
                 'type': 'string',
-                'required': True,
-                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
+                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
+                'dependencies': ['host_name', 'check_command']
             },
 
             'display_name': {
                 'type': 'string',
+                'default': ''
             },
 
             'servicegroups': {
                 'type': 'list',
-                'default': []
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'servicegroup',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'is_volatile': {
@@ -67,7 +75,18 @@ def get_schema():
             },
 
             'check_command': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'command',
+                    'embeddable': True
+                },
+                'allowed': ['bp_rule'],
+                'nullable': True
+            },
+
+            'check_command_args': {
                 'type': 'string',
+                'default': ''
             },
 
             'initial_state': {
@@ -85,11 +104,12 @@ def get_schema():
 
             'check_interval': {
                 'type': 'integer',
-                'default': 0
+                'default': 5
             },
 
             'retry_interval': {
-                'type': 'integer'
+                'type': 'integer',
+                'default': 0
             },
 
             'active_checks_enabled': {
@@ -103,13 +123,17 @@ def get_schema():
             },
 
             'check_period': {
-                'type': 'string',
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                }
             },
 
-            'obsess_over_host': {
-                'type': 'boolean',
-                'default': False
-            },
+            #'obsess_over_host': {
+            #    'type': 'boolean',
+            #    'default': False
+            #},
 
             'check_freshness': {
                 'type': 'boolean',
@@ -123,6 +147,7 @@ def get_schema():
 
             'event_handler': {
                 'type': 'string',
+                'default': ''
             },
 
             'event_handler_enabled': {
@@ -176,7 +201,11 @@ def get_schema():
             },
 
             'notification_period': {
-                'type': 'string'
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                }
             },
 
             'notification_options': {
@@ -190,19 +219,25 @@ def get_schema():
             },
 
             'contacts': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'user',
-                    'embeddable': True
-                }
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'contact_groups': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'contact_group',
-                    'embeddable': True
-                }
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contactgroup',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'stalking_options': {
@@ -211,27 +246,33 @@ def get_schema():
             },
 
             'notes': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'notes_url': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'action_url': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'icon_image': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'icon_image_alt': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'icon_set': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'failure_prediction_enabled': {
@@ -266,11 +307,21 @@ def get_schema():
 
             'escalations': {
                 'type': 'list',
-                'default': []
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'escalation',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'maintenance_period': {
-                'type': 'string'
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                }
             },
 
             'time_to_orphanage': {
@@ -319,11 +370,18 @@ def get_schema():
 
             'service_dependencies': {
                 'type': 'list',
-                'default': []
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'duplicate_foreach': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'default_value': {
@@ -337,11 +395,13 @@ def get_schema():
             },
 
             'trigger': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'trigger_name': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'trigger_broker_raise_enabled': {
@@ -380,11 +440,13 @@ def get_schema():
             },
 
             'snapshot_command': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'snapshot_period': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'snapshot_criteria': {
@@ -396,5 +458,5 @@ def get_schema():
                 'type': 'integer',
                 'default': 5
             }
-        }
+        },
     }

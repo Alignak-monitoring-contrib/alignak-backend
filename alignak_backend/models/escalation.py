@@ -7,7 +7,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': 'unknown'
+                'default': ''
             },
 
             'use': {
@@ -20,6 +20,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
+                'default': ''
             },
 
             'definition_order': {
@@ -34,22 +35,27 @@ def get_schema():
 
             'escalation_name': {
                 'type': 'string',
+                'default': ''
             },
 
             'first_notification': {
                 'type': 'integer',
+                'default': 0
             },
 
             'last_notification': {
                 'type': 'integer',
+                'default': 0
             },
 
             'first_notification_time': {
                 'type': 'integer',
+                'default': 0
             },
 
             'last_notification_time': {
                 'type': 'integer',
+                'default': 0
             },
 
             'notification_interval': {
@@ -68,19 +74,25 @@ def get_schema():
             },
 
             'contacts': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'contact',
-                    'embeddable': True
-                }
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'contact_groups': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'contactgroup',
-                    'embeddable': True
-                }
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contactgroup',
+                        'embeddable': True,
+                    }
+                },
             },
         }
     }

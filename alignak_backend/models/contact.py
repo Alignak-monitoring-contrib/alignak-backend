@@ -5,11 +5,6 @@ def get_name():
 def get_schema():
     return {
         'schema': {
-            'imported_from': {
-                'type': 'string',
-                'default': 'unknown'
-            },
-
             'use': {
                 'type': 'objectid',
                 'data_relation': {
@@ -20,6 +15,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
+                'default': ''
             },
 
             'definition_order': {
@@ -41,12 +37,18 @@ def get_schema():
 
             'alias': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'contactgroups': {
                 'type': 'list',
-                'default': []
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contactgroup',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'host_notifications_enabled': {
@@ -60,11 +62,19 @@ def get_schema():
             },
 
             'host_notification_period': {
-                'type': 'string',
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                }
             },
 
             'service_notification_period': {
-                'type': 'string',
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                }
             },
 
             'host_notification_options': {
@@ -79,12 +89,24 @@ def get_schema():
 
             'host_notification_commands': {
                 'type': 'list',
-                'default': []
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'command',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'service_notification_commands': {
                 'type': 'list',
-                'default': []
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'command',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'min_business_impact': {
@@ -94,42 +116,42 @@ def get_schema():
 
             'email': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'pager': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'address1': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'address2': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'address3': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'address4': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'address5': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'address6': {
                 'type': 'string',
-                'default': 'none'
+                'default': ''
             },
 
             'can_submit_commands': {
@@ -152,6 +174,11 @@ def get_schema():
                 'default': True
             },
 
+            'retain_nonstatus_information': {
+                'type': 'boolean',
+                'default': True
+            },
+
             'notificationways': {
                 'type': 'list',
                 'default': []
@@ -160,6 +187,11 @@ def get_schema():
             'password': {
                 'type': 'string',
                 'default': 'NOPASSWORDSET'
+            },
+
+            'note': {
+                'type': 'string',
+                'default': ''
             },
         }
     }

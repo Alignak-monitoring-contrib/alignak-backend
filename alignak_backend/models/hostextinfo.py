@@ -7,7 +7,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': 'unknown'
+                'default': ''
             },
 
             'use': {
@@ -20,6 +20,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
+                'default' : ''
             },
 
             'definition_order': {
@@ -34,38 +35,49 @@ def get_schema():
 
             'host_name': {
                 'type': 'string',
+                'required': True,
+                'unique': True,
+                'default' : ''
             },
 
             'notes': {
-                'type': 'string'
+                'type': 'string',
+                'default' : ''
             },
 
             'notes_url': {
-                'type': 'string'
+                'type': 'string',
+                'default' : ''
             },
 
             'icon_image': {
-                'type': 'string'
+                'type': 'string',
+                'default' : ''
             },
 
             'icon_image_alt': {
-                'type': 'string'
+                'type': 'string',
+                'default' : ''
             },
 
             'vrml_image': {
-                'type': 'string'
+                'type': 'string',
+                'default' : ''
             },
 
             'statusmap_image': {
-                'type': 'string'
+                'type': 'string',
+                'default' : ''
             },
 
             '2d_coords': {
-                'type': 'string'
+                'type': 'string',
+                'default' : ''
             },
 
             '3d_coords': {
-                'type': 'string'
+                'type': 'string',
+                'default' : ''
             },
         }
     }

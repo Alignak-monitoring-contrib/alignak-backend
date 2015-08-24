@@ -5,11 +5,6 @@ def get_name():
 def get_schema():
     return {
         'schema': {
-            'imported_from': {
-                'type': 'string',
-                'default': 'unknown'
-            },
-
             'use': {
                 'type': 'objectid',
                 'data_relation': {
@@ -20,6 +15,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
+                'default': ''
             },
 
             'definition_order': {
@@ -34,10 +30,13 @@ def get_schema():
 
             'command_name': {
                 'type': 'string',
+                'required': True,
+                'unique': True,
             },
 
             'command_line': {
                 'type': 'string',
+                'required': True,
             },
 
             'poller_tag': {
@@ -52,6 +51,7 @@ def get_schema():
 
             'module_type': {
                 'type': 'string',
+                'default': 'fork'
             },
 
             'timeout': {

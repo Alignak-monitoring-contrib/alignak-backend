@@ -39,7 +39,7 @@ def get_schema():
                 'type': 'string',
                 'default': None
             },
-            'plugin_output': {
+            'output': {
                 'type': 'string',
                 'default': None
             },
@@ -47,5 +47,9 @@ def get_schema():
                 'type': 'string',
                 'default': None
             },
+            'perf_data': {
+                'type': 'string',
+                'default': None
+            }
         }
     }

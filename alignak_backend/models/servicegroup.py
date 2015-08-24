@@ -13,34 +13,42 @@ def get_schema():
                 }
             },
 
-            'unknown_members': {
+            'servicegroup_members': {
                 'type': 'list',
-                'default': None
-            },
-
-            'id': {
-                'type': 'integer',
-                'default': 0
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'servicegroup',
+                        'embeddable': True,
+                    }
+                },
             },
 
             'servicegroup_name': {
                 'type': 'string',
+                'required': True,
+                'unique': True,
+                'default': ''
             },
 
             'alias': {
                 'type': 'string',
+                'default': ''
             },
 
             'notes': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'notes_url': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'action_url': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
         }
     }

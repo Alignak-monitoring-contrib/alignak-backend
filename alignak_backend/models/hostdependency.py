@@ -7,7 +7,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': 'unknown'
+                'default': ''
             },
 
             'use': {
@@ -20,6 +20,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
+                'default': ''
             },
 
             'definition_order': {
@@ -33,7 +34,8 @@ def get_schema():
             },
 
             'dependent_host_name': {
-                'type': 'string'
+                'type': 'string',
+                'default': ''
             },
 
             'dependent_hostgroup_name': {
