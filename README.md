@@ -1,4 +1,4 @@
-# Alignak-bckend
+# Alignak-backend
 
 [![Build Status](https://travis-ci.org/Alignak-monitoring/alignak-backend.svg?branch=master)](https://travis-ci.org/Alignak-monitoring/alignak-backend)
 
