@@ -20,7 +20,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'definition_order': {
@@ -37,47 +37,47 @@ def get_schema():
                 'type': 'string',
                 'required': True,
                 'unique': True,
-                'default' : ''
+                'default': ''
             },
 
             'notes': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'notes_url': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'icon_image': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'icon_image_alt': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'vrml_image': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'statusmap_image': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             '2d_coords': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             '3d_coords': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
         }
     }

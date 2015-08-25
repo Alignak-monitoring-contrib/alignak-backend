@@ -13,4 +13,3 @@ class Log(object):
             modulename=self.__module__
         )
         self.log = logging.getLogger(self.namespace)
-

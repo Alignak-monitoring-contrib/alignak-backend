@@ -20,7 +20,7 @@ def get_schema():
 
             'name': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'definition_order': {
@@ -37,32 +37,32 @@ def get_schema():
                 'type': 'string',
                 'required': True,
                 'unique': True,
-                'default' : ''
+                'default': ''
             },
 
             'service_description': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'notes': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'notes_url': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'icon_image': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
 
             'icon_image_alt': {
                 'type': 'string',
-                'default' : ''
+                'default': ''
             },
         }
     }

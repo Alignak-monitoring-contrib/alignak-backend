@@ -58,7 +58,7 @@ def get_schema():
 
             'parents': {
                 'type': 'list',
-                 'schema': {
+                'schema': {
                     'type': 'objectid',
                     'data_relation': {
                         'resource': 'host',
@@ -131,11 +131,6 @@ def get_schema():
                     'embeddable': True
                 }
             },
-
-            #'obsess_over_host': {
-            #    'type': 'boolean',
-            #    'default': False
-            #},
 
             'check_freshness': {
                 'type': 'boolean',

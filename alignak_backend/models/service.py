@@ -130,11 +130,6 @@ def get_schema():
                 }
             },
 
-            #'obsess_over_host': {
-            #    'type': 'boolean',
-            #    'default': False
-            #},
-
             'check_freshness': {
                 'type': 'boolean',
                 'default': False
