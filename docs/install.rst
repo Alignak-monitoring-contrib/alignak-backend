@@ -4,8 +4,11 @@ Installation
 ============
 
 
-Install from pip
+Install with pip
 ----------------
+
+With pip
+~~~~~~~~
 
 You can install with pip::
 
@@ -13,8 +16,8 @@ You can install with pip::
 
 **This not work for the moment because not yet released**
 
-Install from source
--------------------
+From source
+~~~~~~~~~~~
 
 You can install it from source::
 
@@ -23,15 +26,15 @@ You can install it from source::
     pip install .
 
 
-Install for contributors
-------------------------
+For contributors
+~~~~~~~~~~~~~~~~
 
 If you want to hack into the codebase (e.g for future contribution), just install like this::
 
     pip install -e .
 
 
-Install with source without pip
+Install from source without pip
 -------------------------------
 
 If you are on Debian::
