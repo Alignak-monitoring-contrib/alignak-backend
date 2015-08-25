@@ -200,4 +200,44 @@ When run the Alignak Backend, it exist an endpoint with API documentation::
 
     http://127.0.0.1:5000/docs
 
+List of resources
+-----------------
+
+List of resources and information.
+
+
+Configuration part
+~~~~~~~~~~~~~~~~~~
+
+List of resources used for configuration:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   resources/config*
+
+
+Live state part
+~~~~~~~~~~~~~~~
+
+List of live states (last check date, current state...):
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   resources/live*
+
+Retention part
+~~~~~~~~~~~~~~
+
+List of retentions resources:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   resources/retention*
+
 
