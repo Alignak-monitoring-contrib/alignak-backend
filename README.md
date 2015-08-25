@@ -2,70 +2,26 @@
 
 [![Build Status](https://travis-ci.org/Alignak-monitoring/alignak-backend.svg?branch=master)](https://travis-ci.org/Alignak-monitoring/alignak-backend)
 
-# Install
+# Documentation
 
-*TOBEDONE* You can install it directly from Pypi:
+Documentation is available here: [http://alignak-backend.readthedocs.org](http://alignak-backend.readthedocs.org)
 
-```
-pip install alignak_backend
-```
+# Short description
 
-You can install it from source once you cloned successfully the
-repository:
+This project is a Alignak Backend.
+It is used to:
 
-```
-pip install .
-```
+* manage configuration (hosts, services, contacts, timeperiods...)
 
-If you want to hack into the codebase (e.g for future contribution),
-just install like this:
+    * end user (webui, command line...) can get and add configurations elements
+    * Alignak get this configuration when start arbiter module
 
-```
-pip install -e .
-```
+* manage retention
 
-## DEBIAN Jessie
+    * Alignak load and save retention information about checks/hosts/services
 
-* prerequisites
+* manage live states
 
-```
-apt-get -y install python python-dev python-pip git
-```
+    * Alignak add/update states of hosts and services
+    * end user (webui, command line...) can get these information
 
-* get the project sources
-
-```
-git clone https://github.com/Alignak-monitoring/alignak-backend
-```
-
-* python prerequisites
-
-```
-pip install -r alignak-backend/requirements.txt
-```
-
-* install 
-
-```
-cd alignak-backend
-python setup.py install
-```
-
-* run
-```
-alignak_backend run
-```
-
-# Use API
-Alignak-backend run on port 5000, so use http://ip:5000/
-
-# API documentation
-Use browser to url of alignak-backend http://127.0.0.1:5000/docs
-
-# examples to add data
-
-## Add new Host
-
-```
-curl -X POST -H 'Content-Type: application/json' -d '{"name": "serverC001", "host_name": "serverC001", "address": "10.0.0.40"}' 127.0.0.1:5000/hosts
-```
