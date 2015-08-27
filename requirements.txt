@@ -2,3 +2,4 @@ Eve
 docopt
 jsonschema
 Eve-docs
+ConfigParser
