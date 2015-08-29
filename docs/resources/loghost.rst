@@ -1,6 +1,6 @@
-.. _resource-livehost:
+.. _resource-loghost:
 
-livehost
+loghost
 ===================
 
 .. csv-table::

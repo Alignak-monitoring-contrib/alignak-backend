@@ -12,7 +12,6 @@ def get_schema():
                     'embeddable': True
                 }
             },
-
             'servicegroup_members': {
                 'type': 'list',
                 'schema': {
@@ -23,29 +22,24 @@ def get_schema():
                     }
                 },
             },
-
             'servicegroup_name': {
                 'type': 'string',
                 'required': True,
                 'unique': True,
                 'default': ''
             },
-
             'alias': {
                 'type': 'string',
                 'default': ''
             },
-
             'notes': {
                 'type': 'string',
                 'default': ''
             },
-
             'notes_url': {
                 'type': 'string',
                 'default': ''
             },
-
             'action_url': {
                 'type': 'string',
                 'default': ''

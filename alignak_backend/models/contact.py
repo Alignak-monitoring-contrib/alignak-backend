@@ -12,34 +12,28 @@ def get_schema():
                     'embeddable': True
                 },
             },
-
             'name': {
                 'type': 'string',
                 'default': ''
             },
-
             'definition_order': {
                 'type': 'integer',
                 'default': 100
             },
-
             'register': {
                 'type': 'boolean',
                 'default': True
             },
-
             'contact_name': {
                 'type': 'string',
                 'required': True,
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
-
             'alias': {
                 'type': 'string',
                 'default': ''
             },
-
             'contactgroups': {
                 'type': 'list',
                 'schema': {
@@ -50,17 +44,14 @@ def get_schema():
                     }
                 },
             },
-
             'host_notifications_enabled': {
                 'type': 'boolean',
                 'default': True
             },
-
             'service_notifications_enabled': {
                 'type': 'boolean',
                 'default': True
             },
-
             'host_notification_period': {
                 'type': 'objectid',
                 'data_relation': {
@@ -68,7 +59,6 @@ def get_schema():
                     'embeddable': True
                 }
             },
-
             'service_notification_period': {
                 'type': 'objectid',
                 'data_relation': {
@@ -76,17 +66,14 @@ def get_schema():
                     'embeddable': True
                 }
             },
-
             'host_notification_options': {
                 'type': 'list',
                 'default': []
             },
-
             'service_notification_options': {
                 'type': 'list',
                 'default': []
             },
-
             'host_notification_commands': {
                 'type': 'list',
                 'schema': {
@@ -97,7 +84,6 @@ def get_schema():
                     }
                 },
             },
-
             'service_notification_commands': {
                 'type': 'list',
                 'schema': {
@@ -108,87 +94,70 @@ def get_schema():
                     }
                 },
             },
-
             'min_business_impact': {
                 'type': 'integer',
                 'default': 0
             },
-
             'email': {
                 'type': 'string',
                 'default': ''
             },
-
             'pager': {
                 'type': 'string',
                 'default': ''
             },
-
             'address1': {
                 'type': 'string',
                 'default': ''
             },
-
             'address2': {
                 'type': 'string',
                 'default': ''
             },
-
             'address3': {
                 'type': 'string',
                 'default': ''
             },
-
             'address4': {
                 'type': 'string',
                 'default': ''
             },
-
             'address5': {
                 'type': 'string',
                 'default': ''
             },
-
             'address6': {
                 'type': 'string',
                 'default': ''
             },
-
             'can_submit_commands': {
                 'type': 'boolean',
                 'default': False
             },
-
             'is_admin': {
                 'type': 'boolean',
                 'default': False
             },
-
             'expert': {
                 'type': 'boolean',
                 'default': False
             },
-
             'retain_status_information': {
                 'type': 'boolean',
                 'default': True
             },
-
             'retain_nonstatus_information': {
                 'type': 'boolean',
                 'default': True
             },
-
             'notificationways': {
                 'type': 'list',
                 'default': []
             },
-
             'password': {
                 'type': 'string',
                 'default': 'NOPASSWORDSET'
             },
-
             'note': {
                 'type': 'string',
                 'default': ''

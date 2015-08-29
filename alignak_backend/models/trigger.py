@@ -9,7 +9,6 @@ def get_schema():
                 'type': 'string',
                 'default': 'unknown'
             },
-
             'use': {
                 'type': 'objectid',
                 'data_relation': {
@@ -17,25 +16,20 @@ def get_schema():
                     'embeddable': True
                 },
             },
-
             'name': {
                 'type': 'string',
             },
-
             'definition_order': {
                 'type': 'integer',
                 'default': 100
             },
-
             'register': {
                 'type': 'boolean',
                 'default': True
             },
-
             'trigger_name': {
                 'type': 'string',
             },
-
             'code_src': {
                 'type': 'string',
             },

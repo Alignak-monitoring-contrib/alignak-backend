@@ -15,7 +15,6 @@ def get_schema():
                     }
                 },
             },
-
             'contactgroup_members': {
                 'type': 'list',
                 'schema': {
@@ -26,14 +25,12 @@ def get_schema():
                     }
                 },
             },
-
             'contactgroup_name': {
                 'type': 'string',
                 'required': True,
                 'unique': True,
                 'default': ''
             },
-
             'alias': {
                 'type': 'string',
                 'default': ''

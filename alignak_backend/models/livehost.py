@@ -19,6 +19,11 @@ def get_schema():
                 'default': 'UP',
                 'allowed': ["UP", "DOWN", "UNREACHABLE"]
             },
+            'state_type': {
+                'type': 'string',
+                'default': 'HARD',
+                'allowed': ["HARD", "SOFT"]
+            },
             'acknowledged': {
                 'type': 'boolean',
                 'default': False
@@ -27,19 +32,11 @@ def get_schema():
                 'type': 'integer',
                 'default': None
             },
-            'last_state_change': {
-                'type': 'integer',
-                'default': None
-            },
             'output': {
                 'type': 'string',
                 'default': None
             },
             'long_output': {
-                'type': 'string',
-                'default': None
-            },
-            'services': {
                 'type': 'string',
                 'default': None
             },

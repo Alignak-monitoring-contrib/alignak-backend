@@ -1,6 +1,6 @@
-.. _resource-livehost:
+.. _resource-logservice:
 
-livehost
+logservice
 ===================
 
 .. csv-table::
@@ -9,8 +9,8 @@ livehost
    "state_type", "string", "", "HARD", ""
    "long_output", "string", "", "None", ""
    "state", "string", "", "UP", ""
-   "**host_name**", "**objectid**", "**True**", "****", "**:ref:`host <resource-host>`**"
    "output", "string", "", "None", ""
+   "**service_description**", "**objectid**", "**True**", "****", "**:ref:`service <resource-service>`**"
    "acknowledged", "boolean", "", "False", ""
    "perf_data", "string", "", "None", ""
    "last_check", "integer", "", "None", ""

@@ -1,5 +1,5 @@
 def get_name():
-    return 'liveservice'
+    return 'logservice'
 
 
 def get_schema():
@@ -12,11 +12,10 @@ def get_schema():
                     'embeddable': True
                 },
                 'required': True,
-                'unique': True,
             },
             'state': {
                 'type': 'string',
-                'default': 'OK',
+                'default': 'UP',
                 'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN"]
             },
             'state_type': {

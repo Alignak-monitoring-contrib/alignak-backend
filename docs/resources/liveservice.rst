@@ -6,12 +6,11 @@ liveservice
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"
 
-   "perf_data", "string", "", "None", ""
+   "state_type", "string", "", "HARD", ""
    "long_output", "string", "", "None", ""
    "state", "string", "", "OK", ""
-   "description", "string", "", "None", ""
    "output", "string", "", "None", ""
    "**service_description**", "**objectid**", "**True**", "****", "**:ref:`service <resource-service>`**"
    "acknowledged", "boolean", "", "False", ""
-   "last_state_change", "integer", "", "None", ""
+   "perf_data", "string", "", "None", ""
    "last_check", "integer", "", "None", ""

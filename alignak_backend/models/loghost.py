@@ -1,23 +1,22 @@
 def get_name():
-    return 'liveservice'
+    return 'loghost'
 
 
 def get_schema():
     return {
         'schema': {
-            'service_description': {
+            'host_name': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'service',
+                    'resource': 'host',
                     'embeddable': True
                 },
                 'required': True,
-                'unique': True,
             },
             'state': {
                 'type': 'string',
-                'default': 'OK',
-                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN"]
+                'default': 'UP',
+                'allowed': ["UP", "DOWN", "UNREACHABLE"]
             },
             'state_type': {
                 'type': 'string',
