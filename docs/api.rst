@@ -240,4 +240,15 @@ List of retentions resources:
 
    resources/retention*
 
+Log part
+~~~~~~~~
+
+List of log resources:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   resources/log*
+
 
