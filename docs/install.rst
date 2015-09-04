@@ -3,6 +3,12 @@
 Installation
 ============
 
+Requirements
+------------
+
+Tu use this backend, you need first install and run MongoDB_
+
+.. _MongoDB: http://docs.mongodb.org/manual/
 
 Install with pip
 ----------------
@@ -71,3 +77,4 @@ URL of API REST
 Alignak-backend run on port 5000, so use::
 
     http://ip:5000/
+

@@ -15,6 +15,8 @@ Contents:
    architecture
    install
    api
+   tutorial
+   tools
 
 Indices and tables
 ==================

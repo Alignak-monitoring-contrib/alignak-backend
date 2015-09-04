@@ -3,7 +3,7 @@
 Architecture
 ============
 
-This is the architecture schema of the complete solution:
+This is the architecture schema about the backend behaviors:
 
 .. image:: _static/architecture_schema.png
 
