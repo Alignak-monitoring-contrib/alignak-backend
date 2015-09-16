@@ -1,10 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+""" This module is used to manage logs """
+
 import logging
 
-root = logging.getLogger()
+ROOT = logging.getLogger()
 logging.basicConfig()
 
 
 class Log(object):
+    """ Class to manage logs
+    """
 
     def __init__(self):
 

@@ -9,7 +9,7 @@ def register_models():
     DOMAIN = {}
     files = pkgutil.walk_packages(path=__path__, prefix=__name__ + '.')
     for importer, modname, ispkg in files:
-        mod = import_module(modname)
-
-        DOMAIN[mod.get_name()] = mod.get_schema()
+        if modname != "alignak_backend.models.common":
+            mod = import_module(modname)
+            DOMAIN[mod.get_name()] = mod.get_schema()
     return DOMAIN

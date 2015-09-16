@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+This module manage the backend, the configuration and start it
+"""
+
 import sys
 import os
 from docopt import docopt
@@ -17,19 +24,36 @@ from flask import current_app, g
 from alignak_backend.models import register_models
 from alignak_backend.log import Log
 
-_subcommands = OrderedDict()
+SUBCOMMANDS = OrderedDict()
 
 
 def register_command(description):
-    def decorate(f):
-        _subcommands[f.__name__] = (description, f)
-        return f
+    def decorate(name):
+        SUBCOMMANDS[name.__name__] = (description, name)
+        return name
     return decorate
 
 
 class Sha1Auth(BasicAuth):
+    """ Class manage basic auth with password hashed in SHA1
+    """
     def check_auth(self, username, password, allowed_roles, resource, method):
-        # use Eve's own db driver; no additional connections/resources are used
+        """
+        Check if account exist, password is ok and get roles for this user
+
+        :param username: username for auth
+        :type username: str
+        :param password: password not hashed
+        :type password: str
+        :param allowed_roles:
+        :type allowed_roles:
+        :param resource: name of the resource requested by user
+        :type resource: str
+        :param method: method used: GET | POST | PATCH | DELETE
+        :type method: str
+        :return: True if contact exist and password is ok or if no roles defined, otherwise False
+        :rtype: bool
+        """
         contacts = current_app.data.driver.db['contact']
         contact = contacts.find_one({'contact_name': username})
         if contact:
@@ -75,6 +99,17 @@ class Application(Log):
         )
 
     def pre_get(self, resource, request, lookup):
+        """
+        Hook before get data. Add filter depend on roles of user
+
+        :param resource: name of the resource requested by user
+        :type resource: str
+        :param request: request of the user
+        :type request: object
+        :param lookup: values to get (filter in the request)
+        :type lookup: dict
+        :return: None
+        """
         if not g.get('back_role_super_admin', False):
             # Only in case not super-admin
             if resource != 'contact':
@@ -111,15 +146,40 @@ class Application(Log):
                         lookup["_id"] = 0
 
     def pre_contact_post(self, items):
+        """
+        When add contact, hash the backend password of the user
+
+        :param items: list of items (list because can use bulk)
+        :type items: list
+        :return: None
+        """
         for index, item in enumerate(items):
             if 'back_password' in item:
                 items[index]['back_password'] = generate_password_hash(item['back_password'])
 
     def pre_contact_patch(self, updates, original):
+        """
+        When update contact, hash the backend password of the user if try to change it
+
+        :param updates: list of fields user try to update
+        :type updates: dict
+        :param original: list of original fields
+        :type original: dict
+        :return: None
+        """
         if 'back_password' in updates:
             updates['back_password'] = generate_password_hash(updates['back_password'])
 
     def initialize(self, debug=False, subcommand='run'):
+        """
+        Initialize the application, so start eve
+
+        :param debug: if True run in debug mode, otherwise in normal mode
+        :type debug: bool
+        :param subcommand:
+        :type subcommand: str
+        :return: None
+        """
         self.log.setLevel(debug)
         self.get_settings_from_ini()
         self.settings['DOMAIN'] = register_models()
@@ -164,9 +224,15 @@ class Application(Log):
                                  "back_role_admin": []})
 
     def get_settings_from_ini(self):
+        """
+        Get settings of application from config file
+
+        :return: None
+        """
         settings = {}
         settings_filenames = [
             '/etc/alignak_backend/settings.ini',
+            '/usr/local/etc/alignak_backend/settings.ini',
             os.path.abspath('./settings.ini')
         ]
         self.log.debug(settings_filenames)
@@ -181,9 +247,9 @@ class Application(Log):
             "Config file settings\n" +
             pformat(dict(config.items()))
         )
-        for k, v in config.items('DEFAULT'):
-            if not k.startswith('_'):
-                settings[k.upper()] = v
+        for key, value in config.items('DEFAULT'):
+            if not key.startswith('_'):
+                settings[key.upper()] = value
         self.log.debug((
             settings,
             self.settings
@@ -191,8 +257,13 @@ class Application(Log):
         self.settings.update(settings)
 
     def format_subcommands(self):
+        """
+
+        :return:
+        :rtype: str
+        """
         subcommands_text = []
-        for cmd, data in _subcommands.items():
+        for cmd, data in SUBCOMMANDS.items():
             subcommands_text.append(
                 "    {name:{width}}{desc}".format(
                     name=cmd, width=12, desc=data[0]
@@ -201,6 +272,11 @@ class Application(Log):
         return "\n".join(subcommands_text)
 
     def process_args(self):
+        """
+        Manage arguments used when run alignak_backend command
+
+        :return: None
+        """
         args = docopt(self.__doc__, help=True, options_first=True)
         # Get logging option earlier in the process
         rootlog = logging.getLogger()
@@ -213,7 +289,7 @@ class Application(Log):
         self.initialize(args['--debug'], args['<subcommand>'])
         self.log.debug("\n" + pformat(self.settings))
         try:
-            _subcommands[args['<subcommand>']][1](self)
+            SUBCOMMANDS[args['<subcommand>']][1](self)
         except:
             self.log.exception(
                 "Failed to load command '{cmd}'".format(
@@ -228,4 +304,9 @@ class Application(Log):
 
     @register_command("Start serving")
     def run(self):
+        """
+        Run (start) the application
+
+        :return: None
+        """
         self.app.run(use_reloader=False, threaded=True)
