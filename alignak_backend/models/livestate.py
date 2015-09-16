@@ -1,10 +1,19 @@
 def get_name():
-    return 'livehost'
+    return 'livestate'
 
 
 def get_schema():
     return {
         'schema': {
+            'service_description': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'service',
+                    'embeddable': True
+                },
+                'required': True,
+                'unique': True,
+            },
             'host_name': {
                 'type': 'objectid',
                 'data_relation': {
@@ -16,8 +25,8 @@ def get_schema():
             },
             'state': {
                 'type': 'string',
-                'default': 'UP',
-                'allowed': ["UP", "DOWN", "UNREACHABLE"]
+                'default': 'OK',
+                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
             },
             'state_type': {
                 'type': 'string',
