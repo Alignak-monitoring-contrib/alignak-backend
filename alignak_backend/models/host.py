@@ -4,6 +4,7 @@
 Resource information of host
 """
 
+
 def get_name():
     """
     Get name of this resource

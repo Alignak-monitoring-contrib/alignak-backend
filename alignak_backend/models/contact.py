@@ -4,6 +4,7 @@
 Resource information of contact
 """
 
+
 def get_name():
     """
     Get name of this resource

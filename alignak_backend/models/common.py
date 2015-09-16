@@ -4,6 +4,7 @@
 Common schema part for resource schema
 """
 
+
 def user_rights():
     return {
         '_users_read': {
@@ -48,6 +49,7 @@ def user_rights():
         },
     }
 
+
 def contacts():
     return {
         'contacts': {
@@ -61,6 +63,7 @@ def contacts():
             },
         }
     }
+
 
 def contact_groups():
     return {

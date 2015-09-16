@@ -4,6 +4,7 @@
 Resource information of contactrestrictrole
 """
 
+
 def get_name():
     """
     Get name of this resource

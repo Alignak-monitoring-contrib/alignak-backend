@@ -4,6 +4,7 @@
 Resource information of servicegroup
 """
 
+
 def get_name():
     """
     Get name of this resource

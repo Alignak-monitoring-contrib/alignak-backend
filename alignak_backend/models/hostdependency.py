@@ -4,6 +4,7 @@
 Resource information of hostdependency
 """
 
+
 def get_name():
     """
     Get name of this resource
