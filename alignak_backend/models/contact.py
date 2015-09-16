@@ -162,5 +162,19 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
+            'back_password': {
+                'type': 'string',
+                'default': ''
+            },
+            'back_role_super_admin': {
+                'type': 'boolean',
+                'default': False,
+                'required': True,
+            },
+            'back_role_admin': {
+                'type': 'list',
+                'default': [],
+                'required': True,
+            },
         }
     }

@@ -1,3 +1,5 @@
+from alignak_backend.app import Sha1Auth
+
 def get_name():
     return 'host'
 
@@ -372,6 +374,56 @@ def get_schema():
             'snapshot_interval': {
                 'type': 'integer',
                 'default': 5
-            }
+            },
+            '_brotherhood': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'brotherhood',
+                        'embeddable': True,
+                    }
+                },
+            },
+            '_users_read': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
+            },
+            '_users_create': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
+            },
+            '_users_update': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
+            },
+            '_users_delete': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
+            },
         }
     }

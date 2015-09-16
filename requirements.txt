@@ -2,4 +2,5 @@ Eve
 docopt
 jsonschema
 Eve-docs
-ConfigParser ; python_version < '3.4'
+bcrypt
+#ConfigParser ; python_version < '3.4'
