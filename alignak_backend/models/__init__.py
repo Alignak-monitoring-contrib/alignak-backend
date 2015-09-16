@@ -1,15 +1,22 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Load resources schema
+"""
 import pkgutil
 from importlib import import_module
-import logging
-
-log = logging.getLogger(__name__)
 
 
 def register_models():
-    DOMAIN = {}
+    """
+    Get all resources in files of this folder and return name + schema
+
+    :return:
+    """
+    domain = {}
     files = pkgutil.walk_packages(path=__path__, prefix=__name__ + '.')
-    for importer, modname, ispkg in files:
+    for _, modname, _ in files:
         if modname != "alignak_backend.models.common":
             mod = import_module(modname)
-            DOMAIN[mod.get_name()] = mod.get_schema()
-    return DOMAIN
+            domain[mod.get_name()] = mod.get_schema()
+    return domain

@@ -1,8 +1,26 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Resource information of servicedependency
+"""
+
 def get_name():
+    """
+    Get name of this resource
+
+    :return: name of this resource
+    :rtype: str
+    """
     return 'servicedependency'
 
 
 def get_schema():
+    """
+    Schema structure of this resource
+
+    :return: schema dictionnary
+    :rtype: dict
+    """
     return {
         'schema': {
             'imported_from': {
