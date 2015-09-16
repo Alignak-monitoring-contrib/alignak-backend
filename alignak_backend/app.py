@@ -79,6 +79,7 @@ class Application(Log):
         if not g.get('back_role_super_admin', False):
             # Only in case not super-admin
             if resource != 'contact':
+                admin = g.get('back_role_admin', [])
                 if admin != []:
                     if not "_brotherhood" in lookup:
                         lookup["_brotherhood"] = {"$in": admin}

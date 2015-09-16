@@ -12,7 +12,7 @@ def get_schema():
                     'embeddable': True
                 },
                 'required': True,
-                'unique': True,
+                'nullable': True
             },
             'host_name': {
                 'type': 'objectid',
@@ -21,7 +21,7 @@ def get_schema():
                     'embeddable': True
                 },
                 'required': True,
-                'unique': True,
+                'nullable': True
             },
             'state': {
                 'type': 'string',
