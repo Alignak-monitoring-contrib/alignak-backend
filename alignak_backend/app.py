@@ -3,14 +3,14 @@ import os
 from docopt import docopt
 from collections import OrderedDict
 import logging
-from pprint import pprint, pformat  # noqa
 from textwrap import dedent
 from configparser import ConfigParser
+from pprint import pformat
 
 from eve import Eve
 from eve.auth import BasicAuth
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask.ext.bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap
 from eve_docs import eve_docs
 from flask import current_app, g
 

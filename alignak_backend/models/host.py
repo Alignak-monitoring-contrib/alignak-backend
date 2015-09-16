@@ -1,6 +1,3 @@
-from alignak_backend.app import Sha1Auth
-
-
 def get_name():
     return 'host'
 
@@ -135,7 +132,7 @@ def get_schema():
                 'type': 'integer',
                 'default': 25
             },
-            'low_flap_threshold': {
+            'high_flap_threshold': {
                 'type': 'integer',
                 'default': 50
             },

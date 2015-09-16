@@ -107,8 +107,8 @@ def check_mapping(items, mapping):
 
 alconfig = Config()
 
-file_list = ('cfg/hosts.cfg', 'cfg/commands.cfg', 'cfg/contacts.cfg', 'cfg/hostgroups.cfg',
-             'cfg/services.cfg', 'cfg/servicetemplates.cfg', 'cfg/timeperiods.cfg')
+file_list = ['cfg/hosts.cfg', 'cfg/commands.cfg', 'cfg/contacts.cfg', 'cfg/hostgroups.cfg',
+             'cfg/services.cfg', 'cfg/servicetemplates.cfg', 'cfg/timeperiods.cfg']
 
 buf = alconfig.read_config(file_list)
 conf = alconfig.read_config_buf(buf)

@@ -2,4 +2,6 @@ Eve
 docopt
 jsonschema
 Eve-docs
+flask-bootstrap
+pprint
 #ConfigParser ; python_version < '3.4'
