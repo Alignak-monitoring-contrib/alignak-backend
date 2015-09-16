@@ -1,6 +1,5 @@
 import sys
 import os
-import bcrypt
 from docopt import docopt
 from collections import OrderedDict
 import logging
