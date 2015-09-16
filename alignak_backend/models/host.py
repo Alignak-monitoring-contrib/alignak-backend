@@ -1,5 +1,6 @@
 from alignak_backend.app import Sha1Auth
 
+
 def get_name():
     return 'host'
 

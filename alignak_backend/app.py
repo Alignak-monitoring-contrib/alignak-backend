@@ -33,10 +33,6 @@ class Sha1Auth(BasicAuth):
         contacts = current_app.data.driver.db['contact']
         contact = contacts.find_one({'contact_name': username})
         if contact:
-            #if not contact['back_role_super_admin']:
-            #    if contact['back_role_admin'] == [] and contact['back_role_restricted'] == []:
-                    # no rights
-            #        return False
             g.back_role_super_admin = contact['back_role_super_admin']
             g.back_role_admin = contact['back_role_admin']
             # get restricted
@@ -47,8 +43,11 @@ class Sha1Auth(BasicAuth):
                 if not role['brotherhood'] in g.back_role_restricted:
                     g.back_role_restricted[str(role['brotherhood'])] = []
                 g.back_role_restricted[str(role['brotherhood'])].extend(role['resource'])
-
             g.users_id = contact['_id']
+            if not contact['back_role_super_admin']:
+                if contact['back_role_admin'] == [] and g.back_role_restricted == {}:
+                    # no rights
+                    return False
         return contact and check_password_hash(contact['back_password'], password)
 
 
@@ -81,14 +80,14 @@ class Application(Log):
             if resource != 'contact':
                 admin = g.get('back_role_admin', [])
                 if admin != []:
-                    if not "_brotherhood" in lookup:
+                    if "_brotherhood" not in lookup:
                         lookup["_brotherhood"] = {"$in": admin}
                     else:
                         if not lookup["_brotherhood"] in admin:
                             lookup["_id"] = 0
                 else:
                     restrict = g.get('back_role_restricted', {})
-                    if not "_brotherhood" in lookup:
+                    if "_brotherhood" not in lookup:
                         broth = []
                         for brotherhood, resources in restrict.items():
                             if resource in resources:
