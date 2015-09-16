@@ -28,7 +28,18 @@ SUBCOMMANDS = OrderedDict()
 
 
 def register_command(description):
+    """
+    Decorator
+
+    :param description:
+    :return:
+    """
     def decorate(name):
+        """
+
+        :param name:
+        :return:
+        """
         SUBCOMMANDS[name.__name__] = (description, name)
         return name
     return decorate
@@ -37,7 +48,7 @@ def register_command(description):
 class Sha1Auth(BasicAuth):
     """ Class manage basic auth with password hashed in SHA1
     """
-    def check_auth(self, username, password, allowed_roles, resource, method):
+    def check_auth(self, *args):
         """
         Check if account exist, password is ok and get roles for this user
 
@@ -54,6 +65,12 @@ class Sha1Auth(BasicAuth):
         :return: True if contact exist and password is ok or if no roles defined, otherwise False
         :rtype: bool
         """
+        username = args[0]
+        password = args[1]
+        # allowed_roles = args[2]
+        # resource = args[3]
+        # method = args[4]
+
         contacts = current_app.data.driver.db['contact']
         contact = contacts.find_one({'contact_name': username})
         if contact:
@@ -98,7 +115,8 @@ class Application(Log):
             subcommands=self.format_subcommands()
         )
 
-    def pre_get(self, resource, request, lookup):
+    @staticmethod
+    def pre_get(resource, request, lookup):
         """
         Hook before get data. Add filter depend on roles of user
 
@@ -145,8 +163,10 @@ class Application(Log):
                                 return
                         lookup["_id"] = 0
 
-    def pre_contact_post(self, items):
+    @staticmethod
+    def pre_contact_post(items):
         """
+        Hook before insert.
         When add contact, hash the backend password of the user
 
         :param items: list of items (list because can use bulk)
@@ -157,8 +177,10 @@ class Application(Log):
             if 'back_password' in item:
                 items[index]['back_password'] = generate_password_hash(item['back_password'])
 
-    def pre_contact_patch(self, updates, original):
+    @staticmethod
+    def pre_contact_patch(updates, original):
         """
+        Hook before update.
         When update contact, hash the backend password of the user if try to change it
 
         :param updates: list of fields user try to update
@@ -296,11 +318,6 @@ class Application(Log):
                     cmd=args['<subcommand>']
                 )
             )
-
-    # @register_command("Populate database with random data")
-    # def populate(self):
-    #     self.install()
-    #     alignak_backend.models.assets.populate_db(self.db)
 
     @register_command("Start serving")
     def run(self):
