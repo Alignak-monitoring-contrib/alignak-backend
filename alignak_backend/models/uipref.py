@@ -32,6 +32,7 @@ def get_schema():
                     'resource': 'contact',
                     'embeddable': True
                 },
+                'required': True,
             },
         }
     }
