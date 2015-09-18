@@ -17,6 +17,41 @@ All resources available in backend is available on root endpoint of backend::
     http://127.0.0.1:5000
 
 
+Authentication in the backend
+-----------------------------
+
+The is an authentication system in the backend.
+
+There are user accounts defined with *username*, *password* and *token*
+
+To access to backend enpoints, you need the *token* associated to your account.
+
+Get the token
+~~~~~~~~~~~~~
+
+Send POST method to *http://127.0.0.1:5000/login* with fields:
+
+* *username*: xxx
+* *password*: xxx
+
+It will get for you the token.
+
+Generate new token (so revoke old)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to generate a new token (mean revoke old token), add this field to the request made
+when you get the token:
+
+* *action*: *generate*
+
+
+How to use the token
+~~~~~~~~~~~~~~~~~~~~
+
+For all method you request to endpoints, you need to pass the token.
+Do pass this token, you can use *basic auth*. Pass token as username and set password empty.
+
+
 GET method (get)
 ----------------
 
