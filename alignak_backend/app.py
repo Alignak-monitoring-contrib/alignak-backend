@@ -255,9 +255,12 @@ class Application(Log):
                 contact = contacts.find_one({'contact_name': post_data['username']})
                 if contact:
                     if check_password_hash(contact['back_password'], post_data['password']):
-                        token = self.generate_token()
-                        contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
-                        return jsonify({'token': token})
+                        if 'action' in post_data:
+                            if post_data['action'] == 'generate':
+                                token = self.generate_token()
+                                contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                                return jsonify({'token': token})
+                        return jsonify({'token': contact['token']})
                 abort(401, description='Please provide proper credentials')
 
         @self.app.route("/logout", methods=['POST'])
