@@ -347,7 +347,7 @@ def get_schema():
             'escalations': {
                 'type': 'list',
                 '_title': 'Escalations', 
-                'default': []
+                'default': [],
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
