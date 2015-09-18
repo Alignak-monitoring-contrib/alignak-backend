@@ -13,13 +13,15 @@ import logging
 from textwrap import dedent
 from configparser import ConfigParser
 from pprint import pformat
+import time
+import uuid
 
 from eve import Eve
-from eve.auth import BasicAuth
+from eve.auth import TokenAuth
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_bootstrap import Bootstrap
 from eve_docs import eve_docs
-from flask import current_app, g
+from flask import current_app, g, request, abort, jsonify
 
 from alignak_backend.models import register_models
 from alignak_backend.log import Log
@@ -45,17 +47,13 @@ def register_command(description):
     return decorate
 
 
-class Sha1Auth(BasicAuth):
-    """ Class manage basic auth with password hashed in SHA1
-    """
-    def check_auth(self, *args):
+class TokenAuth(TokenAuth):
+    def check_auth(self, token, allowed_roles, resource, method):
         """
-        Check if account exist, password is ok and get roles for this user
+        Check if account exist and get roles for this user
 
-        :param username: username for auth
+        :param token: token for auth
         :type username: str
-        :param password: password not hashed
-        :type password: str
         :param allowed_roles:
         :type allowed_roles:
         :param resource: name of the resource requested by user
@@ -65,14 +63,9 @@ class Sha1Auth(BasicAuth):
         :return: True if contact exist and password is ok or if no roles defined, otherwise False
         :rtype: bool
         """
-        username = args[0]
-        password = args[1]
-        # allowed_roles = args[2]
-        # resource = args[3]
-        # method = args[4]
 
         contacts = current_app.data.driver.db['contact']
-        contact = contacts.find_one({'contact_name': username})
+        contact = contacts.find_one({'token': token})
         if contact:
             g.back_role_super_admin = contact['back_role_super_admin']
             g.back_role_admin = contact['back_role_admin']
@@ -89,7 +82,7 @@ class Sha1Auth(BasicAuth):
                 if contact['back_role_admin'] == [] and g.back_role_restricted == {}:
                     # no rights
                     return False
-        return contact and check_password_hash(contact['back_password'], password)
+        return contact
 
 
 class Application(Log):
@@ -192,6 +185,11 @@ class Application(Log):
         if 'back_password' in updates:
             updates['back_password'] = generate_password_hash(updates['back_password'])
 
+    @staticmethod
+    def generate_token():
+        t = int( time.time() * 1000 )
+        return str(t)+'-'+str(uuid.uuid4())
+
     def initialize(self, debug=False, subcommand='run'):
         """
         Initialize the application, so start eve
@@ -222,7 +220,7 @@ class Application(Log):
         self.settings['MONGO_DBNAME'] = 'alignak-backend'
         self.app = Eve(
             settings=self.settings,
-            auth=Sha1Auth
+            auth=TokenAuth
         )
         # hooks
         self.app.on_pre_GET += self.pre_get
@@ -245,12 +243,34 @@ class Application(Log):
                                  "back_role_super_admin": True,
                                  "back_role_admin": []})
 
+        @self.app.route("/login", methods=['POST'])
+        def login_app():
+            post_data = request.get_json()
+            if 'username' not in post_data or 'password' not in post_data:
+                abort(401, description='Please provide proper credentials')
+            elif post_data['username'] =='' or post_data['password'] == '':
+                abort(401, description='Please provide proper credentials')
+            else:
+                contacts = self.app.data.driver.db['contact']
+                contact = contacts.find_one({'contact_name': post_data['username']})
+                if contact:
+                    if check_password_hash(contact['back_password'], post_data['password']):
+                        token = self.generate_token()
+                        contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                        return jsonify({'token': token})
+                abort(401, description='Please provide proper credentials')
+
+        @self.app.route("/logout", methods=['POST'])
+        def logout_app():
+            return 'ok'
+
     def get_settings_from_ini(self):
         """
         Get settings of application from config file
 
         :return: None
         """
+        return
         settings = {}
         settings_filenames = [
             '/etc/alignak_backend/settings.ini',

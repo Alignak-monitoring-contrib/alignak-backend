@@ -185,6 +185,10 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
+            'token': {
+                'type': 'string',
+                'default': ''
+            },
             'back_role_super_admin': {
                 'type': 'boolean',
                 'default': False,
