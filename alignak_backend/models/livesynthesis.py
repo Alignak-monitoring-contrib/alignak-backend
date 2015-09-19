@@ -32,47 +32,75 @@ def get_schema():
     """
     return {
         'schema': {
-            'state_ok': {
+            'hosts_total': {
                 'type': 'int',
                 'default': 0,
             },
-            'state_warning': {
+            'hosts_up': {
                 'type': 'int',
                 'default': 0,
             },
-            'state_critical': {
+            'hosts_down': {
                 'type': 'int',
                 'default': 0,
             },
-            'state_unknown': {
+            'hosts_unreachable': {
                 'type': 'int',
                 'default': 0,
             },
-            'state_up': {
+            'hosts_unknown': {
                 'type': 'int',
                 'default': 0,
             },
-            'state_down': {
-                'type': 'int',
-                'default': 0,
-            },
-            'state_unreachable': {
-                'type': 'int',
-                'default': 0,
-            },
-            'acknowledged': {
+            'hosts_acknowledged': {
                 'type': 'int',
                 'default': 0
             },
-            'in_downtime': {
+            'hosts_in_downtime': {
                 'type': 'int',
                 'default': 0
             },
-            'flapping': {
+            'hosts_flapping': {
                 'type': 'int',
                 'default': 0
             },
-            'business_impact': {
+            'hosts_business_impact': {
+                'type': 'int',
+                'default': 0
+            },
+            'services_total': {
+                'type': 'int',
+                'default': 0,
+            },
+            'services_ok': {
+                'type': 'int',
+                'default': 0,
+            },
+            'services_warning': {
+                'type': 'int',
+                'default': 0,
+            },
+            'services_critical': {
+                'type': 'int',
+                'default': 0,
+            },
+            'services_unknown': {
+                'type': 'int',
+                'default': 0,
+            },
+            'services_acknowledged': {
+                'type': 'int',
+                'default': 0
+            },
+            'services_in_downtime': {
+                'type': 'int',
+                'default': 0
+            },
+            'services_flapping': {
+                'type': 'int',
+                'default': 0
+            },
+            'services_business_impact': {
                 'type': 'int',
                 'default': 0
             },
