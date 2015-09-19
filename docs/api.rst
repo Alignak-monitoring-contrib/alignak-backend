@@ -34,7 +34,17 @@ Send POST method to *http://127.0.0.1:5000/login* with fields:
 * *username*: xxx
 * *password*: xxx
 
+Example:
+
+    curl -H "Content-Type: application/json" -X POST -d '{"username":"admin","password":"admin"}' http://127.0.0.1:5000/login
+
 It will get for you the token.
+
+Example of answer:
+
+    {
+        "token": "1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c"
+    }
 
 Generate new token (so revoke old)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,6 +53,10 @@ If you want to generate a new token (mean revoke old token), add this field to t
 when you get the token:
 
 * *action*: *generate*
+
+Example:
+
+    curl -H "Content-Type: application/json" -X POST -d '{"username":"admin","password":"admin","action":"generate"}' http://127.0.0.1:5000/login
 
 
 How to use the token
