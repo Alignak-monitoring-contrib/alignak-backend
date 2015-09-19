@@ -187,7 +187,7 @@ class Application(Log):
 
     @staticmethod
     def generate_token():
-        t = int( time.time() * 1000 )
+        t = int(time.time() * 1000)
         return str(t)+'-'+str(uuid.uuid4())
 
     def initialize(self, debug=False, subcommand='run'):
@@ -248,7 +248,7 @@ class Application(Log):
             post_data = request.get_json()
             if 'username' not in post_data or 'password' not in post_data:
                 abort(401, description='Please provide proper credentials')
-            elif post_data['username'] =='' or post_data['password'] == '':
+            elif post_data['username'] == '' or post_data['password'] == '':
                 abort(401, description='Please provide proper credentials')
             else:
                 contacts = self.app.data.driver.db['contact']
