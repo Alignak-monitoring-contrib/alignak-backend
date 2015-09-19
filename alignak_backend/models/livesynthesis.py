@@ -12,7 +12,7 @@ def get_name():
     :return: name of this resource
     :rtype: str
     """
-    return 'synthesis'
+    return 'livesynthesis'
 
 
 def get_schema():
@@ -32,23 +32,33 @@ def get_schema():
     """
     return {
         'schema': {
-            'element_type': {
-                'type': 'string',
-                'default': 'host',
-                'allowed': ["host", "service"]
-            },
-            'state': {
-                'type': 'string',
-                'default': 'OK',
-                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
-            },
-            'counter': {
+            'state_ok': {
                 'type': 'int',
-                'default': 0
+                'default': 0,
             },
-            'percentage': {
-                'type': 'float',
-                'default': 0.0
+            'state_warning': {
+                'type': 'int',
+                'default': 0,
+            },
+            'state_critical': {
+                'type': 'int',
+                'default': 0,
+            },
+            'state_unknown': {
+                'type': 'int',
+                'default': 0,
+            },
+            'state_up': {
+                'type': 'int',
+                'default': 0,
+            },
+            'state_down': {
+                'type': 'int',
+                'default': 0,
+            },
+            'state_unreachable': {
+                'type': 'int',
+                'default': 0,
             },
             'acknowledged': {
                 'type': 'int',
@@ -67,13 +77,10 @@ def get_schema():
                 'default': 0
             },
             '_brotherhood': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'brotherhood',
-                        'embeddable': True,
-                    }
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'brotherhood',
+                    'embeddable': True,
                 },
             },
             '_users_read': {
