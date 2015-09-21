@@ -20,6 +20,8 @@
 # along with Alignak.  If not, see <http://www.gnu.org/licenses/>.
 
 import requests
+from requests.auth import HTTPBasicAuth
+import json
 import ujson
 
 from alignak.objects.config import Config
@@ -35,15 +37,20 @@ from alignak_backend.models.timeperiod import get_schema as timeperiod_get_schem
 cfg_path = 'cfg/'
 
 # Define here the url of the backend
-backend_url = 'http://10.0.20.11:5000/'
+backend_url = 'http://localhost:5000/'
 
 # Delete all objects in backend ?
 destroy_backend_data = True
 
+username = 'admin'
+password = 'admin'
+token = None
+auth = None
+
 # Don't touch after this line
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-def method_post(endpoint, data_json, headers):
+def method_post(endpoint, data_json, headers, auth):
     """
     Create a new item
 
@@ -56,14 +63,20 @@ def method_post(endpoint, data_json, headers):
     :return: response (creation information)
     :rtype: dict
     """
-    response = requests.post(endpoint, data_json, headers=headers)
-    return response.json()
+    print data_json
+    response = requests.post(endpoint, data_json, headers=headers, auth=auth)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print "%s: %s for %s"  % (response.status_code, response.content, endpoint)
+        return response.json()
 
-def method_delete(endpoint):
-    response = requests.delete(endpoint)
+def method_delete(endpoint, auth):
+    response = requests.delete(endpoint, auth=auth)
+    print "delete: %d: %s" % (response.status_code, response.text)
 
-def method_patch(endpoint, data_json, headers):
-    response = requests.patch(endpoint, data_json, headers=headers)
+def method_patch(endpoint, data_json, headers, auth):
+    response = requests.patch(endpoint, data_json, headers=headers, auth=auth)
     if response.status_code == 200:
         return response.json()
     elif response.status_code == 412:
@@ -113,14 +126,39 @@ file_list = ['cfg/hosts.cfg', 'cfg/commands.cfg', 'cfg/contacts.cfg', 'cfg/hostg
 buf = alconfig.read_config(file_list)
 conf = alconfig.read_config_buf(buf)
 
+
+print "~~~~~~~~~~~~~~~~~~~~-- First authentication to delete previous data ~~~~~~~~~~~~~~~~~~~~~~~~"
+# Backend authentication with token generation
+headers = {'Content-Type': 'application/json'}
+payload = {'username': username, 'password': password, 'action': 'generate'}
+response = requests.post(
+    ''.join([backend_url, 'login']),
+    json=payload,
+    headers=headers
+)
+response.raise_for_status()
+resp = response.json()
+token = resp['token']
+
+# Create authentication object and get root endpoint to confirm ...
+auth = HTTPBasicAuth(token, '')
+response = requests.get(
+    ''.join([backend_url, '']),
+    auth=auth
+)
+response.raise_for_status()
+resp = response.json()
+print "~~~~~~~~~~~~~~~~~~~~-- Authenticated -~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+
 # Destroy data in backend if defined
 if destroy_backend_data:
-    method_delete(''.join([backend_url, 'command']))
-    method_delete(''.join([backend_url, 'host']))
-    method_delete(''.join([backend_url, 'hostgroup']))
-    method_delete(''.join([backend_url, 'service']))
-    method_delete(''.join([backend_url, 'contact']))
-    method_delete(''.join([backend_url, 'timeperiod']))
+    method_delete(''.join([backend_url, 'command']), auth)
+    method_delete(''.join([backend_url, 'host']), auth)
+    method_delete(''.join([backend_url, 'hostgroup']), auth)
+    method_delete(''.join([backend_url, 'service']), auth)
+    method_delete(''.join([backend_url, 'timeperiod']), auth)
+    # method_delete(''.join([backend_url, 'contact']), auth)
 
 
 headers = {'content-type': 'application/json'}
@@ -134,14 +172,41 @@ timeperiods = {}
 services = {}
 servicegroups = {}
 
+print "~~~~~~~~~~~~~~~~~~~~-- Second authentication to store new data ~~~~~~~~~~~~~~~~~~~~~~~------"
+# Backend authentication with token generation
+headers = {'Content-Type': 'application/json'}
+payload = {'username': username, 'password': password, 'action': 'generate'}
+response = requests.post(
+    ''.join([backend_url, 'login']),
+    json=payload,
+    headers=headers
+)
+response.raise_for_status()
+resp = response.json()
+token = resp['token']
+
+# Create authentication object and get root endpoint to confirm ...
+auth = HTTPBasicAuth(token, '')
+response = requests.get(
+    ''.join([backend_url, '']),
+    auth=auth
+)
+response.raise_for_status()
+resp = response.json()
+print "~~~~~~~~~~~~~~~~~~~~-- Authenticated -~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+
 print "~~~~~~~~~~~~~~~~~~~~ Add commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 for command in conf['command']:
     if 'imported_from' in command:
         del command['imported_from']
     for p in command:
         command[p] = command[p][0]
-    response = method_post(''.join([backend_url, 'command']), ujson.dumps(command), headers)
-    commands[command['command_name']] = response['_id']
+    response = method_post(''.join([backend_url, 'command']), ujson.dumps(command), headers, auth)
+    if '_error' in response and '_issues' in response:
+        print "ERROR: %s" % response['_issues']
+    else:
+        commands[command['command_name']] = response['_id']
 
 print "~~~~~~~~~~~~~~~~~~~~ Add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 headers = {'content-type': 'application/json'}
@@ -166,11 +231,14 @@ for timeperiod in conf['timeperiod']:
             prop_to_del.append(prop)
     for prop in prop_to_del:
         del timeperiod[prop]
-    response = method_post(''.join([backend_url, 'timeperiod']), ujson.dumps(timeperiod), headers)
-    timeperiods[timeperiod['timeperiod_name']] = response['_id']
-    if to_update:
-        to_update['_etag'] = response['_etag']
-        timeperiod_update[response['_id']] = to_update
+    response = method_post(''.join([backend_url, 'timeperiod']), ujson.dumps(timeperiod), headers, auth)
+    if '_error' in response and '_issues' in response:
+        print "ERROR: %s" % response['_issues']
+    else:
+        timeperiods[timeperiod['timeperiod_name']] = response['_id']
+        if to_update:
+            to_update['_etag'] = response['_etag']
+            timeperiod_update[response['_id']] = to_update
 
 print "~~~~~~~~~~~~~~~~~~~~ update 'use' in timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 id_to_del = []
@@ -211,11 +279,14 @@ for contactgroup in conf['contactgroup']:
         else:
             to_update['contactgroup_members'] = contactgroup['contactgroup_members']
             del contactgroup['contactgroup_members']
-    response = method_post(''.join([backend_url, 'contactgroup']), ujson.dumps(contactgroup), headers)
-    contactgroups[contactgroup['contactgroup_name']] = response['_id']
-    if to_update:
-        to_update['_etag'] = response['_etag']
-        contactgroup_update[response['_id']] = to_update
+    response = method_post(''.join([backend_url, 'contactgroup']), ujson.dumps(contactgroup), headers, auth)
+    if '_error' in response and '_issues' in response:
+        print "ERROR: %s" % response['_issues']
+    else:
+        contactgroups[contactgroup['contactgroup_name']] = response['_id']
+        if to_update:
+            to_update['_etag'] = response['_etag']
+            contactgroup_update[response['_id']] = to_update
 
 print "~~~~~~~~~~~~~~~~~~~~ update 'contactgroup_members' in contactgroups ~~~~~~~~~~~~~~~~~~~~"
 id_to_del = []
@@ -241,6 +312,10 @@ contact_update = {}
 for contact in conf['contact']:
     to_update = {}
     contact = update_types(contact, schema['schema'])
+    # New fields ...
+    contact['back_role_super_admin'] = False
+    contact['back_role_admin'] = []
+    
     if 'imported_from' in contact:
         del contact['imported_from']
     if 'use' in contact:
@@ -270,11 +345,15 @@ for contact in conf['contact']:
         else:
             to_update['service_notification_commands'] = contact['service_notification_commands']
             del contact['service_notification_commands']
-    response = method_post(''.join([backend_url, 'contact']), ujson.dumps(contact), headers)
-    contacts[contact['contact_name']] = response['_id']
-    if to_update:
-        to_update['_etag'] = response['_etag']
-        contact_update[response['_id']] = to_update
+    response = method_post(''.join([backend_url, 'contact']), ujson.dumps(contact), headers, auth)
+    if '_error' in response and '_issues' in response:
+        print "ERROR: %s" % response['_issues']
+        print "Data: %s" % ujson.dumps(contact)
+    else:
+        contacts[contact['contact_name']] = response['_id']
+        if to_update:
+            to_update['_etag'] = response['_etag']
+            contact_update[response['_id']] = to_update
 
 print "~~~~~~~~~~~~~~~~~~~~ update 'use' in contacts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 id_to_del = []
@@ -315,16 +394,25 @@ for hostgroup in conf['hostgroup']:
         else:
             to_update['hostgroup_members'] = hostgroup['hostgroup_members']
             del hostgroup['hostgroup_members']
-    response = method_post(''.join([backend_url, 'hostgroup']), ujson.dumps(hostgroup), headers)
-    hostgroups[hostgroup['hostgroup_name']] = response['_id']
-    if to_update:
-        to_update['_etag'] = response['_etag']
-        hostgroup_update[response['_id']] = to_update
+    response = method_post(''.join([backend_url, 'hostgroup']), ujson.dumps(hostgroup), headers, auth)
+    if '_error' in response and '_issues' in response:
+        print "ERROR: %s" % response['_issues']
+    else:
+        hostgroups[hostgroup['hostgroup_name']] = response['_id']
+        if to_update:
+            to_update['_etag'] = response['_etag']
+            hostgroup_update[response['_id']] = to_update
 
 print "~~~~~~~~~~~~~~~~~~~~ update 'hostgroup_members' in hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~"
 id_to_del = []
 for id in hostgroup_update:
     new_list = []
+    if id not in hostgroup_update:
+        print "ERROR: hostgroup id not in hostgroup_update", id
+        continue
+    if 'hostgroup_members' not in hostgroup_update[id]:
+        print "ERROR: hostgroup id not in hostgroup_update", id
+        continue
     for members in hostgroup_update[id]['hostgroup_members']:
         new_list.append(hostgroups[members])
     data = {'hostgroup_members': new_list}
@@ -377,11 +465,14 @@ for host in conf['host']:
                 to_update[relation] = host[relation]
                 del host[relation]
 
-    response = method_post(''.join([backend_url, 'host']), ujson.dumps(host), headers)
-    hosts[host['host_name']] = response['_id']
-    if to_update:
-        to_update['_etag'] = response['_etag']
-        host_update[response['_id']] = to_update
+    response = method_post(''.join([backend_url, 'host']), ujson.dumps(host), headers, auth)
+    if '_error' in response and '_issues' in response:
+        print "ERROR: %s" % response['_issues']
+    else:
+        hosts[host['host_name']] = response['_id']
+        if to_update:
+            to_update['_etag'] = response['_etag']
+            host_update[response['_id']] = to_update
 
 # Update use of host
 print "~~~~~~~~~~~~~~~~~~~~ update 'use' in hosts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -469,7 +560,7 @@ for servicegroup in conf['servicegroup']:
         else:
             to_update['servicegroup_members'] = servicegroup['servicegroup_members']
             del servicegroup['servicegroup_members']
-    response = method_post(''.join([backend_url, 'servicegroup']), ujson.dumps(servicegroup), headers)
+    response = method_post(''.join([backend_url, 'servicegroup']), ujson.dumps(servicegroup), headers, auth)
     servicegroups[servicegroup['servicegroup_name']] = response['_id']
     if to_update:
         to_update['_etag'] = response['_etag']
@@ -539,14 +630,17 @@ for service in conf['service']:
             else:
                 to_update[relation] = service[relation]
                 del service[relation]
-    response = method_post(''.join([backend_url, 'service']), ujson.dumps(service), headers)
-    if 'service_description' in service:
-        services[service['service_description']] = response['_id']
+    response = method_post(''.join([backend_url, 'service']), ujson.dumps(service), headers, auth)
+    if '_error' in response and '_issues' in response:
+        print "ERROR: %s" % response['_issues']
     else:
-        services[service['name']] = response['_id']
-    if to_update:
-        to_update['_etag'] = response['_etag']
-        service_update[response['_id']] = to_update
+        if 'service_description' in service:
+            services[service['service_description']] = response['_id']
+        else:
+            services[service['name']] = response['_id']
+        if to_update:
+            to_update['_etag'] = response['_etag']
+            service_update[response['_id']] = to_update
 
 # Update use of service
 print "~~~~~~~~~~~~~~~~~~~~ update 'use' in services ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
