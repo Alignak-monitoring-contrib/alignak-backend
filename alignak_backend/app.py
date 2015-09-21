@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-This module manage the backend, the configuration and start it
+This module manages the backend, its configuration and starts the backend
 """
 
 import sys

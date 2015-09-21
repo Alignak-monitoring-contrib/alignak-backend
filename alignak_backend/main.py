@@ -9,7 +9,7 @@ from alignak_backend.app import Application
 
 def main():
     """
-    Main function where run app
+    Main function where application runs
 
     :return: None
     """

@@ -248,7 +248,7 @@ for id in timeperiod_update:
             data = {'use': timeperiods[timeperiod_update[id]['use']]}
             headers['If-Match'] = timeperiod_update[id]['_etag']
             response = method_patch(''.join([backend_url, 'timeperiod', '/', id]),
-                         ujson.dumps(data), headers)
+                         ujson.dumps(data), headers, auth)
             timeperiod_update[id]['_etag'] = response['_etag']
             del timeperiod_update[id]['use']
         else:
@@ -297,7 +297,7 @@ for id in contactgroup_update:
     data = {'contactgroup_members': new_list}
     headers['If-Match'] = contactgroup_update[id]['_etag']
     response = method_patch(''.join([backend_url, 'contactgroup', '/', id]),
-                 ujson.dumps(data), headers)
+                 ujson.dumps(data), headers, auth)
     contactgroup_update[id]['_etag'] = response['_etag']
     if not 'members' in contactgroup_update[id]:
         id_to_del.append(id)
@@ -363,7 +363,7 @@ for id in contact_update:
             data = {'use': contacts[contact_update[id]['use']]}
             headers['If-Match'] = contact_update[id]['_etag']
             response = method_patch(''.join([backend_url, 'contact', '/', id]),
-                         ujson.dumps(data), headers)
+                         ujson.dumps(data), headers, auth)
             contact_update[id]['_etag'] = response['_etag']
             del contact_update[id]['use']
         else:
@@ -418,7 +418,7 @@ for id in hostgroup_update:
     data = {'hostgroup_members': new_list}
     headers['If-Match'] = hostgroup_update[id]['_etag']
     response = method_patch(''.join([backend_url, 'hostgroup', '/', id]),
-                 ujson.dumps(data), headers)
+                 ujson.dumps(data), headers, auth)
     hostgroup_update[id]['_etag'] = response['_etag']
     if not 'members' in hostgroup_update[id]:
         id_to_del.append(id)
@@ -483,7 +483,7 @@ for id in host_update:
             data = {'use': hosts[host_update[id]['use']]}
             headers['If-Match'] = host_update[id]['_etag']
             response = method_patch(''.join([backend_url, 'host', '/', id]),
-                         ujson.dumps(data), headers)
+                         ujson.dumps(data), headers, auth)
             host_update[id]['_etag'] = response['_etag']
             del host_update[id]['use']
         else:
@@ -516,7 +516,7 @@ for relation in relations:
             data = {relation: new_list}
             headers['If-Match'] = host_update[id]['_etag']
             response = method_patch(''.join([backend_url, 'host', '/', id]),
-                         ujson.dumps(data), headers)
+                         ujson.dumps(data), headers, auth)
             host_update[id]['_etag'] = response['_etag']
             del host_update[id][relation]
             if len(host_update[id]) == 1:
@@ -529,11 +529,12 @@ id_to_del = []
 for id in hostgroup_update:
     new_list = []
     for members in hostgroup_update[id]['members']:
-        new_list.append(hosts[members])
+        if members in host:
+            new_list.append(hosts[members])
     data = {'members': new_list}
     headers['If-Match'] = hostgroup_update[id]['_etag']
     response = method_patch(''.join([backend_url, 'hostgroup', '/', id]),
-                 ujson.dumps(data), headers)
+                 ujson.dumps(data), headers, auth)
     hostgroup_update[id]['_etag'] = response['_etag']
     if len(hostgroup_update[id]) == 1:
         id_to_del.append(id)
@@ -575,7 +576,7 @@ for id in servicegroup_update:
     data = {'servicegroup_members': new_list}
     headers['If-Match'] = servicegroup_update[id]['_etag']
     response = method_patch(''.join([backend_url, 'servicegroup', '/', id]),
-                 ujson.dumps(data), headers)
+                 ujson.dumps(data), headers, auth)
     servicegroup_update[id]['_etag'] = response['_etag']
     if not 'members' in servicegroup_update[id]:
         id_to_del.append(id)
@@ -651,7 +652,7 @@ for id in service_update:
             data = {'use': services[service_update[id]['use']]}
             headers['If-Match'] = service_update[id]['_etag']
             response = method_patch(''.join([backend_url, 'service', '/', id]),
-                         ujson.dumps(data), headers)
+                         ujson.dumps(data), headers, auth)
             service_update[id]['_etag'] = response['_etag']
             del service_update[id]['use']
         else:
