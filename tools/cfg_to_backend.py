@@ -34,7 +34,7 @@ from alignak_backend.models.servicegroup import get_schema as servicegroup_get_s
 from alignak_backend.models.timeperiod import get_schema as timeperiod_get_schema
 
 # Define here the path of the cfg files
-cfg_path = 'cfg/'
+cfg_path = ['cfg/from_shinken/shinken.cfg']
 
 # Define here the url of the backend
 backend_url = 'http://localhost:5000/'
@@ -118,12 +118,9 @@ def check_mapping(items, mapping):
     return response
 
 
+# Get flat files configuration
 alconfig = Config()
-
-file_list = ['cfg/hosts.cfg', 'cfg/commands.cfg', 'cfg/contacts.cfg', 'cfg/hostgroups.cfg',
-             'cfg/services.cfg', 'cfg/servicetemplates.cfg', 'cfg/timeperiods.cfg']
-
-buf = alconfig.read_config(file_list)
+buf = alconfig.read_config(cfg)
 conf = alconfig.read_config_buf(buf)
 
 
@@ -231,7 +228,11 @@ for timeperiod in conf['timeperiod']:
             prop_to_del.append(prop)
     for prop in prop_to_del:
         del timeperiod[prop]
-    response = method_post(''.join([backend_url, 'timeperiod']), ujson.dumps(timeperiod), headers, auth)
+    response = method_post(
+        ''.join([backend_url, 'timeperiod']),
+        ujson.dumps(timeperiod),
+        headers, auth
+    )
     if '_error' in response and '_issues' in response:
         print "ERROR: %s" % response['_issues']
     else:
@@ -279,7 +280,11 @@ for contactgroup in conf['contactgroup']:
         else:
             to_update['contactgroup_members'] = contactgroup['contactgroup_members']
             del contactgroup['contactgroup_members']
-    response = method_post(''.join([backend_url, 'contactgroup']), ujson.dumps(contactgroup), headers, auth)
+    response = method_post(
+        ''.join([backend_url, 'contactgroup']),
+        ujson.dumps(contactgroup),
+        headers, auth
+    )
     if '_error' in response and '_issues' in response:
         print "ERROR: %s" % response['_issues']
     else:
@@ -292,17 +297,18 @@ print "~~~~~~~~~~~~~~~~~~~~ update 'contactgroup_members' in contactgroups ~~~~~
 id_to_del = []
 for id in contactgroup_update:
     new_list = []
-    for members in contactgroup_update[id]['contactgroup_members']:
-        new_list.append(contactgroups[members])
-    data = {'contactgroup_members': new_list}
-    headers['If-Match'] = contactgroup_update[id]['_etag']
-    response = method_patch(''.join([backend_url, 'contactgroup', '/', id]),
-                 ujson.dumps(data), headers, auth)
-    contactgroup_update[id]['_etag'] = response['_etag']
-    if not 'members' in contactgroup_update[id]:
-        id_to_del.append(id)
-for id in id_to_del:
-    del contactgroup_update[id]
+    if 'contactgroup_members' in contactgroup_update[id]:
+        for members in contactgroup_update[id]['contactgroup_members']:
+            new_list.append(contactgroups[members])
+        data = {'contactgroup_members': new_list}
+        headers['If-Match'] = contactgroup_update[id]['_etag']
+        response = method_patch(''.join([backend_url, 'contactgroup', '/', id]),
+                     ujson.dumps(data), headers, auth)
+        contactgroup_update[id]['_etag'] = response['_etag']
+        if not 'members' in contactgroup_update[id]:
+            id_to_del.append(id)
+    for id in id_to_del:
+        del contactgroup_update[id]
 
 print "~~~~~~~~~~~~~~~~~~~~ Add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 headers = {'content-type': 'application/json'}
@@ -315,7 +321,7 @@ for contact in conf['contact']:
     # New fields ...
     contact['back_role_super_admin'] = False
     contact['back_role_admin'] = []
-    
+
     if 'imported_from' in contact:
         del contact['imported_from']
     if 'use' in contact:
@@ -345,7 +351,11 @@ for contact in conf['contact']:
         else:
             to_update['service_notification_commands'] = contact['service_notification_commands']
             del contact['service_notification_commands']
-    response = method_post(''.join([backend_url, 'contact']), ujson.dumps(contact), headers, auth)
+    response = method_post(
+        ''.join([backend_url, 'contact']),
+        ujson.dumps(contact),
+        headers, auth
+    )
     if '_error' in response and '_issues' in response:
         print "ERROR: %s" % response['_issues']
         print "Data: %s" % ujson.dumps(contact)
@@ -394,7 +404,11 @@ for hostgroup in conf['hostgroup']:
         else:
             to_update['hostgroup_members'] = hostgroup['hostgroup_members']
             del hostgroup['hostgroup_members']
-    response = method_post(''.join([backend_url, 'hostgroup']), ujson.dumps(hostgroup), headers, auth)
+    response = method_post(
+        ''.join([backend_url, 'hostgroup']),
+        ujson.dumps(hostgroup),
+        headers, auth
+    )
     if '_error' in response and '_issues' in response:
         print "ERROR: %s" % response['_issues']
     else:
@@ -465,7 +479,11 @@ for host in conf['host']:
                 to_update[relation] = host[relation]
                 del host[relation]
 
-    response = method_post(''.join([backend_url, 'host']), ujson.dumps(host), headers, auth)
+    response = method_post(
+        ''.join([backend_url, 'host']),
+        ujson.dumps(host),
+        headers, auth
+    )
     if '_error' in response and '_issues' in response:
         print "ERROR: %s" % response['_issues']
     else:
@@ -561,7 +579,11 @@ for servicegroup in conf['servicegroup']:
         else:
             to_update['servicegroup_members'] = servicegroup['servicegroup_members']
             del servicegroup['servicegroup_members']
-    response = method_post(''.join([backend_url, 'servicegroup']), ujson.dumps(servicegroup), headers, auth)
+    response = method_post(
+        ''.join([backend_url, 'servicegroup']),
+        ujson.dumps(servicegroup),
+        headers, auth
+    )
     servicegroups[servicegroup['servicegroup_name']] = response['_id']
     if to_update:
         to_update['_etag'] = response['_etag']
@@ -575,8 +597,11 @@ for id in servicegroup_update:
         new_list.append(servicegroups[members])
     data = {'servicegroup_members': new_list}
     headers['If-Match'] = servicegroup_update[id]['_etag']
-    response = method_patch(''.join([backend_url, 'servicegroup', '/', id]),
-                 ujson.dumps(data), headers, auth)
+    response = method_patch(
+        ''.join([backend_url, 'servicegroup', '/', id]),
+        ujson.dumps(data),
+        headers, auth
+    )
     servicegroup_update[id]['_etag'] = response['_etag']
     if not 'members' in servicegroup_update[id]:
         id_to_del.append(id)
@@ -609,7 +634,11 @@ for service in conf['service']:
         else:
             service['check_command'] = commands[service['check_command']]
     if 'host_name' in service:
-        service['host_name'] = hosts[service['host_name']]
+        if service['host_name'] in hosts:
+            service['host_name'] = hosts[service['host_name']]
+        else:
+            print 'ERROR: host not found for %s' % (service['host_name'])
+            service['host_name'] = 'unknown'
     if 'check_period' in service:
         service['check_period'] = timeperiods[service['check_period']]
     if 'notification_period' in service:
@@ -631,7 +660,11 @@ for service in conf['service']:
             else:
                 to_update[relation] = service[relation]
                 del service[relation]
-    response = method_post(''.join([backend_url, 'service']), ujson.dumps(service), headers, auth)
+    response = method_post(
+        ''.join([backend_url, 'service']),
+        ujson.dumps(service),
+        headers, auth
+    )
     if '_error' in response and '_issues' in response:
         print "ERROR: %s" % response['_issues']
     else:
