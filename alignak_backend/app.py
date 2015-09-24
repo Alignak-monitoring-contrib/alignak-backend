@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-This module manages the backend, its configuration and starts the backend
+    ``alignak_backend.app`` module
+
+    This module manages the backend, its configuration and starts the backend
 """
 
 import sys
@@ -18,6 +20,7 @@ import uuid
 
 from eve import Eve
 from eve.auth import TokenAuth
+from eve.io.mongo import Validator
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_bootstrap import Bootstrap
 from eve_docs import eve_docs
@@ -26,28 +29,28 @@ from flask import current_app, g, request, abort, jsonify
 from alignak_backend.models import register_models
 from alignak_backend.log import Log
 
-SUBCOMMANDS = OrderedDict()
+VERSION = "0.0.1"
+COPYRIGHT = "(c) 2015 - Alignak Backend team"
+LICENSE = "License GNU AGPL version 3"
+RELEASENOTES = """
+    Very first version ...
+    """
+DOC_URL = "https://github.com/Alignak-monitoring-contrib/alignak-backend"
+
+_subcommands = OrderedDict()
 
 
 def register_command(description):
-    """
-    Decorator
-
-    :param description:
-    :return:
-    """
-    def decorate(name):
-        """
-
-        :param name:
-        :return:
-        """
-        SUBCOMMANDS[name.__name__] = (description, name)
-        return name
+    """Register commands usable from command line"""
+    def decorate(f):
+        """Create decorator to be used for functions"""
+        _subcommands[f.__name__] = (description, f)
+        return f
     return decorate
 
 
-class TokenAuth(TokenAuth):
+class MyTokenAuth(TokenAuth):
+    """Authentication token class"""
     def check_auth(self, token, allowed_roles, resource, method):
         """
         Check if account exist and get roles for this user
@@ -85,6 +88,17 @@ class TokenAuth(TokenAuth):
         return contact
 
 
+class MyValidator(Validator):
+    """Specific validator for data model fields types extension"""
+    def _validate_title(self, title, field, value):
+        """Validate 'title' field (always valid)"""
+        return
+
+    def _validate_ui(self, title, field, value):
+        """Validate 'ui' field (always valid)"""
+        return
+
+
 class Application(Log):
     """
     Usage:
@@ -95,18 +109,21 @@ class Application(Log):
         -v, --verbose   Verbose mode
 
     Subcommands:
-    {subcommands}
+        start: to start the application
     """
     settings = {}
 
     def __init__(self):
         Log.__init__(self)
-        # super().__init__()
+
+        # Command line parameters
         command = os.path.basename(sys.argv[0])
         self.__doc__ = dedent(self.__doc__).format(
             command=command,
             subcommands=self.format_subcommands()
         )
+
+        self.debug = False
 
     @staticmethod
     def pre_get(resource, request, lookup):
@@ -190,18 +207,28 @@ class Application(Log):
         t = int(time.time() * 1000)
         return str(t)+'-'+str(uuid.uuid4())
 
-    def initialize(self, debug=False, subcommand='run'):
+    def initialize(self, debug=False, verbose=False, subcommand='start'):
         """
-        Initialize the application, so start eve
+        Initialize the application, so start Eve
 
+        :param verbose: if True run in verbose (INFO) mode, otherwise in normal mode
+        :type debug: bool
         :param debug: if True run in debug mode, otherwise in normal mode
         :type debug: bool
         :param subcommand:
         :type subcommand: str
         :return: None
         """
-        self.log.setLevel(debug)
-        self.get_settings_from_ini()
+        # Set logger level
+        # Default is WARNING, set DEBUG if debug mode is requested ...
+        if verbose:
+            self.log.setLevel(logging.INFO)
+        if debug:
+            self.log.setLevel(logging.DEBUG)
+
+        # Application configuration
+        # Read configuration file
+        self.get_settings()
         self.settings['DOMAIN'] = register_models()
         self.settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
         self.settings['ITEM_METHODS'] = ['GET', 'PATCH', 'DELETE']
@@ -220,8 +247,19 @@ class Application(Log):
         self.settings['MONGO_DBNAME'] = 'alignak-backend'
         self.app = Eve(
             settings=self.settings,
-            auth=TokenAuth
+            validator=MyValidator,
+            auth=MyTokenAuth
         )
+        # Application banner in log
+        self.log.info("------------------------------------------------------------")
+        self.log.info("Alignak Backend, version %s", VERSION)
+        self.log.info("Copyright %s", COPYRIGHT)
+        self.log.info("License %s", LICENSE)
+        self.log.info("------------------------------------------------------------")
+
+        # Application configuration in log
+        self.log.info("application settings: %s", "\n" + pformat(self.settings))
+
         # hooks
         self.app.on_pre_GET += self.pre_get
         self.app.on_insert_contact += self.pre_contact_post
@@ -231,14 +269,14 @@ class Application(Log):
         Bootstrap(self.app)
         self.app.register_blueprint(eve_docs, url_prefix='/docs')
 
-        self.log.debug(pformat(self.app.settings))
-        self.app.debug = debug
+        self.debug = debug
         # Create default account when have no contact.
         with self.app.app_context():
             contacts = self.app.data.driver.db['contact']
-            nb_contact = contacts.count()
-            if nb_contact == 0:
+            super_admin_contact = contacts.find_one({'back_role_super_admin': True})
+            if not super_admin_contact:
                 contacts.insert({"contact_name": "admin",
+                                 "name": "Big Brother",
                                  "back_password": generate_password_hash("admin"),
                                  "back_role_super_admin": True,
                                  "back_role_admin": []})
@@ -267,7 +305,7 @@ class Application(Log):
         def logout_app():
             return 'ok'
 
-    def get_settings_from_ini(self):
+    def get_settings(self):
         """
         Get settings of application from config file
 
@@ -308,7 +346,7 @@ class Application(Log):
         :rtype: str
         """
         subcommands_text = []
-        for cmd, data in SUBCOMMANDS.items():
+        for cmd, data in _subcommands.items():
             subcommands_text.append(
                 "    {name:{width}}{desc}".format(
                     name=cmd, width=12, desc=data[0]
@@ -318,7 +356,7 @@ class Application(Log):
 
     def process_args(self):
         """
-        Manage arguments used when run alignak_backend command
+        Manage arguments used to start alignak_backend
 
         :return: None
         """
@@ -329,24 +367,27 @@ class Application(Log):
             rootlog.setLevel(logging.DEBUG)
         elif args['--verbose']:
             rootlog.setLevel(logging.INFO)
-            self.app.debug = False
-        self.log.debug(args)
-        self.initialize(args['--debug'], args['<subcommand>'])
-        self.log.debug("\n" + pformat(self.settings))
-        try:
-            SUBCOMMANDS[args['<subcommand>']][1](self)
-        except:
-            self.log.exception(
-                "Failed to load command '{cmd}'".format(
-                    cmd=args['<subcommand>']
-                )
-            )
+        self.initialize(args['--debug'], args['--verbose'], args['<subcommand>'])
 
-    @register_command("Start serving")
-    def run(self):
+        # self.log.info("application start parameters: %s", "\n" + pformat(args))
+        try:
+            _subcommands[args['<subcommand>']][1](self)
+        except:
+            self.log.error("failed to launch command '%s'", args['<subcommand>'])
+
+    @register_command("Start Backend serving")
+    def start(self):
         """
         Run (start) the application
 
         :return: None
         """
-        self.app.run(use_reloader=False, threaded=True)
+        try:  # pragma: no cover
+            self.log.info(
+                "starting Alignak backend server ...",
+            )
+
+            # Start the application ...
+            self.app.run(use_reloader=False, threaded=True)
+        except Exception as e:  # pragma: no cover
+            self.log.error("exception on run %s", str(e))

@@ -34,7 +34,7 @@ from alignak_backend.models.servicegroup import get_schema as servicegroup_get_s
 from alignak_backend.models.timeperiod import get_schema as timeperiod_get_schema
 
 # Define here the path of the cfg files
-cfg_path = ['cfg/from_shinken/shinken.cfg']
+cfg = ['cfg/from_shinken/shinken.cfg']
 
 # Define here the url of the backend
 backend_url = 'http://localhost:5000/'

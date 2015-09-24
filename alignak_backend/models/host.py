@@ -27,12 +27,24 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                #'_title': 'Import source',
+                'ui': {
+                    'title': 'Import source',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'use': {
                 'type': 'objectid',
-                #'_title': 'Template(s)',
+                'ui': {
+                    'title': 'Template(s)',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'data_relation': {
                     'resource': 'host',
                     'embeddable': True
@@ -40,44 +52,92 @@ def get_schema():
             },
             'name': {
                 'type': 'string',
-                #'_title': 'Name',
+                'ui': {
+                    'title': 'Name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'definition_order': {
                 'type': 'integer',
-                #'_title': 'Definition order',
+                'ui': {
+                    'title': 'Definition order',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 100
             },
             'register': {
                 'type': 'boolean',
-                #'_title': 'Registered',
+                'ui': {
+                    'title': 'Registered',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': True
             },
             'host_name': {
                 'type': 'string',
-                #'_title': 'Host name',
+                'ui': {
+                    'title': 'Host name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'required': True,
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
             'alias': {
                 'type': 'string',
-                # #'_title': 'Alias',
+                'ui': {
+                    'title': 'Alias',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'display_name': {
                 'type': 'string',
-                #'_title': 'Display name',
+                'ui': {
+                    'title': 'Display name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'address': {
                 'type': 'string',
-                #'_title': 'Address',
+                'ui': {
+                    'title': 'Adress',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'parents': {
                 'type': 'list',
-                #'_title': 'Parents',
+                'ui': {
+                    'title': 'Parents',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -88,7 +148,13 @@ def get_schema():
             },
             'hostgroups': {
                 'type': 'list',
-                #'_title': 'Hosts groups',
+                'ui': {
+                    'title': 'Hosts groups',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -99,7 +165,13 @@ def get_schema():
             },
             'check_command': {
                 'type': 'objectid',
-                #'_title': 'Check command',
+                'ui': {
+                    'title': 'Check command',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'data_relation': {
                     'resource': 'command',
                     'embeddable': True
@@ -107,12 +179,24 @@ def get_schema():
             },
             'check_command_args': {
                 'type': 'string',
-                #'_title': 'Check command arguments',
+                'ui': {
+                    'title': 'Check command arguments',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'initial_state': {
                 'type': 'string',
-                #'_title': 'Initial state',
+                'ui': {
+                    'title': 'Initial state',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'minlength': 1,
                 'maxlength': 1,
                 'default': 'u',
@@ -120,32 +204,68 @@ def get_schema():
             },
             'max_check_attempts': {
                 'type': 'integer',
-                #'_title': 'Max check attempts',
+                'ui': {
+                    'title': 'Max check attempts',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 1
             },
             'check_interval': {
                 'type': 'integer',
-                #'_title': 'Check interval',
+                'ui': {
+                    'title': 'Check interval',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 5
             },
             'retry_interval': {
                 'type': 'integer',
-                #'_title': 'Retry interval',
+                'ui': {
+                    'title': 'Retry interval',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 0
             },
             'active_checks_enabled': {
                 'type': 'boolean',
-                #'_title': 'Active checks enabled',
+                'ui': {
+                    'title': 'Active checks enabled',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': True
             },
             'passive_checks_enabled': {
                 'type': 'boolean',
-                #'_title': 'Passive checks enabled',
+                'ui': {
+                    'title': 'Passive checks enabled',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': True
             },
             'check_period': {
                 'type': 'objectid',
-                #'_title': 'Check period',
+                'ui': {
+                    'title': 'Check period',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'data_relation': {
                     'resource': 'timeperiod',
                     'embeddable': True
@@ -153,63 +273,135 @@ def get_schema():
             },
             'check_freshness': {
                 'type': 'boolean',
-                #'_title': 'Check freshness',
+                'ui': {
+                    'title': 'Check freshness',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             'freshness_threshold': {
                 'type': 'integer',
-                #'_title': 'Freshness threshold',
+                'ui': {
+                    'title': 'Freshness threshold',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 0
             },
             'event_handler': {
                 'type': 'string',
-                #'_title': 'Event handler',
+                'ui': {
+                    'title': 'Event handler',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'event_handler_enabled': {
                 'type': 'boolean',
-                #'_title': 'Event handler enabled',
+                'ui': {
+                    'title': 'Event handler enabled',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             'low_flap_threshold': {
                 'type': 'integer',
-                #'_title': 'Low flapping threshold',
+                'ui': {
+                    'title': 'Low flapping threshold',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 25
             },
             'high_flap_threshold': {
                 'type': 'integer',
-                #'_title': 'High flapping threshold',
+                'ui': {
+                    'title': 'High flapping threshold',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 50
             },
             'flap_detection_enabled': {
                 'type': 'boolean',
-                #'_title': 'Flapping detection enabled',
+                'ui': {
+                    'title': 'Flapping detection enabled',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': True
             },
             'flap_detection_options': {
                 'type': 'list',
-                #'_title': 'Flpping detection options',
+                'ui': {
+                    'title': 'Flapping detection options',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ['o', 'd', 'u'],
-                #'possible': ['o', 'd', 'u']
+                'allowed': ['o', 'd', 'u']
             },
             'process_perf_data': {
                 'type': 'boolean',
-                #'_title': 'Process performance data',
+                'ui': {
+                    'title': 'Process performance data',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': True
             },
             'retain_status_information': {
                 'type': 'boolean',
-                #'_title': 'Retain status information',
+                'ui': {
+                    'title': 'Retain status information',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': True
             },
             'retain_nonstatus_information': {
                 'type': 'boolean',
-                #'_title': 'Retain non status information',
+                'ui': {
+                    'title': 'Retain non status information',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': True
             },
             'contacts': {
                 'type': 'list',
-                #'_title': 'Contact(s)',
+                'ui': {
+                    'title': 'Contacts',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -220,7 +412,13 @@ def get_schema():
             },
             'contact_groups': {
                 'type': 'list',
-                #'_title': 'Contacts group(s)',
+                'ui': {
+                    'title': 'Contacts group(s)',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -231,17 +429,35 @@ def get_schema():
             },
             'notification_interval': {
                 'type': 'integer',
-                #'_title': 'Notification interval',
+                'ui': {
+                    'title': 'Notification interval',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 60
             },
             'first_notification_delay': {
                 'type': 'integer',
-                #'_title': 'First notification delay',
+                'ui': {
+                    'title': 'First notification delay',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 0
             },
             'notification_period': {
                 'type': 'objectid',
-                #'_title': 'Notification period',
+                'ui': {
+                    'title': 'Notification period',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'data_relation': {
                     'resource': 'timeperiod',
                     'embeddable': True
@@ -249,104 +465,224 @@ def get_schema():
             },
             'notification_options': {
                 'type': 'list',
-                #'_title': 'Notification options',
+                'ui': {
+                    'title': 'Notification options',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ['d', 'u', 'r', 'f', 's'],
-                #'possible': ['d', 'u', 'r', 'f', 's', 'n']
+                'allowed': ['d', 'u', 'r', 'f', 's', 'n']
             },
             'notifications_enabled': {
                 'type': 'boolean',
-                #'_title': 'Notifications enabled',
+                'ui': {
+                    'title': 'Notifications enabled',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': True
             },
             'stalking_options': {
                 'type': 'list',
-                #'_title': 'Stalking options',
+                'ui': {
+                    'title': 'Stalking options',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': [],
-                #'possible': ['o', 'd', 'u']
+                'allowed': ['o', 'd', 'u']
             },
             'notes': {
                 'type': 'string',
-                #'_title': 'Notes',
+                'ui': {
+                    'title': 'Notes',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'notes_url': {
                 'type': 'string',
-                #'_title': 'Notes URL',
+                'ui': {
+                    'title': 'Notes URL',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'action_url': {
                 'type': 'string',
-                #'_title': 'Action URL',
+                'ui': {
+                    'title': 'Action URL',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'icon_image': {
                 'type': 'string',
-                #'_title': 'Icon image',
+                'ui': {
+                    'title': 'Icon image',
+                    'visible': False,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'icon_image_alt': {
                 'type': 'string',
-                #'_title': 'Icon image alt',
+                'ui': {
+                    'title': 'Icon image alt',
+                    'visible': False,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'icon_set': {
                 'type': 'string',
-                #'_title': 'Icon set',
+                'ui': {
+                    'title': 'Icon set',
+                    'visible': False,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'vrml_image': {
                 'type': 'string',
-                #'_title': 'VRML image',
+                'ui': {
+                    'title': 'VRML image',
+                    'visible': False,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'statusmap_image': {
                 'type': 'string',
-                #'_title': 'Status map image',
+                'ui': {
+                    'title': 'Status map image',
+                    'visible': False,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             '2d_coords': {
                 'type': 'string',
-                #'_title': '2D coordinates',
+                'ui': {
+                    'title': '2D coordinates',
+                    'visible': False,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             '3d_coords': {
                 'type': 'string',
-                #'_title': '3D coordinates',
+                'ui': {
+                    'title': '3D coordinates',
+                    'visible': False,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'failure_prediction_enabled': {
                 'type': 'boolean',
-                #'_title': 'Failure prediction enabled',
+                'ui': {
+                    'title': 'Failure prediction enabled',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             'realm': {
                 'type': 'string',
-                #'_title': 'Realm',
+                'ui': {
+                    'title': 'Realm',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': None
             },
             'poller_tag': {
                 'type': 'string',
-                #'_title': 'Poller tag',
+                'ui': {
+                    'title': 'Poller tag',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 'None'
             },
             'reactionner_tag': {
                 'type': 'string',
-                #'_title': 'Reactionner tag',
+                'ui': {
+                    'title': 'Reactionner tag',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 'None'
             },
             'resultmodulations': {
                 'type': 'list',
-                #'_title': 'Result modulations',
+                'ui': {
+                    'title': 'Result modulations',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'business_impact_modulations': {
                 'type': 'list',
-                #'_title': 'Business impact modulations',
+                'ui': {
+                    'title': 'Business impact modulations',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'escalations': {
                 'type': 'list',
-                #'_title': 'Escalations',
+                'ui': {
+                    'title': 'Escalations',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': [],
                 'schema': {
                     'type': 'objectid',
@@ -358,124 +694,268 @@ def get_schema():
             },
             'maintenance_period': {
                 'type': 'string',
-                #'_title': 'Maintenance period',
+                'ui': {
+                    'title': 'Maintenance period',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'time_to_orphanage': {
                 'type': 'integer',
-                #'_title': 'Time to orphanage',
+                'ui': {
+                    'title': 'Time to orphanage',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 300
             },
             'service_overrides': {
                 'type': 'list',
-                #'_title': 'Service overrides',
+                'ui': {
+                    'title': 'Service overrides',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'service_excludes': {
                 'type': 'list',
-                #'_title': 'Service excludes',
+                'ui': {
+                    'title': 'Service excludes',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'service_includes': {
                 'type': 'list',
-                #'_title': 'Service includes',
+                'ui': {
+                    'title': 'Service includes',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'labels': {
                 'type': 'list',
-                #'_title': 'Buiness rules labels',
+                'ui': {
+                    'title': 'Business rules labels',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'business_rule_output_template': {
                 'type': 'string',
-                #'_title': 'Business rules output template',
+                'ui': {
+                    'title': 'Business rules output template',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'business_rule_smart_notifications': {
                 'type': 'boolean',
-                #'_title': 'Business rules smart notifications',
+                'ui': {
+                    'title': 'Business rules smart notifications',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             'business_rule_downtime_as_ack': {
                 'type': 'boolean',
-                #'_title': 'Business rules downtime as ack',
+                'ui': {
+                    'title': 'Business rules downtime as ack',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             'business_rule_host_notification_options': {
                 'type': 'list',
-                #'_title': 'Business rules host notification options',
+                'ui': {
+                    'title': 'Business rules host notification options',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ['d', 'u', 'r', 'f', 's'],
-                #'possible': ['d', 'u', 'r', 'f', 's', 'n']
+                'allowed': ['d', 'u', 'r', 'f', 's', 'n']
             },
             'business_rule_service_notification_options': {
                 'type': 'list',
-                #'_title': 'Business rules service notification options',
+                'ui': {
+                    'title': 'Business rules service notification options',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ['w', 'u', 'c', 'r', 'f', 's'],
-                #'possible': ['w', 'u', 'c', 'r', 'f', 's', 'n']
+                'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n']
             },
             'business_impact': {
                 'type': 'integer',
-                #'_title': 'Business impact',
+                'ui': {
+                    'title': 'Business impact',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 2
             },
             'trigger': {
                 'type': 'string',
-                #'_title': 'Trigger',
+                'ui': {
+                    'title': 'Trigger',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'trigger_name': {
                 'type': 'string',
-                #'_title': 'Trigger name',
+                'ui': {
+                    'title': 'Trigger name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'trigger_broker_raise_enabled': {
                 'type': 'boolean',
-                #'_title': 'Trigger broker raise enabled',
+                'ui': {
+                    'title': 'Trigger broker raise enabled',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             'trending_policies': {
                 'type': 'list',
-                #'_title': 'Trending policies',
+                'ui': {
+                    'title': 'Trending policies',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'checkmodulations': {
                 'type': 'list',
-                #'_title': 'Check modulations',
+                'ui': {
+                    'title': 'Check modulations',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'macromodulations': {
                 'type': 'list',
-                #'_title': 'Macro modulations',
+                'ui': {
+                    'title': 'Macro modulations',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'custom_views': {
                 'type': 'list',
-                #'_title': 'Custom views',
+                'ui': {
+                    'title': 'Custom views',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': []
             },
             'snapshot_enabled': {
                 'type': 'boolean',
-                #'_title': 'Snapshot enabled',
+                'ui': {
+                    'title': 'Snapshot enabled',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             'snapshot_command': {
                 'type': 'string',
-                #'_title': 'Snapshot command',
+                'ui': {
+                    'title': 'Snapshot command',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'snapshot_period': {
                 'type': 'string',
-                #'_title': 'Snapshot period',
+                'ui': {
+                    'title': 'Snapshot period',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'snapshot_criteria': {
                 'type': 'list',
-                #'_title': 'Snapshot criteria',
+                'ui': {
+                    'title': 'Snapshot criteria',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ['d', 'u']
             },
             'snapshot_interval': {
                 'type': 'integer',
-                #'_title': 'Snapshot interval',
+                'ui': {
+                    'title': 'Snapshot interval',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 5
             },
             '_brotherhood': {
@@ -528,5 +1008,19 @@ def get_schema():
                     }
                 },
             },
+            # This to define if the object in this model are to be used in the UI
+            'ui': {
+                'type': 'boolean',
+                'default': True,
+                'required': False,
+                # UI parameters for the objects
+                'ui': {
+                    'title': 'dm - Hosts list (%d items)',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                }
+            }
         }
     }

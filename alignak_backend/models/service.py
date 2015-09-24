@@ -444,5 +444,19 @@ def get_schema():
                     }
                 },
             },
+            # This to define if the object in this model are to be used in the UI
+            'ui': {
+                'type': 'boolean',
+                'default': True,
+                'required': False,
+                # UI parameters for the objects
+                'ui': {
+                    'title': 'dm - Contacts list (%d items)',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                }
+            }
         },
     }
