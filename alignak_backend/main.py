@@ -8,10 +8,12 @@ from alignak_backend.app import Application
 
 
 def main():
-    """
-    Main function where application runs
+    """Application entry point"""
+    # Create application
+    appli = Application()
 
-    :return: None
-    """
-    app = Application()
-    app.process_args()
+    # Process command line parameters
+    appli.process_args()
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

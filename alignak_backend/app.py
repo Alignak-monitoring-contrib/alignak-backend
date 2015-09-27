@@ -27,15 +27,8 @@ from eve_docs import eve_docs
 from flask import current_app, g, request, abort, jsonify
 
 from alignak_backend.models import register_models
+from alignak_backend import __version__, __copyright__, __releasenotes__, __license__, __doc_url__
 from alignak_backend.log import Log
-
-VERSION = "0.0.1"
-COPYRIGHT = "(c) 2015 - Alignak Backend team"
-LICENSE = "License GNU AGPL version 3"
-RELEASENOTES = """
-    Very first version ...
-    """
-DOC_URL = "https://github.com/Alignak-monitoring-contrib/alignak-backend"
 
 _subcommands = OrderedDict()
 
@@ -252,9 +245,9 @@ class Application(Log):
         )
         # Application banner in log
         self.log.info("------------------------------------------------------------")
-        self.log.info("Alignak Backend, version %s", VERSION)
-        self.log.info("Copyright %s", COPYRIGHT)
-        self.log.info("License %s", LICENSE)
+        self.log.info("Alignak Backend, version %s", __version__)
+        self.log.info("Copyright %s", __copyright__)
+        self.log.info("License %s", __license__)
         self.log.info("------------------------------------------------------------")
 
         # Application configuration in log

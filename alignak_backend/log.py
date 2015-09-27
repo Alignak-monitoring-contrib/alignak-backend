@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" This module is used to manage logs """
+"""
+    ``alignak_backend.log`` module
+    ======================
+
+    Logging functions
+"""
 
 import os
 import logging

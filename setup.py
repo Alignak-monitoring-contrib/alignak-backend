@@ -1,16 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
-
 import os
+import sys
+import re
 del os.link
 
-import alignak_backend
+try:
+    from setuptools import setup, find_packages
+except:
+    sys.exit("Error: missing python-setuptools library")
+
+try:
+    python_version = sys.version_info
+except:
+    python_version = (1, 5)
+if python_version < (2, 7):
+    sys.exit("This application requires a minimum Python 2.7.x, sorry!")
+elif python_version >= (3,):
+    sys.exit("This application is not yet compatible with Python 3.x, sorry!")
+
+package = __import__('alignak_backend')
 
 setup(
     name="alignak_backend",
-    version=alignak_backend.__version__,
+    version=package.get_version(),
 
     # metadata for upload to PyPI
     author="Alignak team",
@@ -20,9 +34,16 @@ setup(
     description="Alignak REST Backend",
     long_description=open('README.rst').read(),
 
-    packages = ['alignak_backend'],
+    packages=find_packages(),
+    include_package_data=True,
 
     install_requires=['Eve', 'flask-bootstrap'],
+
+    entry_points={
+        'console_scripts': [
+            'alignak_backend = alignak_backend.main:main',
+        ],
+    },
 
     classifiers = [
         'Development Status :: 4 - Beta',
