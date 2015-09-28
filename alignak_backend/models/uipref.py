@@ -48,7 +48,7 @@ def get_schema():
                 'default': ''
             },
             'data': {
-                'type': 'string',
+                'type': 'list',
                 'ui': {
                     'title': "User name",
                     'visible': True,
@@ -56,7 +56,7 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'default': ''
+                'default': []
             },
         }
     }
