@@ -39,8 +39,8 @@ def get_schema():
             'use': {
                 'type': 'objectid',
                 'ui': {
-                    'title': 'Template(s)',
-                    'visible': True,
+                    'title': 'Object identifier',
+                    'visible': False,
                     'orderable': True,
                     'searchable': True,
                     "format": None
