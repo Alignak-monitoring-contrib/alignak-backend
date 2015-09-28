@@ -238,6 +238,11 @@ class Application(Log):
         # self.settings['MONGO_USERNAME'] = 'user'
         # self.settings['MONGO_PASSWORD'] = 'user'
         self.settings['MONGO_DBNAME'] = 'alignak-backend'
+
+        # Allow $regex in filtering ...
+        # Default is ['$where', '$regex']
+        self.settings['MONGO_QUERY_BLACKLIST'] = ['$where']
+
         self.app = Eve(
             settings=self.settings,
             validator=MyValidator,
