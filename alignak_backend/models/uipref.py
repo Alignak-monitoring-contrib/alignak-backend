@@ -48,9 +48,9 @@ def get_schema():
                 'default': ''
             },
             'data': {
-                'type': 'list',
+                'type': 'dict',
                 'ui': {
-                    'title': "User name",
+                    'title': "Preference's dictionary",
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
