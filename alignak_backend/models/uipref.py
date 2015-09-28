@@ -25,14 +25,38 @@ def get_schema():
     return {
         'allow_unknown': True,
         'schema': {
-            'contact': {
-                'type': 'objectid',
-                '_title': 'Contact',
-                'data_relation': {
-                    'resource': 'contact',
-                    'embeddable': True
+            'type': {
+                'type': 'string',
+                'ui': {
+                    'title': "Preference's type",
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
                 },
-                'required': True,
+                'default': ''
+            },
+            'user': {
+                'type': 'string',
+                'ui': {
+                    'title': "User name",
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'default': ''
+            },
+            'data': {
+                'type': 'string',
+                'ui': {
+                    'title': "User name",
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'default': ''
             },
         }
     }
