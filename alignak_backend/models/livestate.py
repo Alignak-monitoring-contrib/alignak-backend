@@ -52,11 +52,37 @@ def get_schema():
                 'default': 'HARD',
                 'allowed': ["HARD", "SOFT"]
             },
+            'state_id': {
+                'type': 'integer',
+                'default': 0
+            },
             'acknowledged': {
                 'type': 'boolean',
                 'default': False
             },
+            'downtime': {
+                'type': 'boolean',
+                'default': False
+            },
             'last_check': {
+                'type': 'integer',
+                'default': None
+            },
+            'last_state': {
+                'type': 'string',
+                'default': 'OK',
+                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+            },
+            'last_state_type': {
+                'type': 'string',
+                'default': 'HARD',
+                'allowed': ["HARD", "SOFT"]
+            },
+            'last_state_changed': {
+                'type': 'integer',
+                'default': None
+            },
+            'next_check': {
                 'type': 'integer',
                 'default': None
             },
@@ -70,6 +96,14 @@ def get_schema():
             },
             'perf_data': {
                 'type': 'string',
+                'default': None
+            },
+            'current_attempt': {
+                'type': 'integer',
+                'default': None
+            },
+            'max_attempts': {
+                'type': 'integer',
                 'default': None
             },
             '_brotherhood': {

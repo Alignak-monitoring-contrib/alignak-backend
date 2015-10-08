@@ -50,6 +50,11 @@ def get_schema():
                 'type': 'integer',
                 'default': None
             },
+            'last_state': {
+                'type': 'string',
+                'default': 'OK',
+                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+            },
             'output': {
                 'type': 'string',
                 'default': None

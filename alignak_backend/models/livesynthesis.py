@@ -36,19 +36,27 @@ def get_schema():
                 'type': 'integer',
                 'default': 0,
             },
-            'hosts_up': {
+            'hosts_up_hard': {
                 'type': 'integer',
                 'default': 0,
             },
-            'hosts_down': {
+            'hosts_up_soft': {
                 'type': 'integer',
                 'default': 0,
             },
-            'hosts_unreachable': {
+            'hosts_down_hard': {
                 'type': 'integer',
                 'default': 0,
             },
-            'hosts_unknown': {
+            'hosts_down_soft': {
+                'type': 'integer',
+                'default': 0,
+            },
+            'hosts_unreachable_hard': {
+                'type': 'integer',
+                'default': 0,
+            },
+            'hosts_unreachable_soft': {
                 'type': 'integer',
                 'default': 0,
             },
@@ -72,19 +80,35 @@ def get_schema():
                 'type': 'integer',
                 'default': 0,
             },
-            'services_ok': {
+            'services_ok_hard': {
                 'type': 'integer',
                 'default': 0,
             },
-            'services_warning': {
+            'services_ok_soft': {
                 'type': 'integer',
                 'default': 0,
             },
-            'services_critical': {
+            'services_warning_hard': {
                 'type': 'integer',
                 'default': 0,
             },
-            'services_unknown': {
+            'services_warning_soft': {
+                'type': 'integer',
+                'default': 0,
+            },
+            'services_critical_hard': {
+                'type': 'integer',
+                'default': 0,
+            },
+            'services_critical_soft': {
+                'type': 'integer',
+                'default': 0,
+            },
+            'services_unknown_hard': {
+                'type': 'integer',
+                'default': 0,
+            },
+            'services_unknown_soft': {
                 'type': 'integer',
                 'default': 0,
             },

@@ -29,6 +29,8 @@ from flask import current_app, g, request, abort, jsonify
 from alignak_backend.models import register_models
 from alignak_backend import __version__, __copyright__, __releasenotes__, __license__, __doc_url__
 from alignak_backend.log import Log
+from alignak_backend.livesynthesis import Livesynthesis
+from alignak_backend.livestate import Livestate
 
 _subcommands = OrderedDict()
 
@@ -278,6 +280,13 @@ class Application(Log):
                                  "back_password": generate_password_hash("admin"),
                                  "back_role_super_admin": True,
                                  "back_role_admin": []})
+            livesynthesis = Livesynthesis(self.app)
+            livestate = Livestate(self.app)
+            livesynthesis.recalculate()
+            self.app.on_updated_livestate += livesynthesis.on_updated_livestate
+            self.app.on_inserted_livestate += livesynthesis.on_inserted_livestate
+            self.app.on_inserted_host += livestate.on_inserted_host
+            self.app.on_inserted_service += livestate.on_inserted_service
 
         @self.app.route("/login", methods=['POST'])
         def login_app():
