@@ -40,4 +40,8 @@ class TestHookLivetest(unittest2.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls.backend.delete("host", {})
+        cls.backend.delete("livestate", {})
+        cls.backend.delete("livesynthesis", {})
+        cls.backend.delete("contact", {})
         cls.p.kill()
