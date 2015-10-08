@@ -17,8 +17,8 @@ install:
 script:
   - cd test
   - pip freeze  # so to help eventual debug: know what exact versions are in use can be rather useful.
-  - nosetests -xv --process-restartworker --processes=1 --process-timeout=300  --with-coverage
-  - coverage combine
+  - nosetests -xv --process-restartworker --processes=1 --process-timeout=300
+#  - coverage combine
   - pep8 --max-line-length=100 --exclude='*.pyc' alignak_backend/*
 #  - pylint --rcfile=.pylintrc -r no alignak_backend/*
 #  - pep257 --select=D300 alignak
