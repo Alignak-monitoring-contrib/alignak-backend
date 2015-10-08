@@ -9,4 +9,5 @@ nose
 pylint
 pep8
 pep257
-alignak_backend_client
+-e git+https://github.com/Alignak-monitoring-contrib/alignak-backend-client.git#egg=alignak_backend_client
+
