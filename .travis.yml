@@ -15,11 +15,10 @@ install:
 # notice: the nose-cov is used because it is compatible with --processes, but produce a .coverage by process
 # so we must combine them in the end
 script:
-#  - cd test
-#  - pip freeze  # so to help eventual debug: know what exact versions are in use can be rather useful.
-#  - nosetests -xv --process-restartworker --processes=1 --process-timeout=300  --with-coverage --cover-package=alignak
-#  - coverage combine
-#  - cd .. && pep8 --max-line-length=100 --exclude='*.pyc' alignak/*
+  - cd test
+  - pip freeze  # so to help eventual debug: know what exact versions are in use can be rather useful.
+  - nosetests -xv --process-restartworker --processes=1 --process-timeout=300  --with-coverage --cover-package=alignak
+  - coverage combine
   - pep8 --max-line-length=100 --exclude='*.pyc' alignak_backend/*
 #  - pylint --rcfile=.pylintrc -r no alignak_backend/*
 #  - pep257 --select=D300 alignak
