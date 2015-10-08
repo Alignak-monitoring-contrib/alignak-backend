@@ -9,4 +9,4 @@ nose
 pylint
 pep8
 pep257
-
+alignak_backend_client
