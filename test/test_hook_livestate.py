@@ -16,7 +16,7 @@ class TestHookLivetest(unittest2.TestCase):
         cls.p = subprocess.Popen(['alignak_backend', 'start'])
         time.sleep(3)
         cls.backend = Backend('http://127.0.0.1:5000')
-        cls.backend.login("admin", "admin")
+        cls.backend.login("admin", "admin", "force")
         cls.backend.delete("host", {})
         cls.backend.delete("livestate", {})
         cls.backend.delete("livesynthesis", {})
