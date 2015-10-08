@@ -17,35 +17,33 @@ class Livestate(object):
 
     @staticmethod
     def on_inserted_host(items):
-        livestate = current_app.data.driver.db['livestate']
         for index, item in enumerate(items):
-            input = {'host_name': item['id'], 'service_description': None, 'state': 'UP',
-                     'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
-                     'last_state': 'UP', 'last_state_type': 'HARD', 'output': None,
-                     'long_output': None, 'perf_data': None}
+            data = {'host_name': item['_id'], 'service_description': None, 'state': 'UP',
+                    'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
+                    'last_state': 'UP', 'last_state_type': 'HARD', 'output': None,
+                    'long_output': None, 'perf_data': None}
             if item['initial_state'] == 'd':
-                input['state'] = 'DOWN'
-                input['last_state'] = 'DOWN'
+                data['state'] = 'DOWN'
+                data['last_state'] = 'DOWN'
             elif item['initial_state'] == 'u':
-                input['state'] = 'UNREACHABLE'
-                input['last_state'] = 'UNREACHABLE'
-            livestate.add(input)
+                data['state'] = 'UNREACHABLE'
+                data['last_state'] = 'UNREACHABLE'
+            current_app.data.insert('livestate', [data])
 
     @staticmethod
     def on_inserted_service(items):
-        livestate = current_app.data.driver.db['livestate']
         for index, item in enumerate(items):
-            input = {'host_name': item['host_name'], 'service_description': item['id'],
+            data = {'host_name': item['host_name'], 'service_description': item['_id'],
                      'state': 'OK', 'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
                      'last_state': 'OK', 'last_state_type': 'HARD', 'output': None,
                      'long_output': None, 'perf_data': None}
             if item['initial_state'] == 'w':
-                input['state'] = 'WARNING'
-                input['last_state'] = 'WARNING'
+                data['state'] = 'WARNING'
+                data['last_state'] = 'WARNING'
             elif item['initial_state'] == 'c':
-                input['state'] = 'CRITICAL'
-                input['last_state'] = 'CRITICAL'
+                data['state'] = 'CRITICAL'
+                data['last_state'] = 'CRITICAL'
             elif item['initial_state'] == 'u':
-                input['state'] = 'UNKNOWN'
-                input['last_state'] = 'UNKNOWN'
-            livestate.add(input)
+                data['state'] = 'UNKNOWN'
+                data['last_state'] = 'UNKNOWN'
+            current_app.data.insert('livestate', [data])

@@ -200,7 +200,7 @@ def get_schema():
                 'minlength': 1,
                 'maxlength': 1,
                 'default': 'u',
-                'allowed': ["u", "d", "u"]
+                'allowed': ["o", "d", "u"]
             },
             'max_check_attempts': {
                 'type': 'integer',
@@ -628,7 +628,7 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'default': None
+                'default': ''
             },
             'poller_tag': {
                 'type': 'string',

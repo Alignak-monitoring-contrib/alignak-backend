@@ -58,7 +58,7 @@ class Livesynthesis(object):
                 {"service_description": None, "state": "DOWN"}).count()
             data['hosts_unreachable_hard'] = livestates.find(
                 {"service_description": None, "state": "UNREACHABLE"}).count()
-            self.app.data.update('livesynthesis', live_current['_id'], data, live_current)
+            self.app.data.update('livesynthesis', live_current['_id'], data)
 
         # get all services
         services = self.app.data.driver.db['service']
@@ -73,7 +73,7 @@ class Livesynthesis(object):
                 {"service_description": "{$not: [null]}", "state": "CRITICAL"}).count()
             data['services_unknown_hard'] = livestates.find(
                 {"service_description": "{$not: [null]}", "state": "UNKNOWN"}).count()
-            self.app.data.update('livesynthesis', live_current['_id'], data, live_current)
+            self.app.data.update('livesynthesis', live_current['_id'], data)
 
     @staticmethod
     def on_updated_livestate(updated, original):
