@@ -34,9 +34,9 @@ class Livestate(object):
     def on_inserted_service(items):
         for index, item in enumerate(items):
             data = {'host_name': item['host_name'], 'service_description': item['_id'],
-                     'state': 'OK', 'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
-                     'last_state': 'OK', 'last_state_type': 'HARD', 'output': None,
-                     'long_output': None, 'perf_data': None}
+                    'state': 'OK', 'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
+                    'last_state': 'OK', 'last_state_type': 'HARD', 'output': None,
+                    'long_output': None, 'perf_data': None}
             if item['initial_state'] == 'w':
                 data['state'] = 'WARNING'
                 data['last_state'] = 'WARNING'
