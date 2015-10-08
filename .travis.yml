@@ -4,6 +4,9 @@ python:
   - "2.7"
   - "3.4"
 
+services:
+  - mongodb
+
 # command to install dependencies
 # some are only used for travis/coveralls so we are installing them here only
 install:
