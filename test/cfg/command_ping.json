@@ -1,0 +1,4 @@
+{
+    "command_name": "ping",
+    "command_line": "check_ping -H $HOSTADDRESS$"
+}
