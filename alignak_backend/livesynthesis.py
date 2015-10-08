@@ -18,7 +18,7 @@ class Livesynthesis(object):
     def recalculate(self):
         livesynthesis = self.app.data.driver.db['livesynthesis']
         live_current = livesynthesis.find_one()
-        if live_current == None:
+        if live_current is None:
             data = {'hosts_total': 0,
                     'hosts_up_hard': 0,
                     'hosts_up_soft': 0,
@@ -43,7 +43,7 @@ class Livesynthesis(object):
                     'services_in_downtime': 0,
                     'services_flapping': 0,
                     'services_business_impact': 0
-            }
+                    }
             livesynthesis.insert(data)
             live_current = livesynthesis.find_one()
         # get all hosts
@@ -52,9 +52,12 @@ class Livesynthesis(object):
         livestates = self.app.data.driver.db['livestate']
         if live_current['hosts_total'] != hosts_cnt:
             data = {"hosts_total": hosts_cnt}
-            data['hosts_up_hard'] = livestates.find({"service_description": None, "state": "UP"}).count()
-            data['hosts_down_hard'] = livestates.find({"service_description": None, "state": "DOWN"}).count()
-            data['hosts_unreachable_hard'] = livestates.find({"service_description": None, "state": "UNREACHABLE"}).count()
+            data['hosts_up_hard'] = livestates.find(
+                {"service_description": None, "state": "UP"}).count()
+            data['hosts_down_hard'] = livestates.find(
+                {"service_description": None, "state": "DOWN"}).count()
+            data['hosts_unreachable_hard'] = livestates.find(
+                {"service_description": None, "state": "UNREACHABLE"}).count()
             self.app.data.update('livesynthesis', live_current['_id'], data, live_current)
 
         # get all services
@@ -62,10 +65,14 @@ class Livesynthesis(object):
         services_cnt = services.find({"register": True}).count()
         if live_current['services_total'] != services_cnt:
             data = {"services_total": services_cnt}
-            data['services_ok_hard'] = livestates.find({"service_description": "{$not: [null]}", "state": "OK"}).count()
-            data['services_warning_hard'] = livestates.find({"service_description": "{$not: [null]}", "state": "WARNING"}).count()
-            data['services_critical_hard'] = livestates.find({"service_description": "{$not: [null]}", "state": "CRITICAL"}).count()
-            data['services_unknown_hard'] = livestates.find({"service_description": "{$not: [null]}", "state": "UNKNOWN"}).count()
+            data['services_ok_hard'] = livestates.find(
+                {"service_description": "{$not: [null]}", "state": "OK"}).count()
+            data['services_warning_hard'] = livestates.find(
+                {"service_description": "{$not: [null]}", "state": "WARNING"}).count()
+            data['services_critical_hard'] = livestates.find(
+                {"service_description": "{$not: [null]}", "state": "CRITICAL"}).count()
+            data['services_unknown_hard'] = livestates.find(
+                {"service_description": "{$not: [null]}", "state": "UNKNOWN"}).count()
             self.app.data.update('livesynthesis', live_current['_id'], data, live_current)
 
     @staticmethod
