@@ -3,5 +3,5 @@ docopt
 jsonschema
 Eve-docs
 flask-bootstrap
-configparser
+configparser ; python_version < '3.0'
 
