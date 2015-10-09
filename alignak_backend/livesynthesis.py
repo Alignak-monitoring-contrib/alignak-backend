@@ -87,15 +87,15 @@ class Livesynthesis(object):
         if live_current is None:
             ls = Livesynthesis()
             ls.recalculate()
-            live_current = livesynthesis_db.find_one()
-        typecheck = 'services'
-        if original['service_description'] is None:
-            typecheck = 'hosts'
-        data = {"$inc": {"%s_%s_%s" % (typecheck, updated['last_state'].lower(),
-                                       updated['last_state_type'].lower()): -1,
-                         "%s_%s_%s" % (typecheck, updated['state'].lower(),
-                                       updated['state_type'].lower()): 1}}
-        current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+        else:
+            typecheck = 'services'
+            if original['service_description'] is None:
+                typecheck = 'hosts'
+            data = {"$inc": {"%s_%s_%s" % (typecheck, updated['last_state'].lower(),
+                                           updated['last_state_type'].lower()): -1,
+                             "%s_%s_%s" % (typecheck, updated['state'].lower(),
+                                           updated['state_type'].lower()): 1}}
+            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
     @staticmethod
     def on_inserted_livestate(items):
@@ -104,12 +104,12 @@ class Livesynthesis(object):
         if live_current is None:
             ls = Livesynthesis()
             ls.recalculate()
-            live_current = livesynthesis_db.find_one()
-        for index, item in enumerate(items):
-            typecheck = 'services'
-            if item['service_description'] is None:
-                typecheck = 'hosts'
-            data = {"$inc": {"%s_%s_%s" % (typecheck, item['state'].lower(),
-                                           item['state_type'].lower()): 1,
-                             "%s_total" % (typecheck): 1}}
-            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+        else:
+            for index, item in enumerate(items):
+                typecheck = 'services'
+                if item['service_description'] is None:
+                    typecheck = 'hosts'
+                data = {"$inc": {"%s_%s_%s" % (typecheck, item['state'].lower(),
+                                               item['state_type'].lower()): 1,
+                                 "%s_total" % (typecheck): 1}}
+                current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
