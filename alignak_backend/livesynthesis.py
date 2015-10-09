@@ -13,7 +13,8 @@ from eve.methods.patch import patch_internal
 
 class Livesynthesis(object):
 
-    def recalculate(self):
+    @staticmethod
+    def recalculate():
         livesynthesis = current_app.data.driver.db['livesynthesis']
         live_current = livesynthesis.find_one()
         if live_current is None:
@@ -57,7 +58,7 @@ class Livesynthesis(object):
             data['hosts_unreachable_hard'] = livestates.find(
                 {"service_description": None, "state": "UNREACHABLE"}).count()
             lookup = {"_id": live_current['_id']}
-            patch_internal('livesynthesis', data, **lookup)
+            patch_internal('livesynthesis', data, False, False, **lookup)
 
         # get all services
         services = current_app.data.driver.db['service']
@@ -73,7 +74,7 @@ class Livesynthesis(object):
             data['services_unknown_hard'] = livestates.find(
                 {"service_description": "{$not: [null]}", "state": "UNKNOWN"}).count()
             lookup = {"_id": live_current['_id']}
-            patch_internal('livesynthesis', data, **lookup)
+            patch_internal('livesynthesis', data, False, False, **lookup)
 
     @staticmethod
     def on_updated_livestate(updated, original):

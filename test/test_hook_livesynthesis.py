@@ -28,7 +28,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
         cls.backend.delete("contact", {})
         cls.p.kill()
 
-
     def test_add_host(self):
         data = json.loads(open('cfg/host_srv001.json').read())
         self.backend.post("host", data)
