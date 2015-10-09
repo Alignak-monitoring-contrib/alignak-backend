@@ -94,8 +94,7 @@ class Livesynthesis(object):
                                        updated['last_state_type'].lower()): -1,
                          "%s_%s_%s" % (typecheck, updated['state'].lower(),
                                        updated['state_type'].lower()): 1}}
-        lookup = {"_id": live_current['_id']}
-        patch_internal('livesynthesis', data, **lookup)
+        current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
     @staticmethod
     def on_inserted_livestate(items):
