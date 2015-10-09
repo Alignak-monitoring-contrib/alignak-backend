@@ -1,4 +1,4 @@
-Eve
+Eve>=0.5
 docopt
 jsonschema
 Eve-docs

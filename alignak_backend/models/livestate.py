@@ -66,7 +66,7 @@ def get_schema():
             },
             'last_check': {
                 'type': 'integer',
-                'default': None
+                'default': 0
             },
             'last_state': {
                 'type': 'string',
@@ -80,31 +80,31 @@ def get_schema():
             },
             'last_state_changed': {
                 'type': 'integer',
-                'default': None
+                'default': 0
             },
             'next_check': {
                 'type': 'integer',
-                'default': None
+                'default': 0
             },
             'output': {
                 'type': 'string',
-                'default': None
+                'default': ''
             },
             'long_output': {
                 'type': 'string',
-                'default': None
+                'default': ''
             },
             'perf_data': {
                 'type': 'string',
-                'default': None
+                'default': ''
             },
             'current_attempt': {
                 'type': 'integer',
-                'default': None
+                'default': 0
             },
             'max_attempts': {
                 'type': 'integer',
-                'default': None
+                'default': 0
             },
             '_brotherhood': {
                 'type': 'list',

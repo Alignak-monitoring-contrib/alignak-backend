@@ -9,7 +9,7 @@ import json
 from alignak_backend_client.client import Backend
 
 
-class TestHookLivetest(unittest2.TestCase):
+class TestHookLivestate(unittest2.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -34,14 +34,12 @@ class TestHookLivetest(unittest2.TestCase):
         cls.backend.delete("livestate", {})
         cls.backend.delete("livesynthesis", {})
 
-
     def test_add_host(self):
         data = json.loads(open('cfg/host_srv001.json').read())
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get('host')
         self.assertEqual(rh['_items'][0]['host_name'], "srv001")
-        self.host_id = rh['_items'][0]['_id']
         # Check if livestate right created
         r = self.backend.get('livestate')
         self.assertEqual(len(r['_items']), 1)

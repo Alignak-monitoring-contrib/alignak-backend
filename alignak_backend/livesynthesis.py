@@ -8,15 +8,13 @@
 """
 from __future__ import print_function
 from flask import current_app, g, request, abort, jsonify
+from eve.methods.patch import patch_internal
 
 
 class Livesynthesis(object):
 
-    def __init__(self, app):
-        self.app = app
-
     def recalculate(self):
-        livesynthesis = self.app.data.driver.db['livesynthesis']
+        livesynthesis = current_app.data.driver.db['livesynthesis']
         live_current = livesynthesis.find_one()
         if live_current is None:
             data = {'hosts_total': 0,
@@ -47,9 +45,9 @@ class Livesynthesis(object):
             livesynthesis.insert(data)
             live_current = livesynthesis.find_one()
         # get all hosts
-        hosts = self.app.data.driver.db['host']
+        hosts = current_app.data.driver.db['host']
         hosts_cnt = hosts.find({"register": True}).count()
-        livestates = self.app.data.driver.db['livestate']
+        livestates = current_app.data.driver.db['livestate']
         if live_current['hosts_total'] != hosts_cnt:
             data = {"hosts_total": hosts_cnt}
             data['hosts_up_hard'] = livestates.find(
@@ -58,10 +56,11 @@ class Livesynthesis(object):
                 {"service_description": None, "state": "DOWN"}).count()
             data['hosts_unreachable_hard'] = livestates.find(
                 {"service_description": None, "state": "UNREACHABLE"}).count()
-            self.app.data.update('livesynthesis', live_current['_id'], data)
+            lookup = {"_id": live_current['_id']}
+            patch_internal('livesynthesis', data, **lookup)
 
         # get all services
-        services = self.app.data.driver.db['service']
+        services = current_app.data.driver.db['service']
         services_cnt = services.find({"register": True}).count()
         if live_current['services_total'] != services_cnt:
             data = {"services_total": services_cnt}
@@ -73,7 +72,8 @@ class Livesynthesis(object):
                 {"service_description": "{$not: [null]}", "state": "CRITICAL"}).count()
             data['services_unknown_hard'] = livestates.find(
                 {"service_description": "{$not: [null]}", "state": "UNKNOWN"}).count()
-            self.app.data.update('livesynthesis', live_current['_id'], data)
+            lookup = {"_id": live_current['_id']}
+            patch_internal('livesynthesis', data, **lookup)
 
     @staticmethod
     def on_updated_livestate(updated, original):
@@ -81,8 +81,12 @@ class Livesynthesis(object):
                 and updated['state_type'] == updated['last_state_type']:
             return
 
-        livesynthesis = current_app.data.driver.db['livesynthesis']
-        live_current = livesynthesis.find_one()
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        live_current = livesynthesis_db.find_one()
+        if live_current is None:
+            ls = Livesynthesis()
+            ls.recalculate()
+            live_current = livesynthesis_db.find_one()
         typecheck = 'services'
         if original['service_description'] is None:
             typecheck = 'hosts'
@@ -90,16 +94,22 @@ class Livesynthesis(object):
                                        updated['last_state_type'].lower()): -1,
                          "%s_%s_%s" % (typecheck, updated['state'].lower(),
                                        updated['state_type'].lower()): 1}}
-        current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+        lookup = {"_id": live_current['_id']}
+        patch_internal('livesynthesis', data, **lookup)
 
     @staticmethod
     def on_inserted_livestate(items):
-        livesynthesis = current_app.data.driver.db['livesynthesis']
-        live_current = livesynthesis.find_one()
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        live_current = livesynthesis_db.find_one()
+        if live_current is None:
+            ls = Livesynthesis()
+            ls.recalculate()
+            live_current = livesynthesis_db.find_one()
         for index, item in enumerate(items):
             typecheck = 'services'
             if item['service_description'] is None:
                 typecheck = 'hosts'
             data = {"$inc": {"%s_%s_%s" % (typecheck, item['state'].lower(),
-                                           item['state_type'].lower()): 1}}
+                                           item['state_type'].lower()): 1,
+                             "%s_total" % (typecheck): 1}}
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)

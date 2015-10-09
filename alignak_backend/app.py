@@ -280,7 +280,7 @@ class Application(Log):
                                  "back_password": generate_password_hash("admin"),
                                  "back_role_super_admin": True,
                                  "back_role_admin": []})
-            livesynthesis = Livesynthesis(self.app)
+            livesynthesis = Livesynthesis()
             livestate = Livestate(self.app)
             livesynthesis.recalculate()
             self.app.on_updated_livestate += livesynthesis.on_updated_livestate

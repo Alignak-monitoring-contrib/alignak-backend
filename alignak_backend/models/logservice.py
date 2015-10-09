@@ -57,15 +57,15 @@ def get_schema():
             },
             'output': {
                 'type': 'string',
-                'default': None
+                'default': ''
             },
             'long_output': {
                 'type': 'string',
-                'default': None
+                'default': ''
             },
             'perf_data': {
                 'type': 'string',
-                'default': None
+                'default': ''
             },
             '_brotherhood': {
                 'type': 'list',
