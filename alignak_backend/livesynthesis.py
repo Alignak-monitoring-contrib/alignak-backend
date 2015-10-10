@@ -65,14 +65,10 @@ class Livesynthesis(object):
         services_cnt = services.find({"register": True}).count()
         if live_current['services_total'] != services_cnt:
             data = {"services_total": services_cnt}
-            data['services_ok_hard'] = livestates.find(
-                {"service_description": "{$not: [null]}", "state": "OK"}).count()
-            data['services_warning_hard'] = livestates.find(
-                {"service_description": "{$not: [null]}", "state": "WARNING"}).count()
-            data['services_critical_hard'] = livestates.find(
-                {"service_description": "{$not: [null]}", "state": "CRITICAL"}).count()
-            data['services_unknown_hard'] = livestates.find(
-                {"service_description": "{$not: [null]}", "state": "UNKNOWN"}).count()
+            data['services_ok_hard'] = livestates.find({"state": "OK"}).count()
+            data['services_warning_hard'] = livestates.find({"state": "WARNING"}).count()
+            data['services_critical_hard'] = livestates.find({"state": "CRITICAL"}).count()
+            data['services_unknown_hard'] = livestates.find({"state": "UNKNOWN"}).count()
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
 
