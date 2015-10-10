@@ -13,8 +13,16 @@ from eve.methods.post import post_internal
 
 class Livestate(object):
 
-    def __init__(self, app):
-        self.app = app
+    @staticmethod
+    def recalculate():
+        livestate = current_app.data.driver.db['livestate']
+        if livestate.count() == 0:
+            host = current_app.data.driver.db['host']
+            hosts = host.find()
+            Livestate.on_inserted_host(hosts)
+            service = current_app.data.driver.db['service']
+            services = service.find()
+            Livestate.on_inserted_service(services)
 
     @staticmethod
     def on_inserted_host(items):

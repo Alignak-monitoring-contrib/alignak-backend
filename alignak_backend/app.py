@@ -280,12 +280,12 @@ class Application(Log):
                                  "back_password": generate_password_hash("admin"),
                                  "back_role_super_admin": True,
                                  "back_role_admin": []})
-            livestate = Livestate(self.app)
             self.app.on_updated_livestate += Livesynthesis.on_updated_livestate
             self.app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
-            self.app.on_inserted_host += livestate.on_inserted_host
-            self.app.on_inserted_service += livestate.on_inserted_service
+            self.app.on_inserted_host += Livestate.on_inserted_host
+            self.app.on_inserted_service += Livestate.on_inserted_service
         with self.app.test_request_context():
+            Livestate.recalculate()
             Livesynthesis.recalculate()
 
         @self.app.route("/login", methods=['POST'])
