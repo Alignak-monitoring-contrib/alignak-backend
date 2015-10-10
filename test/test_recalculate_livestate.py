@@ -52,10 +52,13 @@ class TestRecalculateLivestate(unittest2.TestCase):
 
         self.backend.delete("livestate", {})
         self.p.kill()
+        time.sleep(3)
         self.p = subprocess.Popen(['alignak_backend', 'start'])
         time.sleep(3)
 
         # Check if livestate right recalculate
+        self.backend = Backend('http://127.0.0.1:5000')
+        self.backend.login("admin", "admin", "force")
         r = self.backend.get('livestate')
         self.assertEqual(len(r['_items']), 2)
         self.assertEqual(r['_items'][1]['last_state'], 'OK')

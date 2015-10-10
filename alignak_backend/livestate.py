@@ -19,10 +19,12 @@ class Livestate(object):
         if livestate.count() == 0:
             host = current_app.data.driver.db['host']
             hosts = host.find()
-            Livestate.on_inserted_host(hosts)
+            for h in hosts:
+                Livestate.on_inserted_host([h])
             service = current_app.data.driver.db['service']
             services = service.find()
-            Livestate.on_inserted_service(services)
+            for s in services:
+                Livestate.on_inserted_service([s])
 
     @staticmethod
     def on_inserted_host(items):
