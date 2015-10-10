@@ -23,11 +23,6 @@ class TestRecalculateLivestate(unittest2.TestCase):
         cls.backend.delete("livestate", {})
         cls.backend.delete("livesynthesis", {})
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.backend.delete("contact", {})
-        cls.p.kill()
-
     def test_recalculate(self):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -68,3 +63,6 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['state'], 'OK')
         self.assertEqual(r['_items'][1]['host_name'], rh['_items'][0]['_id'])
         self.assertEqual(r['_items'][1]['service_description'], rs['_items'][0]['_id'])
+
+        self.backend.delete("contact", {})
+        self.p.kill()
