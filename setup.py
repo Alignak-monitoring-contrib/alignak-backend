@@ -25,14 +25,15 @@ setup(
     version=package.get_version(),
 
     # metadata for upload to PyPI
-    author="Alignak team",
+    author="Alignak team contribute",
     author_email="d.durieux@siprossii.com",
-    keywords="alignak monitoring",
+    keywords="alignak monitoring backend",
     url="https://github.com/Alignak-monitoring-contrib/alignak-backend",
     description="Alignak REST Backend",
     long_description=open('README.rst').read(),
 
     packages=find_packages(),
+    data_files = [('/usr/local/etc/alignak_backend', ['etc/settings.ini'])],
     include_package_data=True,
 
     install_requires=['Eve', 'flask-bootstrap'],

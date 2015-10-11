@@ -176,20 +176,19 @@ def generate_token():
     return str(t)+'-'+str(uuid.uuid4())
 
 
-def get_settings(self):
+def get_settings(settings):
     """
     Get settings of application from config file
 
+    :param settings: default settings
+    :type settings: dict
     :return: None
     """
-    return
-    settings = {}
     settings_filenames = [
-        '/etc/alignak_backend/settings.ini',
         '/usr/local/etc/alignak_backend/settings.ini',
+        '/etc/alignak_backend/settings.ini',
         os.path.abspath('./settings.ini')
     ]
-    self.log.debug(settings_filenames)
 
     # Define some variables available
     defaults = {
@@ -197,18 +196,9 @@ def get_settings(self):
     }
     config = ConfigParser(defaults=defaults)
     config.read(settings_filenames)
-    self.log.debug(
-        "Config file settings\n" +
-        pformat(dict(config.items()))
-    )
     for key, value in config.items('DEFAULT'):
         if not key.startswith('_'):
             settings[key.upper()] = value
-    self.log.debug((
-        settings,
-        self.settings
-    ))
-    self.settings.update(settings)
 
 
 # Application configuration
@@ -235,6 +225,8 @@ settings['MONGO_DBNAME'] = 'alignak-backend'
 # Default is ['$where', '$regex']
 settings['MONGO_QUERY_BLACKLIST'] = ['$where']
 
+get_settings(settings)
+print(settings)
 app = Eve(
     settings=settings,
     validator=MyValidator,
