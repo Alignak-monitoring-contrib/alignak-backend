@@ -3,17 +3,13 @@
 """
 Main
 """
-
-from alignak_backend.app import Application
+from alignak_backend.app import app
 
 
 def main():
-    """Application entry point"""
-    # Create application
-    appli = Application()
-
     # Process command line parameters
-    appli.process_args()
+    #appli.process_args()
+    app.run()
 
 if __name__ == "__main__":  # pragma: no cover
     main()

@@ -13,7 +13,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.p = subprocess.Popen(['alignak_backend', 'start'])
+        cls.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads'])
         time.sleep(3)
         cls.backend = Backend('http://127.0.0.1:5000')
         cls.backend.login("admin", "admin", "force")
@@ -48,7 +48,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.backend.delete("livestate", {})
         self.p.kill()
         time.sleep(3)
-        self.p = subprocess.Popen(['alignak_backend', 'start'])
+        self.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads'])
         time.sleep(3)
 
         # Check if livestate right recalculate

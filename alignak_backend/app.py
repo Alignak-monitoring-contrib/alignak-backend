@@ -94,307 +94,199 @@ class MyValidator(Validator):
         return
 
 
-class Application(Log):
+def pre_get(resource, request, lookup):
     """
-    Usage:
-        {command} [-d|-v] <subcommand>
+    Hook before get data. Add filter depend on roles of user
 
-    Options:
-        -d, --debug     Debug mode
-        -v, --verbose   Verbose mode
-
-    Subcommands:
-        start: to start the application
+    :param resource: name of the resource requested by user
+    :type resource: str
+    :param request: request of the user
+    :type request: object
+    :param lookup: values to get (filter in the request)
+    :type lookup: dict
+    :return: None
     """
-    settings = {}
-
-    def __init__(self):
-        Log.__init__(self)
-
-        # Command line parameters
-        command = os.path.basename(sys.argv[0])
-        self.__doc__ = dedent(self.__doc__).format(
-            command=command,
-            subcommands=self.format_subcommands()
-        )
-
-        self.debug = False
-
-    @staticmethod
-    def pre_get(resource, request, lookup):
-        """
-        Hook before get data. Add filter depend on roles of user
-
-        :param resource: name of the resource requested by user
-        :type resource: str
-        :param request: request of the user
-        :type request: object
-        :param lookup: values to get (filter in the request)
-        :type lookup: dict
-        :return: None
-        """
-        if not g.get('back_role_super_admin', False):
-            # Only in case not super-admin
-            if resource != 'contact':
-                admin = g.get('back_role_admin', [])
-                if admin != []:
-                    if "_brotherhood" not in lookup:
-                        lookup["_brotherhood"] = {"$in": admin}
-                    else:
-                        if not lookup["_brotherhood"] in admin:
-                            lookup["_id"] = 0
+    if not g.get('back_role_super_admin', False):
+        # Only in case not super-admin
+        if resource != 'contact':
+            admin = g.get('back_role_admin', [])
+            if admin != []:
+                if "_brotherhood" not in lookup:
+                    lookup["_brotherhood"] = {"$in": admin}
                 else:
-                    restrict = g.get('back_role_restricted', {})
-                    if "_brotherhood" not in lookup:
-                        broth = []
-                        for brotherhood, resources in restrict.items():
-                            if resource in resources:
-                                broth.append(brotherhood)
-                        if broth == []:
-                            lookup["_id"] = 0
-                        else:
-                            lookup["_brotherhood"] = {"$in": broth}
-                            field = '_users_read'
-                            if request.environ['REQUEST_METHOD'] == 'POST':
-                                field = '_users_create'
-                            if request.environ['REQUEST_METHOD'] == 'PATCH':
-                                field = '_users_update'
-                            if request.environ['REQUEST_METHOD'] == 'DELETE':
-                                field = '_users_delete'
-                            lookup[field] = {"$in": [g.get('users_id')]}
-                    else:
-                        for brotherhood, resources in restrict.items():
-                            if resource in resources and lookup["_brotherhood"] == brotherhood:
-                                return
+                    if not lookup["_brotherhood"] in admin:
                         lookup["_id"] = 0
-
-    @staticmethod
-    def pre_contact_post(items):
-        """
-        Hook before insert.
-        When add contact, hash the backend password of the user
-
-        :param items: list of items (list because can use bulk)
-        :type items: list
-        :return: None
-        """
-        for index, item in enumerate(items):
-            if 'back_password' in item:
-                items[index]['back_password'] = generate_password_hash(item['back_password'])
-
-    @staticmethod
-    def pre_contact_patch(updates, original):
-        """
-        Hook before update.
-        When update contact, hash the backend password of the user if try to change it
-
-        :param updates: list of fields user try to update
-        :type updates: dict
-        :param original: list of original fields
-        :type original: dict
-        :return: None
-        """
-        if 'back_password' in updates:
-            updates['back_password'] = generate_password_hash(updates['back_password'])
-
-    @staticmethod
-    def generate_token():
-        t = int(time.time() * 1000)
-        return str(t)+'-'+str(uuid.uuid4())
-
-    def initialize(self, debug=False, verbose=False, subcommand='start'):
-        """
-        Initialize the application, so start Eve
-
-        :param verbose: if True run in verbose (INFO) mode, otherwise in normal mode
-        :type debug: bool
-        :param debug: if True run in debug mode, otherwise in normal mode
-        :type debug: bool
-        :param subcommand:
-        :type subcommand: str
-        :return: None
-        """
-        # Set logger level
-        # Default is WARNING, set DEBUG if debug mode is requested ...
-        if verbose:
-            self.log.setLevel(logging.INFO)
-        if debug:
-            self.log.setLevel(logging.DEBUG)
-
-        # Application configuration
-        # Read configuration file
-        self.get_settings()
-        self.settings['DOMAIN'] = register_models()
-        self.settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
-        self.settings['ITEM_METHODS'] = ['GET', 'PATCH', 'DELETE']
-        self.settings['XML'] = False
-        self.settings['X_DOMAINS'] = '*'
-        self.settings['X_HEADERS'] = (
-            'Authorization, If-Match,'
-            ' X-HTTP-Method-Override, Content-Type'
-        )
-        self.settings['PAGINATION_LIMIT'] = 200
-
-        self.settings['MONGO_HOST'] = 'localhost'
-        self.settings['MONGO_PORT'] = 27017
-        # self.settings['MONGO_USERNAME'] = 'user'
-        # self.settings['MONGO_PASSWORD'] = 'user'
-        self.settings['MONGO_DBNAME'] = 'alignak-backend'
-
-        # Allow $regex in filtering ...
-        # Default is ['$where', '$regex']
-        self.settings['MONGO_QUERY_BLACKLIST'] = ['$where']
-
-        self.app = Eve(
-            settings=self.settings,
-            validator=MyValidator,
-            auth=MyTokenAuth
-        )
-        # Application banner in log
-        self.log.info("------------------------------------------------------------")
-        self.log.info("Alignak Backend, version %s", __version__)
-        self.log.info("Copyright %s", __copyright__)
-        self.log.info("License %s", __license__)
-        self.log.info("------------------------------------------------------------")
-
-        # Application configuration in log
-        self.log.info("application settings: %s", "\n" + pformat(self.settings))
-
-        # hooks
-        self.app.on_pre_GET += self.pre_get
-        self.app.on_insert_contact += self.pre_contact_post
-        self.app.on_update_contact += self.pre_contact_patch
-
-        # docs api
-        Bootstrap(self.app)
-        self.app.register_blueprint(eve_docs, url_prefix='/docs')
-
-        self.debug = debug
-        # Create default account when have no contact.
-        with self.app.app_context():
-            contacts = self.app.data.driver.db['contact']
-            super_admin_contact = contacts.find_one({'back_role_super_admin': True})
-            if not super_admin_contact:
-                contacts.insert({"contact_name": "admin",
-                                 "name": "Big Brother",
-                                 "back_password": generate_password_hash("admin"),
-                                 "back_role_super_admin": True,
-                                 "back_role_admin": []})
-            self.app.on_updated_livestate += Livesynthesis.on_updated_livestate
-            self.app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
-            self.app.on_inserted_host += Livestate.on_inserted_host
-            self.app.on_inserted_service += Livestate.on_inserted_service
-        with self.app.test_request_context():
-            Livestate.recalculate()
-            Livesynthesis.recalculate()
-
-        @self.app.route("/login", methods=['POST'])
-        def login_app():
-            post_data = request.get_json()
-            if 'username' not in post_data or 'password' not in post_data:
-                abort(401, description='Please provide proper credentials')
-            elif post_data['username'] == '' or post_data['password'] == '':
-                abort(401, description='Please provide proper credentials')
             else:
-                contacts = self.app.data.driver.db['contact']
-                contact = contacts.find_one({'contact_name': post_data['username']})
-                if contact:
-                    if check_password_hash(contact['back_password'], post_data['password']):
-                        if 'action' in post_data:
-                            if post_data['action'] == 'generate':
-                                token = self.generate_token()
-                                contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
-                                return jsonify({'token': token})
-                        return jsonify({'token': contact['token']})
-                abort(401, description='Please provide proper credentials')
+                restrict = g.get('back_role_restricted', {})
+                if "_brotherhood" not in lookup:
+                    broth = []
+                    for brotherhood, resources in restrict.items():
+                        if resource in resources:
+                            broth.append(brotherhood)
+                    if broth == []:
+                        lookup["_id"] = 0
+                    else:
+                        lookup["_brotherhood"] = {"$in": broth}
+                        field = '_users_read'
+                        if request.environ['REQUEST_METHOD'] == 'POST':
+                            field = '_users_create'
+                        if request.environ['REQUEST_METHOD'] == 'PATCH':
+                            field = '_users_update'
+                        if request.environ['REQUEST_METHOD'] == 'DELETE':
+                            field = '_users_delete'
+                        lookup[field] = {"$in": [g.get('users_id')]}
+                else:
+                    for brotherhood, resources in restrict.items():
+                        if resource in resources and lookup["_brotherhood"] == brotherhood:
+                            return
+                    lookup["_id"] = 0
 
-        @self.app.route("/logout", methods=['POST'])
-        def logout_app():
-            return 'ok'
+def pre_contact_post(items):
+    """
+    Hook before insert.
+    When add contact, hash the backend password of the user
 
-    def get_settings(self):
-        """
-        Get settings of application from config file
+    :param items: list of items (list because can use bulk)
+    :type items: list
+    :return: None
+    """
+    for index, item in enumerate(items):
+        if 'back_password' in item:
+            items[index]['back_password'] = generate_password_hash(item['back_password'])
 
-        :return: None
-        """
-        return
-        settings = {}
-        settings_filenames = [
-            '/etc/alignak_backend/settings.ini',
-            '/usr/local/etc/alignak_backend/settings.ini',
-            os.path.abspath('./settings.ini')
-        ]
-        self.log.debug(settings_filenames)
+def pre_contact_patch(updates, original):
+    """
+    Hook before update.
+    When update contact, hash the backend password of the user if try to change it
 
-        # Define some variables available
-        defaults = {
-            '_cwd': os.getcwd()
-        }
-        config = ConfigParser(defaults=defaults)
-        config.read(settings_filenames)
-        self.log.debug(
-            "Config file settings\n" +
-            pformat(dict(config.items()))
-        )
-        for key, value in config.items('DEFAULT'):
-            if not key.startswith('_'):
-                settings[key.upper()] = value
-        self.log.debug((
-            settings,
-            self.settings
-        ))
-        self.settings.update(settings)
+    :param updates: list of fields user try to update
+    :type updates: dict
+    :param original: list of original fields
+    :type original: dict
+    :return: None
+    """
+    if 'back_password' in updates:
+        updates['back_password'] = generate_password_hash(updates['back_password'])
 
-    def format_subcommands(self):
-        """
+def generate_token():
+    t = int(time.time() * 1000)
+    return str(t)+'-'+str(uuid.uuid4())
 
-        :return:
-        :rtype: str
-        """
-        subcommands_text = []
-        for cmd, data in _subcommands.items():
-            subcommands_text.append(
-                "    {name:{width}}{desc}".format(
-                    name=cmd, width=12, desc=data[0]
-                )
-            )
-        return "\n".join(subcommands_text)
 
-    def process_args(self):
-        """
-        Manage arguments used to start alignak_backend
+def get_settings(self):
+    """
+    Get settings of application from config file
 
-        :return: None
-        """
-        args = docopt(self.__doc__, help=True, options_first=True)
-        # Get logging option earlier in the process
-        rootlog = logging.getLogger()
-        if args['--debug']:
-            rootlog.setLevel(logging.DEBUG)
-        elif args['--verbose']:
-            rootlog.setLevel(logging.INFO)
-        self.initialize(args['--debug'], args['--verbose'], args['<subcommand>'])
+    :return: None
+    """
+    return
+    settings = {}
+    settings_filenames = [
+        '/etc/alignak_backend/settings.ini',
+        '/usr/local/etc/alignak_backend/settings.ini',
+        os.path.abspath('./settings.ini')
+    ]
+    self.log.debug(settings_filenames)
 
-        # self.log.info("application start parameters: %s", "\n" + pformat(args))
-        try:
-            _subcommands[args['<subcommand>']][1](self)
-        except:
-            self.log.error("failed to launch command '%s'", args['<subcommand>'])
+    # Define some variables available
+    defaults = {
+        '_cwd': os.getcwd()
+    }
+    config = ConfigParser(defaults=defaults)
+    config.read(settings_filenames)
+    self.log.debug(
+        "Config file settings\n" +
+        pformat(dict(config.items()))
+    )
+    for key, value in config.items('DEFAULT'):
+        if not key.startswith('_'):
+            settings[key.upper()] = value
+    self.log.debug((
+        settings,
+        self.settings
+    ))
+    self.settings.update(settings)
 
-    @register_command("Start Backend serving")
-    def start(self):
-        """
-        Run (start) the application
 
-        :return: None
-        """
-        try:  # pragma: no cover
-            self.log.info(
-                "starting Alignak backend server ...",
-            )
+# Application configuration
+# Read configuration file
+settings = {}
+settings['DOMAIN'] = register_models()
+settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
+settings['ITEM_METHODS'] = ['GET', 'PATCH', 'DELETE']
+settings['XML'] = False
+settings['X_DOMAINS'] = '*'
+settings['X_HEADERS'] = (
+    'Authorization, If-Match,'
+    ' X-HTTP-Method-Override, Content-Type'
+)
+settings['PAGINATION_LIMIT'] = 200
 
-            # Start the application ...
-            self.app.run(use_reloader=False, threaded=True)
-        except Exception as e:  # pragma: no cover
-            self.log.error("exception on run %s", str(e))
+settings['MONGO_HOST'] = 'localhost'
+settings['MONGO_PORT'] = 27017
+# self.settings['MONGO_USERNAME'] = 'user'
+# self.settings['MONGO_PASSWORD'] = 'user'
+settings['MONGO_DBNAME'] = 'alignak-backend'
+
+# Allow $regex in filtering ...
+# Default is ['$where', '$regex']
+settings['MONGO_QUERY_BLACKLIST'] = ['$where']
+
+app = Eve(
+    settings=settings,
+    validator=MyValidator,
+    auth=MyTokenAuth
+)
+# hooks
+app.on_pre_GET += pre_get
+app.on_insert_contact += pre_contact_post
+app.on_update_contact += pre_contact_patch
+
+# docs api
+Bootstrap(app)
+app.register_blueprint(eve_docs, url_prefix='/docs')
+
+# Create default account when have no contact.
+with app.app_context():
+    contacts = app.data.driver.db['contact']
+    super_admin_contact = contacts.find_one({'back_role_super_admin': True})
+    if not super_admin_contact:
+        contacts.insert({"contact_name": "admin",
+                         "name": "Big Brother",
+                         "back_password": generate_password_hash("admin"),
+                         "back_role_super_admin": True,
+                         "back_role_admin": []})
+    app.on_updated_livestate += Livesynthesis.on_updated_livestate
+    app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
+    app.on_inserted_host += Livestate.on_inserted_host
+    app.on_inserted_service += Livestate.on_inserted_service
+with app.test_request_context():
+    Livestate.recalculate()
+    Livesynthesis.recalculate()
+
+@app.route("/login", methods=['POST'])
+def login_app():
+    post_data = request.get_json()
+    if 'username' not in post_data or 'password' not in post_data:
+        abort(401, description='Please provide proper credentials')
+    elif post_data['username'] == '' or post_data['password'] == '':
+        abort(401, description='Please provide proper credentials')
+    else:
+        contacts = app.data.driver.db['contact']
+        contact = contacts.find_one({'contact_name': post_data['username']})
+        if contact:
+            if check_password_hash(contact['back_password'], post_data['password']):
+                if 'action' in post_data:
+                    if post_data['action'] == 'generate':
+                        token = generate_token()
+                        contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                        return jsonify({'token': token})
+                return jsonify({'token': contact['token']})
+        abort(401, description='Please provide proper credentials')
+
+@app.route("/logout", methods=['POST'])
+def logout_app():
+    return 'ok'
+
+if __name__ == '__main__':
+    app.run()

@@ -14,6 +14,7 @@ Contents:
    intro
    architecture
    install
+   run
    api
    tutorial
    tools
