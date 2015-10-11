@@ -204,29 +204,27 @@ def get_settings(settings):
 # Application configuration
 # Read configuration file
 settings = {}
-settings['DOMAIN'] = register_models()
-settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
-settings['ITEM_METHODS'] = ['GET', 'PATCH', 'DELETE']
-settings['XML'] = False
 settings['X_DOMAINS'] = '*'
 settings['X_HEADERS'] = (
     'Authorization, If-Match,'
     ' X-HTTP-Method-Override, Content-Type'
 )
-settings['PAGINATION_LIMIT'] = 200
+settings['PAGINATION_LIMIT'] = 50
 
 settings['MONGO_HOST'] = 'localhost'
 settings['MONGO_PORT'] = 27017
-# self.settings['MONGO_USERNAME'] = 'user'
-# self.settings['MONGO_PASSWORD'] = 'user'
 settings['MONGO_DBNAME'] = 'alignak-backend'
 
+get_settings(settings)
+
+settings['DOMAIN'] = register_models()
+settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
+settings['ITEM_METHODS'] = ['GET', 'PATCH', 'DELETE']
+settings['XML'] = False
 # Allow $regex in filtering ...
 # Default is ['$where', '$regex']
 settings['MONGO_QUERY_BLACKLIST'] = ['$where']
 
-get_settings(settings)
-print(settings)
 app = Eve(
     settings=settings,
     validator=MyValidator,
