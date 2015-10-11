@@ -141,6 +141,7 @@ def pre_get(resource, request, lookup):
                             return
                     lookup["_id"] = 0
 
+
 def pre_contact_post(items):
     """
     Hook before insert.
@@ -153,6 +154,7 @@ def pre_contact_post(items):
     for index, item in enumerate(items):
         if 'back_password' in item:
             items[index]['back_password'] = generate_password_hash(item['back_password'])
+
 
 def pre_contact_patch(updates, original):
     """
@@ -167,6 +169,7 @@ def pre_contact_patch(updates, original):
     """
     if 'back_password' in updates:
         updates['back_password'] = generate_password_hash(updates['back_password'])
+
 
 def generate_token():
     t = int(time.time() * 1000)
@@ -264,6 +267,7 @@ with app.test_request_context():
     Livestate.recalculate()
     Livesynthesis.recalculate()
 
+
 @app.route("/login", methods=['POST'])
 def login_app():
     post_data = request.get_json()
@@ -283,6 +287,7 @@ def login_app():
                         return jsonify({'token': token})
                 return jsonify({'token': contact['token']})
         abort(401, description='Please provide proper credentials')
+
 
 @app.route("/logout", methods=['POST'])
 def logout_app():
