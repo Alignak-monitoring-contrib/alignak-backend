@@ -10,4 +10,4 @@ pylint
 pep8
 pep257
 -e git+https://github.com/Alignak-monitoring-contrib/alignak-backend-client.git#egg=alignak_backend_client
-
+uwsgi
