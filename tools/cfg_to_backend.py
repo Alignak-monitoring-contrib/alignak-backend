@@ -19,22 +19,45 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Alignak.  If not, see <http://www.gnu.org/licenses/>.
 
-import requests
-from requests.auth import HTTPBasicAuth
+from __future__ import print_function
+from future.utils import iteritems
 import json
 import ujson
+import argparse
 
 from alignak.objects.config import Config
-from alignak_backend.models.host import get_schema as host_get_schema
-from alignak_backend.models.hostgroup import get_schema as hostgroup_get_schema
-from alignak_backend.models.contact import get_schema as contact_get_schema
-from alignak_backend.models.contactgroup import get_schema as contactgroup_get_schema
-from alignak_backend.models.service import get_schema as service_get_schema
-from alignak_backend.models.servicegroup import get_schema as servicegroup_get_schema
-from alignak_backend.models.timeperiod import get_schema as timeperiod_get_schema
+from alignak_backend_client.client import Backend
+
+from alignak_backend.models import command
+from alignak_backend.models import timeperiod
+from alignak_backend.models import hostgroup
+from alignak_backend.models import hostdependency
+from alignak_backend.models import servicedependency
+from alignak_backend.models import serviceextinfo
+from alignak_backend.models import trigger
+from alignak_backend.models import contact
+from alignak_backend.models import contactgroup
+from alignak_backend.models import contactrestrictrole
+from alignak_backend.models import escalation
+from alignak_backend.models import host
+from alignak_backend.models import hostextinfo
+from alignak_backend.models import hostescalation
+from alignak_backend.models import servicegroup
+from alignak_backend.models import service
+from alignak_backend.models import serviceescalation
+
+parser = argparse.ArgumentParser()
+parser.add_argument("cfg", nargs='*', default=None)
+args = parser.parse_args()
 
 # Define here the path of the cfg files
-cfg = ['cfg/from_shinken/shinken.cfg']
+cfg = [] # ['cfg/from_shinken/shinken.cfg']
+
+if args.cfg is not None:
+    cfg.extend(args.cfg)
+
+if cfg == []:
+    print('No cfg file to parse')
 
 # Define here the url of the backend
 backend_url = 'http://localhost:5000/'
@@ -44,63 +67,9 @@ destroy_backend_data = True
 
 username = 'admin'
 password = 'admin'
-token = None
-auth = None
 
 # Don't touch after this line
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-def method_post(endpoint, data_json, headers, auth):
-    """
-    Create a new item
-
-    :param endpoint: endpoint (API URL)
-    :type endpoint: str
-    :param data_json: properties of item to create
-    :type data_json:str
-    :param headers: headers (example: Content-Type)
-    :type headers: dict
-    :return: response (creation information)
-    :rtype: dict
-    """
-    print data_json
-    response = requests.post(endpoint, data_json, headers=headers, auth=auth)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print "%s: %s for %s"  % (response.status_code, response.content, endpoint)
-        return response.json()
-
-def method_delete(endpoint, auth):
-    response = requests.delete(endpoint, auth=auth)
-    print "delete: %d: %s" % (response.status_code, response.text)
-
-def method_patch(endpoint, data_json, headers, auth):
-    response = requests.patch(endpoint, data_json, headers=headers, auth=auth)
-    if response.status_code == 200:
-        return response.json()
-    elif response.status_code == 412:
-        # 412 means Precondition failed
-        return response.content
-    else:
-        print "%s: %s for %s"  % (response.status_code, response.content, endpoint)
-        return response.json()
-
-
-def update_types(source, schema):
-    for prop in source:
-        source[prop] = ''.join(source[prop])
-        if prop in schema:
-            # get type
-            if schema[prop]['type'] == 'boolean':
-                if source[prop] == '1':
-                    source[prop] = True
-                else:
-                    source[prop] = False
-            elif schema[prop]['type'] == 'list':
-                source[prop] = source[prop].split(',')
-    return source
-
 
 def check_mapping(items, mapping):
     response = {
@@ -124,574 +93,253 @@ buf = alconfig.read_config(cfg)
 conf = alconfig.read_config_buf(buf)
 
 
-print "~~~~~~~~~~~~~~~~~~~~-- First authentication to delete previous data ~~~~~~~~~~~~~~~~~~~~~~~~"
+print("~~~~~~~~~~~~~~~~~~~~~~ First authentication to delete previous data ~~~~~~~~~~~~~~~~~~~")
 # Backend authentication with token generation
 headers = {'Content-Type': 'application/json'}
 payload = {'username': username, 'password': password, 'action': 'generate'}
-response = requests.post(
-    ''.join([backend_url, 'login']),
-    json=payload,
-    headers=headers
-)
-response.raise_for_status()
-resp = response.json()
-token = resp['token']
+backend = Backend(backend_url)
+backend.login(username, password)
 
-# Create authentication object and get root endpoint to confirm ...
-auth = HTTPBasicAuth(token, '')
-response = requests.get(
-    ''.join([backend_url, '']),
-    auth=auth
-)
-response.raise_for_status()
-resp = response.json()
-print "~~~~~~~~~~~~~~~~~~~~-- Authenticated -~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-
+if backend.token is None:
+    print("Can't authenticated")
+    exit()
+print("~~~~~~~~~~~~~~~~~~~~~~ Authenticated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 # Destroy data in backend if defined
 if destroy_backend_data:
-    method_delete(''.join([backend_url, 'command']), auth)
-    method_delete(''.join([backend_url, 'host']), auth)
-    method_delete(''.join([backend_url, 'hostgroup']), auth)
-    method_delete(''.join([backend_url, 'service']), auth)
-    method_delete(''.join([backend_url, 'timeperiod']), auth)
-    # method_delete(''.join([backend_url, 'contact']), auth)
+    headers = {'Content-Type': 'application/json'}
+    backend.delete('command', headers)
+    backend.delete('timeperiod', headers)
+    backend.delete('hostgroup', headers)
+    backend.delete('hostdependency', headers)
+    backend.delete('servicedependency', headers)
+    backend.delete('serviceextinfo', headers)
+    backend.delete('trigger', headers)
+    #backend.delete('contact', headers)
+    backend.delete('contactgroup', headers)
+    backend.delete('contactrestrictrole', headers)
+    backend.delete('escalation', headers)
+    backend.delete('host', headers)
+    backend.delete('hostextinfo', headers)
+    backend.delete('hostescalation', headers)
+    backend.delete('servicegroup', headers)
+    backend.delete('service', headers)
+    backend.delete('serviceescalation', headers)
+    print("~~~~~~~~~~~~~~~~~~~~~~ Data destroyed ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Order of objects + fields to update post add
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# COMMAND
+#    command.use
+# TIMEPERIOD
+#    timeperiod.use
+# HOSTGROUP
+#    hostgroup.hostgroup_members
+# HOSTDEPENDENCY
+#    hostdependency.use
+# SERVICEDEPENDENCY
+#    servicedependency.use
+# SERVICEEXTINFO
+#    serviceextinfo.use
+# TRIGGER
+#    trigger.use
+# CONTACT
+#    contact.use
+# CONTACTGROUP
+#    contact.contactgroups / contactgroup.contactgroup_members
+# CONTACTRESTRICTROLE
+#
+# ESCALATION
+#    escalation.use
+# HOST
+#    hostgroup.members / host.use / host.parents
+# HOSTEXTINFO
+#    hostextinfo.use
+# HOSTESCALATION
+#    hostescalation.use
+# SERVICEGROUP
+#    servicegroup.servicegroup_members
+# SERVICE
+#    service.use
+# SERVICEESCALATION
+#    serviceescalation.use
+#
 
 
-headers = {'content-type': 'application/json'}
-commands = {}
-hostgroups = {}
-hosts = {}
-contacts = {}
-contactgroups = {}
-escalations = {}
-timeperiods = {}
-services = {}
-servicegroups = {}
-
-print "~~~~~~~~~~~~~~~~~~~~-- Second authentication to store new data ~~~~~~~~~~~~~~~~~~~~~~~------"
-# Backend authentication with token generation
-headers = {'Content-Type': 'application/json'}
-payload = {'username': username, 'password': password, 'action': 'generate'}
-response = requests.post(
-    ''.join([backend_url, 'login']),
-    json=payload,
-    headers=headers
-)
-response.raise_for_status()
-resp = response.json()
-token = resp['token']
-
-# Create authentication object and get root endpoint to confirm ...
-auth = HTTPBasicAuth(token, '')
-response = requests.get(
-    ''.join([backend_url, '']),
-    auth=auth
-)
-response.raise_for_status()
-resp = response.json()
-print "~~~~~~~~~~~~~~~~~~~~-- Authenticated -~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-
-
-print "~~~~~~~~~~~~~~~~~~~~ Add commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-for command in conf['command']:
-    if 'imported_from' in command:
-        del command['imported_from']
-    for p in command:
-        command[p] = command[p][0]
-    response = method_post(''.join([backend_url, 'command']), ujson.dumps(command), headers, auth)
-    if '_error' in response and '_issues' in response:
-        print "ERROR: %s" % response['_issues']
-    else:
-        commands[command['command_name']] = response['_id']
-
-print "~~~~~~~~~~~~~~~~~~~~ Add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-headers = {'content-type': 'application/json'}
-schema = timeperiod_get_schema()
-# timeperiod to add later if required
-timeperiod_update = {}
-for timeperiod in conf['timeperiod']:
-    to_update = {}
-    timeperiod = update_types(timeperiod, schema['schema'])
-    if 'imported_from' in timeperiod:
-        del timeperiod['imported_from']
-    if 'use' in timeperiod:
-        to_update['use'] = timeperiod['use']
-        del timeperiod['use']
-    fields = ['imported_from', 'use', 'name', 'definition_order', 'register',
-              'timeperiod_name', 'alias', 'dateranges', 'exclude', 'is_active']
-    timeperiod['dateranges'] = []
-    prop_to_del = []
-    for prop in timeperiod:
-        if prop not in fields:
-            timeperiod['dateranges'].append({prop: timeperiod[prop]})
-            prop_to_del.append(prop)
-    for prop in prop_to_del:
-        del timeperiod[prop]
-    response = method_post(
-        ''.join([backend_url, 'timeperiod']),
-        ujson.dumps(timeperiod),
-        headers, auth
-    )
-    if '_error' in response and '_issues' in response:
-        print "ERROR: %s" % response['_issues']
-    else:
-        timeperiods[timeperiod['timeperiod_name']] = response['_id']
-        if to_update:
-            to_update['_etag'] = response['_etag']
-            timeperiod_update[response['_id']] = to_update
-
-print "~~~~~~~~~~~~~~~~~~~~ update 'use' in timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-id_to_del = []
-for id in timeperiod_update:
-    if 'use' in timeperiod_update[id]:
-        if timeperiod_update[id]['use'] in timeperiods:
-            data = {'use': timeperiods[timeperiod_update[id]['use']]}
-            headers['If-Match'] = timeperiod_update[id]['_etag']
-            response = method_patch(''.join([backend_url, 'timeperiod', '/', id]),
-                         ujson.dumps(data), headers, auth)
-            timeperiod_update[id]['_etag'] = response['_etag']
-            del timeperiod_update[id]['use']
-        else:
-            print 'ERROR: use timeperiod `%s` not found' % (timeperiod_update[id]['use'])
-            del timeperiod_update[id]['use']
-        if len(timeperiod_update[id]) == 1:
-            id_to_del.append(id)
-for id in id_to_del:
-    del timeperiod_update[id]
-
-print "~~~~~~~~~~~~~~~~~~~~ Add contactgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-headers = {'content-type': 'application/json'}
-schema = contactgroup_get_schema()
-# contactgroup to add later if required
-contactgroup_update = {}
-for contactgroup in conf['contactgroup']:
-    to_update = {}
-    contactgroup = update_types(contactgroup, schema['schema'])
-    if 'members' in contactgroup:
-        to_update['members'] = contactgroup['members']
-        del contactgroup['members']
-    if 'imported_from' in contactgroup:
-        del contactgroup['imported_from']
-    if 'contactgroup_members' in contactgroup:
-        ret_map = check_mapping(contactgroup['contactgroup_members'], contactgroups)
-        if ret_map['all_found']:
-            contactgroup['contactgroup_members'] = ret_map['data']
-        else:
-            to_update['contactgroup_members'] = contactgroup['contactgroup_members']
-            del contactgroup['contactgroup_members']
-    response = method_post(
-        ''.join([backend_url, 'contactgroup']),
-        ujson.dumps(contactgroup),
-        headers, auth
-    )
-    if '_error' in response and '_issues' in response:
-        print "ERROR: %s" % response['_issues']
-    else:
-        contactgroups[contactgroup['contactgroup_name']] = response['_id']
-        if to_update:
-            to_update['_etag'] = response['_etag']
-            contactgroup_update[response['_id']] = to_update
-
-print "~~~~~~~~~~~~~~~~~~~~ update 'contactgroup_members' in contactgroups ~~~~~~~~~~~~~~~~~~~~"
-id_to_del = []
-for id in contactgroup_update:
-    new_list = []
-    if 'contactgroup_members' in contactgroup_update[id]:
-        for members in contactgroup_update[id]['contactgroup_members']:
-            new_list.append(contactgroups[members])
-        data = {'contactgroup_members': new_list}
-        headers['If-Match'] = contactgroup_update[id]['_etag']
-        response = method_patch(''.join([backend_url, 'contactgroup', '/', id]),
-                     ujson.dumps(data), headers, auth)
-        contactgroup_update[id]['_etag'] = response['_etag']
-        if not 'members' in contactgroup_update[id]:
-            id_to_del.append(id)
-    for id in id_to_del:
-        del contactgroup_update[id]
-
-print "~~~~~~~~~~~~~~~~~~~~ Add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-headers = {'content-type': 'application/json'}
-schema = contact_get_schema()
-# contact to add later if required
-contact_update = {}
-for contact in conf['contact']:
-    to_update = {}
-    contact = update_types(contact, schema['schema'])
-    # New fields ...
-    contact['back_role_super_admin'] = False
-    contact['back_role_admin'] = []
-
-    if 'imported_from' in contact:
-        del contact['imported_from']
-    if 'use' in contact:
-        to_update['use'] = contact['use']
-    if 'host_notification_period' in contact:
-        contact['host_notification_period'] = timeperiods[contact['host_notification_period']]
-    if 'service_notification_period' in contact:
-        contact['service_notification_period'] = timeperiods[contact['service_notification_period']]
-    if 'contactgroups' in contact:
-        ret_map = check_mapping(contact['contactgroups'], contacts)
-        if ret_map['all_found']:
-            contact['contactgroups'] = ret_map['data']
-        else:
-            to_update['contactgroups'] = contact['contactgroups']
-            del contact['contactgroups']
-    if 'host_notification_commands' in contact:
-        ret_map = check_mapping(contact['host_notification_commands'], commands)
-        if ret_map['all_found']:
-            contact['host_notification_commands'] = ret_map['data']
-        else:
-            to_update['host_notification_commands'] = contact['host_notification_commands']
-            del contact['host_notification_commands']
-    if 'service_notification_commands' in contact:
-        ret_map = check_mapping(contact['service_notification_commands'], commands)
-        if ret_map['all_found']:
-            contact['service_notification_commands'] = ret_map['data']
-        else:
-            to_update['service_notification_commands'] = contact['service_notification_commands']
-            del contact['service_notification_commands']
-    response = method_post(
-        ''.join([backend_url, 'contact']),
-        ujson.dumps(contact),
-        headers, auth
-    )
-    if '_error' in response and '_issues' in response:
-        print "ERROR: %s" % response['_issues']
-        print "Data: %s" % ujson.dumps(contact)
-    else:
-        contacts[contact['contact_name']] = response['_id']
-        if to_update:
-            to_update['_etag'] = response['_etag']
-            contact_update[response['_id']] = to_update
-
-print "~~~~~~~~~~~~~~~~~~~~ update 'use' in contacts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-id_to_del = []
-for id in contact_update:
-    if 'use' in contact_update[id]:
-        if contact_update[id]['use'] in contacts:
-            data = {'use': contacts[contact_update[id]['use']]}
-            headers['If-Match'] = contact_update[id]['_etag']
-            response = method_patch(''.join([backend_url, 'contact', '/', id]),
-                         ujson.dumps(data), headers, auth)
-            contact_update[id]['_etag'] = response['_etag']
-            del contact_update[id]['use']
-        else:
-            print 'ERROR: use contact `%s` not found' % (contact_update[id]['use'])
-            del contact_update[id]['use']
-        if len(contact_update[id]) == 1:
-            id_to_del.append(id)
-for id in id_to_del:
-    del contact_update[id]
-
-print "~~~~~~~~~~~~~~~~~~~~ Add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-headers = {'content-type': 'application/json'}
-schema = hostgroup_get_schema()
-# hostgroup to add later if required
-hostgroup_update = {}
-for hostgroup in conf['hostgroup']:
-    to_update = {}
-    hostgroup = update_types(hostgroup, schema['schema'])
-    if 'members' in hostgroup:
-        to_update['members'] = hostgroup['members']
-        del hostgroup['members']
-    if 'imported_from' in hostgroup:
-        del hostgroup['imported_from']
-    if 'hostgroup_members' in hostgroup:
-        ret_map = check_mapping(hostgroup['hostgroup_members'], hostgroups)
-        if ret_map['all_found']:
-            hostgroup['hostgroup_members'] = ret_map['data']
-        else:
-            to_update['hostgroup_members'] = hostgroup['hostgroup_members']
-            del hostgroup['hostgroup_members']
-    response = method_post(
-        ''.join([backend_url, 'hostgroup']),
-        ujson.dumps(hostgroup),
-        headers, auth
-    )
-    if '_error' in response and '_issues' in response:
-        print "ERROR: %s" % response['_issues']
-    else:
-        hostgroups[hostgroup['hostgroup_name']] = response['_id']
-        if to_update:
-            to_update['_etag'] = response['_etag']
-            hostgroup_update[response['_id']] = to_update
-
-print "~~~~~~~~~~~~~~~~~~~~ update 'hostgroup_members' in hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~"
-id_to_del = []
-for id in hostgroup_update:
-    new_list = []
-    if id not in hostgroup_update:
-        print "ERROR: hostgroup id not in hostgroup_update", id
-        continue
-    if 'hostgroup_members' not in hostgroup_update[id]:
-        print "ERROR: hostgroup id not in hostgroup_update", id
-        continue
-    for members in hostgroup_update[id]['hostgroup_members']:
-        new_list.append(hostgroups[members])
-    data = {'hostgroup_members': new_list}
-    headers['If-Match'] = hostgroup_update[id]['_etag']
-    response = method_patch(''.join([backend_url, 'hostgroup', '/', id]),
-                 ujson.dumps(data), headers, auth)
-    hostgroup_update[id]['_etag'] = response['_etag']
-    if not 'members' in hostgroup_update[id]:
-        id_to_del.append(id)
-for id in id_to_del:
-    del hostgroup_update[id]
-
-print "~~~~~~~~~~~~~~~~~~~~ Add hosts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-
-headers = {'content-type': 'application/json'}
-schema = host_get_schema()
-host_update = {}
-for host in conf['host']:
-    to_update = {}
-    host = update_types(host, schema['schema'])
-    if 'imported_from' in host:
-        del host['imported_from']
-    if 'use' in host:
-        to_update['use'] = host['use']
-        del host['use']
-    if 'check_command' in host:
-        if '!' in host['check_command']:
-            args = host['check_command'].split('!')
-            host['check_command'] = args[0]
-            del args[0]
-            host['check_command_args'] = '!'.join(args)
-        host['check_command'] = commands[host['check_command']]
-    if 'check_period' in host:
-        host['check_period'] = timeperiods[host['check_period']]
-    if 'notification_period' in host:
-        host['notification_period'] = timeperiods[host['notification_period']]
-    relations = {
-        'parents': hosts,
-        'hostgroups': hostgroups,
-        'contacts': contacts,
-        'contact_groups': contactgroups,
-        'escalation': escalations,
-    }
-    for relation in relations:
-        if relation in host:
-            ret_map = check_mapping(host[relation], relations[relation])
-            if ret_map['all_found']:
-                host[relation] = ret_map['data']
-            else:
-                to_update[relation] = host[relation]
-                del host[relation]
-
-    response = method_post(
-        ''.join([backend_url, 'host']),
-        ujson.dumps(host),
-        headers, auth
-    )
-    if '_error' in response and '_issues' in response:
-        print "ERROR: %s" % response['_issues']
-    else:
-        hosts[host['host_name']] = response['_id']
-        if to_update:
-            to_update['_etag'] = response['_etag']
-            host_update[response['_id']] = to_update
-
-# Update use of host
-print "~~~~~~~~~~~~~~~~~~~~ update 'use' in hosts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-id_to_del = []
-for id in host_update:
-    if 'use' in host_update[id]:
-        if host_update[id]['use'] in hosts:
-            data = {'use': hosts[host_update[id]['use']]}
-            headers['If-Match'] = host_update[id]['_etag']
-            response = method_patch(''.join([backend_url, 'host', '/', id]),
-                         ujson.dumps(data), headers, auth)
-            host_update[id]['_etag'] = response['_etag']
-            del host_update[id]['use']
-        else:
-            print 'ERROR: use host `%s` not found' % (host_update[id]['use'])
-            del host_update[id]['use']
-        if len(host_update[id]) == 1:
-            id_to_del.append(id)
-for id in id_to_del:
-    del host_update[id]
-
-# Update other lists of host
-relations = {
-    'parents': hosts,
-    'hostgroups': hostgroups,
-    'contacts': contacts,
-    'contact_groups': contactgroups,
-#    'escalation': escalations,
-}
-for relation in relations:
-    print "~~~~~~~~~~~~~~~~~~~~ update '%s' in hosts ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" % (relation)
-    id_to_del = []
-    for id in host_update:
-        if relation in host_update[id]:
-            new_list = []
-            for members in host_update[id][relation]:
-                if members in hosts:
-                    new_list.append(hosts[members])
+def update_types(source, schema):
+    for prop in source:
+        source[prop] = ''.join(source[prop])
+        if prop in schema:
+            # get type
+            if schema[prop]['type'] == 'boolean':
+                if source[prop] == '1':
+                    source[prop] = True
                 else:
-                    print 'ERROR: %s host `%s` not found' % (relation, members)
-            data = {relation: new_list}
-            headers['If-Match'] = host_update[id]['_etag']
-            response = method_patch(''.join([backend_url, 'host', '/', id]),
-                         ujson.dumps(data), headers, auth)
-            host_update[id]['_etag'] = response['_etag']
-            del host_update[id][relation]
-            if len(host_update[id]) == 1:
-                id_to_del.append(id)
-    for id in id_to_del:
-        del host_update[id]
+                    source[prop] = False
+            elif schema[prop]['type'] == 'list':
+                source[prop] = source[prop].split(',')
+            elif schema[prop]['type'] == 'integer':
+                source[prop] = int(source[prop])
+    return source
 
-print "~~~~~~~~~~~~~~~~~~~~ update 'members' in hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-id_to_del = []
-for id in hostgroup_update:
-    new_list = []
-    for members in hostgroup_update[id]['members']:
-        if members in host:
-            new_list.append(hosts[members])
-    data = {'members': new_list}
-    headers['If-Match'] = hostgroup_update[id]['_etag']
-    response = method_patch(''.join([backend_url, 'hostgroup', '/', id]),
-                 ujson.dumps(data), headers, auth)
-    hostgroup_update[id]['_etag'] = response['_etag']
-    if len(hostgroup_update[id]) == 1:
-        id_to_del.append(id)
-for id in id_to_del:
-    del hostgroup_update[id]
 
-print "~~~~~~~~~~~~~~~~~~~~ Add servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-headers = {'content-type': 'application/json'}
-schema = servicegroup_get_schema()
-# servicegroup to add later if required
-servicegroup_update = {}
-for servicegroup in conf['servicegroup']:
-    to_update = {}
-    servicegroup = update_types(servicegroup, schema['schema'])
-    if 'members' in servicegroup:
-        to_update['members'] = servicegroup['members']
-        del servicegroup['members']
-    if 'imported_from' in servicegroup:
-        del servicegroup['imported_from']
-    if 'servicegroup_members' in servicegroup:
-        ret_map = check_mapping(servicegroup['servicegroup_members'], servicegroups)
-        if ret_map['all_found']:
-            servicegroup['servicegroup_members'] = ret_map['data']
-        else:
-            to_update['servicegroup_members'] = servicegroup['servicegroup_members']
-            del servicegroup['servicegroup_members']
-    response = method_post(
-        ''.join([backend_url, 'servicegroup']),
-        ujson.dumps(servicegroup),
-        headers, auth
-    )
-    servicegroups[servicegroup['servicegroup_name']] = response['_id']
-    if to_update:
-        to_update['_etag'] = response['_etag']
-        servicegroup_update[response['_id']] = to_update
+def update_later(later, inserted, ressource, field):
+    headers = {'Content-Type': 'application/json'}
+    for (index, item) in iteritems(later[ressource][field]):
+        data = {field: inserted[item['ressource']][item['value']]}
+        headers['If-Match'] = item['_etag']
+        backend.patch(''.join([ressource, '/', index]), data, headers, True)
 
-print "~~~~~~~~~~~~~~~~~~~~ update 'servicegroup_members' in servicegroups ~~~~~~~~~~~~~~~~~~~~"
-id_to_del = []
-for id in servicegroup_update:
-    new_list = []
-    for members in servicegroup_update[id]['servicegroup_members']:
-        new_list.append(servicegroups[members])
-    data = {'servicegroup_members': new_list}
-    headers['If-Match'] = servicegroup_update[id]['_etag']
-    response = method_patch(
-        ''.join([backend_url, 'servicegroup', '/', id]),
-        ujson.dumps(data),
-        headers, auth
-    )
-    servicegroup_update[id]['_etag'] = response['_etag']
-    if not 'members' in servicegroup_update[id]:
-        id_to_del.append(id)
-for id in id_to_del:
-    del servicegroup_update[id]
 
-print "~~~~~~~~~~~~~~~~~~~~ Add services ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+def manage_ressource(r_name, inserted, later, data_later, id_name, schema):
+    """
 
-headers = {'content-type': 'application/json'}
-schema = service_get_schema()
-service_update = {}
-for service in conf['service']:
-    to_update = {}
-    service = update_types(service, schema['schema'])
-    if 'imported_from' in service:
-        del service['imported_from']
-    if 'use' in service:
-        to_update['use'] = service['use']
-        del service['use']
-    if 'check_command' in service:
-        if 'bp_rule' in service['check_command']:
-            service['check_command_args'] = service['check_command']
-            service['check_command'] = None
-        elif '!' in service['check_command']:
-            args = service['check_command'].split('!')
-            service['check_command'] = args[0]
-            del args[0]
-            service['check_command_args'] = '!'.join(args)
-            service['check_command'] = commands[service['check_command']]
-        else:
-            service['check_command'] = commands[service['check_command']]
-    if 'host_name' in service:
-        if service['host_name'] in hosts:
-            service['host_name'] = hosts[service['host_name']]
-        else:
-            print 'ERROR: host not found for %s' % (service['host_name'])
-            service['host_name'] = 'unknown'
-    if 'check_period' in service:
-        service['check_period'] = timeperiods[service['check_period']]
-    if 'notification_period' in service:
-        service['notification_period'] = timeperiods[service['notification_period']]
-    if 'maintenance_period' in service:
-        service['maintenance_period'] = timeperiods[service['maintenance_period']]
-    relations = {
-        'servicegroups': servicegroups,
-        'contacts': contacts,
-        'contact_groups': contactgroups,
-        'escalation': escalations,
-        'service_dependencies': services,
-    }
-    for relation in relations:
-        if relation in service:
-            ret_map = check_mapping(service[relation], relations[relation])
-            if ret_map['all_found']:
-                service[relation] = ret_map['data']
+    data_later = [{'field': 'use', 'type': 'simple|list', 'ressource': 'command'}]
+
+    :param r_name:
+    :param inserted:
+    :param later:
+    :param data_later:
+    :return:
+    """
+    if r_name not in inserted:
+        inserted[r_name] = {}
+    if r_name not in later:
+        later[r_name] = {}
+    for k, values in enumerate(data_later):
+        if values['field'] not in later[r_name]:
+            later[r_name][values['field']] = {}
+    if r_name in conf:
+        for item in conf[r_name]:
+            later_tmp = {}
+            headers = {
+                'Content-Type': 'application/json',
+            }
+            if 'imported_from' in item:
+                del item['imported_from']
+            for p in item:
+                item[p] = item[p][0]
+            item = update_types(item, schema['schema'])
+            for k, values in enumerate(data_later):
+                if values['field'] in item:
+                    if values['ressource'] in inserted and values['field'] in inserted[values['ressource']]:
+                        item[values['field']] = inserted[values['ressource']][values['field']]
+                    else:
+                        later_tmp[values['field']] = item[values['field']]
+                        del item[values['field']]
+            # special case of timeperiod
+            if r_name == 'timeperiod':
+                fields = ['imported_from', 'use', 'name', 'definition_order', 'register',
+                          'timeperiod_name', 'alias', 'dateranges', 'exclude', 'is_active']
+                item['dateranges'] = []
+                prop_to_del = []
+                for prop in item:
+                    if prop not in fields:
+                        item['dateranges'].append({prop: item[prop]})
+                        prop_to_del.append(prop)
+                for prop in prop_to_del:
+                    del item[prop]
+            print(item)
+            response = backend.post(r_name, item, headers)
+            if '_error' in response and '_issues' in response:
+                print("ERROR: %s" % response['_issues'])
             else:
-                to_update[relation] = service[relation]
-                del service[relation]
-    response = method_post(
-        ''.join([backend_url, 'service']),
-        ujson.dumps(service),
-        headers, auth
-    )
-    if '_error' in response and '_issues' in response:
-        print "ERROR: %s" % response['_issues']
-    else:
-        if 'service_description' in service:
-            services[service['service_description']] = response['_id']
-        else:
-            services[service['name']] = response['_id']
-        if to_update:
-            to_update['_etag'] = response['_etag']
-            service_update[response['_id']] = to_update
+                if id_name in item:
+                    inserted[r_name][item[id_name]] = response['_id']
+                else:
+                    inserted[r_name][item['name']] = response['_id']
+                for k, values in enumerate(data_later):
+                    if values['field'] in later_tmp:
+                        later[r_name][values['field']][response['_id']] = {'type': values['type'],
+                                                                           'ressource': values['ressource'],
+                                                                           'value': later_tmp[values['field']],
+                                                                           '_etag': response['_etag']}
 
-# Update use of service
-print "~~~~~~~~~~~~~~~~~~~~ update 'use' in services ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-id_to_del = []
-for id in service_update:
-    if 'use' in service_update[id]:
-        if service_update[id]['use'] in services:
-            data = {'use': services[service_update[id]['use']]}
-            headers['If-Match'] = service_update[id]['_etag']
-            response = method_patch(''.join([backend_url, 'service', '/', id]),
-                         ujson.dumps(data), headers, auth)
-            service_update[id]['_etag'] = response['_etag']
-            del service_update[id]['use']
-        else:
-            print 'ERROR: use service `%s` not found' % (service_update[id]['use'])
-            del service_update[id]['use']
-        if len(service_update[id]) == 1:
-            id_to_del.append(id)
-for id in id_to_del:
-    del service_update[id]
+later = {}
+inserted = {}
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'command'}]
+schema = command.get_schema()
+manage_ressource('command', inserted, later, data_later, 'command_name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+update_later(later, inserted, 'command', 'use')
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'timeperiod'}]
+schema = timeperiod.get_schema()
+manage_ressource('timeperiod', inserted, later, data_later, 'timeperiod_name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+update_later(later, inserted, 'timeperiod', 'use')
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'members', 'type': 'list', 'ressource': 'host'},
+              {'field': 'hostgroup_members', 'type': 'list', 'ressource': 'hostgroup'}]
+schema = hostgroup.get_schema()
+manage_ressource('hostgroup', inserted, later, data_later, 'hostgroup_name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+# TODO update_later lists
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'hostdependency'}]
+schema = hostdependency.get_schema()
+manage_ressource('hostdependency', inserted, later, data_later, 'name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+update_later(later, inserted, 'hostdependency', 'use')
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'servicedependency'}]
+schema = servicedependency.get_schema()
+manage_ressource('servicedependency', inserted, later, data_later, 'name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+update_later(later, inserted, 'servicedependency', 'use')
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'serviceextinfo'}]
+schema = serviceextinfo.get_schema()
+manage_ressource('serviceextinfo', inserted, later, data_later, 'name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+update_later(later, inserted, 'serviceextinfo', 'use')
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'trigger'}]
+schema = trigger.get_schema()
+manage_ressource('trigger', inserted, later, data_later, 'trigger_name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+update_later(later, inserted, 'trigger', 'use')
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'contact'},
+              {'field': 'contactgroups', 'type': 'list', 'ressource': 'contactgroup'},
+              {'field': 'host_notification_period', 'type': 'simple', 'ressource': 'timeperiod'},
+              {'field': 'service_notification_period', 'type': 'simple', 'ressource': 'timeperiod'},
+              {'field': 'host_notification_commands', 'type': 'list', 'ressource': 'command'},
+              {'field': 'service_notification_commands', 'type': 'list', 'ressource': 'command'}]
+schema = contact.get_schema()
+manage_ressource('contact', inserted, later, data_later, 'contact_name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+update_later(later, inserted, 'contact', 'use')
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'members', 'type': 'list', 'ressource': 'contact'},
+              {'field': 'contactgroup_members', 'type': 'list', 'ressource': 'contactgroup'}]
+schema = contactgroup.get_schema()
+manage_ressource('contactgroup', inserted, later, data_later, 'contactgroup_name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+# TODO update_later lists
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add contactrestrictrole ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'conatct', 'type': 'simple', 'ressource': 'contact'}]
+schema = contactrestrictrole.get_schema()
+manage_ressource('contactrestrictrole', inserted, later, data_later, 'contact', schema)
+
+print("~~~~~~~~~~~~~~~~~~~~~~ add escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'escalation'},
+              {'field': 'contacts', 'type': 'list', 'ressource': 'contact'},
+              {'field': 'contact_groups', 'type': 'list', 'ressource': 'contactgroup'}]
+schema = escalation.get_schema()
+manage_ressource('escalation', inserted, later, data_later, 'escalation_name', schema)
+print("~~~~~~~~~~~~~~~~~~~~~~ post escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+update_later(later, inserted, 'escalation', 'use')

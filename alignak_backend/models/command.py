@@ -45,12 +45,10 @@ def get_schema():
             },
             'command_name': {
                 'type': 'string',
-                'required': True,
-                'unique': True,
+                'dependencies': ['command_line']
             },
             'command_line': {
-                'type': 'string',
-                'required': True,
+                'type': 'string'
             },
             'poller_tag': {
                 'type': 'string',
