@@ -21,8 +21,6 @@
 
 from __future__ import print_function
 from future.utils import iteritems
-import json
-import ujson
 import argparse
 
 from alignak.objects.config import Config
