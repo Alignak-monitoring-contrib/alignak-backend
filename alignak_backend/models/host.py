@@ -43,7 +43,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
                 'data_relation': {
                     'resource': 'host',
@@ -136,7 +136,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -153,7 +153,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -170,7 +170,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
                 'data_relation': {
                     'resource': 'command',
@@ -264,7 +264,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -400,7 +400,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -417,7 +417,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -456,7 +456,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -1015,7 +1015,7 @@ def get_schema():
                 'required': False,
                 # UI parameters for the objects
                 'ui': {
-                    'title': 'dm - Hosts list (%d items)',
+                    'title': 'Hosts list (%d items)',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
