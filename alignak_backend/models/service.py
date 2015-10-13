@@ -453,7 +453,7 @@ def get_schema():
                         }
                     }
                 },
-                'default': ['w', 'u', 'c', 'r', 'f', 's']
+                'default': ['w', 'u', 'c', 'r', 'f', 's'],
                 'allowed': ['w', 'u', 'c', 'r', 'f', 'n']
             },
             'notifications_enabled': {
