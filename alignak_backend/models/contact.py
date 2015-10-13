@@ -482,7 +482,7 @@ def get_schema():
                 'required': False,
                 # UI parameters for the objects
                 'ui': {
-                    'title': 'dm - Contacts list (%d items)',
+                    'title': 'Contacts list (%d items)',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,

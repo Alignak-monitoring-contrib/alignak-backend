@@ -1032,7 +1032,7 @@ def get_schema():
                 'required': False,
                 # UI parameters for the objects
                 'ui': {
-                    'title': 'dm - Services list (%d items)',
+                    'title': 'Services list (%d items)',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
