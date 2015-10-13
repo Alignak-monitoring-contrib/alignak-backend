@@ -170,9 +170,20 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": {
+                        "list_type": "multichoices",
+                        "list_allowed": {
+                            u"d": u"Send notifications on Down state",
+                            u"r": u"Send notifications on recoveries",
+                            u"u": u"Send notifications on Unreachable state",
+                            u"f": u"Send notifications on flapping start/stop",
+                            u"s": u"Send notifications on scheduled downtime start/stop",
+                            u"n": u"Do not send notifications"
+                        }
+                    }
                 },
-                'default': []
+                'default': ['d', 'u', 'r', 'f', 's'],
+                'allowed': ['d', 'u', 'r', 'f', 's', 'n']
             },
             'service_notification_options': {
                 'type': 'list',
@@ -181,9 +192,21 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": {
+                        "list_type": "multichoices",
+                        "list_allowed": {
+                            u"w": u"Send notifications on Warning state",
+                            u"u": u"Send notifications on Unknown state",
+                            u"c": u"Send notifications on Critical state",
+                            u"r": u"Send notifications on recoveries",
+                            u"f": u"Send notifications on flapping start/stop",
+                            u"s": u"Send notifications on scheduled downtime start/stop",
+                            u"n": u"Do not send notifications"
+                        }
+                    }
                 },
-                'default': []
+                'default': ['w', 'u', 'c', 'r', 'f', 's'],
+                'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n']
             },
             'host_notification_commands': {
                 'type': 'list',

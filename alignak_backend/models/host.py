@@ -355,7 +355,14 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": {
+                        "list_type": "multichoices",
+                        "list_allowed": {
+                            u"d": u"Down",
+                            u"o": u"Up",
+                            u"u": u"Unreachable"
+                        }
+                    }
                 },
                 'default': ['o', 'd', 'u'],
                 'allowed': ['o', 'd', 'u']
@@ -470,7 +477,17 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": {
+                        "list_type": "multichoices",
+                        "list_allowed": {
+                            u"d": u"Send notifications on Down state",
+                            u"r": u"Send notifications on recoveries",
+                            u"u": u"Send notifications on Unreachable state",
+                            u"f": u"Send notifications on flapping start/stop",
+                            u"s": u"Send notifications on scheduled downtime start/stop",
+                            u"n": u"Do not send notifications"
+                        }
+                    }
                 },
                 'default': ['d', 'u', 'r', 'f', 's'],
                 'allowed': ['d', 'u', 'r', 'f', 's', 'n']
@@ -493,7 +510,14 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": {
+                        "list_type": "multichoices",
+                        "list_allowed": {
+                            u"d": u"Down",
+                            u"o": u"Up",
+                            u"u": u"Unreachable"
+                        }
+                    }
                 },
                 'default': [],
                 'allowed': ['o', 'd', 'u']

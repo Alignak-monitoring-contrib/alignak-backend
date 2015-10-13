@@ -353,7 +353,15 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": {
+                        "list_type": "multichoices",
+                        "list_allowed": {
+                            u"o": u"Up",
+                            u"w": u"Warning",
+                            u"c": u"Critical",
+                            u"u": u"Unknown"
+                        }
+                    }
                 },
                 'default': ['o', 'w', 'c', 'u']
             },
@@ -433,9 +441,20 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": {
+                        "list_type": "multichoices",
+                        "list_allowed": {
+                            u"w": u"Send notifications on Warning state",
+                            u"u": u"Send notifications on Unknown state",
+                            u"c": u"Send notifications on Critical state",
+                            u"r": u"Send notifications on recoveries",
+                            u"f": u"Send notifications on flapping start/stop",
+                            u"n": u"Do not send notifications"
+                        }
+                    }
                 },
                 'default': ['w', 'u', 'c', 'r', 'f', 's']
+                'allowed': ['w', 'u', 'c', 'r', 'f', 'n']
             },
             'notifications_enabled': {
                 'type': 'boolean',
@@ -489,9 +508,18 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": {
+                        "list_type": "multichoices",
+                        "list_allowed": {
+                            u"o": u"Ok",
+                            u"w": u"Warning",
+                            u"c": u"Critical",
+                            u"u": u"Unknown"
+                        }
+                    }
                 },
-                'default': []
+                'default': [],
+                'allowed': ['o', 'w', 'u', 'c']
             },
             'notes': {
                 'type': 'string',
