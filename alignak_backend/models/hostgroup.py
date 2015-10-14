@@ -34,6 +34,13 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'ui': {
+                    'title': 'Members',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
             },
             'hostgroup_members': {
                 'type': 'list',
@@ -44,32 +51,85 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'ui': {
+                    'title': 'Hosts groups members',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
             },
             'hostgroup_name': {
                 'type': 'string',
                 'required': True,
                 'unique': True,
-                'default': ''
+                'default': '',
+                'ui': {
+                    'title': 'Name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
             },
             'alias': {
                 'type': 'string',
-                'default': ''
+                'default': '',
+                'ui': {
+                    'title': 'Alias',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
             },
             'notes': {
                 'type': 'string',
-                'default': ''
+                'default': '',
+                'ui': {
+                    'title': 'Notes',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+
             },
             'notes_url': {
                 'type': 'string',
-                'default': ''
+                'default': '',
+                'ui': {
+                    'title': 'Notes (URL)',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+
             },
             'action_url': {
                 'type': 'string',
-                'default': ''
+                'default': '',
+                'ui': {
+                    'title': 'Action (URL)',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+
             },
             'realm': {
                 'type': 'string',
-                'default': None
+                'default': None,
+                'ui': {
+                    'title': 'Realm',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+
             },
             '_brotherhood': {
                 'type': 'list',
@@ -121,5 +181,19 @@ def get_schema():
                     }
                 },
             },
+            # This to define if the object in this model are to be used in the UI
+            'ui': {
+                'type': 'boolean',
+                'default': True,
+                'required': False,
+                # UI parameters for the objects
+                'ui': {
+                    'title': 'Hosts groups list (%d items)',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                }
+            }
         }
     }

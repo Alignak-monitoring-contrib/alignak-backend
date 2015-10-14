@@ -14,11 +14,3 @@ __releasenotes__ = """
     Alignak Backend
     """
 __doc_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-backend"
-
-
-# setup.py imports this module to gather package version
-def get_version():
-    """
-    Returns shorter version (digit parts only) as string.
-    """
-    return '.'.join((str(each) for each in VERSION[:4]))

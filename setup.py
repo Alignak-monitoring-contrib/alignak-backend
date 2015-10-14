@@ -18,19 +18,21 @@ except:
 if python_version < (2, 7):
     sys.exit("This application requires a minimum Python 2.7.x, sorry!")
 
-package = __import__('alignak_backend')
+import alignak_backend
 
 setup(
-    name="alignak_backend",
-    version=package.get_version(),
+    name="Alignak_backend",
+    version=alignak_backend.__version__,
 
     # metadata for upload to PyPI
-    author="Alignak team contribute",
+    author="Alignak team contribution",
     author_email="d.durieux@siprossii.com",
     keywords="alignak monitoring backend",
     url="https://github.com/Alignak-monitoring-contrib/alignak-backend",
     description="Alignak REST Backend",
     long_description=open('README.rst').read(),
+
+    zip_safe=False,
 
     packages=find_packages(),
     data_files = [('/usr/local/etc/alignak_backend', ['etc/settings.ini'])],
