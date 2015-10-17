@@ -6,7 +6,7 @@ Installation
 Requirements
 ------------
 
-Tu use this backend, you need first install and run MongoDB_
+To use this backend, you first need to install and run MongoDB_
 
 .. _MongoDB: http://docs.mongodb.org/manual/
 
@@ -20,7 +20,6 @@ You can install with pip::
 
     pip install alignak_backend
 
-**This not work for the moment because not yet released**
 
 From source
 ~~~~~~~~~~~

@@ -3,16 +3,16 @@
 Developer Interface
 ===================
 
-This part of documentation is related of API REST for interact with this backend.
+This part of the documentation is related to REST API used to interact with this backend.
 The examples in this part of documentation use :
 
 * IP as 127.0.0.1
 * a resource name as service
 
-Get all resources available
+Get all available resources
 ---------------------------
 
-All resources available in backend is available on root endpoint of backend::
+All resources available in the backend are listed on the root endpoint of the backend::
 
     http://127.0.0.1:5000
 
@@ -20,16 +20,16 @@ All resources available in backend is available on root endpoint of backend::
 Authentication in the backend
 -----------------------------
 
-The is an authentication system in the backend.
+The backend needs an authentication.
 
 There are user accounts defined with *username*, *password* and *token*
 
-To access to backend enpoints, you need the *token* associated to your account.
+To access the backend enpoints, you need to provide the *token* associated to your account.
 
 Get the token
 ~~~~~~~~~~~~~
 
-Send POST method to *http://127.0.0.1:5000/login* with fields:
+POST on *http://127.0.0.1:5000/login* with fields:
 
 * *username*: xxx
 * *password*: xxx
@@ -38,7 +38,7 @@ Example::
 
     curl -H "Content-Type: application/json" -X POST -d '{"username":"admin","password":"admin"}' http://127.0.0.1:5000/login
 
-It will get for you the token.
+The response will provide the token to use.
 
 Example of answer::
 
@@ -62,8 +62,8 @@ Example::
 How to use the token
 ~~~~~~~~~~~~~~~~~~~~
 
-For all method you request to endpoints, you need to pass the token.
-Do pass this token, you can use *basic auth*. Pass token as username and set password empty.
+For all method you request on an endpoint, you need to provide the token.
+You can use *basic auth*: use the token as a username and set password as empty.
 
 
 GET method (get)
@@ -83,7 +83,7 @@ The items will be in response in section *_items*.
 All items + filtering
 ~~~~~~~~~~~~~~~~~~~~~
 
-We can filter items to get with these syntax::
+We can filter items to get with this syntax::
 
     http://127.0.0.1:5000/service?where={"service_description": "ping"}
 
@@ -91,11 +91,11 @@ We can filter items to get with these syntax::
 All items + sorting
 ~~~~~~~~~~~~~~~~~~~
 
-We can sorting items to get with these syntax::
+We can sort items to get with this syntax::
 
     http://127.0.0.1:5000/service?sort=service_description
 
-If you want to sort by descending::
+If you want to sort descending::
 
     http://127.0.0.1:5000/service?sort=-service_description
 
@@ -103,10 +103,10 @@ If you want to sort by descending::
 All items + embedded
 ~~~~~~~~~~~~~~~~~~~~
 
-In this example, service resource has data relation with host resource with field *host_name*.
-If you get items, you will have for this field an _id like *55d113976376e9835e1b2feb*
+In this example, service resource has data relation with host resource through the *host_name* field.
+If you get items, you will receive an _id like *55d113976376e9835e1b2feb* in this field.
 
-It's possible to have all fields of this host in same time with::
+It's possible to have all fields of the host, instead of its _id, in the response with::
 
     http://127.0.0.1:5000/service?embedded={"host_name":1}
 
@@ -114,7 +114,7 @@ It's possible to have all fields of this host in same time with::
 All items + projection
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Projection is used to get only some fields of each items.
+Projection is used to get only some fields for each items.
 For example, to get only *service_description* of services::
 
     http://127.0.0.1:5000/service?projection={"service_description":1}
@@ -149,7 +149,7 @@ In case of have many pages, in the items got, you have section::
         }
     },
 
-So if you have _links/next, there is a next page.
+So if you receive *_links/next*, there is a next page that can be found with *_links/next/href*.
 
 ~~~~~~~~~~~~~~~~
 Meta information
@@ -183,14 +183,14 @@ It's possible in this case to use:
 POST method (add)
 -----------------
 
-This method is used to *create new item*.
-It's required to use *POST* method for HTTP
+This method is used to *create a new item*.
+It's required to use HTTP *POST* method.
 
 You need to point to the endpoint of the resource like::
 
     http://127.0.0.1:5000/service
 
-and send a JSON of data like::
+and send JSON data like::
 
     {"service_description":"ping","notification_interval":60}
 
@@ -207,17 +207,17 @@ PATCH method (update)
 ---------------------
 
 This method is used to *update fields* of an item.
-It's required to use *PATCH* method for HTTP
+It's required to use HTTP *PATCH* method.
 
 You need to point to the item endpoint of the resource like::
 
     http://127.0.0.1:5000/service/55dc773a6376e90ac95f836f
 
-You need to add in headers the *_etag* you have got when add or when you get data of this item::
+You need to add in headers the *_etag* you got when adding the object or when you got data of this item::
 
     "If-Match: 3c996dc10cb86173fa79f807e0d84e88c2f3a28f"
 
-and send a JSON of data like::
+and send JSON data like::
 
     {"service_description":"pong"}
 
@@ -225,7 +225,7 @@ and send a JSON of data like::
 DELETE method (delete)
 ----------------------
 
-It's required to use *DELETE* method for HTTP
+It's required to use HTTP *DELETE* method.
 
 All items
 ~~~~~~~~~
@@ -245,7 +245,7 @@ The endpoint to delete an item of a resource is::
 More info about API
 -------------------
 
-When run the Alignak Backend, it exist an endpoint with API documentation::
+When the Alignak Backend is running, it exists an endpoint with the API documentation::
 
     http://127.0.0.1:5000/docs
 

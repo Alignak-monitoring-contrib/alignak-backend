@@ -3,7 +3,7 @@
 Tools
 =====
 
-With the backend, some tools has been added and can help you in some cases.
+With the backend, some tools have been added and can help you in some cases.
 
 This is the list:
 

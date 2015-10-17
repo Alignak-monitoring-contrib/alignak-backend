@@ -6,7 +6,7 @@ Tutorial of solution
 Description of the solution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is a tutorial for install and use the complete solution:
+This is a tutorial to install and use the complete solution:
 
 * pure monitoring tool: Alignak
 * backend alignak: this tool

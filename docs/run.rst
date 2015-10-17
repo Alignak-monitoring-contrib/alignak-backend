@@ -6,22 +6,22 @@ Run
 Production mode
 ---------------
 
-First create a file anywhere on your system, with name 'alignakbackend.py' and with the content::
+First create a file anywhere on your system, named 'alignakbackend.py' and containing::
 
     from alignak_backend.app import app
 
-You can use many possibilities, we suggest you with uwsgi and start it in sme directory of file created previously.
+You can use many possibilities, but we suggest you use uwsgi and start it in the same directory as the file created previously.
 
 With socket (+ nginx / apache in frontal)::
 
    uwsgi -s /tmp/uwsgi.sock -w alignakbackend:app --enable-threads
 
-With http port directly::
+With direct http port::
 
    uwsgi -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads
 
 
-Alignak-backend run on port 80 like specified in arguments, so use::
+Alignak-backend runs on port 80 like specified in arguments, so use::
 
     http://ip/
 
