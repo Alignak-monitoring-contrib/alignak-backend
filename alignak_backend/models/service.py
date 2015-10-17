@@ -1032,11 +1032,12 @@ def get_schema():
                 'required': False,
                 # UI parameters for the objects
                 'ui': {
-                    'title': 'Services list (%d items)',
+                    'list_title': 'Services list (%d items)',
+                    'page_title': 'Service: %s',
+                    'uid': 'service_description',
                     'visible': True,
                     'orderable': True,
-                    'searchable': True,
-                    "format": None
+                    'searchable': True
                 }
             }
         },

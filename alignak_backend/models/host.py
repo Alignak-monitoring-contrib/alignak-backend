@@ -1037,13 +1037,15 @@ def get_schema():
                 'type': 'boolean',
                 'default': True,
                 'required': False,
+
                 # UI parameters for the objects
                 'ui': {
-                    'title': 'Hosts list (%d items)',
+                    'list_title': 'Hosts list (%d items)',
+                    'page_title': 'Host: %s',
+                    'uid': 'host_name',
                     'visible': True,
                     'orderable': True,
-                    'searchable': True,
-                    "format": None
+                    'searchable': True
                 }
             }
         }

@@ -480,13 +480,15 @@ def get_schema():
                 'type': 'boolean',
                 'default': True,
                 'required': False,
+
                 # UI parameters for the objects
                 'ui': {
-                    'title': 'Contacts list (%d items)',
+                    'list_title': 'Contacts list (%d items)',
+                    'page_title': 'Contact: %s',
+                    'uid': 'contact_name',
                     'visible': True,
                     'orderable': True,
-                    'searchable': True,
-                    "format": None
+                    'searchable': True
                 }
             }
         }
