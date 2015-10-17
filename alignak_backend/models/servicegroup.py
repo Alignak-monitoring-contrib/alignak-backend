@@ -25,11 +25,14 @@ def get_schema():
     return {
         'schema': {
             'members': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'contact',
-                    'embeddable': True
-                }
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
+                },
             },
             'servicegroup_members': {
                 'type': 'list',

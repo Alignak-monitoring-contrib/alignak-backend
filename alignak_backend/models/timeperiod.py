@@ -29,10 +29,13 @@ def get_schema():
                 'default': ''
             },
             'use': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'timeperiod',
-                    'embeddable': True
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'timeperiod',
+                        'embeddable': True,
+                    }
                 },
             },
             'name': {

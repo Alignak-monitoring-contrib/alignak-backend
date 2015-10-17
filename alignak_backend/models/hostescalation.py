@@ -29,10 +29,13 @@ def get_schema():
                 'default': 'unknown'
             },
             'use': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'hostescalation',
-                    'embeddable': True
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostescalation',
+                        'embeddable': True,
+                    }
                 },
             },
             'name': {
@@ -71,18 +74,24 @@ def get_schema():
                 'default': ['d', 'u', 'r', 'w', 'c']
             },
             'contacts': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'contact',
-                    'embeddable': True
-                }
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
             },
             'contact_groups': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'contactgroup',
-                    'embeddable': True
-                }
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contactgroup',
+                        'embeddable': True,
+                    }
+                },
             },
             'first_notification_time': {
                 'type': 'integer',

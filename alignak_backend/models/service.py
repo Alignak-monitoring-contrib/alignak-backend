@@ -37,7 +37,7 @@ def get_schema():
                 'default': ''
             },
             'use': {
-                'type': 'objectid',
+                'type': 'list',
                 'ui': {
                     'title': 'Template(s)',
                     'visible': True,
@@ -45,9 +45,12 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'data_relation': {
-                    'resource': 'service',
-                    'embeddable': True
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
                 },
             },
             'name': {
@@ -487,7 +490,7 @@ def get_schema():
             'contact_groups': {
                 'type': 'list',
                 'ui': {
-                    'title': 'Conatacts group(s)',
+                    'title': 'Contacts group(s)',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,

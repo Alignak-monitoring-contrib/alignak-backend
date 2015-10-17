@@ -29,10 +29,13 @@ def get_schema():
                 'default': 'unknown'
             },
             'use': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'trigger',
-                    'embeddable': True
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'trigger',
+                        'embeddable': True,
+                    }
                 },
             },
             'name': {

@@ -25,7 +25,7 @@ def get_schema():
     return {
         'schema': {
             'use': {
-                'type': 'objectid',
+                'type': 'list',
                 'ui': {
                     'title': 'Template(s)',
                     'visible': True,
@@ -33,9 +33,12 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'data_relation': {
-                    'resource': 'contact',
-                    'embeddable': True
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
                 },
             },
             'name': {

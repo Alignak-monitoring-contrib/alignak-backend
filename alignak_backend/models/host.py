@@ -37,7 +37,7 @@ def get_schema():
                 'default': ''
             },
             'use': {
-                'type': 'objectid',
+                'type': 'list',
                 'ui': {
                     'title': 'Object identifier',
                     'visible': False,
@@ -45,9 +45,12 @@ def get_schema():
                     'searchable': True,
                     "format": "link"
                 },
-                'data_relation': {
-                    'resource': 'host',
-                    'embeddable': True
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'host',
+                        'embeddable': True,
+                    }
                 },
             },
             'name': {
@@ -92,9 +95,9 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'required': True,
                 'unique': True,
-                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
+                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
+                'dependencies': ['address']
             },
             'alias': {
                 'type': 'string',

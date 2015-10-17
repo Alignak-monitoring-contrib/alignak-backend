@@ -25,10 +25,13 @@ def get_schema():
     return {
         'schema': {
             'use': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'command',
-                    'embeddable': True
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'command',
+                        'embeddable': True,
+                    }
                 },
             },
             'name': {
