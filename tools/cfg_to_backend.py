@@ -473,7 +473,7 @@ print("~~~~~~~~~~~~~~~~~~~~~~ add hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostescalation', 'now': False},
               {'field': 'contacts', 'type': 'list', 'ressource': 'contact', 'now': False},
               {'field': 'contact_groups', 'type': 'list', 'ressource': 'contactgroup', 'now': True}]
-schema = hostextinfo.get_schema()
+schema = hostescalation.get_schema()
 manage_ressource('hostescalation', inserted, later, data_later, 'host_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 update_later(later, inserted, 'hostescalation', 'use')
@@ -482,7 +482,7 @@ update_later(later, inserted, 'hostescalation', 'use')
 print("~~~~~~~~~~~~~~~~~~~~~~ add servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'members', 'type': 'list', 'ressource': 'service', 'now': False},
               {'field': 'servicegroup_members', 'type': 'list', 'ressource': 'servicegroup', 'now': False}]
-schema = hostgroup.get_schema()
+schema = servicegroup.get_schema()
 manage_ressource('servicegroup', inserted, later, data_later, 'servicegroup_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 update_later(later, inserted, 'servicegroup', 'servicegroup_members')
@@ -499,7 +499,7 @@ data_later = [{'field': 'use', 'type': 'list', 'ressource': 'service', 'now': Fa
               {'field': 'escalations', 'type': 'list', 'ressource': 'escalation', 'now': True},
               {'field': 'maintenance_period', 'type': 'simple', 'ressource': 'timeperiod', 'now': True},
               {'field': 'service_dependencies', 'type': 'list', 'ressource': 'service', 'now': True}]
-schema = host.get_schema()
+schema = service.get_schema()
 manage_ressource('service', inserted, later, data_later, 'service_description', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 update_later(later, inserted, 'service', 'use')
@@ -510,7 +510,7 @@ print("~~~~~~~~~~~~~~~~~~~~~~ add serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'serviceescalation', 'now': False},
               {'field': 'contacts', 'type': 'list', 'ressource': 'contact', 'now': False},
               {'field': 'contact_groups', 'type': 'list', 'ressource': 'contactgroup', 'now': True}]
-schema = hostextinfo.get_schema()
+schema = serviceescalation.get_schema()
 manage_ressource('serviceescalation', inserted, later, data_later, 'host_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 update_later(later, inserted, 'serviceescalation', 'use')
