@@ -183,7 +183,7 @@ def update_types(source, schema):
     return source
 
 
-def update_later(later, inserted, ressource, field):
+def update_later(later, inserted, ressource, field, schema):
     """
     Update field of ressource hav link with other ressources (objectid in backend)
 
@@ -243,6 +243,7 @@ def update_later(later, inserted, ressource, field):
                     data[field].append(inserted[item['ressource']][val.strip()])
 
         headers['If-Match'] = item['_etag']
+        data = update_types(data, schema)
         resp = backend.patch(''.join([ressource, '/', index]), data, headers, True)
         if '_status' in resp:
             if resp['_status'] == 'ERR':
@@ -379,14 +380,14 @@ data_later = [{'field': 'use', 'type': 'list', 'ressource': 'command', 'now': Fa
 schema = command.get_schema()
 manage_ressource('command', inserted, later, data_later, 'command_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'command', 'use')
+update_later(later, inserted, 'command', 'use', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'timeperiod', 'now': False}]
 schema = timeperiod.get_schema()
 manage_ressource('timeperiod', inserted, later, data_later, 'timeperiod_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'timeperiod', 'use')
+update_later(later, inserted, 'timeperiod', 'use', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'members', 'type': 'list', 'ressource': 'host', 'now': False},
@@ -394,35 +395,35 @@ data_later = [{'field': 'members', 'type': 'list', 'ressource': 'host', 'now': F
 schema = hostgroup.get_schema()
 manage_ressource('hostgroup', inserted, later, data_later, 'hostgroup_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'hostgroup', 'hostgroup_members')
+update_later(later, inserted, 'hostgroup', 'hostgroup_members', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostdependency', 'now': False}]
 schema = hostdependency.get_schema()
 manage_ressource('hostdependency', inserted, later, data_later, 'name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'hostdependency', 'use')
+update_later(later, inserted, 'hostdependency', 'use', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'servicedependency', 'now': False}]
 schema = servicedependency.get_schema()
 manage_ressource('servicedependency', inserted, later, data_later, 'name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'servicedependency', 'use')
+update_later(later, inserted, 'servicedependency', 'use', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'serviceextinfo', 'now': False}]
 schema = serviceextinfo.get_schema()
 manage_ressource('serviceextinfo', inserted, later, data_later, 'name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'serviceextinfo', 'use')
+update_later(later, inserted, 'serviceextinfo', 'use', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'trigger', 'now': False}]
 schema = trigger.get_schema()
 manage_ressource('trigger', inserted, later, data_later, 'trigger_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'trigger', 'use')
+update_later(later, inserted, 'trigger', 'use', schema)
 
 #print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 #data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'contact'},
@@ -434,11 +435,11 @@ update_later(later, inserted, 'trigger', 'use')
 #schema = contact.get_schema()
 #manage_ressource('contact', inserted, later, data_later, 'contact_name', schema)
 #print("~~~~~~~~~~~~~~~~~~~~~~ post contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#update_later(later, inserted, 'contact', 'use')
-#update_later(later, inserted, 'contact', 'host_notification_period')
-#update_later(later, inserted, 'contact', 'service_notification_period')
-#update_later(later, inserted, 'contact', 'host_notification_commands')
-#update_later(later, inserted, 'contact', 'service_notification_commands')
+#update_later(later, inserted, 'contact', 'use', schema)
+#update_later(later, inserted, 'contact', 'host_notification_period', schema)
+#update_later(later, inserted, 'contact', 'service_notification_period', schema)
+#update_later(later, inserted, 'contact', 'host_notification_commands', schema)
+#update_later(later, inserted, 'contact', 'service_notification_commands', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'members', 'type': 'list', 'ressource': 'contact', 'now': False},
@@ -446,16 +447,16 @@ data_later = [{'field': 'members', 'type': 'list', 'ressource': 'contact', 'now'
 schema = contactgroup.get_schema()
 manage_ressource('contactgroup', inserted, later, data_later, 'contactgroup_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#update_later(later, inserted, 'contactgroup', 'members')
-update_later(later, inserted, 'contactgroup', 'contactgroup_members')
-#update_later(later, inserted, 'contact', 'contactgroups')
+#update_later(later, inserted, 'contactgroup', 'members', schema)
+update_later(later, inserted, 'contactgroup', 'contactgroup_members', schema)
+#update_later(later, inserted, 'contact', 'contactgroups', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add contactrestrictrole ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'contact', 'type': 'simple', 'ressource': 'contact', 'now': False}]
 schema = contactrestrictrole.get_schema()
 manage_ressource('contactrestrictrole', inserted, later, data_later, 'contact', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post contactrestrictrole ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#update_later(later, inserted, 'contactrestrictrole', 'contact')
+#update_later(later, inserted, 'contactrestrictrole', 'contact', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'escalation', 'now': False},
@@ -464,8 +465,8 @@ data_later = [{'field': 'use', 'type': 'list', 'ressource': 'escalation', 'now':
 schema = escalation.get_schema()
 manage_ressource('escalation', inserted, later, data_later, 'escalation_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'escalation', 'use')
-#update_later(later, inserted, 'escalation', 'contacts')
+update_later(later, inserted, 'escalation', 'use', schema)
+#update_later(later, inserted, 'escalation', 'contacts', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'host', 'now': False},
@@ -480,17 +481,17 @@ data_later = [{'field': 'use', 'type': 'list', 'ressource': 'host', 'now': False
 schema = host.get_schema()
 manage_ressource('host', inserted, later, data_later, 'host_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'host', 'use')
-update_later(later, inserted, 'host', 'parents')
-#update_later(later, inserted, 'host', 'contacts')
-update_later(later, inserted, 'hostgroup', 'members')
+update_later(later, inserted, 'host', 'use', schema)
+update_later(later, inserted, 'host', 'parents', schema)
+#update_later(later, inserted, 'host', 'contacts', schema)
+update_later(later, inserted, 'hostgroup', 'members', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostextinfo', 'now': False}]
 schema = hostextinfo.get_schema()
 manage_ressource('hostextinfo', inserted, later, data_later, 'host_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'hostextinfo', 'use')
+update_later(later, inserted, 'hostextinfo', 'use', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostescalation', 'now': False},
@@ -499,8 +500,8 @@ data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostescalation', 'n
 schema = hostescalation.get_schema()
 manage_ressource('hostescalation', inserted, later, data_later, 'host_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'hostescalation', 'use')
-#update_later(later, inserted, 'hostescalation', 'contacts')
+update_later(later, inserted, 'hostescalation', 'use', schema)
+#update_later(later, inserted, 'hostescalation', 'contacts', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'members', 'type': 'list', 'ressource': 'service', 'now': False},
@@ -508,7 +509,7 @@ data_later = [{'field': 'members', 'type': 'list', 'ressource': 'service', 'now'
 schema = servicegroup.get_schema()
 manage_ressource('servicegroup', inserted, later, data_later, 'servicegroup_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'servicegroup', 'servicegroup_members')
+update_later(later, inserted, 'servicegroup', 'servicegroup_members', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'service', 'now': False},
@@ -525,9 +526,9 @@ data_later = [{'field': 'use', 'type': 'list', 'ressource': 'service', 'now': Fa
 schema = service.get_schema()
 manage_ressource('service', inserted, later, data_later, 'service_description', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'service', 'use')
-#update_later(later, inserted, 'service', 'contacts')
-update_later(later, inserted, 'servicegroup', 'members')
+update_later(later, inserted, 'service', 'use', schema)
+#update_later(later, inserted, 'service', 'contacts', schema)
+update_later(later, inserted, 'servicegroup', 'members', schema)
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'list', 'ressource': 'serviceescalation', 'now': False},
@@ -536,6 +537,6 @@ data_later = [{'field': 'use', 'type': 'list', 'ressource': 'serviceescalation',
 schema = serviceescalation.get_schema()
 manage_ressource('serviceescalation', inserted, later, data_later, 'host_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'serviceescalation', 'use')
-#update_later(later, inserted, 'serviceescalation', 'contacts')
+update_later(later, inserted, 'serviceescalation', 'use', schema)
+#update_later(later, inserted, 'serviceescalation', 'contacts', schema)
 
