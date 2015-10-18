@@ -506,7 +506,7 @@ data_later = [{'field': 'use', 'type': 'list', 'ressource': 'service', 'now': Fa
               {'field': 'maintenance_period', 'type': 'simple', 'ressource': 'timeperiod', 'now': True},
               {'field': 'service_dependencies', 'type': 'list', 'ressource': 'service', 'now': True}]
 schema = host.get_schema()
-manage_ressource('service', inserted, later, data_later, 'service_name', schema)
+manage_ressource('service', inserted, later, data_later, 'service_description', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 update_later(later, inserted, 'service', 'use')
 #update_later(later, inserted, 'service', 'contacts')
