@@ -229,7 +229,8 @@ def update_later(later, inserted, ressource, field, schema):
     for (index, item) in iteritems(later[ressource][field]):
         if field == 'use':
             data = {'use': []}
-            get_template(ressource, item['value'])
+            get_template(ressource, item['value'], schema)
+            data = update_types(data, schema)
             use_data = []
             for template_id in reversed(data['use']):
                 use_data.append(template_id)
@@ -243,7 +244,6 @@ def update_later(later, inserted, ressource, field, schema):
                     data[field].append(inserted[item['ressource']][val.strip()])
 
         headers['If-Match'] = item['_etag']
-        data = update_types(data, schema)
         resp = backend.patch(''.join([ressource, '/', index]), data, headers, True)
         if '_status' in resp:
             if resp['_status'] == 'ERR':
