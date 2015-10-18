@@ -24,7 +24,7 @@ from future.utils import iteritems
 import argparse
 
 from alignak.objects.config import Config
-from alignak_backend_client.client import Backend
+from alignak_backend_client.client import Backend, BackendException
 
 from alignak_backend.models import command
 from alignak_backend.models import timeperiod
@@ -208,6 +208,9 @@ def update_later(later, inserted, ressource, field):
             value = value.split()
         for template_value in reversed(value):
             template_value = template_value.strip()
+            if not template_value in template[ressource]:
+                print ("***** Undeclared template: ", template_value)
+                continue
             if 'use' in template[ressource][template_value]:
                 get_template(ressource, template[ressource][template_value]['use'])
             for key, val in iteritems(template[ressource][template_value]):
@@ -331,10 +334,13 @@ def manage_ressource(r_name, inserted, later, data_later, id_name, schema):
                 if not item['register']:
                     template[r_name][item['name']] = item.copy()
             print("before_post")
-            print(item)
-            response = backend.post(r_name, item, headers)
-            if '_error' in response and '_issues' in response:
-                print("ERROR: %s" % response['_issues'])
+            print("%s : %s:" % (r_name, item))
+            try:
+                response = backend.post(r_name, item, headers)
+            except BackendException as e:
+                print("***** Exception: %s", str(e))
+                if "_issues" in e.response:
+                    print("ERROR: %s" % e.response['_issues'])
             else:
                 if id_name in item:
                     inserted[r_name][item[id_name]] = response['_id']
