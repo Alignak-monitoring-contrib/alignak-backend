@@ -136,8 +136,6 @@ class TestCfgToBackend(unittest2.TestCase):
              del comm['_etag']
              del comm['_created']
              del comm['_updated']
-             print(ref)
-             print(comm)
              self.assertEqual(comm, ref)
 
     def test_host_multiple_link_later(self):
@@ -194,8 +192,6 @@ class TestCfgToBackend(unittest2.TestCase):
         del webui_host['_etag']
         del webui_host['_created']
         del webui_host['_updated']
-        print(ref)
-        print(webui_host)
         self.assertEqual(webui_host, ref)
 
     def test_host_multiple_link_now(self):
@@ -251,6 +247,4 @@ class TestCfgToBackend(unittest2.TestCase):
         del webui_host['_etag']
         del webui_host['_created']
         del webui_host['_updated']
-        print(ref)
-        print(webui_host)
         self.assertEqual(webui_host, ref)
