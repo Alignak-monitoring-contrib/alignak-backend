@@ -273,6 +273,13 @@ def manage_ressource(r_name, inserted, later, data_later, id_name, schema):
                 del item['imported_from']
             for p in item:
                 item[p] = item[p][0]
+            # Hack for check_command_args
+            if r_name in ['host', 'service']:
+                commands = item['check_command'].split('!', 1)
+                item['check_command'] = commands[0]
+                if len(commands) == 2:
+                    item['check_command_args'] = commands[1]
+
             # convert type (boolean, integer...)
             item = update_types(item, schema['schema'])
             for k, values in enumerate(data_later):
