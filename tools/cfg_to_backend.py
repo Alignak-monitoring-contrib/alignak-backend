@@ -338,10 +338,11 @@ def manage_ressource(r_name, inserted, later, data_later, id_name, schema):
             try:
                 response = backend.post(r_name, item, headers)
             except BackendException as e:
-                print("***** Exception: %s", str(e))
+                print("***** Exception: %s" % str(e))
                 if "_issues" in e.response:
                     print("ERROR: %s" % e.response['_issues'])
             else:
+                print("POST response : %s:" % (response))
                 if id_name in item:
                     inserted[r_name][item[id_name]] = response['_id']
                 else:
