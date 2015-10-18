@@ -470,8 +470,8 @@ data_later = [{'field': 'members', 'type': 'list', 'ressource': 'service'},
 schema = hostgroup.get_schema()
 manage_ressource('servicegroup', inserted, later, data_later, 'servicegroup_name', schema)
 print("~~~~~~~~~~~~~~~~~~~~~~ post servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-update_later(later, inserted, 'servicegroups', 'members')
-update_later(later, inserted, 'servicegroups', 'servicegroup_members')
+update_later(later, inserted, 'servicegroup', 'members')
+update_later(later, inserted, 'servicegroup', 'servicegroup_members')
 
 print("~~~~~~~~~~~~~~~~~~~~~~ add service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 data_later = [{'field': 'use', 'type': 'simple', 'ressource': 'service'},
