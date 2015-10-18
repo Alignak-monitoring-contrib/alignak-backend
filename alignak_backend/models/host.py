@@ -985,6 +985,10 @@ def get_schema():
                 },
                 'default': 5
             },
+            'obsess_over_host': {
+                'type': 'boolean',
+                'default': False
+            },
             '_brotherhood': {
                 'type': 'list',
                 'schema': {

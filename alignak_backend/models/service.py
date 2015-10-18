@@ -978,6 +978,10 @@ def get_schema():
                 },
                 'default': 5
             },
+            'obsess_over_service': {
+                'type': 'boolean',
+                'default': False
+            },
             '_brotherhood': {
                 'type': 'list',
                 'schema': {
