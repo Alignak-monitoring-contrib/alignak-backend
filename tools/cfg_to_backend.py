@@ -24,7 +24,7 @@ from future.utils import iteritems
 import argparse
 
 from alignak.objects.config import Config
-from alignak_backend_client.client import Backend
+from alignak_backend_client.client import Backend, BackendException
 
 from alignak_backend.models import command
 from alignak_backend.models import timeperiod
@@ -208,12 +208,21 @@ def update_later(later, inserted, ressource, field):
             value = value.split()
         for template_value in reversed(value):
             template_value = template_value.strip()
+            if not template_value in template[ressource]:
+                print ("***** Undeclared template: %s" % template_value)
+                continue
+            print ("Template: %s - %s" % (template_value, template[ressource][template_value]))
             if 'use' in template[ressource][template_value]:
                 get_template(ressource, template[ressource][template_value]['use'])
             for key, val in iteritems(template[ressource][template_value]):
                 if key not in ['register', 'name', 'use']:
                     data[key] = val
                 elif key == 'name':
+                    if not val in inserted[ressource]:
+                        print ("Key/val: %s = %s" % (key, val))
+                        print ("Inserted: %s" % (inserted[ressource]))
+                        print ("***** Unknown resource: %s" % val)
+                        continue
                     data['use'].append(inserted[ressource][val])
 
     headers = {'Content-Type': 'application/json'}
@@ -329,13 +338,27 @@ def manage_ressource(r_name, inserted, later, data_later, id_name, schema):
             # if template add to template
             if 'register' in item:
                 if not item['register']:
-                    template[r_name][item['name']] = item.copy()
+                    print("***** Template: %s" % item)
+                    if 'name' in item:
+                        template[r_name][item['name']] = item.copy()
+                    else:
+                        print("***** Missing name property in template: %s" % item)
+                        if 'service_description' in item:
+                            item['name'] = item ['service_description']
+                            template[r_name][item['name']] = item.copy()
+                        elif 'host_name' in item:
+                            item['name'] = item ['host_name']
+                            template[r_name][item['name']] = item.copy()
             print("before_post")
-            print(item)
-            response = backend.post(r_name, item, headers)
-            if '_error' in response and '_issues' in response:
-                print("ERROR: %s" % response['_issues'])
+            print("%s : %s:" % (r_name, item))
+            try:
+                response = backend.post(r_name, item, headers)
+            except BackendException as e:
+                print("***** Exception: %s" % str(e))
+                if "_issues" in e.response:
+                    print("ERROR: %s" % e.response['_issues'])
             else:
+                print("POST response : %s:" % (response))
                 if id_name in item:
                     inserted[r_name][item[id_name]] = response['_id']
                 else:
