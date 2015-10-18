@@ -209,8 +209,9 @@ def update_later(later, inserted, ressource, field):
         for template_value in reversed(value):
             template_value = template_value.strip()
             if not template_value in template[ressource]:
-                print ("***** Undeclared template: ", template_value)
+                print ("***** Undeclared template: %s" % template_value)
                 continue
+            print ("Template: %s - %s" % (template_value, template[ressource][template_value]))
             if 'use' in template[ressource][template_value]:
                 get_template(ressource, template[ressource][template_value]['use'])
             for key, val in iteritems(template[ressource][template_value]):
