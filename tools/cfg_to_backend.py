@@ -229,7 +229,7 @@ def update_later(later, inserted, ressource, field, schema):
     for (index, item) in iteritems(later[ressource][field]):
         if field == 'use':
             data = {'use': []}
-            get_template(ressource, item['value'], schema)
+            get_template(ressource, item['value'])
             data = update_types(data, schema)
             use_data = []
             for template_id in reversed(data['use']):
