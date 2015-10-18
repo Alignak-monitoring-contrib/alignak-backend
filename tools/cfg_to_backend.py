@@ -123,6 +123,8 @@ if destroy_backend_data:
     backend.delete('servicegroup', headers)
     backend.delete('service', headers)
     backend.delete('serviceescalation', headers)
+    backend.delete('livestate', headers)
+    backend.delete('livesynthesis', headers)
     print("~~~~~~~~~~~~~~~~~~~~~~ Data destroyed ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -230,7 +232,7 @@ def update_later(later, inserted, ressource, field, schema):
         if field == 'use':
             data = {'use': []}
             get_template(ressource, item['value'])
-            data = update_types(data, schema)
+            # data = update_types(data, schema)
             use_data = []
             for template_id in reversed(data['use']):
                 use_data.append(template_id)
