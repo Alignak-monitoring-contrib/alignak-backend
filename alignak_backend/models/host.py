@@ -655,7 +655,7 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'default': ''
+                'default': 'All'
             },
             'poller_tag': {
                 'type': 'string',
