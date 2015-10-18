@@ -275,10 +275,11 @@ def manage_ressource(r_name, inserted, later, data_later, id_name, schema):
                 item[p] = item[p][0]
             # Hack for check_command_args
             if r_name in ['host', 'service']:
-                commands = item['check_command'].split('!', 1)
-                item['check_command'] = commands[0]
-                if len(commands) == 2:
-                    item['check_command_args'] = commands[1]
+                if 'check_command' in item:
+                    commands = item['check_command'].split('!', 1)
+                    item['check_command'] = commands[0]
+                    if len(commands) == 2:
+                        item['check_command_args'] = commands[1]
 
             # convert type (boolean, integer...)
             item = update_types(item, schema['schema'])
