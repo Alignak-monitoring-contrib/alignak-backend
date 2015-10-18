@@ -218,6 +218,11 @@ def update_later(later, inserted, ressource, field):
                 if key not in ['register', 'name', 'use']:
                     data[key] = val
                 elif key == 'name':
+                    if not val in inserted[ressource]:
+                        print ("Key/val: %s = %s" % (key, val))
+                        print ("Inserted: %s" % (inserted[ressource]))
+                        print ("***** Unknown resource: %s" % val)
+                        continue
                     data['use'].append(inserted[ressource][val])
 
     headers = {'Content-Type': 'application/json'}
@@ -333,7 +338,17 @@ def manage_ressource(r_name, inserted, later, data_later, id_name, schema):
             # if template add to template
             if 'register' in item:
                 if not item['register']:
-                    template[r_name][item['name']] = item.copy()
+                    print("***** Template: %s" % item)
+                    if 'name' in item:
+                        template[r_name][item['name']] = item.copy()
+                    else:
+                        print("***** Missing name property in template: %s" % item)
+                        if 'service_description' in item:
+                            item['name'] = item ['service_description']
+                            template[r_name][item['name']] = item.copy()
+                        elif 'host_name' in item:
+                            item['name'] = item ['host_name']
+                            template[r_name][item['name']] = item.copy()
             print("before_post")
             print("%s : %s:" % (r_name, item))
             try:
