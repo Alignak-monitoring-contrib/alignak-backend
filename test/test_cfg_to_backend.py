@@ -186,7 +186,7 @@ class TestCfgToBackend(unittest2.TestCase):
                u'alias': u'Alignak on FreeBSD', u'icon_set': u'', u'business_impact': 4,
                u'max_check_attempts': 2, u'business_rule_output_template': u'',
                u'business_rule_service_notification_options': [u'w', u'u', u'c', u'r', u'f', u's'],
-               u"use": [template_id]}
+               u"use": [template_id], u'obsess_over_host': False,}
         del webui_host['_links']
         del webui_host['_id']
         del webui_host['_etag']
@@ -241,7 +241,7 @@ class TestCfgToBackend(unittest2.TestCase):
                u'alias': u'Alignak on FreeBSD', u'icon_set': u'', u'business_impact': 4,
                u'max_check_attempts': 2, u'business_rule_output_template': u'',
                u'business_rule_service_notification_options': [u'w', u'u', u'c', u'r', u'f', u's'],
-               u"use": [template_id]}
+               u"use": [template_id], u'obsess_over_host': False,}
         del webui_host['_links']
         del webui_host['_id']
         del webui_host['_etag']
