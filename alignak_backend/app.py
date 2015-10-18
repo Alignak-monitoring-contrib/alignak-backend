@@ -24,6 +24,7 @@ from eve.io.mongo import Validator
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_bootstrap import Bootstrap
 from eve_docs import eve_docs
+from eve.methods.post import post_internal
 from flask import current_app, g, request, abort, jsonify
 
 from alignak_backend.models import register_models
@@ -240,15 +241,15 @@ Bootstrap(app)
 app.register_blueprint(eve_docs, url_prefix='/docs')
 
 # Create default account when have no contact.
-with app.app_context():
+with app.test_request_context():
     contacts = app.data.driver.db['contact']
     super_admin_contact = contacts.find_one({'back_role_super_admin': True})
     if not super_admin_contact:
-        contacts.insert({"contact_name": "admin",
-                         "name": "Big Brother",
-                         "back_password": generate_password_hash("admin"),
-                         "back_role_super_admin": True,
-                         "back_role_admin": []})
+        post_internal("contact", {"contact_name": "admin",
+                                  "name": "Big Brother",
+                                  "back_password": "admin",
+                                  "back_role_super_admin": True,
+                                  "back_role_admin": []})
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
     app.on_inserted_host += Livestate.on_inserted_host
@@ -260,7 +261,7 @@ with app.test_request_context():
 
 @app.route("/login", methods=['POST'])
 def login_app():
-    post_data = request.get_json()
+    post_data = request.json
     if 'username' not in post_data or 'password' not in post_data:
         abort(401, description='Please provide proper credentials')
     elif post_data['username'] == '' or post_data['password'] == '':
@@ -271,10 +272,14 @@ def login_app():
         if contact:
             if check_password_hash(contact['back_password'], post_data['password']):
                 if 'action' in post_data:
-                    if post_data['action'] == 'generate':
+                    if post_data['action'] == 'generate' or contact['token'] == '':
                         token = generate_token()
                         contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
                         return jsonify({'token': token})
+                elif contact['token'] == '':
+                    token = generate_token()
+                    contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                    return jsonify({'token': token})
                 return jsonify({'token': contact['token']})
         abort(401, description='Please provide proper credentials')
 
