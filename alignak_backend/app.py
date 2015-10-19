@@ -186,9 +186,10 @@ def get_settings(settings):
     :return: None
     """
     settings_filenames = [
-        '/usr/local/etc/alignak_backend/settings.ini',
-        '/etc/alignak_backend/settings.ini',
-        os.path.abspath('./settings.ini')
+        '/usr/local/etc/alignak_backend/settings.cfg',
+        '/etc/alignak_backend/settings.cfg',
+        os.path.abspath('./etc/settings.cfg'),
+        os.path.abspath('./settings.cfg')
     ]
 
     # Define some variables available

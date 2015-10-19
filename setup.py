@@ -35,7 +35,7 @@ setup(
     zip_safe=False,
 
     packages=find_packages(),
-    data_files = [('/usr/local/etc/alignak_backend', ['etc/settings.ini'])],
+    data_files = [('/usr/local/etc/alignak_backend', ['etc/settings.cfg'])],
     include_package_data=True,
 
     install_requires=['Eve', 'flask-bootstrap'],
