@@ -5,7 +5,29 @@ Tools
 
 With the backend, some tools have been added and can help you in some cases.
 
-This is the list:
+cfg_to_backend
+--------------
+
+ `cfg_to_backend` is an utility tool that can import a monitoring configuration stored in flat files
+to send this configuration to Alignak backend. It allows importing an existing configuration from
+Nagios or Shinken.
+
+ Command line interface::
+
+   Usage:
+       {command} [-h] [-v] [-d] [-b=backend] [-u=username] [-p=password] <cfg_file> ...
+       {command} -h
+       {command} -v
+
+   Options:
+       -h, --help                  Show this screen.
+       -v, --version               Show application version.
+       -b, --backend url           Specify backend URL [default: http://127.0.0.1:5000]
+       -d, --delete                Delete existing backend data
+       -u, --username username     Backend login username [default: admin]
+       -p, --password password     Backend login password [default: admin]
+
+
 
 * cfg_to_backend.py_: script to open cfg files (alignak, nagios, shinken) and send config to the backend
 

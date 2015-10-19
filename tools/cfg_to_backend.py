@@ -19,9 +19,24 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Alignak.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Usage:
+    {command} [-h] [-v] [-d] [-b=backend] [-u=username] [-p=password] <cfg_file> ...
+    {command} -h
+    {command} -v
+
+Options:
+    -h, --help                  Show this screen.
+    -v, --version               Show application version.
+    -b, --backend url           Specify backend URL [default: http://127.0.0.1:5000]
+    -d, --delete                Delete existing backend data
+    -u, --username username     Backend login username [default: admin]
+    -p, --password password     Backend login password [default: admin]
+
+"""
 from __future__ import print_function
 from future.utils import iteritems
-import argparse
+from docopt import docopt
 
 from alignak.objects.config import Config
 from alignak_backend_client.client import Backend, BackendException
@@ -44,30 +59,24 @@ from alignak_backend.models import servicegroup
 from alignak_backend.models import service
 from alignak_backend.models import serviceescalation
 
-parser = argparse.ArgumentParser()
-parser.add_argument("cfg", nargs='*', default=None)
-args = parser.parse_args()
+# Get command line parameters
+args = docopt(__doc__, version='0.1.0')
 
 # Define here the path of the cfg files
-cfg = [] # ['cfg/from_shinken/shinken.cfg']
-
-if args.cfg is not None:
-    cfg.extend(args.cfg)
-
-if cfg == []:
-    print('No cfg file to parse')
+cfg = args['<cfg_file>']
+print ("Configuration to load: %s" % cfg)
 
 # Define here the url of the backend
-backend_url = 'http://localhost:5000/'
+backend_url = args['--backend']
+print ("Backend URL: %s", backend_url)
 
 # Delete all objects in backend ?
-destroy_backend_data = True
+destroy_backend_data = args['--delete']
+print ("Delete existing backend data: %s" % destroy_backend_data)
 
-username = 'admin'
-password = 'admin'
-
-# Don't touch after this line
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+username = args['--username']
+password = args['--password']
+print ("Backend login with credentials: %s/%s" % (username, password))
 
 def check_mapping(items, mapping):
     response = {
@@ -88,7 +97,9 @@ def check_mapping(items, mapping):
 # Get flat files configuration
 alconfig = Config()
 buf = alconfig.read_config(cfg)
+print ("Configuration: %s" % (buf))
 conf = alconfig.read_config_buf(buf)
+print ("Configuration: %s" % (conf))
 
 
 print("~~~~~~~~~~~~~~~~~~~~~~ First authentication to delete previous data ~~~~~~~~~~~~~~~~~~~")
