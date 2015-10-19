@@ -5,12 +5,27 @@
 """
 Alignak REST backend
 """
-VERSION = (0, 1, 4)
-__version__ = '.'.join((str(each) for each in VERSION[:4]))
+# Application manifest
+VERSION = (0, 1, 5)
 
-__copyright__ = "(c) 2015 - Alignak team"
-__license__ = "License GNU AGPL version 3"
-__releasenotes__ = """
-    Alignak Backend
-    """
+__application__ = u"Alignak_Backend"
+__version__ = '.'.join((str(each) for each in VERSION[:4]))
+__author__ = u"Alignak team"
+__copyright__ = u"(c) 2015 - %s" % __author__
+__license__ = u"GNU Affero General Public License, version 3"
+__description__ = u"Alignak REST backend"
+__releasenotes__ = u"""Alignak REST Backend"""
 __doc_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-backend"
+# Application manifest
+manifest = {
+    'name': __application__,
+    'version': __version__,
+    'author': __author__,
+    'description': __description__,
+    'copyright': __copyright__,
+    'license': __license__,
+    'release': __releasenotes__,
+    'doc': __doc_url__,
+    'fmw_name': 'Alignak',
+    'fmw_version': 'x.y.z'
+}

@@ -28,7 +28,7 @@ from eve.methods.post import post_internal
 from flask import current_app, g, request, abort, jsonify
 
 from alignak_backend.models import register_models
-from alignak_backend import __version__, __copyright__, __releasenotes__, __license__, __doc_url__
+from alignak_backend import manifest
 from alignak_backend.log import Log
 from alignak_backend.livesynthesis import Livesynthesis
 from alignak_backend.livestate import Livestate
@@ -197,11 +197,30 @@ def get_settings(settings):
         '_cwd': os.getcwd()
     }
     config = ConfigParser(defaults=defaults)
-    config.read(settings_filenames)
+    file = config.read(settings_filenames)
+    if not file:
+        print ("No configuration file found, using default configuration")
+    else:
+        print ("Configuration read from file(s): %s" % file)
     for key, value in config.items('DEFAULT'):
         if not key.startswith('_'):
             settings[key.upper()] = value
 
+
+print(
+    "--------------------------------------------------------------------------------"
+)
+print "%s, version %s" % (manifest['name'], manifest['version'])
+print "Copyright %s" % manifest['copyright']
+print "License %s" % manifest['license']
+print "--------------------------------------------------------------------------------"
+
+print "Doc: %s" % manifest['doc']
+print "Release notes: %s" % manifest['release']
+print "--------------------------------------------------------------------------------"
+
+print "Framework: %s, version %s" % (manifest['fmw_name'], manifest['fmw_version'])
+print "--------------------------------------------------------------------------------"
 
 # Application configuration
 # Read configuration file
@@ -218,6 +237,7 @@ settings['MONGO_PORT'] = 27017
 settings['MONGO_DBNAME'] = 'alignak-backend'
 
 get_settings(settings)
+print ("Application settings: %s" % settings)
 
 settings['DOMAIN'] = register_models()
 settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
