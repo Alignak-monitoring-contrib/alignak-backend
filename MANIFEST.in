@@ -1,3 +1,6 @@
-include README.rst LICENSE AUTHORS ChangeLog requirements.txt
-recursive-include alignak_backend/ *.*
-recursive-exclude alignak_backend/ *.pyc
+include README.rst LICENSE AUTHORS requirements.txt
+include etc/settings.cfg
+recursive-include alignak_backend *.*
+recursive-exclude alignak_backend *.pyc
+recursive-include tools *.py
+recursive-exclude tools *.pyc
