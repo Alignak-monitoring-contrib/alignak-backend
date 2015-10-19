@@ -243,6 +243,8 @@ def update_later(later, inserted, ressource, field, schema):
             elif item['type'] == 'list':
                 data = {field: []}
                 for val in item['value']:
+                    print ("***** Unknown %s: %s" % (item['ressource'], val))
+                    continue
                     data[field].append(inserted[item['ressource']][val.strip()])
 
         headers['If-Match'] = item['_etag']
