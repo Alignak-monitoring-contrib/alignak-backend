@@ -192,8 +192,6 @@ class TestCfgToBackend(unittest2.TestCase):
         del webui_host['_etag']
         del webui_host['_created']
         del webui_host['_updated']
-        print "webui_host: %s" % webui_host
-        print "ref: %s" % ref
         self.assertEqual(webui_host, ref)
 
     def test_host_multiple_link_now(self):
