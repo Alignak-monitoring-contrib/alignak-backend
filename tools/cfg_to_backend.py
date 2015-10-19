@@ -341,7 +341,7 @@ def manage_ressource(r_name, inserted, later, data_later, id_name, schema):
             # if template add to template
             if 'register' in item:
                 if not item['register']:
-                    print("***** Template: %s" % item)
+                    # print("***** Template: %s" % item)
                     if 'name' in item:
                         template[r_name][item['name']] = item.copy()
                     else:
