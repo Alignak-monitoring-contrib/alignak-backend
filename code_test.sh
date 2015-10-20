@@ -25,7 +25,7 @@ echo 'pep157 ...'
 pep257 --select=D300 alignak_backend
 echo 'tests ...'
 cd test
-nosetests -xv --process-restartworker --processes=1 --process-timeout=300  --with-coverage --cover-package=alignak_backend test*.py
+nosetests -xv --process-restartworker --processes=1 --process-timeout=300
 echo 'coverage combine ...'
 coverage combine
 coverage report -m
