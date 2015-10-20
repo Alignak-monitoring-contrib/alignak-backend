@@ -87,6 +87,9 @@ def main():
     print ("Backend login with credentials: %s/%s" % (username, password))
 
     def check_mapping(items, mapping):
+        """
+        Check if elements are found ...
+        """
         response = {
             'all_found': True,
             'data': items
@@ -185,6 +188,9 @@ def main():
     #
 
     def update_types(source, schema):
+        """
+        Update elements types
+        """
         for prop in source:
             source[prop] = ''.join(source[prop])
             if prop in schema:
