@@ -73,10 +73,15 @@ setup(
     zip_safe=False,
 
     packages=find_packages(),
-    data_files = [(paths['etc'], ['etc/settings.cfg'])],
     include_package_data=True,
+    # package_data={
+        # 'sample': ['package_data.dat'],
+    # },
+    data_files = [(paths['etc'], ['etc/settings.cfg'])],
 
-    install_requires=['Eve', 'flask-bootstrap'],
+    install_requires=[
+        'Eve', 'flask-bootstrap', 'docopt', 'jsonschema', 'Eve-docs', 'future', 'configparser'
+    ],
 
     entry_points={
         'console_scripts': [

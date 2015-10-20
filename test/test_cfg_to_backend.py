@@ -34,7 +34,7 @@ class TestCfgToBackend(unittest2.TestCase):
 
     def test_command_with_double_template(self):
 
-        q = subprocess.Popen(['../tools/cfg_to_backend.py', 'alignak_cfg_files/commands.cfg'])
+        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', 'alignak_cfg_files/commands.cfg'])
         q.communicate() #now wait
 
         r = self.backend.get('command')
@@ -84,7 +84,7 @@ class TestCfgToBackend(unittest2.TestCase):
 
     def test_command_with_template(self):
 
-        q = subprocess.Popen(['../tools/cfg_to_backend.py', 'alignak_cfg_files/commands2.cfg'])
+        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', 'alignak_cfg_files/commands2.cfg'])
         q.communicate() #now wait
 
         r = self.backend.get('command')
@@ -118,7 +118,7 @@ class TestCfgToBackend(unittest2.TestCase):
 
     def test_timeperiod(self):
 
-        q = subprocess.Popen(['../tools/cfg_to_backend.py', 'alignak_cfg_files/timeperiods.cfg'])
+        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', 'alignak_cfg_files/timeperiods.cfg'])
         q.communicate() #now wait
 
         r = self.backend.get('timeperiod')
@@ -139,7 +139,7 @@ class TestCfgToBackend(unittest2.TestCase):
              self.assertEqual(comm, ref)
 
     def test_host_multiple_link_later(self):
-        q = subprocess.Popen(['../tools/cfg_to_backend.py', 'alignak_cfg_files/hosts_links_parent.cfg'])
+        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', 'alignak_cfg_files/hosts_links_parent.cfg'])
         q.communicate() #now wait
 
         r = self.backend.get('host')
@@ -196,7 +196,7 @@ class TestCfgToBackend(unittest2.TestCase):
 
     def test_host_multiple_link_now(self):
         #host.hostgroups
-        q = subprocess.Popen(['../tools/cfg_to_backend.py', 'alignak_cfg_files/hosts_links_hostgroup.cfg'])
+        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', 'alignak_cfg_files/hosts_links_hostgroup.cfg'])
         q.communicate() #now wait
 
         r = self.backend.get('host')
