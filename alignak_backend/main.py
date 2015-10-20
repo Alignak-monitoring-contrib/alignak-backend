@@ -10,8 +10,6 @@ def main():
     """
     Main function
     """
-    # Process command line parameters
-    # appli.process_args()
     app.run()
 
 if __name__ == "__main__":  # pragma: no cover
