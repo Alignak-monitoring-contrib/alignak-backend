@@ -32,6 +32,21 @@ To run in developper mode (mean with few connections), you can start with comman
 
     alignak_backend
 
+On start, some useful information are printed on the console::
+
+      $ alignak_backend
+      --------------------------------------------------------------------------------
+      Alignak_Backend, version 0.2.4
+      Copyright (c) 2015 - Alignak team
+      License GNU Affero General Public License, version 3
+      --------------------------------------------------------------------------------
+      Doc: https://github.com/Alignak-monitoring-contrib/alignak-backend
+      Release notes: Alignak REST Backend
+      --------------------------------------------------------------------------------
+      Configuration read from file(s): ['/etc/alignak_backend/settings.cfg']
+      Application settings: {'MONGO_PORT': '27017', 'RATE_LIMIT_POST': 'None', 'X_HEADERS': 'Authorization, If-Match, X-HTTP-Method-Override, Content-Type', 'X_DOMAINS': '*', 'MONGO_DBNAME': 'alignak-backend', 'RATE_LIMIT_GET': 'None', 'MONGO_HOST': 'localhost', 'DEBUG': 'False', 'RATE_LIMIT_PATCH': 'None', 'PAGINATION_LIMIT': '100', 'RATE_LIMIT_DELETE': 'None'}
+
+
 Alignak-backend run on port 5000, so use::
 
     http://ip:5000/

@@ -28,9 +28,7 @@ Nagios or Shinken.
        -p, --password password     Backend login password [default: admin]
 
 
- The default behavior is to update an existing backend on running on http://127.0.0.1:5000. This is
-why it does not delete the existing backend content. To start a new backend from scratch, please
-specify `--delete`.
+ The default behavior is to update an existing backend on running on http://127.0.0.1:5000. This is why it does not delete the existing backend content. To start a new backend from scratch, please specify `--delete`.
 
 * cfg_to_backend.py_: script to open cfg files (alignak, nagios, shinken) and send config to the backend
 
