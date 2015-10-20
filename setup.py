@@ -5,6 +5,7 @@ import os
 import sys
 import re
 del os.link
+from importlib import import_module
 
 try:
     from setuptools import setup, find_packages
@@ -18,24 +19,61 @@ except:
 if python_version < (2, 7):
     sys.exit("This application requires a minimum Python 2.7.x, sorry!")
 
-import alignak_backend
+try:
+    from alignak.version import VERSION
+    __alignak_version__ = VERSION
+except:
+    __alignak_version__ = 'x.y.z'
+
+from alignak_backend import __application__, __version__, __copyright__
+from alignak_backend import __releasenotes__, __license__, __doc_url__
+from alignak_backend import __name__ as __pkg_name__
+
+package = import_module('alignak_backend')
+
+# Define paths
+if 'linux' in sys.platform or 'sunos5' in sys.platform:
+    paths = {
+        'bin':     "/usr/bin",
+        'var':     "/var/lib/alignak_backend/",
+        'share':   "/var/lib/alignak_backend/share",
+        'etc':     "/etc/alignak_backend",
+        'run':     "/var/run/alignak_backend",
+        'log':     "/var/log/alignak_backend",
+        'libexec': "/var/lib/alignak_backend/libexec",
+    }
+elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
+    paths = {
+        'bin':     "/usr/local/bin",
+        'var':     "/usr/local/libexec/alignak_backend",
+        'share':   "/usr/local/share/alignak_backend",
+        'etc':     "/usr/local/etc/alignak_backend",
+        'run':     "/var/run/alignak_backend",
+        'log':     "/var/log/alignak_backend",
+        'libexec': "/usr/local/libexec/alignak_backend/plugins",
+    }
+else:
+    print "Unsupported platform, sorry!"
+    exit(1)
 
 setup(
-    name="Alignak_backend",
-    version=alignak_backend.__version__,
+    name=__pkg_name__,
+    version=__version__,
+
+    license=__license__,
 
     # metadata for upload to PyPI
-    author="Alignak team contribution",
+    author="David Durieux",
     author_email="d.durieux@siprossii.com",
     keywords="alignak monitoring backend",
     url="https://github.com/Alignak-monitoring-contrib/alignak-backend",
-    description="Alignak REST Backend",
+    description=package.__doc__.strip(),
     long_description=open('README.rst').read(),
 
     zip_safe=False,
 
     packages=find_packages(),
-    data_files = [('/usr/local/etc/alignak_backend', ['etc/settings.cfg'])],
+    data_files = [(paths['etc'], ['etc/settings.cfg'])],
     include_package_data=True,
 
     install_requires=['Eve', 'flask-bootstrap'],

@@ -219,9 +219,6 @@ print "Doc: %s" % manifest['doc']
 print "Release notes: %s" % manifest['release']
 print "--------------------------------------------------------------------------------"
 
-print "Framework: %s, version %s" % (manifest['fmw_name'], manifest['fmw_version'])
-print "--------------------------------------------------------------------------------"
-
 # Application configuration
 # Read configuration file
 settings = {}
