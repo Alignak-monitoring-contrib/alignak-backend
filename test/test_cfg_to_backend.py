@@ -29,8 +29,11 @@ class TestCfgToBackend(unittest2.TestCase):
 
     @classmethod
     def tearDown(cls):
+        cls.backend.delete("host", {})
+        cls.backend.delete("service", {})
         cls.backend.delete("command", {})
-        cls.backend.delete("timeperiod", {})
+        cls.backend.delete("livestate", {})
+        cls.backend.delete("livesynthesis", {})
 
     def test_command_with_double_template(self):
 
