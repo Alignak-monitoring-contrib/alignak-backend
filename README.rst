@@ -4,6 +4,15 @@ Alignak-backend
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend.svg?branch=master
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend
 
+.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-backend/badge.svg?branch=master&service=github
+  :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-backend?branch=master
+
+.. image:: https://readthedocs.org/projects/alignak-backend/badge/?version=latest
+  :target: http://alignak-backend.readthedocs.org/en/latest/?badge=latest
+  :alt: Documentation Status
+
+
+
 Documentation
 -------------------
 
