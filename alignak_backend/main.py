@@ -7,6 +7,9 @@ from alignak_backend.app import app
 
 
 def main():
+    """
+    Main function
+    """
     # Process command line parameters
     # appli.process_args()
     app.run()

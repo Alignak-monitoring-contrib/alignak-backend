@@ -63,8 +63,8 @@ class MyTokenAuth(TokenAuth):
         :rtype: bool
         """
 
-        contacts = current_app.data.driver.db['contact']
-        contact = contacts.find_one({'token': token})
+        _contacts = current_app.data.driver.db['contact']
+        contact = _contacts.find_one({'token': token})
         if contact:
             g.back_role_super_admin = contact['back_role_super_admin']
             g.back_role_admin = contact['back_role_admin']
@@ -95,14 +95,14 @@ class MyValidator(Validator):
         return
 
 
-def pre_get(resource, request, lookup):
+def pre_get(resource, user_request, lookup):
     """
     Hook before get data. Add filter depend on roles of user
 
     :param resource: name of the resource requested by user
     :type resource: str
-    :param request: request of the user
-    :type request: object
+    :param user_request: request of the user
+    :type user_request: object
     :param lookup: values to get (filter in the request)
     :type lookup: dict
     :return: None
@@ -129,11 +129,11 @@ def pre_get(resource, request, lookup):
                     else:
                         lookup["_brotherhood"] = {"$in": broth}
                         field = '_users_read'
-                        if request.environ['REQUEST_METHOD'] == 'POST':
+                        if user_request.environ['REQUEST_METHOD'] == 'POST':
                             field = '_users_create'
-                        if request.environ['REQUEST_METHOD'] == 'PATCH':
+                        if user_request.environ['REQUEST_METHOD'] == 'PATCH':
                             field = '_users_update'
-                        if request.environ['REQUEST_METHOD'] == 'DELETE':
+                        if user_request.environ['REQUEST_METHOD'] == 'DELETE':
                             field = '_users_delete'
                         lookup[field] = {"$in": [g.get('users_id')]}
                 else:
@@ -173,16 +173,21 @@ def pre_contact_patch(updates, original):
 
 
 def generate_token():
+    """
+    Generate a user token
+
+    :return: user token
+    """
     t = int(time.time() * 1000)
     return str(t)+'-'+str(uuid.uuid4())
 
 
-def get_settings(settings):
+def get_settings(prev_settings):
     """
-    Get settings of application from config file
+    Get settings of application from config file to update/complete previously existing gsettings
 
-    :param settings: default settings
-    :type settings: dict
+    :param prev_settings: previous settings
+    :type prev_settings: dict
     :return: None
     """
     settings_filenames = [
@@ -197,19 +202,17 @@ def get_settings(settings):
         '_cwd': os.getcwd()
     }
     config = ConfigParser(defaults=defaults)
-    file = config.read(settings_filenames)
-    if not file:
-        print ("No configuration file found, using default configuration")
+    cfg_file = config.read(settings_filenames)
+    if not cfg_file:
+        print "No configuration file found, using default configuration"
     else:
-        print ("Configuration read from file(s): %s" % file)
+        print "Configuration read from file(s): %s" % cfg_file
     for key, value in config.items('DEFAULT'):
         if not key.startswith('_'):
-            settings[key.upper()] = value
+            prev_settings[key.upper()] = value
 
 
-print(
-    "--------------------------------------------------------------------------------"
-)
+print "--------------------------------------------------------------------------------"
 print "%s, version %s" % (manifest['name'], manifest['version'])
 print "Copyright %s" % manifest['copyright']
 print "License %s" % manifest['license']
@@ -234,7 +237,7 @@ settings['MONGO_PORT'] = 27017
 settings['MONGO_DBNAME'] = 'alignak-backend'
 
 get_settings(settings)
-print ("Application settings: %s" % settings)
+print "Application settings: %s" % settings
 
 settings['DOMAIN'] = register_models()
 settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
@@ -279,24 +282,27 @@ with app.test_request_context():
 
 @app.route("/login", methods=['POST'])
 def login_app():
+    """
+    Log in to backend
+    """
     post_data = request.json
     if 'username' not in post_data or 'password' not in post_data:
         abort(401, description='Please provide proper credentials')
     elif post_data['username'] == '' or post_data['password'] == '':
         abort(401, description='Please provide proper credentials')
     else:
-        contacts = app.data.driver.db['contact']
-        contact = contacts.find_one({'contact_name': post_data['username']})
+        _contacts = app.data.driver.db['contact']
+        contact = _contacts.find_one({'contact_name': post_data['username']})
         if contact:
             if check_password_hash(contact['back_password'], post_data['password']):
                 if 'action' in post_data:
                     if post_data['action'] == 'generate' or contact['token'] == '':
                         token = generate_token()
-                        contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                        _contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
                         return jsonify({'token': token})
                 elif contact['token'] == '':
                     token = generate_token()
-                    contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                    _contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
                     return jsonify({'token': token})
                 return jsonify({'token': contact['token']})
         abort(401, description='Please provide proper credentials')
@@ -304,6 +310,9 @@ def login_app():
 
 @app.route("/logout", methods=['POST'])
 def logout_app():
+    """
+    Log out from backend
+    """
     return 'ok'
 
 if __name__ == '__main__':

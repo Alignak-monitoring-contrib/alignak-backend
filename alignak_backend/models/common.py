@@ -6,6 +6,9 @@ Common schema part for resource schema
 
 
 def user_rights():
+    """
+    Common user rights
+    """
     return {
         '_users_read': {
             'type': 'list',
@@ -51,6 +54,9 @@ def user_rights():
 
 
 def contacts():
+    """
+    Common contacts linked to an element
+    """
     return {
         'contacts': {
             'type': 'list',
@@ -66,6 +72,9 @@ def contacts():
 
 
 def contact_groups():
+    """
+    Common contacts groups linked to an element
+    """
     return {
         'contact_groups': {
             'type': 'list',

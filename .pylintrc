@@ -53,7 +53,9 @@ load-plugins=
 # [W0613(unused-argument), MyValidator._validate_title] Unused argument 'field'
 # [R0201(no-self-use), MyValidator._validate_title] Method could be a function
 # [C0302(too-many-lines), ] Too many lines in module (1015/1000)
-disable=C0103,W0611,W0602,W0603,W0703,R0912,R0915,R0902,R0801,R0903,W0613,R0201,C0302
+# [W0612(unused-variable), Livesynthesis.on_inserted_livestate] Unused variable 'index'
+# [E1101(no-member), ] Instance of 'Eve' has no 'on_inserted_service' member
+disable=C0103,W0611,W0602,W0603,W0703,R0912,R0915,R0902,R0801,R0903,W0613,R0201,C0302, W0612, E1101
 
 
 [REPORTS]

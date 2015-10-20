@@ -12,9 +12,15 @@ from eve.methods.post import post_internal
 
 
 class Livestate(object):
+    """
+        Livestate class
+    """
 
     @staticmethod
     def recalculate():
+        """
+            Recalculate all the live state
+        """
         livestate = current_app.data.driver.db['livestate']
         if livestate.count() == 0:
             host = current_app.data.driver.db['host']
@@ -28,6 +34,9 @@ class Livestate(object):
 
     @staticmethod
     def on_inserted_host(items):
+        """
+            What to do when a new host is inserted in the live state ...
+        """
         for index, item in enumerate(items):
             if item['register']:
                 data = {'host_name': item['_id'], 'service_description': None, 'state': 'UP',
@@ -45,6 +54,9 @@ class Livestate(object):
 
     @staticmethod
     def on_inserted_service(items):
+        """
+            What to do when a new service is inserted in the live state ...
+        """
         for index, item in enumerate(items):
             if item['register']:
                 data = {'host_name': item['host_name'], 'service_description': item['_id'],
