@@ -63,6 +63,9 @@ def main():
     """
     Main function
     """
+    # Store list of errors found
+    errors_found = []
+
     # Get command line parameters
     args = docopt(__doc__, version='0.1.0')
 
@@ -227,7 +230,7 @@ def main():
             for template_value in reversed(value):
                 template_value = template_value.strip()
                 if template_value not in template[ressource]:
-                    print ("***** Undeclared template: %s" % template_value)
+                    errors_found.append("# Undeclared template: %s for %s" % (template_value, ressource))
                     continue
                 print ("Template: %s - %s" % (template_value, template[ressource][template_value]))
                 if 'use' in template[ressource][template_value]:
@@ -237,11 +240,9 @@ def main():
                         data[key] = val
                     elif key == 'name':
                         if val not in inserted[ressource]:
-                            print ("Key/val: %s = %s" % (key, val))
-                            print ("Inserted: %s" % (inserted[ressource]))
-                            print ("***** Unknown resource: %s" % val)
-                            continue
-                        data['use'].append(inserted[ressource][val])
+                            errors_found.append("# Unknown resource %s for %s in %s" % (val, key, inserted[ressource]))
+                        else:
+                            data['use'].append(inserted[ressource][val])
 
         headers = {'Content-Type': 'application/json'}
         for (index, item) in iteritems(later[ressource][field]):
@@ -259,9 +260,10 @@ def main():
                 elif item['type'] == 'list':
                     data = {field: []}
                     for val in item['value']:
-                        print ("***** Unknown %s: %s" % (item['ressource'], val))
-                        continue
-                        data[field].append(inserted[item['ressource']][val.strip()])
+                        if val not in item['ressource']:
+                            errors_found.append("# Unknown %s: %s for %s" % (item['ressource'], val, ressource))
+                        else:
+                            data[field].append(inserted[item['ressource']][val.strip()])
 
             headers['If-Match'] = item['_etag']
             resp = backend.patch(''.join([ressource, '/', index]), data, headers, True)
@@ -363,7 +365,6 @@ def main():
                 # if template add to template
                 if 'register' in item:
                     if not item['register']:
-                        # print("***** Template: %s" % item)
                         if 'name' in item:
                             template[r_name][item['name']] = item.copy()
                         else:
@@ -587,6 +588,12 @@ def main():
     print("~~~~~~~~~~~~~~~~~~~~~~ post serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'serviceescalation', 'use', schema)
     # update_later(later, inserted, 'serviceescalation', 'contacts', schema)
+
+    # print all errors found
+    print('################################## errors report ##################################')
+    for error in errors_found:
+        print(error)
+    print('###################################################################################')
 
 
 if __name__ == "__main__":  # pragma: no cover
