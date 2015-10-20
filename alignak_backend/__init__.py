@@ -6,7 +6,7 @@
 Alignak REST backend
 """
 # Application manifest
-VERSION = (0, 2, 3)
+VERSION = (0, 3, 0)
 
 __application__ = u"Alignak_Backend"
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
