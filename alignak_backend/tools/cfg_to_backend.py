@@ -260,10 +260,11 @@ def main():
                 elif item['type'] == 'list':
                     data = {field: []}
                     for val in item['value']:
-                        if val not in item['ressource']:
+                        val = val.strip()
+                        if val not in inserted[item['ressource']]:
                             errors_found.append("# Unknown %s: %s for %s" % (item['ressource'], val, ressource))
                         else:
-                            data[field].append(inserted[item['ressource']][val.strip()])
+                            data[field].append(inserted[item['ressource']][val])
 
             headers['If-Match'] = item['_etag']
             resp = backend.patch(''.join([ressource, '/', index]), data, headers, True)
