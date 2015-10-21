@@ -153,8 +153,8 @@ def pre_contact_post(items):
     :return: None
     """
     for index, item in enumerate(items):
-        if 'back_password' in item:
-            items[index]['back_password'] = generate_password_hash(item['back_password'])
+        if 'password' in item:
+            items[index]['password'] = generate_password_hash(item['password'])
 
 
 def pre_contact_patch(updates, original):
@@ -168,8 +168,8 @@ def pre_contact_patch(updates, original):
     :type original: dict
     :return: None
     """
-    if 'back_password' in updates:
-        updates['back_password'] = generate_password_hash(updates['back_password'])
+    if 'password' in updates:
+        updates['password'] = generate_password_hash(updates['password'])
 
 
 def generate_token():
@@ -268,7 +268,7 @@ with app.test_request_context():
     if not super_admin_contact:
         post_internal("contact", {"contact_name": "admin",
                                   "name": "Big Brother",
-                                  "back_password": "admin",
+                                  "password": "admin",
                                   "back_role_super_admin": True,
                                   "back_role_admin": []})
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
@@ -294,7 +294,7 @@ def login_app():
         _contacts = app.data.driver.db['contact']
         contact = _contacts.find_one({'contact_name': post_data['username']})
         if contact:
-            if check_password_hash(contact['back_password'], post_data['password']):
+            if check_password_hash(contact['password'], post_data['password']):
                 if 'action' in post_data:
                     if post_data['action'] == 'generate' or contact['token'] == '':
                         token = generate_token()

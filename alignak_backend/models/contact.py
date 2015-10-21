@@ -432,17 +432,6 @@ def get_schema():
                 },
                 'default': ''
             },
-            'back_password': {
-                'type': 'string',
-                'ui': {
-                    'title': 'Backend password',
-                    'visible': False,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'default': ''
-            },
             'token': {
                 'type': 'string',
                 'ui': {
