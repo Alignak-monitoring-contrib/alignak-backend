@@ -38,7 +38,11 @@ from __future__ import print_function
 from future.utils import iteritems
 from docopt import docopt
 
-from alignak.objects.config import Config
+try:
+    from alignak.objects.config import Config
+except:
+    print("Alignak is not installed...")
+    exit()
 from alignak_backend_client.client import Backend, BackendException
 
 from alignak_backend.models import command
