@@ -40,7 +40,7 @@ from docopt import docopt
 
 try:
     from alignak.objects.config import Config
-except:
+except ImportError:
     print("Alignak is not installed...")
     exit()
 from alignak_backend_client.client import Backend, BackendException
