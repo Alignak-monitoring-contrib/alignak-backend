@@ -123,7 +123,7 @@ def main():
     backend.login(username, password)
 
     if backend.token is None:
-        print("Can't authenticated")
+        print("Access denied!")
         exit()
     print("~~~~~~~~~~~~~~~~~~~~~~ Authenticated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
