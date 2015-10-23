@@ -54,6 +54,7 @@ class Test_1_Login(unittest2.TestCase):
 
     @classmethod
     def setUpClass(cls):
+<<<<<<< HEAD
         print ("")
         print ("start backend")
         cls.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads'])
@@ -103,4 +104,3 @@ class Test_1_Login(unittest2.TestCase):
         token = self.backend.token
         print token
         assert token
-

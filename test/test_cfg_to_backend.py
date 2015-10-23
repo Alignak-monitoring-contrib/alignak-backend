@@ -39,7 +39,6 @@ class TestCfgToBackend(unittest2.TestCase):
 
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/commands.cfg'])
         (stdoutdata, stderrdata) = q.communicate() #now wait
-        print stdoutdata
 
         r = self.backend.get('command')
         self.assertEqual(len(r['_items']), 3)
@@ -90,7 +89,6 @@ class TestCfgToBackend(unittest2.TestCase):
 
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/commands2.cfg'])
         (stdoutdata, stderrdata) = q.communicate() #now wait
-        print stdoutdata
 
         r = self.backend.get('command')
         self.assertEqual(len(r['_items']), 2)
@@ -125,7 +123,6 @@ class TestCfgToBackend(unittest2.TestCase):
 
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/timeperiods.cfg'])
         (stdoutdata, stderrdata) = q.communicate() #now wait
-        print stdoutdata
 
         r = self.backend.get('timeperiod')
         self.assertEqual(len(r['_items']), 1)
@@ -147,7 +144,6 @@ class TestCfgToBackend(unittest2.TestCase):
     def test_host_multiple_link_later(self):
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts_links_parent.cfg'])
         (stdoutdata, stderrdata) = q.communicate() #now wait
-        print stdoutdata
 
         r = self.backend.get('host')
         self.assertEqual(len(r['_items']), 4)
@@ -205,7 +201,6 @@ class TestCfgToBackend(unittest2.TestCase):
         #host.hostgroups
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts_links_hostgroup.cfg'])
         (stdoutdata, stderrdata) = q.communicate() #now wait
-        print stdoutdata
 
         r = self.backend.get('host')
         self.assertEqual(len(r['_items']), 2)

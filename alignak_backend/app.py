@@ -308,6 +308,7 @@ with app.test_request_context():
                                   "password": "admin",
                                   "back_role_super_admin": True,
                                   "back_role_admin": []})
+        print "Created Super admin"
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
     app.on_inserted_host += Livestate.on_inserted_host
@@ -322,22 +323,30 @@ def login_app():
     """
     Log in to backend
     """
-    post_data = request.json
-    if 'username' not in post_data or 'password' not in post_data:
-        abort(401, description='Please provide proper credentials')
-    elif post_data['username'] == '' or post_data['password'] == '':
-        abort(401, description='Please provide proper credentials (empty)')
+    posted_data = None
+    if request.form:
+        posted_data = request.form
+    else:
+        if request.json:
+            posted_data = request.json
+    if not posted_data:
+        abort(401, description='No data provided in the login request')
+
+    if 'username' not in posted_data or 'password' not in posted_data:
+        abort(401, description='Missing credentials in posted data (username and password are mandatory)')
+    elif not posted_data['username'] or not posted_data['password']:
+        abort(401, description='Username and password must be provided as credentials for login.')
     else:
         _contacts = app.data.driver.db['contact']
-        contact = _contacts.find_one({'contact_name': post_data['username']})
+        contact = _contacts.find_one({'contact_name': posted_data['username']})
         if contact:
-            if check_password_hash(contact['password'], post_data['password']):
-                if 'action' in post_data:
-                    if post_data['action'] == 'generate' or contact['token'] == '':
+            if check_password_hash(contact['password'], posted_data['password']):
+                if 'action' in posted_data:
+                    if posted_data['action'] == 'generate' or not contact['token']:
                         token = generate_token()
                         _contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
                         return jsonify({'token': token})
-                elif contact['token'] == '':
+                elif not contact['token']:
                     token = generate_token()
                     _contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
                     return jsonify({'token': token})
