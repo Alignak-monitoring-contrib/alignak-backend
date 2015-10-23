@@ -8,6 +8,7 @@
 """
 
 import sys
+import traceback
 import os
 from docopt import docopt
 from collections import OrderedDict
@@ -17,6 +18,7 @@ from configparser import ConfigParser
 from pprint import pformat
 import time
 import uuid
+from datetime import timedelta
 
 from eve import Eve
 from eve.auth import TokenAuth
@@ -194,6 +196,7 @@ def get_settings(prev_settings):
         '/usr/local/etc/alignak_backend/settings.cfg',
         '/etc/alignak_backend/settings.cfg',
         os.path.abspath('./etc/settings.cfg'),
+        os.path.abspath('../etc/settings.cfg'),
         os.path.abspath('./settings.cfg')
     ]
 
@@ -208,8 +211,32 @@ def get_settings(prev_settings):
     else:
         print "Configuration read from file(s): %s" % cfg_file
     for key, value in config.items('DEFAULT'):
-        if not key.startswith('_'):
-            prev_settings[key.upper()] = value
+        if key.startswith('_'):
+            continue
+        if key.upper() in prev_settings:
+            app_default = prev_settings[key.upper()]
+            if isinstance(app_default, timedelta):
+                prev_settings[key.upper()] = timedelta(value)
+            elif isinstance(app_default, bool):
+                prev_settings[key.upper()] = True if value in [
+                    'true', 'True', 'on', 'On', 'y', 'yes', '1'
+                ] else False
+            elif isinstance(app_default, float):
+                prev_settings[key.upper()] = float(value)
+            elif isinstance(app_default, int):
+                prev_settings[key.upper()] = int(value)
+            else:
+                # All the string keys need to be coerced into str()
+                # because Flask expects some of them not to be unicode
+                prev_settings[key.upper()] = str(value)
+        else:
+            if value.isdigit():
+                prev_settings[key.upper()] = int(value)
+            else:
+                prev_settings[key.upper()] = str(value)
+        if key.lower() == "server_name":
+            if prev_settings[key.upper()].lower() == 'none':
+                prev_settings[key.upper()] = None
 
 
 print "--------------------------------------------------------------------------------"
@@ -223,7 +250,6 @@ print "Release notes: %s" % manifest['release']
 print "--------------------------------------------------------------------------------"
 
 # Application configuration
-# Read configuration file
 settings = {}
 settings['X_DOMAINS'] = '*'
 settings['X_HEADERS'] = (
@@ -231,21 +257,32 @@ settings['X_HEADERS'] = (
     ' X-HTTP-Method-Override, Content-Type'
 )
 settings['PAGINATION_LIMIT'] = 50
+settings['PAGINATION_DEFAULT'] = 25
 
 settings['MONGO_HOST'] = 'localhost'
 settings['MONGO_PORT'] = 27017
 settings['MONGO_DBNAME'] = 'alignak-backend'
 
-get_settings(settings)
-print "Application settings: %s" % settings
-
-settings['DOMAIN'] = register_models()
 settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
 settings['ITEM_METHODS'] = ['GET', 'PATCH', 'DELETE']
 settings['XML'] = False
 # Allow $regex in filtering ...
 # Default is ['$where', '$regex']
 settings['MONGO_QUERY_BLACKLIST'] = ['$where']
+
+# Flask specific options; default is to listen only on locahost ...
+settings['HOST'] = '127.0.0.1'
+settings['PORT'] = 5000
+settings['SERVER_NAME'] = None
+settings['DEBUG'] = False
+
+# Read configuration file to update/completethe configuration
+get_settings(settings)
+
+print "Application settings: %s" % settings
+
+# Add model schema to the configuration
+settings['DOMAIN'] = register_models()
 
 app = Eve(
     settings=settings,
@@ -324,5 +361,26 @@ def logout_app():
     """
     return 'ok'
 
-if __name__ == '__main__':
-    app.run()
+
+def main():
+    """
+        Called when this module is started from shell
+    """
+    try:
+        print "--------------------------------------------------------------------------------"
+        print "%s, listening on %s:%d" % (
+            manifest['name'], app.config.get('HOST', '127.0.0.1'), app.config.get('PORT', 8090)
+        )
+        print "--------------------------------------------------------------------------------"
+        app.run(
+            host=settings.get('HOST', '127.0.0.1'),
+            port=settings.get('PORT', 5000),
+            debug=settings.get('DEBUG', False)
+        )
+    except Exception as e:
+        print "Application run failed, exception: %s / %s" % (type(e), str(e))
+        print "Back trace of this kill: %s" % traceback.format_exc()
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
