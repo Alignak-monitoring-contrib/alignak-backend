@@ -333,9 +333,15 @@ def login_app():
         abort(401, description='No data provided in the login request')
 
     if 'username' not in posted_data or 'password' not in posted_data:
-        abort(401, description='Missing credentials in posted data (username and password are mandatory)')
+        abort(
+            401,
+            description='Missing credentials in posted data (username and password are mandatory)'
+        )
     elif not posted_data['username'] or not posted_data['password']:
-        abort(401, description='Username and password must be provided as credentials for login.')
+        abort(
+            401,
+            description='Username and password must be provided as credentials for login.'
+        )
     else:
         _contacts = app.data.driver.db['contact']
         contact = _contacts.find_one({'contact_name': posted_data['username']})
