@@ -89,17 +89,41 @@ class Test_1_Login(unittest2.TestCase):
         # - disabled    not to used actually !!!!!!!!!!!!!!!!!!!!!
 
         assert self.backend.login("admin", "admin")
-        print "Super admin is defined in backend ..."
         token = self.backend.token
+        assert self.backend.authenticated
         print token
 
         assert self.backend.login("admin", "admin")
         assert token == self.backend.token
+        assert self.backend.authenticated
         token = self.backend.token
         print token
 
         assert self.backend.login("admin", "admin", "force")
         assert token != self.backend.token
+        assert self.backend.authenticated
         token = self.backend.token
         print token
         assert token
+
+        assert self.backend.logout()
+        assert not self.backend.token
+        assert not self.backend.authenticated
+
+    def test_1(self):
+        print ""
+
+        assert self.backend.login("admin", "admin")
+        assert self.backend.token
+        token = self.backend.token
+        print token
+
+        # Not yet implemented in backend ...
+        # assert self.backend.login("guest", "guest")
+        # assert self.backend.token
+        # assert token != self.backend.token
+        # token = self.backend.token
+        # print token
+
+        assert self.backend.logout()
+        assert not self.backend.token
