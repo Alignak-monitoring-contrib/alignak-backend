@@ -111,9 +111,9 @@ def main():
     # Get flat files configuration
     alconfig = Config()
     buf = alconfig.read_config(cfg)
-    print ("Configuration: %s" % (buf))
+    # print ("Configuration: %s" % (buf))
     conf = alconfig.read_config_buf(buf)
-    print ("Configuration: %s" % (conf))
+    # print ("Configuration: %s" % (conf))
 
     print("~~~~~~~~~~~~~~~~~~~~~~ First authentication to delete previous data ~~~~~~~~~~~~~~")
     # Backend authentication with token generation
