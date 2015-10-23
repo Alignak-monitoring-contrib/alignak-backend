@@ -35,8 +35,11 @@ POST on *http://127.0.0.1:5000/login* with fields:
 * *password*: xxx
 
 Example::
-
+    JSON data in request body:
     curl -H "Content-Type: application/json" -X POST -d '{"username":"admin","password":"admin"}' http://127.0.0.1:5000/login
+
+    HTML form data:
+    curl -X POST -H "Cache-Control: no-cache" -H "Content-Type: multipart/form-data" -F "username=admin" -F "password=admin" 'http://127.0.0.1:5000/login'
 
 The response will provide the token to use.
 
