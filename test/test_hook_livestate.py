@@ -102,10 +102,11 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.patch("host/" + rh['_id'], datap, headers)
 
         # check if business_impact of host changed
-        rh = self.backend.get('host')
+        params = {'sort': 'host_name'}
+        rh = self.backend.get('host', params)
 
-        self.assertEqual(rh['_items'][0]['business_impact'], 5)
-        self.assertEqual(rh['_items'][1]['business_impact'], 1)
+        self.assertEqual(rh['_items'][0]['business_impact'], 1)
+        self.assertEqual(rh['_items'][1]['business_impact'], 5)
 
         # Check if livestate right updated
         r = self.backend.get('livestate')
