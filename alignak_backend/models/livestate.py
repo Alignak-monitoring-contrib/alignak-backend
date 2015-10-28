@@ -33,6 +33,10 @@ def get_schema():
                 'required': True,
                 'nullable': True
             },
+            'display_name_service': {
+                'type': 'string',
+                'default': ''
+            },
             'host_name': {
                 'type': 'objectid',
                 'data_relation': {
@@ -41,6 +45,10 @@ def get_schema():
                 },
                 'required': True,
                 'nullable': True
+            },
+            'display_name_host': {
+                'type': 'string',
+                'default': ''
             },
             'state': {
                 'type': 'string',

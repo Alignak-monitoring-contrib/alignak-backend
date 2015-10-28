@@ -123,6 +123,17 @@ def get_schema():
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
                 'dependencies': ['host_name', 'check_command']
             },
+            'alias': {
+                'type': 'string',
+                'ui': {
+                    'title': 'Alias',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'default': ''
+            },
             'display_name': {
                 'type': 'string',
                 'ui': {
