@@ -106,6 +106,10 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
+            'business_impact': {
+                'type': 'integer',
+                'default': 2
+            },
             '_brotherhood': {
                 'type': 'list',
                 'schema': {
