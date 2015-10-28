@@ -83,7 +83,9 @@ class Livesynthesis(object):
         """
             What to do when the live state is updated ...
         """
-        if updated['state'] == updated['last_state'] \
+        if 'state' not in updated:
+            return
+        elif updated['state'] == updated['last_state'] \
                 and updated['state_type'] == updated['last_state_type']:
             return
 

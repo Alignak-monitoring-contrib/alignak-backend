@@ -313,6 +313,8 @@ with app.test_request_context():
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
     app.on_inserted_host += Livestate.on_inserted_host
     app.on_inserted_service += Livestate.on_inserted_service
+    app.on_updated_host += Livestate.on_updated_host
+    app.on_updated_service += Livestate.on_updated_service
 with app.test_request_context():
     Livestate.recalculate()
     Livesynthesis.recalculate()
