@@ -81,11 +81,14 @@ class Livestate(object):
         """
             Update field business_impact if changed
         """
-        if updated['business_impact'] == original['business_impact']:
+        if 'business_impact' not in updated:
+            return
+        elif updated['business_impact'] == original['business_impact']:
             return
 
         livestate_db = current_app.data.driver.db['livestate']
-        live_current = livestate_db.find_one({'host_name': original['_id'], 'service_description': None})
+        live_current = livestate_db.find_one({'host_name': original['_id'],
+                                              'service_description': None})
 
         data = {'business_impact': updated['business_impact']}
         lookup = {"_id": live_current['_id']}
@@ -96,7 +99,9 @@ class Livestate(object):
         """
             Update field business_impact if changed
         """
-        if updated['business_impact'] == original['business_impact']:
+        if 'business_impact' not in updated:
+            return
+        elif updated['business_impact'] == original['business_impact']:
             return
 
         livestate_db = current_app.data.driver.db['livestate']
