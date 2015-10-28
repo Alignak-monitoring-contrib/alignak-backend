@@ -63,6 +63,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['state'], 'OK')
         self.assertEqual(r['_items'][1]['host_name'], rh['_items'][0]['_id'])
         self.assertEqual(r['_items'][1]['service_description'], rs['_items'][0]['_id'])
+        self.assertEqual(r['_items'][1]['type'], 'service')
 
         self.backend.delete("contact", {})
         self.p.kill()

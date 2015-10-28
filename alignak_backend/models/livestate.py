@@ -110,6 +110,11 @@ def get_schema():
                 'type': 'integer',
                 'default': 2
             },
+            'type': {
+                'type': 'string',
+                'default': 'host',
+                'allowed': ["host", "service"]
+            },
             '_brotherhood': {
                 'type': 'list',
                 'schema': {

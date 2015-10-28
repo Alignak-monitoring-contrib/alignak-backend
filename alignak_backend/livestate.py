@@ -43,7 +43,7 @@ class Livestate(object):
                 data = {'host_name': item['_id'], 'service_description': None, 'state': 'UP',
                         'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
                         'last_state': 'UP', 'last_state_type': 'HARD', 'output': '',
-                        'long_output': '', 'perf_data': '',
+                        'long_output': '', 'perf_data': '', 'type': 'host',
                         'business_impact': item['business_impact']}
                 if item['initial_state'] == 'd':
                     data['state'] = 'DOWN'
@@ -63,7 +63,7 @@ class Livestate(object):
                 data = {'host_name': item['host_name'], 'service_description': item['_id'],
                         'state': 'OK', 'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
                         'last_state': 'OK', 'last_state_type': 'HARD', 'output': '',
-                        'long_output': '', 'perf_data': '',
+                        'long_output': '', 'perf_data': '', 'type': 'service',
                         'business_impact': item['business_impact']}
                 if item['initial_state'] == 'w':
                     data['state'] = 'WARNING'

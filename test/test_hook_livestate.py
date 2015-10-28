@@ -51,6 +51,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['host_name'], rh['_items'][0]['_id'])
         self.assertEqual(r['_items'][0]['service_description'], None)
         self.assertEqual(r['_items'][0]['business_impact'], 5)
+        self.assertEqual(r['_items'][0]['type'], 'host')
 
     def test_add_service(self):
         # add host
@@ -84,6 +85,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['state'], 'OK')
         self.assertEqual(r['_items'][1]['host_name'], rh['_items'][0]['_id'])
         self.assertEqual(r['_items'][1]['service_description'], rs['_items'][0]['_id'])
+        self.assertEqual(r['_items'][1]['type'], 'service')
 
     def test_update_host_business_impact(self):
         # add host
