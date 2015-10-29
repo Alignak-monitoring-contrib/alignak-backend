@@ -40,11 +40,19 @@ class Livestate(object):
         """
         for index, item in enumerate(items):
             if item['register']:
+                name = ''
+                if 'display_name' in item and item['display_name'] != '':
+                    name = item['display_name']
+                elif 'alias' in item and item['alias'] != '':
+                    name = item['alias']
+                else:
+                    name = item['host_name']
+
                 data = {'host_name': item['_id'], 'service_description': None, 'state': 'UP',
                         'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
                         'last_state': 'UP', 'last_state_type': 'HARD', 'output': '',
-                        'long_output': '', 'perf_data': '',
-                        'business_impact': item['business_impact']}
+                        'long_output': '', 'perf_data': '', 'type': 'host',
+                        'business_impact': item['business_impact'], 'display_name_host': name}
                 if item['initial_state'] == 'd':
                     data['state'] = 'DOWN'
                     data['last_state'] = 'DOWN'
@@ -60,11 +68,28 @@ class Livestate(object):
         """
         for index, item in enumerate(items):
             if item['register']:
+                name = ''
+                if 'display_name' in item and item['display_name'] != '':
+                    name = item['display_name']
+                elif 'alias' in item and item['alias'] != '':
+                    name = item['alias']
+                else:
+                    name = item['service_description']
+
+                host_db = current_app.data.driver.db['host']
+                host_info = host_db.find_one({'_id': item['host_name']})
+                name_h = host_info['host_name']
+                if 'alias' in host_info and host_info['alias'] != '':
+                    name_h = host_info['alias']
+                if 'display_name' in host_info and host_info['display_name'] != '':
+                    name_h = host_info['display_name']
+
                 data = {'host_name': item['host_name'], 'service_description': item['_id'],
                         'state': 'OK', 'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
                         'last_state': 'OK', 'last_state_type': 'HARD', 'output': '',
-                        'long_output': '', 'perf_data': '',
-                        'business_impact': item['business_impact']}
+                        'long_output': '', 'perf_data': '', 'type': 'service',
+                        'business_impact': item['business_impact'], 'display_name_service': name,
+                        'display_name_host': name_h}
                 if item['initial_state'] == 'w':
                     data['state'] = 'WARNING'
                     data['last_state'] = 'WARNING'
@@ -81,32 +106,72 @@ class Livestate(object):
         """
             Update field business_impact if changed
         """
+        bi = True
         if 'business_impact' not in updated:
-            return
+            bi = False
         elif updated['business_impact'] == original['business_impact']:
-            return
+            bi = False
 
-        livestate_db = current_app.data.driver.db['livestate']
-        live_current = livestate_db.find_one({'host_name': original['_id'],
-                                              'service_description': None})
+        name = ''
+        if 'display_name' in updated and updated['display_name'] != '':
+            name = updated['display_name']
+        elif 'display_name' in original and original['display_name'] != '':
+            name = ''
+        elif 'alias' in updated and updated['alias'] != '':
+            name = updated['alias']
+        elif 'alias' in original and original['alias'] != '':
+            name = ''
+        elif 'host_name' in updated and updated['host_name'] != '':
+            name = updated['host_name']
 
-        data = {'business_impact': updated['business_impact']}
-        lookup = {"_id": live_current['_id']}
-        patch_internal('livestate', data, False, False, **lookup)
+        if bi or name != '':
+            livestate_db = current_app.data.driver.db['livestate']
+            live_current = livestate_db.find_one({'host_name': original['_id'],
+                                                  'service_description': None})
+            data = {}
+            if bi:
+                data['business_impact'] = updated['business_impact']
+            if name != '':
+                data['display_name_host'] = name
+            lookup = {"_id": live_current['_id']}
+            patch_internal('livestate', data, False, False, **lookup)
+            if name != '':
+                lives = livestate_db.find({'host_name': original['_id'], 'type': 'service'})
+                data = {'display_name_host': name}
+                for live in lives:
+                    lookup = {"_id": live['_id']}
+                    patch_internal('livestate', data, False, False, **lookup)
 
     @staticmethod
     def on_updated_service(updated, original):
         """
             Update field business_impact if changed
         """
+        bi = True
         if 'business_impact' not in updated:
-            return
+            bi = False
         elif updated['business_impact'] == original['business_impact']:
-            return
+            bi = False
 
-        livestate_db = current_app.data.driver.db['livestate']
-        live_current = livestate_db.find_one({'service_description': original['_id']})
+        name = ''
+        if 'display_name' in updated and updated['display_name'] != '':
+            name = updated['display_name']
+        elif 'display_name' in original and original['display_name'] != '':
+            name = ''
+        elif 'alias' in updated and updated['alias'] != '':
+            name = updated['alias']
+        elif 'alias' in original and original['alias'] != '':
+            name = ''
+        elif 'service_description' in updated and updated['service_description'] != '':
+            name = updated['service_description']
 
-        data = {'business_impact': updated['business_impact']}
-        lookup = {"_id": live_current['_id']}
-        patch_internal('livestate', data, False, False, **lookup)
+        if bi or name != '':
+            livestate_db = current_app.data.driver.db['livestate']
+            live_current = livestate_db.find_one({'service_description': original['_id']})
+            data = {}
+            if bi:
+                data['business_impact'] = updated['business_impact']
+            if name != '':
+                data['display_name_service'] = name
+            lookup = {"_id": live_current['_id']}
+            patch_internal('livestate', data, False, False, **lookup)
