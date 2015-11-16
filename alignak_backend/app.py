@@ -10,12 +10,8 @@
 import sys
 import traceback
 import os
-from docopt import docopt
 from collections import OrderedDict
-import logging
-from textwrap import dedent
 from configparser import ConfigParser
-from pprint import pformat
 import time
 import uuid
 from datetime import timedelta
