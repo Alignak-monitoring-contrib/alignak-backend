@@ -42,6 +42,10 @@ def get_schema():
                 'default': 'HARD',
                 'allowed': ["HARD", "SOFT"]
             },
+            'state_id': {
+                'type': 'integer',
+                'default': 0
+            },
             'acknowledged': {
                 'type': 'boolean',
                 'default': False
