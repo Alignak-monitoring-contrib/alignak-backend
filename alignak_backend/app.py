@@ -297,9 +297,9 @@ app.register_blueprint(eve_docs, url_prefix='/docs')
 # Create default account when have no contact.
 with app.test_request_context():
     try:
-       contacts = app.data.driver.db['contact']
-    except:
-        sys.exit("[ERROR] Impossible to connect to MongoDB")
+        contacts = app.data.driver.db['contact']
+    except Exception as e:
+        sys.exit("[ERROR] Impossible to connect to MongoDB (%s)" % e)
     super_admin_contact = contacts.find_one({'back_role_super_admin': True})
     if not super_admin_contact:
         post_internal("contact", {"contact_name": "admin",
