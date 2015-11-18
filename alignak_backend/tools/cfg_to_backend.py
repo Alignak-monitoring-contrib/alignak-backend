@@ -423,11 +423,11 @@ def main():
                                                 # (r_name, item))
                             continue
                             # if 'service_description' in item:
-                                # item['name'] = item['service_description']
-                                # template[r_name][item['name']] = item.copy()
+                            # item['name'] = item['service_description']
+                            # template[r_name][item['name']] = item.copy()
                             # elif 'host_name' in item:
-                                # item['name'] = item['host_name']
-                                # template[r_name][item['name']] = item.copy()
+                            # item['name'] = item['host_name']
+                            # template[r_name][item['name']] = item.copy()
                 print("before_post: %s : %s:" % (r_name, item))
                 try:
                     response = backend.post(r_name, item, headers)
