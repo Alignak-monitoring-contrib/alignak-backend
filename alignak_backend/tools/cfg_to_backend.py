@@ -21,9 +21,26 @@
 
 """
 Usage:
-    {command} [-h] [-v] [-d] [-b=backend] [-u=username] [-p=password] <cfg_file> ...
-    {command} -h
-    {command} -v
+    {command} [-h] [-v] [-d] [-b=backend] [-u=username] [-p=password] [cfg_file]
+
+    Display help message:
+        {command} -h
+    Display current version:
+        {command} -v
+
+    Delete current backend data:
+        {command} -d [-b=backend] [-u=username] [-p=password]
+
+    Add some data in current backend:
+        {command} [-b=backend] [-u=username] [-p=password] [cfg_file]
+
+    Replace current backend data:
+        {command} -d [-b=backend] [-u=username] [-p=password] [cfg_file]
+
+    Exit code:
+        0 if required operation succeeded
+        1 if Alignak is not installed
+        2 if backend access is denied (check provided username/password)
 
 Options:
     -h, --help                  Show this screen.
@@ -42,7 +59,7 @@ try:
     from alignak.objects.config import Config
 except ImportError:
     print("Alignak is not installed...")
-    exit()
+    exit(1)
 from alignak_backend_client.client import Backend, BackendException
 
 from alignak_backend.models import command
@@ -72,11 +89,15 @@ def main():
     errors_found = []
 
     # Get command line parameters
-    args = docopt(__doc__, version='0.1.0')
+    args = docopt(__doc__, version='0.2.0')
 
     # Define here the path of the cfg files
-    cfg = args['<cfg_file>']
-    print ("Configuration to load: %s" % cfg)
+    cfg = None
+    if '[cfg_file]' in args:
+        cfg = args['[cfg_file]']
+        print ("Configuration to load: %s" % cfg)
+    else:
+        print ("No configuration specified")
 
     # Define here the url of the backend
     backend_url = args['--backend']
@@ -108,14 +129,7 @@ def main():
             response['data'] = new_list
         return response
 
-    # Get flat files configuration
-    alconfig = Config()
-    buf = alconfig.read_config(cfg)
-    # print ("Configuration: %s" % (buf))
-    conf = alconfig.read_config_buf(buf)
-    # print ("Configuration: %s" % (conf))
-
-    print("~~~~~~~~~~~~~~~~~~~~~~ First authentication to delete previous data ~~~~~~~~~~~~~~")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Backend authentication ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     # Backend authentication with token generation
     headers = {'Content-Type': 'application/json'}
     payload = {'username': username, 'password': password, 'action': 'generate'}
@@ -124,11 +138,12 @@ def main():
 
     if backend.token is None:
         print("Access denied!")
-        exit()
-    print("~~~~~~~~~~~~~~~~~~~~~~ Authenticated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        exit(2)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Authenticated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
     # Destroy data in backend if defined
     if destroy_backend_data:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~ Deleting existing backend data ~~~~~~~~~~~~~~~~~~~~~~~~~~")
         headers = {'Content-Type': 'application/json'}
         backend.delete('command', headers)
         backend.delete('timeperiod', headers)
@@ -149,7 +164,18 @@ def main():
         backend.delete('serviceescalation', headers)
         backend.delete('livestate', headers)
         backend.delete('livesynthesis', headers)
-        print("~~~~~~~~~~~~~~~~~~~~~~ Data destroyed ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~ Existing backend data destroyed ~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+    if not cfg:
+        print ("No configuration specified")
+        exit(2)
+
+    # Get flat files configuration
+    alconfig = Config()
+    buf = alconfig.read_config(cfg)
+    # print ("Configuration: %s" % (buf))
+    conf = alconfig.read_config_buf(buf)
+    # print ("Configuration: %s" % (conf))
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Order of objects + fields to update post add
