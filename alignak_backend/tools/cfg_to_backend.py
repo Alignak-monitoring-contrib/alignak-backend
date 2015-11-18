@@ -21,7 +21,7 @@
 
 """
 Usage:
-    {command} [-h] [-v] [-d] [-b=url] [-u=username] [-p=password] [<cfg_file>]
+    {command} [-h] [-v] [-d] [-b=url] [-u=username] [-p=password] [<cfg_file>...]
 
 Options:
     -h, --help                  Show this screen.
@@ -178,11 +178,14 @@ def main():
         print ("No configuration specified")
         exit(2)
 
+    if not isinstance(cfg, list):
+        cfg = [cfg]
+
     # Get flat files configuration
     try:
-        alconfig = Config()
-        buf = alconfig.read_config(cfg)
-        conf = alconfig.read_config_buf(buf)
+        alignak_config = Config()
+        buf = alignak_config.read_config(cfg)
+        conf = alignak_config.read_config_buf(buf)
     except Exception as e:
         print("Configuration loading exception: %s" % str(e))
         exit(3)
@@ -411,23 +414,29 @@ def main():
                 if 'register' in item:
                     if not item['register']:
                         if 'name' in item:
+                            # It's a template ...
                             template[r_name][item['name']] = item.copy()
                         else:
-                            print("***** Missing name property in template: %s" % item)
-                            if 'service_description' in item:
-                                item['name'] = item['service_description']
-                                template[r_name][item['name']] = item.copy()
-                            elif 'host_name' in item:
-                                item['name'] = item['host_name']
-                                template[r_name][item['name']] = item.copy()
-                print("before_post")
-                print("%s : %s:" % (r_name, item))
+                            # It's an element ... let's ignore it!
+                            # print("***** Missing name property in template: %s" % item)
+                            # errors_found.append("# Missing name property in template: %s : %s" %
+                                                # (r_name, item))
+                            continue
+                            # if 'service_description' in item:
+                                # item['name'] = item['service_description']
+                                # template[r_name][item['name']] = item.copy()
+                            # elif 'host_name' in item:
+                                # item['name'] = item['host_name']
+                                # template[r_name][item['name']] = item.copy()
+                print("before_post: %s : %s:" % (r_name, item))
                 try:
                     response = backend.post(r_name, item, headers)
                 except BackendException as e:
                     print("***** Exception: %s" % str(e))
                     if "_issues" in e.response:
                         print("ERROR: %s" % e.response['_issues'])
+                    errors_found.append("# Post error for: %s : %s" %
+                                        (r_name, item))
                 else:
                     print("POST response : %s:" % (response))
                     if id_name in item:
