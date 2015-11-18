@@ -21,26 +21,7 @@
 
 """
 Usage:
-    {command} [-h] [-v] [-d] [-b=backend] [-u=username] [-p=password] [cfg_file]
-
-    Display help message:
-        {command} -h
-    Display current version:
-        {command} -v
-
-    Delete current backend data:
-        {command} -d [-b=backend] [-u=username] [-p=password]
-
-    Add some data in current backend:
-        {command} [-b=backend] [-u=username] [-p=password] [cfg_file]
-
-    Replace current backend data:
-        {command} -d [-b=backend] [-u=username] [-p=password] [cfg_file]
-
-    Exit code:
-        0 if required operation succeeded
-        1 if Alignak is not installed
-        2 if backend access is denied (check provided username/password)
+    {command} [-h] [-v] [-d] [-b=url] [-u=username] [-p=password] [<cfg_file>]
 
 Options:
     -h, --help                  Show this screen.
@@ -50,10 +31,33 @@ Options:
     -u, --username username     Backend login username [default: admin]
     -p, --password password     Backend login password [default: admin]
 
+Use cases:
+    Display help message:
+        {command} -h
+    Display current version:
+        {command} -v
+
+    Delete current backend data:
+        {command} -d [-b=backend] [-u=username] [-p=password]
+
+    Add some data in current backend:
+        {command} [-b=backend] [-u=username] [-p=password] <cfg_file>
+
+    Replace current backend data:
+        {command} -d [-b=backend] [-u=username] [-p=password] <cfg_file>
+
+    Exit code:
+        0 if required operation succeeded
+        1 if Alignak is not installed
+        2 if backend access is denied (check provided username/password)
+        3 if required configuration cannot be loaded
+        64 if command line parameters are not used correctly
+
 """
 from __future__ import print_function
 from future.utils import iteritems
 from docopt import docopt
+from docopt import DocoptExit
 
 try:
     from alignak.objects.config import Config
@@ -89,12 +93,16 @@ def main():
     errors_found = []
 
     # Get command line parameters
-    args = docopt(__doc__, version='0.2.0')
+    try:
+        args = docopt(__doc__, version='0.2.0')
+    except DocoptExit:
+        print("Command line parsing error")
+        exit(64)
 
     # Define here the path of the cfg files
     cfg = None
-    if '[cfg_file]' in args:
-        cfg = args['[cfg_file]']
+    if '<cfg_file>' in args:
+        cfg = args['<cfg_file>']
         print ("Configuration to load: %s" % cfg)
     else:
         print ("No configuration specified")
@@ -171,11 +179,13 @@ def main():
         exit(2)
 
     # Get flat files configuration
-    alconfig = Config()
-    buf = alconfig.read_config(cfg)
-    # print ("Configuration: %s" % (buf))
-    conf = alconfig.read_config_buf(buf)
-    # print ("Configuration: %s" % (conf))
+    try:
+        alconfig = Config()
+        buf = alconfig.read_config(cfg)
+        conf = alconfig.read_config_buf(buf)
+    except Exception as e:
+        print("Configuration loading exception: %s" % str(e))
+        exit(3)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Order of objects + fields to update post add
