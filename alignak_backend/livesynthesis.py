@@ -53,7 +53,7 @@ class Livesynthesis(object):
             live_current = livesynthesis.find_one()
         # get all hosts
         hosts = current_app.data.driver.db['host']
-        hosts_cnt = hosts.find({"register": True}).count()
+        hosts_cnt = hosts.find().count()
         livestates = current_app.data.driver.db['livestate']
         if live_current['hosts_total'] != hosts_cnt:
             data = {"hosts_total": hosts_cnt}
@@ -68,7 +68,7 @@ class Livesynthesis(object):
 
         # get all services
         services = current_app.data.driver.db['service']
-        services_cnt = services.find({"register": True}).count()
+        services_cnt = services.find().count()
         if live_current['services_total'] != services_cnt:
             data = {"services_total": services_cnt}
             data['services_ok_hard'] = livestates.find({"state": "OK"}).count()

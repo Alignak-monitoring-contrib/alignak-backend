@@ -39,27 +39,26 @@ class Livestate(object):
             What to do when a new host is inserted in the live state ...
         """
         for index, item in enumerate(items):
-            if item['register']:
-                name = ''
-                if 'display_name' in item and item['display_name'] != '':
-                    name = item['display_name']
-                elif 'alias' in item and item['alias'] != '':
-                    name = item['alias']
-                else:
-                    name = item['host_name']
+            name = ''
+            if 'display_name' in item and item['display_name'] != '':
+                name = item['display_name']
+            elif 'alias' in item and item['alias'] != '':
+                name = item['alias']
+            else:
+                name = item['host_name']
 
-                data = {'host_name': item['_id'], 'service_description': None, 'state': 'UP',
-                        'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
-                        'last_state': 'UP', 'last_state_type': 'HARD', 'output': '',
-                        'long_output': '', 'perf_data': '', 'type': 'host',
-                        'business_impact': item['business_impact'], 'display_name_host': name}
-                if item['initial_state'] == 'd':
-                    data['state'] = 'DOWN'
-                    data['last_state'] = 'DOWN'
-                elif item['initial_state'] == 'u':
-                    data['state'] = 'UNREACHABLE'
-                    data['last_state'] = 'UNREACHABLE'
-                post_internal("livestate", data)
+            data = {'host_name': item['_id'], 'service_description': None, 'state': 'UP',
+                    'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
+                    'last_state': 'UP', 'last_state_type': 'HARD', 'output': '',
+                    'long_output': '', 'perf_data': '', 'type': 'host',
+                    'business_impact': item['business_impact'], 'display_name_host': name}
+            if item['initial_state'] == 'd':
+                data['state'] = 'DOWN'
+                data['last_state'] = 'DOWN'
+            elif item['initial_state'] == 'u':
+                data['state'] = 'UNREACHABLE'
+                data['last_state'] = 'UNREACHABLE'
+            post_internal("livestate", data)
 
     @staticmethod
     def on_inserted_service(items):
@@ -67,39 +66,38 @@ class Livestate(object):
             What to do when a new service is inserted in the live state ...
         """
         for index, item in enumerate(items):
-            if item['register']:
-                name = ''
-                if 'display_name' in item and item['display_name'] != '':
-                    name = item['display_name']
-                elif 'alias' in item and item['alias'] != '':
-                    name = item['alias']
-                else:
-                    name = item['service_description']
+            name = ''
+            if 'display_name' in item and item['display_name'] != '':
+                name = item['display_name']
+            elif 'alias' in item and item['alias'] != '':
+                name = item['alias']
+            else:
+                name = item['service_description']
 
-                host_db = current_app.data.driver.db['host']
-                host_info = host_db.find_one({'_id': item['host_name']})
-                name_h = host_info['host_name']
-                if 'alias' in host_info and host_info['alias'] != '':
-                    name_h = host_info['alias']
-                if 'display_name' in host_info and host_info['display_name'] != '':
-                    name_h = host_info['display_name']
+            host_db = current_app.data.driver.db['host']
+            host_info = host_db.find_one({'_id': item['host_name']})
+            name_h = host_info['host_name']
+            if 'alias' in host_info and host_info['alias'] != '':
+                name_h = host_info['alias']
+            if 'display_name' in host_info and host_info['display_name'] != '':
+                name_h = host_info['display_name']
 
-                data = {'host_name': item['host_name'], 'service_description': item['_id'],
-                        'state': 'OK', 'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
-                        'last_state': 'OK', 'last_state_type': 'HARD', 'output': '',
-                        'long_output': '', 'perf_data': '', 'type': 'service',
-                        'business_impact': item['business_impact'], 'display_name_service': name,
-                        'display_name_host': name_h}
-                if item['initial_state'] == 'w':
-                    data['state'] = 'WARNING'
-                    data['last_state'] = 'WARNING'
-                elif item['initial_state'] == 'c':
-                    data['state'] = 'CRITICAL'
-                    data['last_state'] = 'CRITICAL'
-                elif item['initial_state'] == 'u':
-                    data['state'] = 'UNKNOWN'
-                    data['last_state'] = 'UNKNOWN'
-                post_internal("livestate", data)
+            data = {'host_name': item['host_name'], 'service_description': item['_id'],
+                    'state': 'OK', 'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
+                    'last_state': 'OK', 'last_state_type': 'HARD', 'output': '',
+                    'long_output': '', 'perf_data': '', 'type': 'service',
+                    'business_impact': item['business_impact'], 'display_name_service': name,
+                    'display_name_host': name_h}
+            if item['initial_state'] == 'w':
+                data['state'] = 'WARNING'
+                data['last_state'] = 'WARNING'
+            elif item['initial_state'] == 'c':
+                data['state'] = 'CRITICAL'
+                data['last_state'] = 'CRITICAL'
+            elif item['initial_state'] == 'u':
+                data['state'] = 'UNKNOWN'
+                data['last_state'] = 'UNKNOWN'
+            post_internal("livestate", data)
 
     @staticmethod
     def on_updated_host(updated, original):

@@ -19,63 +19,12 @@ def get_schema():
     """
     Schema structure of this resource
 
-    :return: schema dictionnary
+    :return: schema dictionary
     :rtype: dict
     """
     return {
         'schema': {
-            'use': {
-                'type': 'list',
-                'ui': {
-                    'title': 'Template(s)',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'contact',
-                        'embeddable': True,
-                    }
-                },
-            },
             'name': {
-                'type': 'string',
-                'title': 'Name',
-                'ui': {
-                    'title': 'Name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'default': ''
-            },
-            'definition_order': {
-                'type': 'integer',
-                'ui': {
-                    'title': 'Definition order',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'default': 100
-            },
-            'register': {
-                'type': 'boolean',
-                'ui': {
-                    'title': 'Registered',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'default': True
-            },
-            'contact_name': {
                 'type': 'string',
                 'ui': {
                     'title': 'Name',
@@ -87,6 +36,17 @@ def get_schema():
                 'required': True,
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
+            },
+            'definition_order': {
+                'type': 'integer',
+                'ui': {
+                    'title': 'Definition order',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'default': 100
             },
             'alias': {
                 'type': 'string',

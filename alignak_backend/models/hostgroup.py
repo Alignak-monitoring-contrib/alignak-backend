@@ -19,7 +19,7 @@ def get_schema():
     """
     Schema structure of this resource
 
-    :return: schema dictionnary
+    :return: schema dictionary
     :rtype: dict
     """
     return {
@@ -59,7 +59,7 @@ def get_schema():
                     "format": None
                 },
             },
-            'hostgroup_name': {
+            'name': {
                 'type': 'string',
                 'required': True,
                 'unique': True,

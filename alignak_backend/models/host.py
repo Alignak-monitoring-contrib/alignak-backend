@@ -19,7 +19,7 @@ def get_schema():
     """
     Schema structure of this resource
 
-    :return: schema dictionnary
+    :return: schema dictionary
     :rtype: dict
     """
     return {
@@ -36,33 +36,18 @@ def get_schema():
                 },
                 'default': ''
             },
-            'use': {
-                'type': 'list',
-                'ui': {
-                    'title': 'Object identifier',
-                    'visible': False,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": "link"
-                },
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'host',
-                        'embeddable': True,
-                    }
-                },
-            },
             'name': {
                 'type': 'string',
                 'ui': {
-                    'title': 'Name',
+                    'title': 'Host name',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
                     "format": None
                 },
-                'default': ''
+                'required': True,
+                'unique': True,
+                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
             },
             'definition_order': {
                 'type': 'integer',
@@ -74,30 +59,6 @@ def get_schema():
                     "format": None
                 },
                 'default': 100
-            },
-            'register': {
-                'type': 'boolean',
-                'ui': {
-                    'title': 'Registered',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'default': True
-            },
-            'host_name': {
-                'type': 'string',
-                'ui': {
-                    'title': 'Host name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'unique': True,
-                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
-                'dependencies': ['address']
             },
             'alias': {
                 'type': 'string',
@@ -655,7 +616,7 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'default': 'All'
+                'default': 'Default'
             },
             'poller_tag': {
                 'type': 'string',

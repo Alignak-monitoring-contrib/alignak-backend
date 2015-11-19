@@ -19,7 +19,7 @@ def get_schema():
     """
     Schema structure of this resource
 
-    :return: schema dictionnary
+    :return: schema dictionary
     :rtype: dict
     """
     return {
@@ -36,33 +36,18 @@ def get_schema():
                 },
                 'default': ''
             },
-            'use': {
-                'type': 'list',
-                'ui': {
-                    'title': 'Template(s)',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'service',
-                        'embeddable': True,
-                    }
-                },
-            },
             'name': {
                 'type': 'string',
                 'ui': {
-                    'title': 'Name',
+                    'title': 'Service name',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
                     "format": None
                 },
-                'default': ''
+                'required': True,
+                'unique': True,
+                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
             },
             'definition_order': {
                 'type': 'integer',
@@ -74,17 +59,6 @@ def get_schema():
                     "format": None
                 },
                 'default': 100
-            },
-            'register': {
-                'type': 'boolean',
-                'ui': {
-                    'title': 'Register',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'default': True
             },
             'host_name': {
                 'type': 'objectid',
@@ -110,18 +84,6 @@ def get_schema():
                     "format": None
                 },
                 'default': ''
-            },
-            'service_description': {
-                'type': 'string',
-                'ui': {
-                    'title': 'Service description',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
-                'dependencies': ['host_name', 'check_command']
             },
             'alias': {
                 'type': 'string',

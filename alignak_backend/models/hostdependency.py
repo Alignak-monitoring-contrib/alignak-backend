@@ -19,7 +19,7 @@ def get_schema():
     """
     Schema structure of this resource
 
-    :return: schema dictionnary
+    :return: schema dictionary
     :rtype: dict
     """
     return {
@@ -28,27 +28,14 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
-            'use': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'hostdependency',
-                        'embeddable': True,
-                    }
-                },
-            },
             'name': {
                 'type': 'string',
-                'default': ''
+                'required': True,
+                'unique': True,
             },
             'definition_order': {
                 'type': 'integer',
                 'default': 100
-            },
-            'register': {
-                'type': 'boolean',
-                'default': True
             },
             'dependent_host_name': {
                 'type': 'string',

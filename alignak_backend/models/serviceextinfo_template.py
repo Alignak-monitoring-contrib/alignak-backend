@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Resource information of servicedependency
+Templates of serviceextinfo
 """
 
 
@@ -12,7 +12,7 @@ def get_name():
     :return: name of this resource
     :rtype: str
     """
-    return 'servicedependency'
+    return 'serviceextinfo_template'
 
 
 def get_schema():
@@ -26,7 +26,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': 'unknown'
+                'default': ''
             },
             'name': {
                 'type': 'string',
@@ -37,43 +37,31 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
-            'dependent_host_name': {
-                'type': 'string'
-            },
-            'dependent_hostgroup_name': {
-                'type': 'string',
-                'default': ''
-            },
-            'dependent_service_description': {
-                'type': 'string',
-                'default': ''
-            },
             'host_name': {
-                'type': 'string'
-            },
-            'hostgroup_name': {
                 'type': 'string',
-                'default': 'unknown'
+                'required': True,
+                'unique': True,
+                'default': ''
             },
-            'inherits_parent': {
-                'type': 'boolean',
-                'default': False
-            },
-            'execution_failure_criteria': {
-                'type': 'list',
-                'default': ['n']
-            },
-            'notification_failure_criteria': {
-                'type': 'list',
-                'default': ['n']
-            },
-            'dependency_period': {
+            'service_description': {
                 'type': 'string',
                 'default': ''
             },
-            'explode_hostgroup': {
-                'type': 'boolean',
-                'default': False
+            'notes': {
+                'type': 'string',
+                'default': ''
+            },
+            'notes_url': {
+                'type': 'string',
+                'default': ''
+            },
+            'icon_image': {
+                'type': 'string',
+                'default': ''
+            },
+            'icon_image_alt': {
+                'type': 'string',
+                'default': ''
             },
             '_brotherhood': {
                 'type': 'list',

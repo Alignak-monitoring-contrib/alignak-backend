@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Resource information of servicedependency
+Templates of serviceescalation
 """
 
 
@@ -12,7 +12,7 @@ def get_name():
     :return: name of this resource
     :rtype: str
     """
-    return 'servicedependency'
+    return 'serviceescalation_template'
 
 
 def get_schema():
@@ -37,43 +37,52 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
-            'dependent_host_name': {
-                'type': 'string'
-            },
-            'dependent_hostgroup_name': {
-                'type': 'string',
-                'default': ''
-            },
-            'dependent_service_description': {
-                'type': 'string',
-                'default': ''
-            },
             'host_name': {
-                'type': 'string'
+                'type': 'string',
             },
             'hostgroup_name': {
                 'type': 'string',
-                'default': 'unknown'
             },
-            'inherits_parent': {
-                'type': 'boolean',
-                'default': False
+            'service_description': {
+                'type': 'string',
             },
-            'execution_failure_criteria': {
-                'type': 'list',
-                'default': ['n']
+            'first_notification': {
+                'type': 'integer',
             },
-            'notification_failure_criteria': {
-                'type': 'list',
-                'default': ['n']
+            'last_notification': {
+                'type': 'integer',
             },
-            'dependency_period': {
+            'notification_interval': {
+                'type': 'integer',
+                'default': 30
+            },
+            'escalation_period': {
                 'type': 'string',
                 'default': ''
             },
-            'explode_hostgroup': {
-                'type': 'boolean',
-                'default': False
+            'escalation_options': {
+                'type': 'list',
+                'default': ['d', 'u', 'r', 'w', 'c']
+            },
+            'contacts': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'contact',
+                    'embeddable': True
+                }
+            },
+            'contact_groups': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'contactgroup',
+                    'embeddable': True
+                }
+            },
+            'first_notification_time': {
+                'type': 'integer',
+            },
+            'last_notification_time': {
+                'type': 'integer',
             },
             '_brotherhood': {
                 'type': 'list',

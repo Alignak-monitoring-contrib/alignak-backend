@@ -302,8 +302,7 @@ with app.test_request_context():
         sys.exit("[ERROR] Impossible to connect to MongoDB (%s)" % e)
     super_admin_contact = contacts.find_one({'back_role_super_admin': True})
     if not super_admin_contact:
-        post_internal("contact", {"contact_name": "admin",
-                                  "name": "Big Brother",
+        post_internal("contact", {"name": "admin",
                                   "password": "admin",
                                   "back_role_super_admin": True,
                                   "back_role_admin": []})
@@ -345,7 +344,7 @@ def login_app():
         )
     else:
         _contacts = app.data.driver.db['contact']
-        contact = _contacts.find_one({'contact_name': posted_data['username']})
+        contact = _contacts.find_one({'name': posted_data['username']})
         if contact:
             if check_password_hash(contact['password'], posted_data['password']):
                 if 'action' in posted_data:

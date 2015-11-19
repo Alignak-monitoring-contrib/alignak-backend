@@ -27,7 +27,7 @@ def get_schema():
     - a counter containing the number of element_type in the state and flapping
     - the maximum business impact of the element_type in the state
 
-    :return: schema dictionnary
+    :return: schema dictionary
     :rtype: dict
     """
     return {

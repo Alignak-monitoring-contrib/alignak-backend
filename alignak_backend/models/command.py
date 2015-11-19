@@ -19,36 +19,19 @@ def get_schema():
     """
     Schema structure of this resource
 
-    :return: schema dictionnary
+    :return: schema dictionary
     :rtype: dict
     """
     return {
         'schema': {
-            'use': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'command',
-                        'embeddable': True,
-                    }
-                },
-            },
             'name': {
                 'type': 'string',
-                'default': ''
+                'required': True,
+                'unique': True,
             },
             'definition_order': {
                 'type': 'integer',
                 'default': 100
-            },
-            'register': {
-                'type': 'boolean',
-                'default': True
-            },
-            'command_name': {
-                'type': 'string',
-                'dependencies': ['command_line']
             },
             'command_line': {
                 'type': 'string'
