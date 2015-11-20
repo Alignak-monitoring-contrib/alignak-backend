@@ -21,9 +21,7 @@
 
 """
 Usage:
-    {command} [-h] [-v] [-d] [-b=backend] [-u=username] [-p=password] <cfg_file> ...
-    {command} -h
-    {command} -v
+    {command} [-h] [-v] [-d] [-b=url] [-u=username] [-p=password] [<cfg_file>...]
 
 Options:
     -h, --help                  Show this screen.
@@ -33,16 +31,39 @@ Options:
     -u, --username username     Backend login username [default: admin]
     -p, --password password     Backend login password [default: admin]
 
+Use cases:
+    Display help message:
+        {command} -h
+    Display current version:
+        {command} -v
+
+    Delete current backend data:
+        {command} -d [-b=backend] [-u=username] [-p=password]
+
+    Add some data in current backend:
+        {command} [-b=backend] [-u=username] [-p=password] <cfg_file>
+
+    Replace current backend data:
+        {command} -d [-b=backend] [-u=username] [-p=password] <cfg_file>
+
+    Exit code:
+        0 if required operation succeeded
+        1 if Alignak is not installed
+        2 if backend access is denied (check provided username/password)
+        3 if required configuration cannot be loaded
+        64 if command line parameters are not used correctly
+
 """
 from __future__ import print_function
 from future.utils import iteritems
 from docopt import docopt
+from docopt import DocoptExit
 
 try:
     from alignak.objects.config import Config
 except ImportError:
     print("Alignak is not installed...")
-    exit()
+    exit(1)
 from alignak_backend_client.client import Backend, BackendException
 
 from alignak_backend.models import command
@@ -72,11 +93,19 @@ def main():
     errors_found = []
 
     # Get command line parameters
-    args = docopt(__doc__, version='0.1.0')
+    try:
+        args = docopt(__doc__, version='0.2.0')
+    except DocoptExit:
+        print("Command line parsing error")
+        exit(64)
 
     # Define here the path of the cfg files
-    cfg = args['<cfg_file>']
-    print ("Configuration to load: %s" % cfg)
+    cfg = None
+    if '<cfg_file>' in args:
+        cfg = args['<cfg_file>']
+        print ("Configuration to load: %s" % cfg)
+    else:
+        print ("No configuration specified")
 
     # Define here the url of the backend
     backend_url = args['--backend']
@@ -108,14 +137,7 @@ def main():
             response['data'] = new_list
         return response
 
-    # Get flat files configuration
-    alconfig = Config()
-    buf = alconfig.read_config(cfg)
-    # print ("Configuration: %s" % (buf))
-    conf = alconfig.read_config_buf(buf)
-    # print ("Configuration: %s" % (conf))
-
-    print("~~~~~~~~~~~~~~~~~~~~~~ First authentication to delete previous data ~~~~~~~~~~~~~~")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Backend authentication ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     # Backend authentication with token generation
     headers = {'Content-Type': 'application/json'}
     payload = {'username': username, 'password': password, 'action': 'generate'}
@@ -124,11 +146,12 @@ def main():
 
     if backend.token is None:
         print("Access denied!")
-        exit()
-    print("~~~~~~~~~~~~~~~~~~~~~~ Authenticated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        exit(2)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Authenticated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
     # Destroy data in backend if defined
     if destroy_backend_data:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~ Deleting existing backend data ~~~~~~~~~~~~~~~~~~~~~~~~~~")
         headers = {'Content-Type': 'application/json'}
         backend.delete('command', headers)
         backend.delete('timeperiod', headers)
@@ -149,7 +172,23 @@ def main():
         backend.delete('serviceescalation', headers)
         backend.delete('livestate', headers)
         backend.delete('livesynthesis', headers)
-        print("~~~~~~~~~~~~~~~~~~~~~~ Data destroyed ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~ Existing backend data destroyed ~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+    if not cfg:
+        print ("No configuration specified")
+        exit(2)
+
+    if not isinstance(cfg, list):
+        cfg = [cfg]
+
+    # Get flat files configuration
+    try:
+        alignak_config = Config()
+        buf = alignak_config.read_config(cfg)
+        imported_conf = alignak_config.read_config_buf(buf)
+    except Exception as e:
+        print("Configuration loading exception: %s" % str(e))
+        exit(3)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Order of objects + fields to update post add
@@ -212,7 +251,7 @@ def main():
 
     def update_later(later, inserted, ressource, field, schema):
         """
-        Update field of ressource hav link with other ressources (objectid in backend)
+        Update field of ressource having a link with other ressources (objectid in backend)
 
         :param later:
         :type later: dict
@@ -305,8 +344,8 @@ def main():
         for k, values in enumerate(data_later):
             if values['field'] not in later[r_name]:
                 later[r_name][values['field']] = {}
-        if r_name in conf:
-            for item in conf[r_name]:
+        if r_name in imported_conf:
+            for item in imported_conf[r_name]:
                 later_tmp = {}
                 headers = {
                     'Content-Type': 'application/json',
@@ -315,6 +354,17 @@ def main():
                     del item['imported_from']
                 for p in item:
                     item[p] = item[p][0]
+
+                # Fred
+                # Special case of contacts
+                if r_name == 'contact':
+                    if 'contact_name' in item:
+                        if item['contact_name'] == "admin":
+                            break
+                        # else:
+                            # item['back_role_super_admin'] = False
+                            # item['back_role_admin'] = False
+
                 # Hack for check_command_args
                 if r_name in ['host', 'service']:
                     if 'check_command' in item:
@@ -359,7 +409,12 @@ def main():
                                 later_tmp[values['field']] = item[values['field']]
                                 del item[values['field']]
 
-                # special case of timeperiod
+                # Special case of contacts
+                if r_name == 'contact':
+                    item['back_role_super_admin'] = False
+                    item['back_role_admin'] = []
+
+                # Special case of timeperiod
                 if r_name == 'timeperiod':
                     fields = ['imported_from', 'use', 'name', 'definition_order', 'register',
                               'timeperiod_name', 'alias', 'dateranges', 'exclude', 'is_active']
@@ -371,27 +426,36 @@ def main():
                             prop_to_del.append(prop)
                     for prop in prop_to_del:
                         del item[prop]
+
                 # if template add to template
-                if 'register' in item:
-                    if not item['register']:
-                        if 'name' in item:
-                            template[r_name][item['name']] = item.copy()
-                        else:
-                            print("***** Missing name property in template: %s" % item)
-                            if 'service_description' in item:
-                                item['name'] = item['service_description']
-                                template[r_name][item['name']] = item.copy()
-                            elif 'host_name' in item:
-                                item['name'] = item['host_name']
-                                template[r_name][item['name']] = item.copy()
-                print("before_post")
-                print("%s : %s:" % (r_name, item))
+                if 'register' in item and not item['register']:
+                    if 'name' in item:
+                        # It's a template ...
+                        template[r_name][item['name']] = item.copy()
+                    else:
+                        # It's an element ... let's ignore it!
+                        # print("***** Missing name property in template: %s" % item)
+                        # errors_found.append("# Missing name property in template: %s : %s" %
+                                            # (r_name, item))
+                        continue
+                        # if 'service_description' in item:
+                        # item['name'] = item['service_description']
+                        # template[r_name][item['name']] = item.copy()
+                        # elif 'host_name' in item:
+                        # item['name'] = item['host_name']
+                        # template[r_name][item['name']] = item.copy()
+
+                print("before_post: %s : %s:" % (r_name, item))
                 try:
                     response = backend.post(r_name, item, headers)
                 except BackendException as e:
                     print("***** Exception: %s" % str(e))
                     if "_issues" in e.response:
                         print("ERROR: %s" % e.response['_issues'])
+                    errors_found.append("# Post error for: %s : %s" %
+                                        (r_name, item))
+                    errors_found.append("  Issues: %s" %
+                                        (e.response['_issues']))
                 else:
                     print("POST response : %s:" % (response))
                     if id_name in item:
@@ -412,78 +476,88 @@ def main():
     template = {}
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'command', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'command', 'now': False}
+    ]
+    # Fred: use template ???
     schema = command.get_schema()
     manage_ressource('command', inserted, later, data_later, 'command_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'command', 'use', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'timeperiod', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'timeperiod', 'now': False}
+    ]
+    # Fred: use template ???
     schema = timeperiod.get_schema()
     manage_ressource('timeperiod', inserted, later, data_later, 'timeperiod_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'timeperiod', 'use', schema)
 
-    print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [
-        {
-            'field': 'members', 'type': 'list', 'ressource': 'host', 'now': False
-        },
-        {
-            'field': 'hostgroup_members', 'type': 'list', 'ressource': 'hostgroup', 'now': False
-        }
-    ]
-    schema = hostgroup.get_schema()
-    manage_ressource('hostgroup', inserted, later, data_later, 'hostgroup_name', schema)
-    print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    update_later(later, inserted, 'hostgroup', 'hostgroup_members', schema)
-
     print("~~~~~~~~~~~~~~~~~~~~~~ add hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostdependency', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'hostdependency', 'now': False}
+    ]
     schema = hostdependency.get_schema()
     manage_ressource('hostdependency', inserted, later, data_later, 'name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'hostdependency', 'use', schema)
+    # Fred: use ???
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'servicedependency', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'servicedependency', 'now': False}
+    ]
     schema = servicedependency.get_schema()
     manage_ressource('servicedependency', inserted, later, data_later, 'name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'servicedependency', 'use', schema)
-
-    print("~~~~~~~~~~~~~~~~~~~~~~ add serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'serviceextinfo', 'now': False}]
-    schema = serviceextinfo.get_schema()
-    manage_ressource('serviceextinfo', inserted, later, data_later, 'name', schema)
-    print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    update_later(later, inserted, 'serviceextinfo', 'use', schema)
+    # Fred: use ???
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'trigger', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'trigger', 'now': False}
+    ]
     schema = trigger.get_schema()
     manage_ressource('trigger', inserted, later, data_later, 'trigger_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'trigger', 'use', schema)
 
+    # Fred: no contacts imported ???
     # print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    # data_later = [
-    # {'field': 'use', 'type': 'simple', 'ressource': 'contact'},
-    # {'field': 'contactgroups', 'type': 'list', 'ressource': 'contactgroup'},
-    # {'field': 'host_notification_period', 'type': 'simple', 'ressource': 'timeperiod'},
-    # {'field': 'service_notification_period', 'type': 'simple', 'ressource': 'timeperiod'},
-    # {'field': 'host_notification_commands', 'type': 'list', 'ressource': 'command'},
-    # {'field': 'service_notification_commands', 'type': 'list', 'ressource': 'command'}
-    # ]
-    # schema = contact.get_schema()
-    # manage_ressource('contact', inserted, later, data_later, 'contact_name', schema)
-    # print("~~~~~~~~~~~~~~~~~~~~~~ post contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    # update_later(later, inserted, 'contact', 'use', schema)
-    # update_later(later, inserted, 'contact', 'host_notification_period', schema)
-    # update_later(later, inserted, 'contact', 'service_notification_period', schema)
-    # update_later(later, inserted, 'contact', 'host_notification_commands', schema)
-    # update_later(later, inserted, 'contact', 'service_notification_commands', schema)
+    data_later = [
+        {
+            'field': 'use', 'type': 'simple', 'ressource': 'contact', 'now': False
+        },
+        {
+            'field': 'contactgroups', 'type': 'list', 'ressource': 'contactgroup', 'now': False
+        },
+        {
+            'field': 'host_notification_period', 'type': 'simple', 'ressource': 'timeperiod',
+            'now': False
+        },
+        {
+            'field': 'service_notification_period', 'type': 'simple', 'ressource': 'timeperiod',
+            'now': False
+        },
+        {
+            'field': 'host_notification_commands', 'type': 'list', 'ressource': 'command',
+            'now': False
+        },
+        {
+            'field': 'service_notification_commands', 'type': 'list', 'ressource': 'command',
+            'now': False
+        }
+    ]
+    schema = contact.get_schema()
+    manage_ressource('contact', inserted, later, data_later, 'contact_name', schema)
+    print("~~~~~~~~~~~~~~~~~~~~~~ post contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    update_later(later, inserted, 'contact', 'use', schema)
+    update_later(later, inserted, 'contact', 'host_notification_period', schema)
+    update_later(later, inserted, 'contact', 'service_notification_period', schema)
+    update_later(later, inserted, 'contact', 'host_notification_commands', schema)
+    update_later(later, inserted, 'contact', 'service_notification_commands', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     data_later = [
@@ -493,7 +567,7 @@ def main():
     schema = contactgroup.get_schema()
     manage_ressource('contactgroup', inserted, later, data_later, 'contactgroup_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    # update_later(later, inserted, 'contactgroup', 'members', schema)
+    update_later(later, inserted, 'contactgroup', 'members', schema)
     update_later(later, inserted, 'contactgroup', 'contactgroup_members', schema)
     # update_later(later, inserted, 'contact', 'contactgroups', schema)
 
@@ -518,6 +592,16 @@ def main():
     update_later(later, inserted, 'escalation', 'use', schema)
     # update_later(later, inserted, 'escalation', 'contacts', schema)
 
+    print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    data_later = [
+        {'field': 'members', 'type': 'list', 'ressource': 'host', 'now': False},
+        {'field': 'hostgroup_members', 'type': 'list', 'ressource': 'hostgroup', 'now': False}
+    ]
+    schema = hostgroup.get_schema()
+    manage_ressource('hostgroup', inserted, later, data_later, 'hostgroup_name', schema)
+    print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    update_later(later, inserted, 'hostgroup', 'hostgroup_members', schema)
+
     print("~~~~~~~~~~~~~~~~~~~~~~ add host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     data_later = [
         {'field': 'use', 'type': 'list', 'ressource': 'host', 'now': False},
@@ -539,17 +623,20 @@ def main():
     update_later(later, inserted, 'hostgroup', 'members', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostextinfo', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'hostextinfo', 'now': False}
+    ]
     schema = hostextinfo.get_schema()
     manage_ressource('hostextinfo', inserted, later, data_later, 'host_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'hostextinfo', 'use', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostescalation', 'now': False},
-                  {'field': 'contacts', 'type': 'list', 'ressource': 'contact', 'now': False},
-                  {'field': 'contact_groups', 'type': 'list', 'ressource': 'contactgroup',
-                   'now': True}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'hostescalation', 'now': False},
+        {'field': 'contacts', 'type': 'list', 'ressource': 'contact', 'now': False},
+        {'field': 'contact_groups', 'type': 'list', 'ressource': 'contactgroup', 'now': True}
+    ]
     schema = hostescalation.get_schema()
     manage_ressource('hostescalation', inserted, later, data_later, 'host_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -586,6 +673,15 @@ def main():
     update_later(later, inserted, 'service', 'use', schema)
     # update_later(later, inserted, 'service', 'contacts', schema)
     update_later(later, inserted, 'servicegroup', 'members', schema)
+
+    print("~~~~~~~~~~~~~~~~~~~~~~ add serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'serviceextinfo', 'now': False}
+    ]
+    schema = serviceextinfo.get_schema()
+    manage_ressource('serviceextinfo', inserted, later, data_later, 'name', schema)
+    print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    update_later(later, inserted, 'serviceextinfo', 'use', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     data_later = [

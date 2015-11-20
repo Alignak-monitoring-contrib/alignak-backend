@@ -1,6 +1,17 @@
 # Autodetect text files
 * text=auto
 
-# Force the following filetypes to have unix eols, so Windows does not break them
-*.* text eol=lf
+# Force the text files to have unix eols, so Windows does not break them
+* text eol=lf
 
+# ...Unless the name matches the following
+# overriding patterns
+
+# Definitively text files 
+*.rst text
+*.cfg text
+*.py text
+*.sh text
+
+# Ensure those won't be messed up with
+*.jpg binary
