@@ -476,7 +476,9 @@ def main():
     template = {}
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'command', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'command', 'now': False}
+    ]
     # Fred: use template ???
     schema = command.get_schema()
     manage_ressource('command', inserted, later, data_later, 'command_name', schema)
@@ -484,7 +486,9 @@ def main():
     update_later(later, inserted, 'command', 'use', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'timeperiod', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'timeperiod', 'now': False}
+    ]
     # Fred: use template ???
     schema = timeperiod.get_schema()
     manage_ressource('timeperiod', inserted, later, data_later, 'timeperiod_name', schema)
@@ -492,7 +496,9 @@ def main():
     update_later(later, inserted, 'timeperiod', 'use', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostdependency', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'hostdependency', 'now': False}
+    ]
     schema = hostdependency.get_schema()
     manage_ressource('hostdependency', inserted, later, data_later, 'name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -500,7 +506,9 @@ def main():
     # Fred: use ???
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'servicedependency', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'servicedependency', 'now': False}
+    ]
     schema = servicedependency.get_schema()
     manage_ressource('servicedependency', inserted, later, data_later, 'name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -508,7 +516,9 @@ def main():
     # Fred: use ???
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'trigger', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'trigger', 'now': False}
+    ]
     schema = trigger.get_schema()
     manage_ressource('trigger', inserted, later, data_later, 'trigger_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -517,12 +527,28 @@ def main():
     # Fred: no contacts imported ???
     # print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     data_later = [
-        {'field': 'use', 'type': 'simple', 'ressource': 'contact', 'now': False},
-        {'field': 'contactgroups', 'type': 'list', 'ressource': 'contactgroup', 'now': False},
-        {'field': 'host_notification_period', 'type': 'simple', 'ressource': 'timeperiod', 'now': False},
-        {'field': 'service_notification_period', 'type': 'simple', 'ressource': 'timeperiod', 'now': False},
-        {'field': 'host_notification_commands', 'type': 'list', 'ressource': 'command', 'now': False},
-        {'field': 'service_notification_commands', 'type': 'list', 'ressource': 'command', 'now': False}
+        {
+            'field': 'use', 'type': 'simple', 'ressource': 'contact', 'now': False
+        },
+        {
+            'field': 'contactgroups', 'type': 'list', 'ressource': 'contactgroup', 'now': False
+        },
+        {
+            'field': 'host_notification_period', 'type': 'simple', 'ressource': 'timeperiod',
+            'now': False
+        },
+        {
+            'field': 'service_notification_period', 'type': 'simple', 'ressource': 'timeperiod',
+            'now': False
+        },
+        {
+            'field': 'host_notification_commands', 'type': 'list', 'ressource': 'command',
+            'now': False
+        },
+        {
+            'field': 'service_notification_commands', 'type': 'list', 'ressource': 'command',
+            'now': False
+        }
     ]
     schema = contact.get_schema()
     manage_ressource('contact', inserted, later, data_later, 'contact_name', schema)
@@ -566,18 +592,10 @@ def main():
     update_later(later, inserted, 'escalation', 'use', schema)
     # update_later(later, inserted, 'escalation', 'contacts', schema)
 
-
-
-
-
     print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     data_later = [
-        {
-            'field': 'members', 'type': 'list', 'ressource': 'host', 'now': False
-        },
-        {
-            'field': 'hostgroup_members', 'type': 'list', 'ressource': 'hostgroup', 'now': False
-        }
+        {'field': 'members', 'type': 'list', 'ressource': 'host', 'now': False},
+        {'field': 'hostgroup_members', 'type': 'list', 'ressource': 'hostgroup', 'now': False}
     ]
     schema = hostgroup.get_schema()
     manage_ressource('hostgroup', inserted, later, data_later, 'hostgroup_name', schema)
@@ -605,26 +623,25 @@ def main():
     update_later(later, inserted, 'hostgroup', 'members', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostextinfo', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'hostextinfo', 'now': False}
+    ]
     schema = hostextinfo.get_schema()
     manage_ressource('hostextinfo', inserted, later, data_later, 'host_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'hostextinfo', 'use', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'hostescalation', 'now': False},
-                  {'field': 'contacts', 'type': 'list', 'ressource': 'contact', 'now': False},
-                  {'field': 'contact_groups', 'type': 'list', 'ressource': 'contactgroup',
-                   'now': True}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'hostescalation', 'now': False},
+        {'field': 'contacts', 'type': 'list', 'ressource': 'contact', 'now': False},
+        {'field': 'contact_groups', 'type': 'list', 'ressource': 'contactgroup', 'now': True}
+    ]
     schema = hostescalation.get_schema()
     manage_ressource('hostescalation', inserted, later, data_later, 'host_name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'hostescalation', 'use', schema)
     # update_later(later, inserted, 'hostescalation', 'contacts', schema)
-
-
-
-
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     data_later = [
@@ -658,7 +675,9 @@ def main():
     update_later(later, inserted, 'servicegroup', 'members', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    data_later = [{'field': 'use', 'type': 'list', 'ressource': 'serviceextinfo', 'now': False}]
+    data_later = [
+        {'field': 'use', 'type': 'list', 'ressource': 'serviceextinfo', 'now': False}
+    ]
     schema = serviceextinfo.get_schema()
     manage_ressource('serviceextinfo', inserted, later, data_later, 'name', schema)
     print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -675,10 +694,6 @@ def main():
     print("~~~~~~~~~~~~~~~~~~~~~~ post serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     update_later(later, inserted, 'serviceescalation', 'use', schema)
     # update_later(later, inserted, 'serviceescalation', 'contacts', schema)
-
-
-
-
 
     # print all errors found
     print('################################## errors report ##################################')
