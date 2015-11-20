@@ -414,7 +414,7 @@ def main():
                     item['back_role_super_admin'] = False
                     item['back_role_admin'] = []
 
-                # special case of timeperiod
+                # Special case of timeperiod
                 if r_name == 'timeperiod':
                     fields = ['imported_from', 'use', 'name', 'definition_order', 'register',
                               'timeperiod_name', 'alias', 'dateranges', 'exclude', 'is_active']
@@ -428,23 +428,22 @@ def main():
                         del item[prop]
 
                 # if template add to template
-                if 'register' in item:
-                    if not item['register']:
-                        if 'name' in item:
-                            # It's a template ...
-                            template[r_name][item['name']] = item.copy()
-                        else:
-                            # It's an element ... let's ignore it!
-                            # print("***** Missing name property in template: %s" % item)
-                            # errors_found.append("# Missing name property in template: %s : %s" %
-                                                # (r_name, item))
-                            continue
-                            # if 'service_description' in item:
-                            # item['name'] = item['service_description']
-                            # template[r_name][item['name']] = item.copy()
-                            # elif 'host_name' in item:
-                            # item['name'] = item['host_name']
-                            # template[r_name][item['name']] = item.copy()
+                if 'register' in item and not item['register']:
+                    if 'name' in item:
+                        # It's a template ...
+                        template[r_name][item['name']] = item.copy()
+                    else:
+                        # It's an element ... let's ignore it!
+                        # print("***** Missing name property in template: %s" % item)
+                        # errors_found.append("# Missing name property in template: %s : %s" %
+                                            # (r_name, item))
+                        continue
+                        # if 'service_description' in item:
+                        # item['name'] = item['service_description']
+                        # template[r_name][item['name']] = item.copy()
+                        # elif 'host_name' in item:
+                        # item['name'] = item['host_name']
+                        # template[r_name][item['name']] = item.copy()
 
                 print("before_post: %s : %s:" % (r_name, item))
                 try:
@@ -455,6 +454,8 @@ def main():
                         print("ERROR: %s" % e.response['_issues'])
                     errors_found.append("# Post error for: %s : %s" %
                                         (r_name, item))
+                    errors_found.append("  Issues: %s" %
+                                        (e.response['_issues']))
                 else:
                     print("POST response : %s:" % (response))
                     if id_name in item:
