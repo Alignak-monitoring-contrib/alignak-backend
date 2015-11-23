@@ -40,7 +40,7 @@ class TestCfgToBackend(unittest2.TestCase):
     def test_host_with_double_template(self):
 
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts.cfg'])
-        (stdoutdata, stderrdata) = q.communicate() #now wait
+        (stdoutdata, stderrdata) = q.communicate() # now wait
 
         r = self.backend.get('host')
         self.assertEqual(len(r['_items']), 1)
@@ -55,7 +55,7 @@ class TestCfgToBackend(unittest2.TestCase):
     def test_host_with_template(self):
 
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts2.cfg'])
-        (stdoutdata, stderrdata) = q.communicate() #now wait
+        (stdoutdata, stderrdata) = q.communicate() # now wait
 
         r = self.backend.get('host')
         self.assertEqual(len(r['_items']), 1)
@@ -70,7 +70,7 @@ class TestCfgToBackend(unittest2.TestCase):
     def test_timeperiod(self):
 
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/timeperiods.cfg'])
-        (stdoutdata, stderrdata) = q.communicate() #now wait
+        (stdoutdata, stderrdata) = q.communicate() # now wait
 
         r = self.backend.get('timeperiod')
         self.assertEqual(len(r['_items']), 1)
@@ -91,7 +91,7 @@ class TestCfgToBackend(unittest2.TestCase):
 
     def test_host_multiple_link_later(self):
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts_links_parent.cfg'])
-        (stdoutdata, stderrdata) = q.communicate() #now wait
+        (stdoutdata, stderrdata) = q.communicate() # now wait
 
         t = self.backend.get('timeperiod')
         for timep in t['_items']:
@@ -118,9 +118,9 @@ class TestCfgToBackend(unittest2.TestCase):
 
         :return: None
         """
-        #host.hostgroups
+        # host.hostgroups
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts_links_hostgroup.cfg'])
-        (stdoutdata, stderrdata) = q.communicate() #now wait
+        (stdoutdata, stderrdata) = q.communicate() # now wait
 
         r = self.backend.get('host')
         self.assertEqual(len(r['_items']), 1)

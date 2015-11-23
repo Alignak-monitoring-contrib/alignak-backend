@@ -236,7 +236,6 @@ def main():
         :rtype: dict
         """
         names = ['service_description', 'host_name', 'command_name', 'timeperiod_name']
-        #for [a for a in dir(source)]
         addprop = {}
         for prop in source:
             if prop == 'dateranges':
@@ -249,7 +248,8 @@ def main():
                             if propti not in fields:
                                 dateranges.append({propti: ','.join(ti[propti])})
                         source[prop] = dateranges
-            elif isinstance(source[prop], list) and source[prop] and isinstance(source[prop][0], Item):
+            elif isinstance(source[prop], list) and source[prop] and isinstance(source[prop][0],
+                                                                                Item):
                 elements = []
                 for element in source[prop]:
                     for name in names:
@@ -530,15 +530,6 @@ def main():
     update_later(later, inserted, 'contactgroup', 'members', schema)
     update_later(later, inserted, 'contactgroup', 'contactgroup_members', schema)
     # update_later(later, inserted, 'contact', 'contactgroups', schema)
-
-    ###print("~~~~~~~~~~~~~~~~~~~~~~ add contactrestrictrole ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    ###data_later = [
-    ###    {'field': 'contact', 'type': 'simple', 'resource': 'contact', 'now': False}
-    ###]
-    ###schema = contactrestrictrole.get_schema()
-    ###manage_resource('contactrestrictrole', inserted, later, data_later, 'contact', schema)
-    ###print("~~~~~~~~~~~~~~~~~~~~~~ post contactrestrictrole ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    # update_later(later, inserted, 'contactrestrictrole', 'contact', schema)
 
     print("~~~~~~~~~~~~~~~~~~~~~~ add escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     data_later = [
