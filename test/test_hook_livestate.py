@@ -39,7 +39,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get('host')
-        self.assertEqual(rh['_items'][0]['host_name'], "srv001")
+        self.assertEqual(rh['_items'][0]['name'], "srv001")
         # Check if livestate right created
         r = self.backend.get('livestate')
         self.assertEqual(len(r['_items']), 1)
@@ -64,7 +64,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
-        self.assertEqual(rc['_items'][0]['command_name'], "ping")
+        self.assertEqual(rc['_items'][0]['name'], "ping")
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -73,7 +73,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("service", data)
         # Check if service right in backend
         rs = self.backend.get('service')
-        self.assertEqual(rs['_items'][0]['service_description'], "ping")
+        self.assertEqual(rs['_items'][0]['name'], "ping")
 
         # Check if livestate right created
         r = self.backend.get('livestate')
@@ -92,7 +92,7 @@ class TestHookLivestate(unittest2.TestCase):
         data = json.loads(open('cfg/host_srv001.json').read())
         rh = self.backend.post("host", data)
 
-        data['host_name'] = 'srv002'
+        data['name'] = 'srv002'
         self.backend.post("host", data)
 
         # Update business_impact
@@ -104,7 +104,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.patch("host/" + rh['_id'], datap, headers)
 
         # check if business_impact of host changed
-        params = {'sort': 'host_name'}
+        params = {'sort': 'name'}
         rh = self.backend.get('host', params)
 
         self.assertEqual(rh['_items'][0]['business_impact'], 1)
@@ -127,7 +127,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
-        self.assertEqual(rc['_items'][0]['command_name'], "ping")
+        self.assertEqual(rc['_items'][0]['name'], "ping")
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -192,7 +192,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['display_name_host'], 'Server 001: srv001')
 
         # * Case we update host host_name
-        datap = {'host_name': 'srv001-1'}
+        datap = {'name': 'srv001-1'}
         headers = {
             'Content-Type': 'application/json',
             'If-Match': rh['_etag']
@@ -239,7 +239,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['display_name_host'], 'srv001 alias beta')
 
         # * Case we update host host_name
-        datap = {'host_name': 'srv001-1'}
+        datap = {'name': 'srv001-1'}
         headers = {
             'Content-Type': 'application/json',
             'If-Match': rh['_etag']
@@ -273,7 +273,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['display_name_host'], 'srv001')
 
         # * Case we update host host_name
-        datap = {'host_name': 'srv001-1'}
+        datap = {'name': 'srv001-1'}
         headers = {
             'Content-Type': 'application/json',
             'If-Match': rh['_etag']
@@ -318,7 +318,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
-        self.assertEqual(rc['_items'][0]['command_name'], "ping")
+        self.assertEqual(rc['_items'][0]['name'], "ping")
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -334,6 +334,7 @@ class TestHookLivestate(unittest2.TestCase):
 
         self.backend.delete("host", {})
         self.backend.delete("service", {})
+        self.backend.delete("command", {})
         self.backend.delete("livestate", {})
         self.backend.delete("livesynthesis", {})
 
@@ -346,7 +347,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
-        self.assertEqual(rc['_items'][0]['command_name'], "ping")
+        self.assertEqual(rc['_items'][0]['name'], "ping")
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -374,7 +375,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['display_name_service'], 'ping check of server srv001')
 
         # * Case we update service service_description
-        datap = {'service_description': 'check_ping'}
+        datap = {'name': 'check_ping'}
         headers = {
             'Content-Type': 'application/json',
             'If-Match': rs['_etag']
@@ -407,7 +408,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
-        self.assertEqual(rc['_items'][0]['command_name'], "ping")
+        self.assertEqual(rc['_items'][0]['name'], "ping")
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -434,7 +435,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['display_name_service'], 'ping check alias (2)')
 
         # * Case we update service service_description
-        datap = {'service_description': 'check-1'}
+        datap = {'name': 'check-1'}
         headers = {
             'Content-Type': 'application/json',
             'If-Match': rs['_etag']
@@ -467,7 +468,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
-        self.assertEqual(rc['_items'][0]['command_name'], "ping")
+        self.assertEqual(rc['_items'][0]['name'], "ping")
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -481,7 +482,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['display_name_service'], 'ping')
 
         # * Case we update service service_description
-        datap = {'service_description': 'ping-1'}
+        datap = {'name': 'ping-1'}
         headers = {
             'Content-Type': 'application/json',
             'If-Match': rs['_etag']
@@ -526,7 +527,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
-        self.assertEqual(rc['_items'][0]['command_name'], "ping")
+        self.assertEqual(rc['_items'][0]['name'], "ping")
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())

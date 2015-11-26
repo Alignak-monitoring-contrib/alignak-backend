@@ -34,7 +34,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
-        self.assertEqual(rc['_items'][0]['command_name'], "ping")
+        self.assertEqual(rc['_items'][0]['name'], "ping")
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -43,7 +43,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.backend.post("service", data)
         # Check if service right in backend
         rs = self.backend.get('service')
-        self.assertEqual(rs['_items'][0]['service_description'], "ping")
+        self.assertEqual(rs['_items'][0]['name'], "ping")
 
         self.backend.delete("livestate", {})
         self.p.kill()

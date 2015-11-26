@@ -45,7 +45,7 @@ class Livestate(object):
             elif 'alias' in item and item['alias'] != '':
                 name = item['alias']
             else:
-                name = item['host_name']
+                name = item['name']
 
             data = {'host_name': item['_id'], 'service_description': None, 'state': 'UP',
                     'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
@@ -72,11 +72,11 @@ class Livestate(object):
             elif 'alias' in item and item['alias'] != '':
                 name = item['alias']
             else:
-                name = item['service_description']
+                name = item['name']
 
             host_db = current_app.data.driver.db['host']
             host_info = host_db.find_one({'_id': item['host_name']})
-            name_h = host_info['host_name']
+            name_h = host_info['name']
             if 'alias' in host_info and host_info['alias'] != '':
                 name_h = host_info['alias']
             if 'display_name' in host_info and host_info['display_name'] != '':
@@ -119,8 +119,8 @@ class Livestate(object):
             name = updated['alias']
         elif 'alias' in original and original['alias'] != '':
             name = ''
-        elif 'host_name' in updated and updated['host_name'] != '':
-            name = updated['host_name']
+        elif 'name' in updated and updated['name'] != '':
+            name = updated['name']
 
         if bi or name != '':
             livestate_db = current_app.data.driver.db['livestate']
@@ -160,8 +160,8 @@ class Livestate(object):
             name = updated['alias']
         elif 'alias' in original and original['alias'] != '':
             name = ''
-        elif 'service_description' in updated and updated['service_description'] != '':
-            name = updated['service_description']
+        elif 'name' in updated and updated['name'] != '':
+            name = updated['name']
 
         if bi or name != '':
             livestate_db = current_app.data.driver.db['livestate']

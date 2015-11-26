@@ -1,6 +1,5 @@
 {
-    "register": true,
-    "host_name": "srv001",
+    "name": "srv001",
     "address": "192.168.0.2",
     "realm": "",
     "business_impact": 5
