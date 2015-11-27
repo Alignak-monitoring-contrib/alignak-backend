@@ -164,7 +164,12 @@ def main():
         backend.delete('servicedependency', headers)
         backend.delete('serviceextinfo', headers)
         backend.delete('trigger', headers)
-        # backend.delete('contact', headers)
+        contacts = backend.get_all('contact')
+        headers_contact = {'Content-Type': 'application/json'}
+        for cont in contacts:
+            if not cont['name'] == 'admin':
+                headers_contact['If-Match'] = cont['_etag']
+                backend.delete('contact/' + cont['_id'], headers_contact)
         backend.delete('contactgroup', headers)
         backend.delete('contactrestrictrole', headers)
         backend.delete('escalation', headers)
@@ -238,6 +243,11 @@ def main():
         names = ['service_description', 'host_name', 'command_name', 'timeperiod_name']
         addprop = {}
         for prop in source:
+            if 'alignak.commandcall.CommandCall' in str(type(source[prop])):
+                if prop == 'check_command':
+                    addprop['check_command_args'] = getattr(source[prop], 'args')
+                source[prop] = getattr(source[prop], 'command')
+
             if prop == 'dateranges':
                 for ti in raw_objects['timeperiod']:
                     if ti['timeperiod_name'][0] == source['timeperiod_name']:
@@ -264,12 +274,16 @@ def main():
                         print('Found %s in prop %s' % (name, prop))
                         source[prop] = getattr(source[prop], name)
                         break
+            elif type(source[prop]) is object:
+                print("vvvvvvvvvvvvvvvvvvvvvvv")
+                print(prop)
+                print(dir(source[prop]))
+                print(source[prop])
+                print(source[prop].notificationway_name)
 
-            if 'alignak.commandcall.CommandCall' in str(type(source[prop])):
-                if prop == 'check_command':
-                    addprop['check_command_args'] = getattr(source[prop], 'args')
-                source[prop] = getattr(source[prop], 'command')
         source.update(addprop)
+        print('***********************************************')
+        print(source)
         return source
 
     def update_later(later, inserted, resource, field, schema):
@@ -429,6 +443,10 @@ def main():
             del item[id_name]
             if 'use' in item:
                 del item['use']
+            # Case where no realm but alignak define internal realm name 'Default'
+            if 'realm' in item:
+                if item['realm'] == 'Default':
+                    del item['realm']
             print("before_post: %s : %s:" % (r_name, item))
             try:
                 response = backend.post(r_name, item, headers)
@@ -489,7 +507,7 @@ def main():
     print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
     # Fred: no contacts imported ???
-    # print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     data_later = [
         {
             'field': 'contactgroups', 'type': 'list', 'resource': 'contactgroup', 'now': False

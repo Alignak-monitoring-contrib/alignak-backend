@@ -46,8 +46,8 @@ def get_schema():
                     "format": None
                 },
                 'required': True,
-                'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
+                'dependencies': ['host_name', 'check_command']
             },
             'definition_order': {
                 'type': 'integer',

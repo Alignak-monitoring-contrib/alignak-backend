@@ -48,6 +48,7 @@ def get_schema():
                 'required': True,
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
+                'dependencies': ['check_command']
             },
             'definition_order': {
                 'type': 'integer',
@@ -616,7 +617,6 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'default': 'Default'
             },
             'poller_tag': {
                 'type': 'string',

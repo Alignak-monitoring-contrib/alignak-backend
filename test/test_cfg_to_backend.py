@@ -50,7 +50,6 @@ class TestCfgToBackend(unittest2.TestCase):
         self.assertEqual(reg_comm['name'], 'srv01')
         self.assertEqual(reg_comm['max_check_attempts'], 6)
         self.assertEqual(reg_comm['check_interval'], 2)
-        self.assertEqual(reg_comm['check_command_args'], '3306!5!8')
 
     def test_host_with_template(self):
 
@@ -130,3 +129,23 @@ class TestCfgToBackend(unittest2.TestCase):
         rhg = self.backend.get('hostgroup')
         for comm in rhg['_items']:
             self.assertEqual(comm['members'], [host_id])
+
+    def test_command_with_args(self):
+
+        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts.cfg'])
+        (stdoutdata, stderrdata) = q.communicate() # now wait
+
+        c = self.backend.get('command')
+        self.assertEqual(len(c['_items']), 1)
+        command_id = ''
+        for co in c['_items']:
+            command_id = co['_id']
+
+        r = self.backend.get('host')
+        self.assertEqual(len(r['_items']), 1)
+        for comm in r['_items']:
+            reg_comm = comm.copy()
+
+        self.assertEqual(reg_comm['name'], 'srv01')
+        self.assertEqual(reg_comm['check_command_args'], '3306!5!8')
+        self.assertEqual(reg_comm['check_command'], command_id)
