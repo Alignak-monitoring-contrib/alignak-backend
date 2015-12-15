@@ -55,11 +55,12 @@ Use cases:
 
 """
 from __future__ import print_function
+import re
 from future.utils import iteritems
 from docopt import docopt
 from docopt import DocoptExit
-import re
 
+from alignak_backend_client.client import Backend, BackendException
 try:
     from alignak.daemons.arbiterdaemon import Arbiter
     from alignak.objects.item import Item
@@ -68,7 +69,6 @@ try:
 except ImportError:
     print("Alignak is not installed...")
     exit(1)
-from alignak_backend_client.client import Backend, BackendException
 
 from alignak_backend.models import command
 from alignak_backend.models import timeperiod
@@ -167,7 +167,7 @@ def main():
         contacts = backend.get_all('contact')
         headers_contact = {'Content-Type': 'application/json'}
         for cont in contacts:
-            if not cont['name'] == 'admin':
+            if cont['name'] != 'admin':
                 headers_contact['If-Match'] = cont['_etag']
                 backend.delete('contact/' + cont['_id'], headers_contact)
         backend.delete('contactgroup', headers)
@@ -274,7 +274,7 @@ def main():
                         print('Found %s in prop %s' % (name, prop))
                         source[prop] = getattr(source[prop], name)
                         break
-            elif type(source[prop]) is object:
+            elif isinstance(source[prop], object):
                 print("vvvvvvvvvvvvvvvvvvvvvvv")
                 print(prop)
                 print(dir(source[prop]))

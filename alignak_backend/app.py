@@ -10,19 +10,19 @@
 import sys
 import traceback
 import os
-from collections import OrderedDict
-from configparser import ConfigParser
 import time
 import uuid
+from collections import OrderedDict
 from datetime import timedelta
+from configparser import ConfigParser
 
 from eve import Eve
 from eve.auth import TokenAuth
 from eve.io.mongo import Validator
+from eve.methods.post import post_internal
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_bootstrap import Bootstrap
 from eve_docs import eve_docs
-from eve.methods.post import post_internal
 from flask import current_app, g, request, abort, jsonify
 
 from alignak_backend.models import register_models
@@ -71,7 +71,7 @@ class MyTokenAuth(TokenAuth):
             contactrestrictrole = contactrestrictroles.find({'contact': contact['_id']})
             g.back_role_restricted = {}
             for role in contactrestrictrole:
-                if not role['brotherhood'] in g.back_role_restricted:
+                if role['brotherhood'] not in g.back_role_restricted:
                     g.back_role_restricted[str(role['brotherhood'])] = []
                 g.back_role_restricted[str(role['brotherhood'])].extend(role['resource'])
             g.users_id = contact['_id']
@@ -105,40 +105,41 @@ def pre_get(resource, user_request, lookup):
     :type lookup: dict
     :return: None
     """
-    if not g.get('back_role_super_admin', False):
-        # Only in case not super-admin
-        if resource != 'contact':
-            admin = g.get('back_role_admin', [])
-            if admin != []:
-                if "_brotherhood" not in lookup:
-                    lookup["_brotherhood"] = {"$in": admin}
-                else:
-                    if not lookup["_brotherhood"] in admin:
-                        lookup["_id"] = 0
+    if g.get('back_role_super_admin', False):
+        return
+    # Only in case not super-admin
+    if resource != 'contact':
+        admin = g.get('back_role_admin', [])
+        if admin != []:
+            if "_brotherhood" not in lookup:
+                lookup["_brotherhood"] = {"$in": admin}
             else:
-                restrict = g.get('back_role_restricted', {})
-                if "_brotherhood" not in lookup:
-                    broth = []
-                    for brotherhood, resources in restrict.items():
-                        if resource in resources:
-                            broth.append(brotherhood)
-                    if broth == []:
-                        lookup["_id"] = 0
-                    else:
-                        lookup["_brotherhood"] = {"$in": broth}
-                        field = '_users_read'
-                        if user_request.environ['REQUEST_METHOD'] == 'POST':
-                            field = '_users_create'
-                        if user_request.environ['REQUEST_METHOD'] == 'PATCH':
-                            field = '_users_update'
-                        if user_request.environ['REQUEST_METHOD'] == 'DELETE':
-                            field = '_users_delete'
-                        lookup[field] = {"$in": [g.get('users_id')]}
-                else:
-                    for brotherhood, resources in restrict.items():
-                        if resource in resources and lookup["_brotherhood"] == brotherhood:
-                            return
+                if lookup["_brotherhood"] not in admin:
                     lookup["_id"] = 0
+        else:
+            restrict = g.get('back_role_restricted', {})
+            if "_brotherhood" not in lookup:
+                broth = []
+                for brotherhood, resources in restrict.items():
+                    if resource in resources:
+                        broth.append(brotherhood)
+                if broth == []:
+                    lookup["_id"] = 0
+                else:
+                    lookup["_brotherhood"] = {"$in": broth}
+                    field = '_users_read'
+                    if user_request.environ['REQUEST_METHOD'] == 'POST':
+                        field = '_users_create'
+                    if user_request.environ['REQUEST_METHOD'] == 'PATCH':
+                        field = '_users_update'
+                    if user_request.environ['REQUEST_METHOD'] == 'DELETE':
+                        field = '_users_delete'
+                    lookup[field] = {"$in": [g.get('users_id')]}
+            else:
+                for brotherhood, resources in restrict.items():
+                    if resource in resources and lookup["_brotherhood"] == brotherhood:
+                        return
+                lookup["_id"] = 0
 
 
 def pre_contact_post(items):
