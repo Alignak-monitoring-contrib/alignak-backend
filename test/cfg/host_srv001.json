@@ -2,5 +2,6 @@
     "name": "srv001",
     "address": "192.168.0.2",
     "realm": "",
-    "business_impact": 5
+    "business_impact": 5,
+    "check_command": ""
 }

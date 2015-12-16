@@ -249,7 +249,7 @@ class CfgToBackend(object):
             self.backend.delete('serviceescalation', headers)
             self.backend.delete('livestate', headers)
             self.backend.delete('livesynthesis', headers)
-            self.log("~~~~~~~~~~~~~~~~~~~~~~~~ Existing backend data destroyed ~~~~~~~~~~~~~~~~~~~~~")
+            self.log("~~~~~~~~~~~~~~~~~~~~~~~~ Existing backend data destroyed ~~~~~~~~~~~~~~~~~")
 
     def recompose_dateranges(self):
         """
@@ -434,7 +434,7 @@ class CfgToBackend(object):
                     for keylist, vallist in enumerate(item[values['field']]):
                         vallist = vallist.strip()
                         if values['resource'] in self.inserted and \
-                                        vallist in self.inserted[values['resource']]:
+                                vallist in self.inserted[values['resource']]:
                             objectsid.append(self.inserted[values['resource']][vallist])
                         elif values['resource'] in self.inserted:
                             add = True
@@ -495,31 +495,31 @@ class CfgToBackend(object):
         data_later = []
         schema = command.get_schema()
         self.manage_resource('command', data_later, 'command_name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         data_later = []
         schema = timeperiod.get_schema()
         self.manage_resource('timeperiod', data_later, 'timeperiod_name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         data_later = []
         schema = hostdependency.get_schema()
         self.manage_resource('hostdependency', data_later, 'name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         data_later = []
         schema = servicedependency.get_schema()
         self.manage_resource('servicedependency', data_later, 'name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         data_later = []
         schema = trigger.get_schema()
         self.manage_resource('trigger', data_later, 'trigger_name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         # Fred: no contacts imported ???
         print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -572,7 +572,7 @@ class CfgToBackend(object):
         ]
         schema = escalation.get_schema()
         self.manage_resource('escalation', data_later, 'escalation_name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         # update_later(later, inserted, 'escalation', 'contacts', schema)
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -608,7 +608,7 @@ class CfgToBackend(object):
         data_later = []
         schema = hostextinfo.get_schema()
         self.manage_resource('hostextinfo', data_later, 'host_name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         data_later = [
@@ -617,7 +617,7 @@ class CfgToBackend(object):
         ]
         schema = hostescalation.get_schema()
         self.manage_resource('hostescalation', data_later, 'host_name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         # update_later(later, inserted, 'hostescalation', 'contacts', schema)
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -656,7 +656,7 @@ class CfgToBackend(object):
         data_later = []
         schema = serviceextinfo.get_schema()
         self.manage_resource('serviceextinfo', data_later, 'name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         data_later = [
@@ -665,10 +665,17 @@ class CfgToBackend(object):
         ]
         schema = serviceescalation.get_schema()
         self.manage_resource('serviceescalation', data_later, 'host_name', schema)
-        # print("~~~~~~~~~~~~~~~~~~~~~~ post serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~~ post serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         # update_later(later, inserted, 'serviceescalation', 'contacts', schema)
 
     def log(self, message):
+        """
+        Display message if in verbose mode
+
+        :param message: message to display
+        :type message: str
+        :return: None
+        """
         if self.verbose:
             print(message)
 

@@ -35,7 +35,15 @@ class TestHookLivestate(unittest2.TestCase):
         cls.backend.delete("livesynthesis", {})
 
     def test_add_host(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get('command')
+        self.assertEqual(rc['_items'][0]['name'], "ping")
+
         data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get('host')
@@ -54,17 +62,18 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['type'], 'host')
 
     def test_add_service(self):
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        self.backend.post("host", data)
-        rh = self.backend.get('host')
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
         self.assertEqual(rc['_items'][0]['name'], "ping")
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        self.backend.post("host", data)
+        rh = self.backend.get('host')
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -88,8 +97,16 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['type'], 'service')
 
     def test_update_host_business_impact(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get('command')
+        self.assertEqual(rc['_items'][0]['name'], "ping")
+
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
         rh = self.backend.post("host", data)
 
         data['name'] = 'srv002'
@@ -117,17 +134,18 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['business_impact'], 5)
 
     def test_update_service_business_impact(self):
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        self.backend.post("host", data)
-        rh = self.backend.get('host')
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
         self.assertEqual(rc['_items'][0]['name'], "ping")
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        self.backend.post("host", data)
+        rh = self.backend.get('host')
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -154,9 +172,17 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['business_impact'], 1)
 
     def test_display_name_host__display_name(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get('command')
+        self.assertEqual(rc['_items'][0]['name'], "ping")
+
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['display_name'] = 'Server 001: srv001'
+        data['check_command'] = rc['_items'][0]['_id']
         self.backend.post("host", data)
 
         r = self.backend.get('livestate')
@@ -172,6 +198,7 @@ class TestHookLivestate(unittest2.TestCase):
         data = json.loads(open('cfg/host_srv001.json').read())
         data['display_name'] = 'Server 001: srv001'
         data['alias'] = 'Server 001: srv001 alias'
+        data['check_command'] = rc['_items'][0]['_id']
         rh = self.backend.post("host", data)
 
         r = self.backend.get('livestate')
@@ -216,8 +243,16 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['display_name_host'], 'Server 001: srv001-1')
 
     def test_display_name_host__alias(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get('command')
+        self.assertEqual(rc['_items'][0]['name'], "ping")
+
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
         data['alias'] = 'Server 001: srv001 alias'
         rh = self.backend.post("host", data)
 
@@ -263,8 +298,16 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['display_name_host'], 'Server 001: srv001-1')
 
     def test_display_name_host__host_name(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get('command')
+        self.assertEqual(rc['_items'][0]['name'], "ping")
+
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
         rh = self.backend.post("host", data)
 
         r = self.backend.get('livestate')
@@ -309,16 +352,17 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['display_name_host'], 'Server 001: srv001-1')
 
     def test_display_name_service__display_name(self):
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        rh = self.backend.post("host", data)
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
         self.assertEqual(rc['_items'][0]['name'], "ping")
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        rh = self.backend.post("host", data)
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -338,16 +382,17 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.delete("livestate", {})
         self.backend.delete("livesynthesis", {})
 
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        rh = self.backend.post("host", data)
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
         self.assertEqual(rc['_items'][0]['name'], "ping")
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        rh = self.backend.post("host", data)
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -399,16 +444,17 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['display_name_service'], 'ping check of server srv001 (2)')
 
     def test_display_name_service__alias(self):
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        rh = self.backend.post("host", data)
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
         self.assertEqual(rc['_items'][0]['name'], "ping")
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        rh = self.backend.post("host", data)
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -459,16 +505,17 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['display_name_service'], 'check ping for srv001')
 
     def test_display_name_service__service_description(self):
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        rh = self.backend.post("host", data)
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
         self.assertEqual(rc['_items'][0]['name'], "ping")
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        rh = self.backend.post("host", data)
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -518,16 +565,17 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r['_items'][1]['display_name_service'], 'check ping srv001')
 
     def test_update_display_name_host_and_check_service(self):
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        rh = self.backend.post("host", data)
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
         self.assertEqual(rc['_items'][0]['name'], "ping")
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        rh = self.backend.post("host", data)
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
