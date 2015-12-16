@@ -204,6 +204,22 @@ def main():
         print("Configuration loading exception: %s" % str(e))
         exit(3)
 
+    def recompose_dateranges():
+        """
+        For each timeperiod, recompose daterange in backend format
+
+        :return: None
+        """
+        # modify dateranges of timeperiods
+        fields = ['imported_from', 'use', 'name', 'definition_order', 'register',
+                  'timeperiod_name', 'alias', 'dateranges', 'exclude', 'is_active']
+        for ti in raw_objects['timeperiod']:
+            dateranges = []
+            for propti in ti:
+                if propti not in fields:
+                    dateranges.append({propti: ','.join(ti[propti])})
+            ti['dr'] = dateranges
+
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Order of objects + fields to update post add
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -251,13 +267,7 @@ def main():
             if prop == 'dateranges':
                 for ti in raw_objects['timeperiod']:
                     if ti['timeperiod_name'][0] == source['timeperiod_name']:
-                        fields = ['imported_from', 'use', 'name', 'definition_order', 'register',
-                                  'timeperiod_name', 'alias', 'dateranges', 'exclude', 'is_active']
-                        dateranges = []
-                        for propti in ti:
-                            if propti not in fields:
-                                dateranges.append({propti: ','.join(ti[propti])})
-                        source[prop] = dateranges
+                        source[prop] = ti['dr']
             elif isinstance(source[prop], list) and source[prop] and isinstance(source[prop][0],
                                                                                 Item):
                 elements = []
@@ -472,6 +482,8 @@ def main():
                             'value': later_tmp[values['field']],
                             '_etag': response['_etag']
                         }
+
+    recompose_dateranges()
 
     later = {}
     inserted = {}
