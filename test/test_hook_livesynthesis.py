@@ -29,7 +29,14 @@ class TestHookLivesynthesis(unittest2.TestCase):
         cls.p.kill()
 
     def test_add_host(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get('command')
+
         data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
         self.backend.post("host", data)
         # Check if livesynthesis right created
         r = self.backend.get('livesynthesis')
@@ -53,16 +60,17 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r['_items'][0]['services_unknown_soft'], 0)
 
     def test_add_service(self):
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        self.backend.post("host", data)
-        rh = self.backend.get('host')
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        self.backend.post("host", data)
+        rh = self.backend.get('host')
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())

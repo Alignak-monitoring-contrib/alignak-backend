@@ -24,17 +24,18 @@ class TestRecalculateLivestate(unittest2.TestCase):
         cls.backend.delete("livesynthesis", {})
 
     def test_recalculate(self):
-        # add host
-        data = json.loads(open('cfg/host_srv001.json').read())
-        self.backend.post("host", data)
-        rh = self.backend.get('host')
-
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get('command')
         self.assertEqual(rc['_items'][0]['name'], "ping")
+
+        # add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc['_items'][0]['_id']
+        self.backend.post("host", data)
+        rh = self.backend.get('host')
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
