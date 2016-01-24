@@ -405,27 +405,7 @@ def get_schema():
             },
             'back_role_super_admin': {
                 'type': 'boolean',
-                'ui': {
-                    'title': 'Backend super-administrator',
-                    'visible': False,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'default': False,
-                'required': True,
-            },
-            'back_role_admin': {
-                'type': 'list',
-                'ui': {
-                    'title': 'Backend administrator',
-                    'visible': False,
-                    'orderable': True,
-                    'searchable': True,
-                    "format": None
-                },
-                'default': [],
-                'required': True,
+                'default': False
             },
             # This to define if the object in this model are to be used in the UI
             'ui': {

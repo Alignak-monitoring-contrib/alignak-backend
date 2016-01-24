@@ -32,18 +32,27 @@ def get_schema():
                 },
                 'required': True,
             },
-            'brotherhood': {
+            'realm': {
                 'type': 'objectid',
                 'data_relation': {
-                    'resource': 'brotherhood',
+                    'resource': 'realm',
                     'embeddable': True
                 },
                 'required': True,
             },
+            'sub_realm': {
+                'type': 'boolean',
+                'default': False
+            },
             'resource': {
-                'type': 'list',
-                'default': [],
+                'type': 'string',
                 'required': True,
+            },
+            'crud': {
+                'type': 'string',
+                'default': 'read',
+                'required': True,
+                'allowed': ['create', 'read', 'update', 'delete', 'custom']
             },
         }
     }

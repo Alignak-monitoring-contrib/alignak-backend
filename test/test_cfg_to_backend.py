@@ -86,6 +86,7 @@ class TestCfgToBackend(unittest2.TestCase):
              del comm['_etag']
              del comm['_created']
              del comm['_updated']
+             del comm['_realm']
              self.assertEqual(comm, ref)
 
     def test_host_multiple_link_later(self):

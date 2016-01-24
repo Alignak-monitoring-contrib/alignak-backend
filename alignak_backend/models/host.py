@@ -609,14 +609,19 @@ def get_schema():
                 'default': False
             },
             'realm': {
-                'type': 'string',
+                'type': 'objectid',
                 'ui': {
                     'title': 'Realm',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
+                'data_relation': {
+                    'resource': 'realm',
+                    'embeddable': True
+                },
+                'required': True,
             },
             'poller_tag': {
                 'type': 'string',
@@ -950,27 +955,7 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
-            '_brotherhood': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'brotherhood',
-                        'embeddable': True,
-                    }
-                },
-            },
             '_users_read': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'contact',
-                        'embeddable': True,
-                    }
-                },
-            },
-            '_users_create': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',

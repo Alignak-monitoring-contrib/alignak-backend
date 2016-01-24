@@ -17,6 +17,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         time.sleep(3)
         cls.backend = Backend('http://127.0.0.1:5000')
         cls.backend.login("admin", "admin", "force")
+        realms = cls.backend.get_all('realm')
+        for cont in realms:
+            cls.realm_all = cont['_id']
 
     @classmethod
     def tearDown(cls):
@@ -31,70 +34,75 @@ class TestHookLivesynthesis(unittest2.TestCase):
     def test_add_host(self):
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
         self.backend.post("command", data)
         # Check if command right in backend
-        rc = self.backend.get('command')
+        rc = self.backend.get_all('command')
 
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc['_items'][0]['_id']
+        data['check_command'] = rc[0]['_id']
+        data['realm'] = self.realm_all
         self.backend.post("host", data)
         # Check if livesynthesis right created
-        r = self.backend.get('livesynthesis')
-        self.assertEqual(len(r['_items']), 1)
-        self.assertEqual(r['_items'][0]['hosts_total'], 1)
-        self.assertEqual(r['_items'][0]['hosts_up_hard'], 0)
-        self.assertEqual(r['_items'][0]['hosts_up_soft'], 0)
-        self.assertEqual(r['_items'][0]['hosts_down_hard'], 0)
-        self.assertEqual(r['_items'][0]['hosts_down_soft'], 0)
-        self.assertEqual(r['_items'][0]['hosts_unreachable_hard'], 1)
-        self.assertEqual(r['_items'][0]['hosts_unreachable_soft'], 0)
-        self.assertEqual(r['_items'][0]['hosts_acknowledged'], 0)
-        self.assertEqual(r['_items'][0]['services_total'], 0)
-        self.assertEqual(r['_items'][0]['services_ok_hard'], 0)
-        self.assertEqual(r['_items'][0]['services_ok_soft'], 0)
-        self.assertEqual(r['_items'][0]['services_warning_hard'], 0)
-        self.assertEqual(r['_items'][0]['services_warning_soft'], 0)
-        self.assertEqual(r['_items'][0]['services_critical_hard'], 0)
-        self.assertEqual(r['_items'][0]['services_critical_soft'], 0)
-        self.assertEqual(r['_items'][0]['services_unknown_hard'], 0)
-        self.assertEqual(r['_items'][0]['services_unknown_soft'], 0)
+        r = self.backend.get_all('livesynthesis')
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 1)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 1)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['services_total'], 0)
+        self.assertEqual(r[0]['services_ok_hard'], 0)
+        self.assertEqual(r[0]['services_ok_soft'], 0)
+        self.assertEqual(r[0]['services_warning_hard'], 0)
+        self.assertEqual(r[0]['services_warning_soft'], 0)
+        self.assertEqual(r[0]['services_critical_hard'], 0)
+        self.assertEqual(r[0]['services_critical_soft'], 0)
+        self.assertEqual(r[0]['services_unknown_hard'], 0)
+        self.assertEqual(r[0]['services_unknown_soft'], 0)
 
     def test_add_service(self):
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
         self.backend.post("command", data)
         # Check if command right in backend
-        rc = self.backend.get('command')
+        rc = self.backend.get_all('command')
 
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc['_items'][0]['_id']
+        data['check_command'] = rc[0]['_id']
+        data['realm'] = self.realm_all
         self.backend.post("host", data)
-        rh = self.backend.get('host')
+        rh = self.backend.get_all('host')
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh['_items'][0]['_id']
-        data['check_command'] = rc['_items'][0]['_id']
+        data['host_name'] = rh[0]['_id']
+        data['check_command'] = rc[0]['_id']
+        data['_realm'] = self.realm_all
         self.backend.post("service", data)
 
         # Check if livesynthesis right created
-        r = self.backend.get('livesynthesis')
-        self.assertEqual(len(r['_items']), 1)
-        self.assertEqual(r['_items'][0]['hosts_total'], 1)
-        self.assertEqual(r['_items'][0]['hosts_up_hard'], 0)
-        self.assertEqual(r['_items'][0]['hosts_up_soft'], 0)
-        self.assertEqual(r['_items'][0]['hosts_down_hard'], 0)
-        self.assertEqual(r['_items'][0]['hosts_down_soft'], 0)
-        self.assertEqual(r['_items'][0]['hosts_unreachable_hard'], 1)
-        self.assertEqual(r['_items'][0]['hosts_unreachable_soft'], 0)
-        self.assertEqual(r['_items'][0]['hosts_acknowledged'], 0)
-        self.assertEqual(r['_items'][0]['services_total'], 1)
-        self.assertEqual(r['_items'][0]['services_ok_hard'], 1)
-        self.assertEqual(r['_items'][0]['services_ok_soft'], 0)
-        self.assertEqual(r['_items'][0]['services_warning_hard'], 0)
-        self.assertEqual(r['_items'][0]['services_warning_soft'], 0)
-        self.assertEqual(r['_items'][0]['services_critical_hard'], 0)
-        self.assertEqual(r['_items'][0]['services_critical_soft'], 0)
-        self.assertEqual(r['_items'][0]['services_unknown_hard'], 0)
-        self.assertEqual(r['_items'][0]['services_unknown_soft'], 0)
+        r = self.backend.get_all('livesynthesis')
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 1)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 1)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['services_total'], 1)
+        self.assertEqual(r[0]['services_ok_hard'], 1)
+        self.assertEqual(r[0]['services_ok_soft'], 0)
+        self.assertEqual(r[0]['services_warning_hard'], 0)
+        self.assertEqual(r[0]['services_warning_soft'], 0)
+        self.assertEqual(r[0]['services_critical_hard'], 0)
+        self.assertEqual(r[0]['services_critical_soft'], 0)
+        self.assertEqual(r[0]['services_unknown_hard'], 0)
+        self.assertEqual(r[0]['services_unknown_soft'], 0)

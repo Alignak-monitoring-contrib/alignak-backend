@@ -142,6 +142,13 @@ class CfgToBackend(object):
         # Delete data in backend if asked in arguments
         self.delete_data()
 
+        # get realm id
+        self.realm_all = ''
+        realms = self.backend.get_all('realm')
+        for cont in realms:
+            if cont['name'] == 'All' and cont['_level'] == 0:
+                self.realm_all = cont['_id']
+
         if not cfg:
             print("No configuration specified")
             exit(2)
@@ -238,6 +245,12 @@ class CfgToBackend(object):
                 if cont['name'] != 'admin':
                     headers_contact['If-Match'] = cont['_etag']
                     self.backend.delete('contact/' + cont['_id'], headers_contact)
+            realms = self.backend.get_all('realm')
+            headers_realm = {'Content-Type': 'application/json'}
+            for cont in realms:
+                if cont['name'] != 'All' and cont['_level'] != 0:
+                    headers_realm['If-Match'] = cont['_etag']
+                    self.backend.delete('realm/' + cont['_id'], headers_realm)
             self.backend.delete('contactgroup', headers)
             self.backend.delete('contactrestrictrole', headers)
             self.backend.delete('escalation', headers)
@@ -461,6 +474,11 @@ class CfgToBackend(object):
             if 'realm' in item:
                 if item['realm'] == 'Default':
                     del item['realm']
+            if r_name in ['host', 'hostgroup']:
+                item['realm'] = self.realm_all
+            else:
+                item['_realm'] = self.realm_all
+
             self.log("before_post: %s : %s:" % (r_name, item))
             try:
                 response = self.backend.post(r_name, item, headers)

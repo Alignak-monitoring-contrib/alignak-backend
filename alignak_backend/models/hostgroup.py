@@ -120,8 +120,7 @@ def get_schema():
 
             },
             'realm': {
-                'type': 'string',
-                'default': None,
+                'type': 'objectid',
                 'ui': {
                     'title': 'Realm',
                     'visible': True,
@@ -129,29 +128,12 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-
-            },
-            '_brotherhood': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'brotherhood',
-                        'embeddable': True,
-                    }
-                },
+                'data_relation': {
+                    'resource': 'realm',
+                    'embeddable': True
+                }
             },
             '_users_read': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'contact',
-                        'embeddable': True,
-                    }
-                },
-            },
-            '_users_create': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',

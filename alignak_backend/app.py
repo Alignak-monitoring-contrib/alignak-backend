@@ -12,6 +12,7 @@ import traceback
 import os
 import time
 import uuid
+import json
 from collections import OrderedDict
 from datetime import timedelta
 from configparser import ConfigParser
@@ -20,10 +21,12 @@ from eve import Eve
 from eve.auth import TokenAuth
 from eve.io.mongo import Validator
 from eve.methods.post import post_internal
+from eve.methods.patch import patch_internal
+from eve.utils import debug_error_message
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_bootstrap import Bootstrap
 from eve_docs import eve_docs
-from flask import current_app, g, request, abort, jsonify
+from flask import current_app, g, request, abort, jsonify, make_response
 
 from alignak_backend.models import register_models
 from alignak_backend import manifest
@@ -44,6 +47,12 @@ def register_command(description):
 
 
 class MyTokenAuth(TokenAuth):
+    """
+    Class to manage authentication
+    """
+    realms_children = {}
+    realms_parents = {}
+
     """Authentication token class"""
     def check_auth(self, token, allowed_roles, resource, method):
         """
@@ -60,26 +69,86 @@ class MyTokenAuth(TokenAuth):
         :return: True if contact exist and password is ok or if no roles defined, otherwise False
         :rtype: bool
         """
-
         _contacts = current_app.data.driver.db['contact']
         contact = _contacts.find_one({'token': token})
         if contact:
+            g.updateRealm = False
+            # get children of realms for rights
+            realmsdrv = current_app.data.driver.db['realm']
+            allrealms = realmsdrv.find()
+            self.realms_children = {}
+            self.realms_parents = {}
+            for realm in allrealms:
+                self.realms_children[realm['_id']] = realm['_tree_children']
+                self.realms_parents[realm['_id']] = realm['_tree_parents']
+
             g.back_role_super_admin = contact['back_role_super_admin']
-            g.back_role_admin = contact['back_role_admin']
-            # get restricted
             contactrestrictroles = current_app.data.driver.db['contactrestrictrole']
             contactrestrictrole = contactrestrictroles.find({'contact': contact['_id']})
-            g.back_role_restricted = {}
-            for role in contactrestrictrole:
-                if role['brotherhood'] not in g.back_role_restricted:
-                    g.back_role_restricted[str(role['brotherhood'])] = []
-                g.back_role_restricted[str(role['brotherhood'])].extend(role['resource'])
+            g.resources_get = {}
+            g.resources_get_parents = {}
+            get_parents = {}
+            g.resources_get_custom = {}
+            g.resources_post = {}
+            g.resources_post_parents = {}
+            g.resources_patch = {}
+            g.resources_patch_parents = {}
+            g.resources_patch_custom = {}
+            g.resources_delete = {}
+            g.resources_delete_parents = {}
+            g.resources_delete_custom = {}
+            for rights in contactrestrictrole:
+                self.add_resources_realms('read', rights, False, g.resources_get, get_parents)
+                self.add_resources_realms('read', rights, True, g.resources_get_custom)
+                self.add_resources_realms('create', rights, False, g.resources_post)
+                self.add_resources_realms('update', rights, False, g.resources_patch)
+                self.add_resources_realms('update', rights, True, g.resources_patch_custom)
+                self.add_resources_realms('delete', rights, False, g.resources_delete)
+                self.add_resources_realms('delete', rights, True, g.resources_delete_custom)
+            for resource in g.resources_get:
+                g.resources_get[resource] = list(set(g.resources_get[resource]))
+                if resource in g.resources_get_custom:
+                    g.resources_get_custom[resource] = list(set(g.resources_get_custom[resource]))
+                g.resources_get_parents[resource] = [item for item in get_parents[resource]
+                                                     if item not in g.resources_get[resource]]
+            for resource in g.resources_post:
+                g.resources_post[resource] = list(set(g.resources_post[resource]))
+            for resource in g.resources_patch:
+                g.resources_patch[resource] = list(set(g.resources_patch[resource]))
+            for resource in g.resources_delete:
+                g.resources_delete[resource] = list(set(g.resources_delete[resource]))
             g.users_id = contact['_id']
-            if not contact['back_role_super_admin']:
-                if contact['back_role_admin'] == [] and g.back_role_restricted == {}:
-                    # no rights
-                    return False
         return contact
+
+    def add_resources_realms(self, right, data, custom, resource, parents=None):
+        """
+        Add realms found for rights. it's used to fill rights when connect to app
+
+        :param right: right in list: create, read, update, delete
+        :type right: str
+        :param data: data (one record) from contactrestrictrole (from mongo)
+        :type data: dict
+        :param custom: True if it's a custom right, otherwise False
+        :type custom: bool
+        :param resource: variable where store realm rights
+        :type resource: dict
+        :param parents: variable where store parents realms (required only for read right)
+        :type parents: dict or None
+        :return: None
+        """
+        search_field = right
+        if custom:
+            search_field = 'custom'
+        if data['crud'] == search_field:
+            if data['resource'] not in resource:
+                resource[data['resource']] = []
+            if right == 'read' and not custom and data['resource'] not in parents:
+                parents[data['resource']] = []
+            resource[data['resource']].append(data['realm'])
+            if right == 'read' and not custom:
+                parents[data['resource']].extend(self.realms_parents[data['realm']])
+            if data['sub_realm']:
+                resource[data['resource']].extend(self.realms_children[data['realm']])
 
 
 class MyValidator(Validator):
@@ -109,37 +178,140 @@ def pre_get(resource, user_request, lookup):
         return
     # Only in case not super-admin
     if resource != 'contact':
-        admin = g.get('back_role_admin', [])
-        if admin != []:
-            if "_brotherhood" not in lookup:
-                lookup["_brotherhood"] = {"$in": admin}
-            else:
-                if lookup["_brotherhood"] not in admin:
-                    lookup["_id"] = 0
+        # get all resources we can have rights in read
+        resources_get = g.get('resources_get', {})
+        resources_get_parents = g.get('resources_get_parents', {})
+        resources_get_custom = g.get('resources_get_custom', {})
+        users_id = g.get('users_id', {})
+        if resource not in resources_get and resource not in resources_get_custom:
+            lookup["_id"] = 0
         else:
-            restrict = g.get('back_role_restricted', {})
-            if "_brotherhood" not in lookup:
-                broth = []
-                for brotherhood, resources in restrict.items():
-                    if resource in resources:
-                        broth.append(brotherhood)
-                if broth == []:
-                    lookup["_id"] = 0
-                else:
-                    lookup["_brotherhood"] = {"$in": broth}
-                    field = '_users_read'
-                    if user_request.environ['REQUEST_METHOD'] == 'POST':
-                        field = '_users_create'
-                    if user_request.environ['REQUEST_METHOD'] == 'PATCH':
-                        field = '_users_update'
-                    if user_request.environ['REQUEST_METHOD'] == 'DELETE':
-                        field = '_users_delete'
-                    lookup[field] = {"$in": [g.get('users_id')]}
+            # add search on realms
+            if 'realm' in app.settings['DOMAIN'][resource]['schema']:
+                lookup['realm'] = {'$in': resources_get[resource]}
             else:
-                for brotherhood, resources in restrict.items():
-                    if resource in resources and lookup["_brotherhood"] == brotherhood:
-                        return
-                lookup["_id"] = 0
+                if resource not in resources_get:
+                    resources_get[resource] = []
+                if resource not in resources_get_parents:
+                    resources_get_parents[resource] = []
+                if resource not in resources_get_custom:
+                    resources_get_custom[resource] = []
+                lookup['$or'] = [{'_realm': {'$in': resources_get[resource]}},
+                                 {'$and': [{'_sub_realm': True},
+                                           {'_realm': {'$in': resources_get_parents[resource]}}]},
+                                 {'$and': [{'_users_read': users_id},
+                                           {'_realm': {'$in': resources_get_custom[resource]}}]}]
+
+
+def pre_realm_post(items):
+    """
+    Hook before add new realm
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    realmsdrv = current_app.data.driver.db['realm']
+    for index, item in enumerate(items):
+        # generate _level
+        parent_realm = realmsdrv.find_one({'_id': item['_parent']})
+        items[index]['_level'] = parent_realm['_level'] + 1
+        # get parents (there is no children)
+        items[index]['_tree_parents'] = parent_realm['_tree_parents']
+        items[index]['_tree_parents'].append(parent_realm['_id'])
+
+
+def pre_realm_patch(updates, original):
+    """
+    Hook before update existent realm
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if not g.updateRealm:
+        if '_tree_parents' in updates:
+            abort(make_response("Update _tree_parents is forbidden", 412))
+        if '_tree_children' in updates:
+            abort(make_response("Update _tree_parents is forbidden", 412))
+
+
+def after_insert_realm(items):
+    """
+    Hook after realm inserted. It calculate/update tree parents and children
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    realmsdrv = current_app.data.driver.db['realm']
+    for index, item in enumerate(items):
+        # update _children fields on all parents
+        if len(item['_tree_parents']) > 0:
+            parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
+            parent['_tree_children'].append(item['_id'])
+            lookup = {"_id": parent['_id']}
+            g.updateRealm = True
+            patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
+                           **lookup)
+            g.updateRealm = False
+
+
+def after_update_realm(updated, original):
+    """
+    Hook update tree children on realm parent after update tree children realm
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if g.updateRealm:
+        if '_tree_children' in updated and updated['_tree_children'] != original['_tree_children']:
+            if len(original['_tree_parents']) > 0:
+                realmsdrv = current_app.data.driver.db['realm']
+                parent = realmsdrv.find_one({'_id': original['_tree_parents'][-1]})
+                if len(original['_tree_children']) < len(updated['_tree_children']):
+                    parent['_tree_children'].append(updated['_tree_children'][-1])
+                elif len(original['_tree_children']) > len(updated['_tree_children']):
+                    del parent['_tree_children'][-1]
+                lookup = {"_id": parent['_id']}
+                patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
+                               **lookup)
+
+
+def pre_delete_realm(item):
+    """
+    Hook before delete a realm. It deny delete if realm have child / children
+
+    :param item: fields of the item / record
+    :type item: dict
+    :return: None
+    """
+    if len(item['_tree_children']) > 0:
+        abort(409, description=debug_error_message("Item have children, so can't delete it"))
+
+
+def after_delete_realm(item):
+    """
+    Hook after delete a realm. Update tree children of parent realm
+
+    :param item: fields of the item / record
+    :type item: dict
+    :return: None
+    """
+    realmsdrv = current_app.data.driver.db['realm']
+    if len(item['_tree_parents']) > 0:
+        parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
+        del parent['_tree_children'][-1]
+        lookup = {"_id": parent['_id']}
+        g.updateRealm = True
+        patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
+                       **lookup)
+        g.updateRealm = False
 
 
 def pre_contact_post(items):
@@ -273,6 +445,8 @@ settings['PORT'] = 5000
 settings['SERVER_NAME'] = None
 settings['DEBUG'] = False
 
+# settings['SCHEMA_ENDPOINT'] = 'schema'
+
 # Read configuration file to update/completethe configuration
 get_settings(settings)
 
@@ -286,10 +460,13 @@ app = Eve(
     validator=MyValidator,
     auth=MyTokenAuth
 )
-# hooks
+# hooks pre-init
 app.on_pre_GET += pre_get
 app.on_insert_contact += pre_contact_post
 app.on_update_contact += pre_contact_patch
+app.on_delete_item_realm += pre_delete_realm
+app.on_deleted_item_realm += after_delete_realm
+app.on_update_realm += pre_realm_patch
 
 # docs api
 Bootstrap(app)
@@ -305,8 +482,7 @@ with app.test_request_context():
     if not super_admin_contact:
         post_internal("contact", {"name": "admin",
                                   "password": "admin",
-                                  "back_role_super_admin": True,
-                                  "back_role_admin": []})
+                                  "back_role_super_admin": True})
         print "Created Super admin"
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
@@ -314,9 +490,20 @@ with app.test_request_context():
     app.on_inserted_service += Livestate.on_inserted_service
     app.on_updated_host += Livestate.on_updated_host
     app.on_updated_service += Livestate.on_updated_service
+    # Create default realm if not defined
+    realms = app.data.driver.db['realm']
+    default_realm = realms.find_one({'name': 'All'})
+    if not default_realm:
+        post_internal("realm", {"name": "All", "_parent": None, "_level": 0}, True)
+
 with app.test_request_context():
     Livestate.recalculate()
     Livesynthesis.recalculate()
+
+# hooks post-init
+app.on_insert_realm += pre_realm_post
+app.on_inserted_realm += after_insert_realm
+app.on_updated_realm += after_update_realm
 
 
 @app.route("/login", methods=['POST'])

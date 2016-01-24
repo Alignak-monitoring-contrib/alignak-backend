@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Resource information of command
+Resource information of realm
 """
 
 
@@ -12,7 +12,7 @@ def get_name():
     :return: name of this resource
     :rtype: str
     """
-    return 'command'
+    return 'realm'
 
 
 def get_schema():
@@ -24,39 +24,31 @@ def get_schema():
     """
     return {
         'schema': {
+            'imported_from': {
+                'type': 'string',
+                'default': ''
+            },
             'name': {
                 'type': 'string',
                 'required': True,
                 'unique': True,
             },
-            'definition_order': {
-                'type': 'integer',
-                'default': 100
+            'realm_members': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'host',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
             },
-            'command_line': {
-                'type': 'string'
-            },
-            'poller_tag': {
-                'type': 'string',
-                'default': 'None'
-            },
-            'reactionner_tag': {
-                'type': 'string',
-                'default': 'None'
-            },
-            'module_type': {
-                'type': 'string',
-                'default': 'fork'
-            },
-            'timeout': {
-                'type': 'integer',
-                'default': -1
-            },
-            'enable_environment_macros': {
+            'default': {
                 'type': 'boolean',
                 'default': False
             },
-            '_realm': {
+            '_parent': {
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -64,9 +56,30 @@ def get_schema():
                 },
                 'required': True,
             },
-            '_sub_realm': {
-                'type': 'boolean',
-                'default': False
+            '_tree_parents': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'realm',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
+            '_tree_children': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'realm',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
+            '_level': {
+                'type': 'integer',
             },
             '_users_read': {
                 'type': 'list',
@@ -77,7 +90,6 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
-                'default': [],
             },
             '_users_update': {
                 'type': 'list',
@@ -88,7 +100,6 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
-                'default': [],
             },
             '_users_delete': {
                 'type': 'list',
@@ -99,7 +110,6 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
-                'default': [],
             },
         }
     }

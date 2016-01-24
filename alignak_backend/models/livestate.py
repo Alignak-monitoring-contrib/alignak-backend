@@ -123,47 +123,15 @@ def get_schema():
                 'default': 'host',
                 'allowed': ["host", "service"]
             },
-            '_brotherhood': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'brotherhood',
-                        'embeddable': True,
-                    }
+            '_realm': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'realm',
+                    'embeddable': True
                 },
+                'required': True,
             },
             '_users_read': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'contact',
-                        'embeddable': True,
-                    }
-                },
-            },
-            '_users_create': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'contact',
-                        'embeddable': True,
-                    }
-                },
-            },
-            '_users_update': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'contact',
-                        'embeddable': True,
-                    }
-                },
-            },
-            '_users_delete': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',

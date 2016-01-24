@@ -51,7 +51,8 @@ class Livestate(object):
                     'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
                     'last_state': 'UP', 'last_state_type': 'HARD', 'output': '',
                     'long_output': '', 'perf_data': '', 'type': 'host',
-                    'business_impact': item['business_impact'], 'display_name_host': name}
+                    'business_impact': item['business_impact'], 'display_name_host': name,
+                    '_realm': item['realm']}
             if item['initial_state'] == 'd':
                 data['state'] = 'DOWN'
                 data['last_state'] = 'DOWN'
@@ -87,7 +88,7 @@ class Livestate(object):
                     'last_state': 'OK', 'last_state_type': 'HARD', 'output': '',
                     'long_output': '', 'perf_data': '', 'type': 'service',
                     'business_impact': item['business_impact'], 'display_name_service': name,
-                    'display_name_host': name_h}
+                    'display_name_host': name_h, '_realm': item['_realm']}
             if item['initial_state'] == 'w':
                 data['state'] = 'WARNING'
                 data['last_state'] = 'WARNING'
