@@ -110,7 +110,8 @@ def get_schema():
                 'data_relation': {
                     'resource': 'timeperiod',
                     'embeddable': True
-                }
+                },
+                'required': True,
             },
             'service_notification_period': {
                 'type': 'objectid',
@@ -124,7 +125,8 @@ def get_schema():
                 'data_relation': {
                     'resource': 'timeperiod',
                     'embeddable': True
-                }
+                },
+                'required': True,
             },
             'host_notification_options': {
                 'type': 'list',

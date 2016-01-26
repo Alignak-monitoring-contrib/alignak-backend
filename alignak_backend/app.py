@@ -474,6 +474,30 @@ app.register_blueprint(eve_docs, url_prefix='/docs')
 
 # Create default account when have no contact.
 with app.test_request_context():
+    # Create default realm if not defined
+    realms = app.data.driver.db['realm']
+    default_realm = realms.find_one({'name': 'All'})
+    if not default_realm:
+        post_internal("realm", {"name": "All", "_parent": None, "_level": 0}, True)
+        print "Created top level realm"
+        default_realm = realms.find_one({'name': 'All'})
+    # Create default timeperiod if not defined
+    timeperiods = app.data.driver.db['timeperiod']
+    default_timeperiod = timeperiods.find_one({'name': 'All time default 24x7'})
+    if not default_timeperiod:
+        post_internal("timeperiod", {"name": "All time default 24x7",
+                                     "_realm": default_realm['_id'],
+                                     "is_active": True,
+                                     "dateranges": [{u'monday': u'00:00-24:00'},
+                                                    {u'tuesday': u'00:00-24:00'},
+                                                    {u'wednesday': u'00:00-24:00'},
+                                                    {u'thursday': u'00:00-24:00'},
+                                                    {u'friday': u'00:00-24:00'},
+                                                    {u'saturday': u'00:00-24:00'},
+                                                    {u'sunday': u'00:00-24:00'}]}, True)
+        print "Created default timeperiod"
+        default_timeperiod = timeperiods.find_one({'name': 'All time default 24x7'})
+    # Create default username/contact if not defined
     try:
         contacts = app.data.driver.db['contact']
     except Exception as e:
@@ -482,7 +506,9 @@ with app.test_request_context():
     if not super_admin_contact:
         post_internal("contact", {"name": "admin",
                                   "password": "admin",
-                                  "back_role_super_admin": True})
+                                  "back_role_super_admin": True,
+                                  "host_notification_period": default_timeperiod['_id'],
+                                  "service_notification_period": default_timeperiod['_id']})
         print "Created Super admin"
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
@@ -490,11 +516,6 @@ with app.test_request_context():
     app.on_inserted_service += Livestate.on_inserted_service
     app.on_updated_host += Livestate.on_updated_host
     app.on_updated_service += Livestate.on_updated_service
-    # Create default realm if not defined
-    realms = app.data.driver.db['realm']
-    default_realm = realms.find_one({'name': 'All'})
-    if not default_realm:
-        post_internal("realm", {"name": "All", "_parent": None, "_level": 0}, True)
 
 with app.test_request_context():
     Livestate.recalculate()

@@ -26,6 +26,8 @@ class TestRights(unittest2.TestCase):
             if cont['name'] != 'admin':
                 headers_contact['If-Match'] = cont['_etag']
                 cls.backend.delete('contact/' + cont['_id'], headers_contact)
+            else:
+                cls.contact_admin = cont
 
         realms = cls.backend.get_all('realm')
         headers_realm = {'Content-Type': 'application/json'}
@@ -50,24 +52,32 @@ class TestRights(unittest2.TestCase):
         cls.dagobah = resp['_id']
 
         # Add contacts / users
-        data = {'name': 'user1', 'password': 'test', 'back_role_super_admin': False}
+        data = {'name': 'user1', 'password': 'test', 'back_role_super_admin': False,
+                'host_notification_period': cls.contact_admin['host_notification_period'],
+                'service_notification_period': cls.contact_admin['service_notification_period']}
         resp = cls.backend.post('contact', data)
         cls.user1_id = resp['_id']
         data = {'contact': resp['_id'], 'realm': cls.sluis, 'resource': 'command', 'crud': 'read',
                 'sub_realm': True}
         cls.backend.post('contactrestrictrole', data)
 
-        data = {'name': 'user2', 'password': 'test', 'back_role_super_admin': False}
+        data = {'name': 'user2', 'password': 'test', 'back_role_super_admin': False,
+                'host_notification_period': cls.contact_admin['host_notification_period'],
+                'service_notification_period': cls.contact_admin['service_notification_period']}
         resp = cls.backend.post('contact', data)
         cls.user2_id = resp['_id']
         data = {'contact': resp['_id'], 'realm': cls.hoth, 'resource': 'command', 'crud': 'read'}
         cls.backend.post('contactrestrictrole', data)
 
-        data = {'name': 'user3', 'password': 'test', 'back_role_super_admin': False}
+        data = {'name': 'user3', 'password': 'test', 'back_role_super_admin': False,
+                'host_notification_period': cls.contact_admin['host_notification_period'],
+                'service_notification_period': cls.contact_admin['service_notification_period']}
         resp = cls.backend.post('contact', data)
         cls.user3_id = resp['_id']
 
-        data = {'name': 'user4', 'password': 'test', 'back_role_super_admin': False}
+        data = {'name': 'user4', 'password': 'test', 'back_role_super_admin': False,
+                'host_notification_period': cls.contact_admin['host_notification_period'],
+                'service_notification_period': cls.contact_admin['service_notification_period']}
         resp = cls.backend.post('contact', data)
         cls.user4_id = resp['_id']
         data = {'contact': resp['_id'], 'realm': cls.sluis, 'resource': 'command', 'crud': 'custom'}
