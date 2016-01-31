@@ -26,30 +26,79 @@ def get_schema():
         'schema': {
             'name': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'required': True,
                 'unique': True,
             },
             'definition_order': {
                 'type': 'integer',
+                'ui': {
+                    'title': 'Definition order',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 100
             },
             'command_line': {
-                'type': 'string'
+                'type': 'string',
+                'ui': {
+                    'title': 'Command line',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
             },
             'poller_tag': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Poller tag',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 'None'
             },
             'reactionner_tag': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Reactionner tag',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 'None'
             },
             'module_type': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Module type',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 'fork'
             },
             'timeout': {
                 'type': 'integer',
+                'ui': {
+                    'title': 'Timeout',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': -1
             },
             'enable_environment_macros': {
