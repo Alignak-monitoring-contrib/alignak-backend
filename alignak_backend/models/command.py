@@ -103,10 +103,24 @@ def get_schema():
             },
             'enable_environment_macros': {
                 'type': 'boolean',
+                'ui': {
+                    'title': 'Environment macros',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             '_realm': {
                 'type': 'objectid',
+                'ui': {
+                    'title': 'Realm',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
@@ -115,6 +129,13 @@ def get_schema():
             },
             '_sub_realm': {
                 'type': 'boolean',
+                'ui': {
+                    'title': 'Readable on sub realms',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             '_users_read': {
