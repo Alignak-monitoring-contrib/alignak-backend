@@ -150,5 +150,21 @@ def get_schema():
                 },
                 'default': [],
             },
+            # This to define if the object in this model are to be used in the UI
+            'ui': {
+                'type': 'boolean',
+                'default': True,
+                'required': False,
+
+                # UI parameters for the objects
+                'ui': {
+                    'list_title': 'Commands list (%d items)',
+                    'page_title': 'Command: %s',
+                    'uid': 'command_name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True
+                }
+            }
         }
     }
