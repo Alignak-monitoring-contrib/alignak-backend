@@ -26,6 +26,13 @@ def get_schema():
         'schema': {
             'contact': {
                 'type': 'objectid',
+                'ui': {
+                    'title': 'COntact',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'data_relation': {
                     'resource': 'contact',
                     'embeddable': True
@@ -34,6 +41,13 @@ def get_schema():
             },
             'realm': {
                 'type': 'objectid',
+                'ui': {
+                    'title': 'Realm',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
@@ -42,14 +56,35 @@ def get_schema():
             },
             'sub_realm': {
                 'type': 'boolean',
+                'ui': {
+                    'title': 'Sub realm visibility',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             'resource': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Resource name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'required': True,
             },
             'crud': {
                 'type': 'string',
+                'ui': {
+                    'title': 'CRUD rights',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': 'read',
                 'required': True,
                 'allowed': ['create', 'read', 'update', 'delete', 'custom']

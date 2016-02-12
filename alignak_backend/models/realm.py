@@ -30,11 +30,25 @@ def get_schema():
             },
             'name': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'required': True,
                 'unique': True,
             },
             'realm_members': {
                 'type': 'list',
+                'ui': {
+                    'title': 'Realm members',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -46,6 +60,13 @@ def get_schema():
             },
             'default': {
                 'type': 'boolean',
+                'ui': {
+                    'title': 'Default realm',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             '_parent': {

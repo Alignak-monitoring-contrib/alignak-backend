@@ -953,6 +953,13 @@ def get_schema():
             },
             'obsess_over_host': {
                 'type': 'boolean',
+                'ui': {
+                    'title': 'Obsess over host',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': False
             },
             '_users_read': {

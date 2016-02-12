@@ -26,6 +26,13 @@ def get_schema():
         'schema': {
             'members': {
                 'type': 'list',
+                'ui': {
+                    'title': 'Members',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -36,6 +43,13 @@ def get_schema():
             },
             'servicegroup_members': {
                 'type': 'list',
+                'ui': {
+                    'title': 'Servicegroup members',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -46,29 +60,71 @@ def get_schema():
             },
             'name': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'required': True,
                 'unique': True,
                 'default': ''
             },
             'alias': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Alias',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'notes': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Notes',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'notes_url': {
                 'type': 'string',
+                'ui': {
+                    'title': 'URL of notes',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             'action_url': {
                 'type': 'string',
+                'ui': {
+                    'title': 'URL of action',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
             '_realm': {
                 'type': 'objectid',
-                'data_relation': {
+                 'ui': {
+                    'title': 'Realm',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+               'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
                 },

@@ -26,6 +26,13 @@ def get_schema():
         'schema': {
             'members': {
                 'type': 'list',
+                'ui': {
+                    'title': 'Contact members',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -36,6 +43,13 @@ def get_schema():
             },
             'contactgroup_members': {
                 'type': 'list',
+                'ui': {
+                    'title': 'Contactgroup members',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -46,12 +60,25 @@ def get_schema():
             },
             'name': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'required': True,
-                'unique': True,
-                'default': ''
+                'unique': True
             },
             'alias': {
                 'type': 'string',
+                'ui': {
+                    'title': 'Alias',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
                 'default': ''
             },
         }
