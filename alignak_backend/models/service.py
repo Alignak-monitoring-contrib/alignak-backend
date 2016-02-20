@@ -46,6 +46,7 @@ def get_schema():
                     "format": None
                 },
                 'required': True,
+                'empty': False,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
                 'dependencies': ['host_name', 'check_command']
             },

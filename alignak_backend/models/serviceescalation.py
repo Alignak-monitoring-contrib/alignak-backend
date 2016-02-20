@@ -31,6 +31,7 @@ def get_schema():
             'name': {
                 'type': 'string',
                 'required': True,
+                'empty': False,
                 'unique': True,
             },
             'definition_order': {

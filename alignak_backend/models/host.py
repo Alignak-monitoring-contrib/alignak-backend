@@ -46,6 +46,7 @@ def get_schema():
                     "format": None
                 },
                 'required': True,
+                'empty': False,
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
                 'dependencies': ['check_command']

@@ -38,6 +38,7 @@ def get_schema():
                     "format": None
                 },
                 'required': True,
+                'empty': False,
                 'unique': True,
             },
             'definition_order': {
