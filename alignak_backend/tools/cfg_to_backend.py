@@ -25,12 +25,12 @@ Usage:
 
 Options:
     -h, --help                  Show this screen.
-    -v, --version               Show application version.
+    -V, --version               Show application version.
     -b, --backend url           Specify backend URL [default: http://127.0.0.1:5000]
     -d, --delete                Delete existing backend data
     -u, --username username     Backend login username [default: admin]
     -p, --password password     Backend login password [default: admin]
-    --verbose                   Run in verbose mode (more info to display)
+    -v, --verbose               Run in verbose mode (more info to display)
 
 Use cases:
     Display help message:
