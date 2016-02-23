@@ -30,7 +30,7 @@ class TestRealms(unittest2.TestCase):
         realms = cls.backend.get_all('realm')
         headers_realm = {'Content-Type': 'application/json'}
         for cont in realms:
-            if cont['name'] != 'All':
+            if cont['name'] != 'All' and cont['_level'] != 0:
                 headers_realm['If-Match'] = cont['_etag']
                 cls.backend.delete('realm/' + cont['_id'], headers_realm)
             else :
@@ -65,7 +65,6 @@ class TestRealms(unittest2.TestCase):
         # it's realm "All"
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_tree_children'], [realmAll_A_id])
-
 
         data = {"name": "All B", "_parent": self.realmAll_id}
         resp = self.backend.post("realm", data)
