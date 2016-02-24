@@ -238,36 +238,55 @@ class CfgToBackend(object):
         if self.destroy_backend_data:
             print("~~~~~~~~~~~~~~~~~~~~~~~~ Deleting existing backend data ~~~~~~~~~~~~~~~~~~~~~~")
             headers = {'Content-Type': 'application/json'}
-            self.backend.delete('command', headers)
-            self.backend.delete('timeperiod', headers)
-            self.backend.delete('hostgroup', headers)
-            self.backend.delete('hostdependency', headers)
-            self.backend.delete('servicedependency', headers)
-            self.backend.delete('serviceextinfo', headers)
-            self.backend.delete('trigger', headers)
-            contacts = self.backend.get_all('contact')
-            headers_contact = {'Content-Type': 'application/json'}
-            for cont in contacts:
-                if cont['name'] != 'admin':
-                    headers_contact['If-Match'] = cont['_etag']
-                    self.backend.delete('contact/' + cont['_id'], headers_contact)
-            realms = self.backend.get_all('realm')
-            headers_realm = {'Content-Type': 'application/json'}
-            for cont in realms:
-                if cont['name'] != 'All' and cont['_level'] != 0:
-                    headers_realm['If-Match'] = cont['_etag']
-                    self.backend.delete('realm/' + cont['_id'], headers_realm)
-            self.backend.delete('contactgroup', headers)
-            self.backend.delete('contactrestrictrole', headers)
-            self.backend.delete('escalation', headers)
-            self.backend.delete('host', headers)
-            self.backend.delete('hostextinfo', headers)
-            self.backend.delete('hostescalation', headers)
-            self.backend.delete('servicegroup', headers)
-            self.backend.delete('service', headers)
-            self.backend.delete('serviceescalation', headers)
-            self.backend.delete('livestate', headers)
-            self.backend.delete('livesynthesis', headers)
+            if self.type == 'command' or self.type == 'all':
+                self.backend.delete('command', headers)
+            if self.type == 'timeperiod' or self.type == 'all':
+                self.backend.delete('timeperiod', headers)
+            if self.type == 'hostgroup' or self.type == 'all':
+                self.backend.delete('hostgroup', headers)
+            if self.type == 'hostdependency' or self.type == 'all':
+                self.backend.delete('hostdependency', headers)
+            if self.type == 'servicedependency' or self.type == 'all':
+                self.backend.delete('servicedependency', headers)
+            if self.type == 'serviceextinfo' or self.type == 'all':
+                self.backend.delete('serviceextinfo', headers)
+            if self.type == 'trigger' or self.type == 'all':
+                self.backend.delete('trigger', headers)
+            if self.type == 'contact' or self.type == 'all':
+                contacts = self.backend.get_all('contact')
+                headers_contact = {'Content-Type': 'application/json'}
+                for cont in contacts:
+                    if cont['name'] != 'admin':
+                        headers_contact['If-Match'] = cont['_etag']
+                        self.backend.delete('contact/' + cont['_id'], headers_contact)
+                realms = self.backend.get_all('realm')
+                headers_realm = {'Content-Type': 'application/json'}
+                for cont in realms:
+                    if cont['name'] != 'All' and cont['_level'] != 0:
+                        headers_realm['If-Match'] = cont['_etag']
+                        self.backend.delete('realm/' + cont['_id'], headers_realm)
+            if self.type == 'contactgroup' or self.type == 'all':
+                self.backend.delete('contactgroup', headers)
+            if self.type == 'contactrestrictrole' or self.type == 'all':
+                self.backend.delete('contactrestrictrole', headers)
+            if self.type == 'escalation' or self.type == 'all':
+                self.backend.delete('escalation', headers)
+            if self.type == 'host' or self.type == 'all':
+                self.backend.delete('host', headers)
+            if self.type == 'hostextinfo' or self.type == 'all':
+                self.backend.delete('hostextinfo', headers)
+            if self.type == 'hostescalation' or self.type == 'all':
+                self.backend.delete('hostescalation', headers)
+            if self.type == 'servicegroup' or self.type == 'all':
+                self.backend.delete('servicegroup', headers)
+            if self.type == 'service' or self.type == 'all':
+                self.backend.delete('service', headers)
+            if self.type == 'serviceescalation' or self.type == 'all':
+                self.backend.delete('serviceescalation', headers)
+            if self.type == 'livestate' or self.type == 'all':
+                self.backend.delete('livestate', headers)
+            if self.type == 'livesynthesis' or self.type == 'all':
+                self.backend.delete('livesynthesis', headers)
             self.log("~~~~~~~~~~~~~~~~~~~~~~~~ Existing backend data destroyed ~~~~~~~~~~~~~~~~~")
 
     def recompose_dateranges(self):
@@ -295,7 +314,7 @@ class CfgToBackend(object):
         :return: properties modified
         :rtype: dict
         """
-        names = ['service_description', 'host_name', 'command_name', 'timeperiod_name']
+        names = ['service_description', 'host_name', 'dependent_host_name', 'dependent_hostgroup_name', 'command_name', 'timeperiod_name']
         addprop = {}
         for prop in source:
             if 'alignak.commandcall.CommandCall' in str(type(source[prop])):
