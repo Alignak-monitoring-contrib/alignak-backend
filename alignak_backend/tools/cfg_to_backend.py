@@ -347,14 +347,7 @@ class CfgToBackend(object):
                 self.log(prop)
                 # self.log(dir(source[prop]))
                 self.log(source[prop])
-<<<<<<< HEAD
-                self.log(str(type(source[prop])))
-                if str(type(source[prop])) == "<type 'object'>":
-                    self.log(source[prop].__class__)
-                    source[prop] = ""
-=======
                 self.log("^^^^^^^^^^^^^^^^^^^^^^^")
->>>>>>> 9999877f3b8048fabcf3064a599f8fcf9830d822
 
         source.update(addprop)
         self.log('***********************************************')
