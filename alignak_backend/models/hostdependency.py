@@ -77,6 +77,17 @@ def get_schema():
                 },
                 'required': True,
             },
+            '_sub_realm': {
+                'type': 'boolean',
+                'ui': {
+                    'title': 'Readable on sub realms',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'default': False
+            },
             '_users_read': {
                 'type': 'list',
                 'schema': {
