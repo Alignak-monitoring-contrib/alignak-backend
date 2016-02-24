@@ -466,8 +466,14 @@ class CfgToBackend(object):
                 item['back_role_super_admin'] = False
                 item['back_role_admin'] = []
 
-            item['name'] = item[id_name]
-            del item[id_name]
+            # If id name is name ... keep it!
+            if id_name != 'name':
+                item['name'] = item[id_name]
+                del item[id_name]
+
+            # Force imported_from with Alignak ...
+            # item['imported_from'] = 'cfg_to_backend'
+
             if 'use' in item:
                 del item['use']
             # Case where no realm but alignak define internal realm name 'Default'
