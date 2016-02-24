@@ -82,5 +82,64 @@ def get_schema():
                 },
                 'default': ''
             },
+            '_realm': {
+                'type': 'objectid',
+                'ui': {
+                    'title': 'Realm',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'data_relation': {
+                    'resource': 'realm',
+                    'embeddable': True
+                },
+                'required': True,
+            },
+            '_sub_realm': {
+                'type': 'boolean',
+                'ui': {
+                    'title': 'Readable on sub realms',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'default': False
+            },
+            '_users_read': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
+                'default': [],
+            },
+            '_users_update': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
+                'default': [],
+            },
+            '_users_delete': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'contact',
+                        'embeddable': True,
+                    }
+                },
+                'default': [],
+            },
         }
     }

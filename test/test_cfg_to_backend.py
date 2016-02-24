@@ -150,3 +150,13 @@ class TestCfgToBackend(unittest2.TestCase):
         self.assertEqual(reg_comm['name'], 'srv01')
         self.assertEqual(reg_comm['check_command_args'], '3306!5!8')
         self.assertEqual(reg_comm['check_command'], command_id)
+
+    def test_contact_is_admin(self):
+        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/contact_admin.cfg'])
+        (stdoutdata, stderrdata) = q.communicate() # now wait
+
+        co = self.backend.get_all('contact')
+        self.assertEqual(len(co), 2)
+
+        self.assertEqual(co[1]['is_admin'], True)
+        self.assertEqual(co[1]['back_role_super_admin'], True)

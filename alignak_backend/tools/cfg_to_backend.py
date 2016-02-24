@@ -322,6 +322,10 @@ class CfgToBackend(object):
                 self.log(prop)
                 self.log(dir(source[prop]))
                 self.log(source[prop])
+                self.log(str(type(source[prop])))
+                if str(type(source[prop])) == "<type 'object'>":
+                    self.log(source[prop].__class__)
+                    source[prop] = ""
 
         source.update(addprop)
         self.log('***********************************************')
@@ -365,7 +369,6 @@ class CfgToBackend(object):
 
     def manage_resource(self, r_name, data_later, id_name, schema):
         """
-
         data_later = [{'field': 'use', 'type': 'simple|list', 'resource': 'command'}]
 
         :param r_name: resource name
@@ -464,7 +467,8 @@ class CfgToBackend(object):
             # Special case of contacts
             if r_name == 'contact':
                 item['back_role_super_admin'] = False
-                item['back_role_admin'] = []
+                if 'is_admin' in item and item['is_admin']:
+                    item['back_role_super_admin'] = True
 
             item['name'] = item[id_name]
             del item[id_name]
@@ -476,7 +480,7 @@ class CfgToBackend(object):
                     del item['realm']
             if r_name in ['host', 'hostgroup']:
                 item['realm'] = self.realm_all
-            else:
+            elif r_name != 'contact':
                 item['_realm'] = self.realm_all
 
             self.log("before_post: %s : %s:" % (r_name, item))
@@ -547,28 +551,24 @@ class CfgToBackend(object):
             },
             {
                 'field': 'host_notification_period', 'type': 'simple', 'resource': 'timeperiod',
-                'now': False
+                'now': True
             },
             {
                 'field': 'service_notification_period', 'type': 'simple', 'resource': 'timeperiod',
-                'now': False
+                'now': True
             },
             {
                 'field': 'host_notification_commands', 'type': 'list', 'resource': 'command',
-                'now': False
+                'now': True
             },
             {
                 'field': 'service_notification_commands', 'type': 'list', 'resource': 'command',
-                'now': False
+                'now': True
             }
         ]
         schema = contact.get_schema()
         self.manage_resource('contact', data_later, 'contact_name', schema)
         print("~~~~~~~~~~~~~~~~~~~~~~ post contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        self.update_later('contact', 'host_notification_period', schema)
-        self.update_later('contact', 'service_notification_period', schema)
-        self.update_later('contact', 'host_notification_commands', schema)
-        self.update_later('contact', 'service_notification_commands', schema)
 
         print("~~~~~~~~~~~~~~~~~~~~~~ add contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         data_later = [
