@@ -73,6 +73,17 @@ def get_schema():
                     "format": None
                 },
             },
+            'definition_order': {
+                'type': 'integer',
+                'ui': {
+                    'title': 'Definition order',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'default': 100
+            },
             'alias': {
                 'type': 'string',
                 'default': '',
