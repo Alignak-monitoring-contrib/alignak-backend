@@ -51,6 +51,9 @@ class TestRealms(unittest2.TestCase):
         cls.backend.delete("realm", {})
 
     def test_add_realm(self):
+        re = self.backend.get_all('realm', {'sort': "_level"})
+        self.assertEqual(len(re), 1)
+
         # * Add sub_realms
         data = {"name": "All A", "_parent": self.realmAll_id}
         resp = self.backend.post("realm", data)
