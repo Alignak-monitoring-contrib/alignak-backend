@@ -11,4 +11,4 @@ pep8
 pep257
 -e git+https://github.com/Alignak-monitoring-contrib/alignak-backend-client.git#egg=alignak_backend_client
 uwsgi
--e git+https://github.com/Alignak-monitoring/alignak.git@develop#egg=alignak
+-e git+https://github.com/Alignak-monitoring/alignak.git@master#egg=alignak
