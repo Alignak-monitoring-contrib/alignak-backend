@@ -468,6 +468,17 @@ class CfgToBackend(object):
                 elif values['field'] in item and values['type'] == 'list' and values['now']:
                     add = True
                     objectsid = []
+
+                    # Fred: debug and test ...
+                    if values['field'].__class__ != values['type']:
+                        self.log("******************************")
+                        self.log("%s: %s is %s and should be %s" % (r_name, values['field'], values['field'].__class__, values['type']))
+                        self.log("isinstance(item[values['field']], basestring): %s" % (isinstance(values['field'], basestring)))
+                        self.log("item: %s" % (item))
+                        self.log("******************************")
+                        item[values['field']] = []
+                    # Fred: debug and test ...
+
                     if isinstance(item[values['field']], basestring):
                         item[values['field']] = item[values['field']].split()
                     for keylist, vallist in enumerate(item[values['field']]):
