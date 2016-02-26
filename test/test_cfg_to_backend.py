@@ -67,7 +67,6 @@ class TestCfgToBackend(unittest2.TestCase):
         self.assertEqual(reg_comm['max_check_attempts'], 6)
 
     def test_timeperiod(self):
-
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/timeperiods.cfg'])
         (stdoutdata, stderrdata) = q.communicate() # now wait
 
@@ -88,6 +87,46 @@ class TestCfgToBackend(unittest2.TestCase):
              del comm['_updated']
              del comm['_realm']
              self.assertEqual(comm, ref)
+
+    def test_timeperiod_complex(self):
+        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/timeperiods_complex.cfg'])
+        (_, _) = q.communicate() # now wait
+
+        r = self.backend.get_all('timeperiod')
+        self.assertEqual(len(r), 2)
+        ref = {u"name": u"workhours",
+               u"definition_order": 100,
+               u"alias": u"Normal Work Hours",
+               u"dateranges": [{u'monday': u'09:00-17:00'}, {u'tuesday': u'09:00-17:00'},
+                               {u'friday': u'09:00-12:00,14:00-16:00'}, {u'wednesday': u'09:00-17:00'},
+                               {u'thursday': u'09:00-17:00'}],
+               u"exclude": [u'us-holidays'], u"is_active": False, u"imported_from": u""}
+        comm = r[0]
+        del comm['_links']
+        del comm['_id']
+        del comm['_etag']
+        del comm['_created']
+        del comm['_updated']
+        del comm['_realm']
+        self.assertEqual(comm, ref)
+
+        ref = {u"name": u"us-holidays",
+               u"definition_order": 100,
+               u"alias": u"U.S. Holidays",
+               u"dateranges": [{u'monday 1 september': u'00:00-00:00'},
+                               {u'january 1': u'00:00-00:00'},
+                               {u'thursday -1 november': u'00:00-00:00'},
+                               {u'december 25': u'00:00-00:00'}, {u'july 4': u'00:00-00:00'}],
+               u"exclude": [], u"is_active": False, u"imported_from": u""}
+        comm = r[1]
+        del comm['_links']
+        del comm['_id']
+        del comm['_etag']
+        del comm['_created']
+        del comm['_updated']
+        del comm['_realm']
+        self.assertEqual(comm, ref)
+
 
     def test_host_multiple_link_later(self):
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts_links_parent.cfg'])

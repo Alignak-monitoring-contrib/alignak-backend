@@ -302,7 +302,17 @@ class CfgToBackend(object):
             dateranges = []
             for propti in ti:
                 if propti not in fields:
-                    dateranges.append({propti: ','.join(ti[propti])})
+                    self.log("=-=-=-=-=-=-=-=-=-")
+                    self.log(propti)
+                    self.log(ti[propti])
+                    # case we have in ti[propti] many spaces like for: december 25             00:00-00:00
+                    if len(ti[propti]) == 1 and '  ' in ti[propti][0]:
+                        self.log("++++++++++++++++++++++++++++++++++++++++++++++++++")
+                        recomp = propti + ' ' + ti[propti][0]
+                        explode_dr = recomp.split('  ')
+                        dateranges.append({explode_dr[0]: explode_dr[-1].strip()})
+                    else:
+                        dateranges.append({propti: ','.join(ti[propti])})
             ti['dr'] = dateranges
 
     def convert_objects(self, source):
