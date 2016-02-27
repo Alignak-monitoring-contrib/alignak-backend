@@ -260,7 +260,7 @@ def get_schema():
                 'default': 0
             },
             'event_handler': {
-                'type': 'string',
+                'type': 'objectid',
                 'ui': {
                     'title': 'Event handler',
                     'visible': True,
@@ -268,7 +268,11 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'default': ''
+                'data_relation': {
+                    'resource': 'command',
+                    'embeddable': True
+                },
+                'nullable': True
             },
             'event_handler_enabled': {
                 'type': 'boolean',
@@ -687,15 +691,19 @@ def get_schema():
                 },
             },
             'maintenance_period': {
-                'type': 'string',
+                'type': 'objectid',
                 'ui': {
                     'title': 'Maintenance period',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
-                'default': ''
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                },
+                'nullable': True
             },
             'time_to_orphanage': {
                 'type': 'integer',
@@ -909,7 +917,7 @@ def get_schema():
                 'default': False
             },
             'snapshot_command': {
-                'type': 'string',
+                'type': 'objectid',
                 'ui': {
                     'title': 'Snapshot command',
                     'visible': True,
@@ -917,18 +925,26 @@ def get_schema():
                     'searchable': True,
                     "format": None
                 },
-                'default': ''
+                'data_relation': {
+                    'resource': 'command',
+                    'embeddable': True
+                },
+                'nullable': True
             },
             'snapshot_period': {
-                'type': 'string',
+                'type': 'objectid',
                 'ui': {
                     'title': 'Snapshot period',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    "format": "link"
                 },
-                'default': ''
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                },
+                'nullable': True
             },
             'snapshot_criteria': {
                 'type': 'list',
