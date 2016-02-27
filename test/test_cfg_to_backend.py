@@ -108,14 +108,14 @@ class TestCfgToBackend(unittest2.TestCase):
         del comm['_created']
         del comm['_updated']
         del comm['_realm']
-        self.assertEqual(comm, ref)
+        self.assertItemsEqual(comm, ref)
 
         ref = {u"name": u"us-holidays",
                u"definition_order": 100,
                u"alias": u"U.S. Holidays",
                u"dateranges": [{u'thursday -1 november': u'00:00-00:00'},
-                               {u'january 1': u'00:00-00:00'},
                                {u'monday 1 september': u'00:00-00:00'},
+                               {u'january 1': u'00:00-00:00'},
                                {u'december 25': u'00:00-00:00'}, {u'july 4': u'00:00-00:00'}],
                u"exclude": [], u"is_active": False, u"imported_from": u""}
         comm = r[1]
@@ -125,7 +125,7 @@ class TestCfgToBackend(unittest2.TestCase):
         del comm['_created']
         del comm['_updated']
         del comm['_realm']
-        self.assertEqual(comm, ref)
+        self.assertItemsEqual(comm, ref)
 
     def test_host_multiple_link_later(self):
         q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'alignak_cfg_files/hosts_links_parent.cfg'])
