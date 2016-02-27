@@ -539,7 +539,7 @@ class CfgToBackend(object):
                     del item['realm']
             if r_name in ['host', 'hostgroup']:
                 item['realm'] = self.realm_all
-            elif r_name != 'contact':
+            else:
                 item['_realm'] = self.realm_all
 
             self.log("before_post: %s : %s:" % (r_name, item))
