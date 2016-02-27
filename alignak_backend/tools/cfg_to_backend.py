@@ -435,6 +435,10 @@ class CfgToBackend(object):
             if item[id_name] in ['bp_rule', '_internal_host_up', '_echo']:
                 continue
 
+            if 'allow_unknown' in schema and schema['allow_unknown']:
+                for prop in item_obj.customs.keys():
+                    item[prop] = item_obj.customs[prop]
+
             # convert objects
             item = self.convert_objects(item)
             # Remove properties
