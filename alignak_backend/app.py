@@ -508,7 +508,8 @@ with app.test_request_context():
                                   "password": "admin",
                                   "back_role_super_admin": True,
                                   "host_notification_period": default_timeperiod['_id'],
-                                  "service_notification_period": default_timeperiod['_id']})
+                                  "service_notification_period": default_timeperiod['_id'],
+                                  "_realm": default_realm['_id']})
         print "Created Super admin"
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
