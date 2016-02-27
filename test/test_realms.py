@@ -81,13 +81,13 @@ class TestRealms(unittest2.TestCase):
         data = {"name": "All A.1", "_parent": realmAll_A_id}
         self.backend.post("realm", data)
 
-        re = self.backend.get_all('realm', {'sort': "_level"})
-        self.assertEqual(re[3]['name'], "All A.1")
-        self.assertEqual(re[3]['_parent'], realmAll_A_id)
-        self.assertEqual(re[3]['_level'], 2)
-        self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
-        self.assertEqual(re[3]['_tree_children'], [])
-        realmAll_A1_id = re[3]['_id']
+        re = self.backend.get_all('realm', {'sort': "name"})
+        self.assertEqual(re[2]['name'], "All A.1")
+        self.assertEqual(re[2]['_parent'], realmAll_A_id)
+        self.assertEqual(re[2]['_level'], 2)
+        self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
+        self.assertEqual(re[2]['_tree_children'], [])
+        realmAll_A1_id = re[2]['_id']
 
         # ** Realm All A
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
@@ -101,17 +101,17 @@ class TestRealms(unittest2.TestCase):
         data = {"name": "All A.1.a", "_parent": realmAll_A1_id}
         self.backend.post("realm", data)
 
-        re = self.backend.get_all('realm', {'sort': "_level"})
-        self.assertEqual(re[4]['name'], "All A.1.a")
-        self.assertEqual(re[4]['_parent'], realmAll_A1_id)
-        self.assertEqual(re[4]['_level'], 3)
-        self.assertEqual(re[4]['_tree_parents'], [self.realmAll_id, realmAll_A_id, realmAll_A1_id])
-        self.assertEqual(re[4]['_tree_children'], [])
-        realmAll_A1a_id = re[4]['_id']
-        realmAll_A1a_etag = re[4]['_etag']
+        re = self.backend.get_all('realm', {'sort': "name"})
+        self.assertEqual(re[3]['name'], "All A.1.a")
+        self.assertEqual(re[3]['_parent'], realmAll_A1_id)
+        self.assertEqual(re[3]['_level'], 3)
+        self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id, realmAll_A_id, realmAll_A1_id])
+        self.assertEqual(re[3]['_tree_children'], [])
+        realmAll_A1a_id = re[3]['_id']
+        realmAll_A1a_etag = re[3]['_etag']
 
-        self.assertEqual(re[3]['name'], "All A.1")
-        realmAll_A1_etag = re[3]['_etag']
+        self.assertEqual(re[2]['name'], "All A.1")
+        realmAll_A1_etag = re[2]['_etag']
 
         # *** Realm All A
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
