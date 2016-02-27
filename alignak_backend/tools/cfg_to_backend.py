@@ -305,7 +305,8 @@ class CfgToBackend(object):
                     self.log("=-=-=-=-=-=-=-=-=-")
                     self.log(propti)
                     self.log(ti[propti])
-                    # case we have in ti[propti] many spaces like for: december 25             00:00-00:00
+                    # case we have in ti[propti] many spaces like for:
+                    # december 25             00:00-00:00
                     if len(ti[propti]) == 1 and '  ' in ti[propti][0]:
                         self.log("++++++++++++++++++++++++++++++++++++++++++++++++++")
                         recomp = propti + ' ' + ti[propti][0]
@@ -324,7 +325,8 @@ class CfgToBackend(object):
         :return: properties modified
         :rtype: dict
         """
-        names = ['service_description', 'host_name', 'dependent_host_name', 'dependent_hostgroup_name', 'command_name', 'timeperiod_name']
+        names = ['service_description', 'host_name', 'dependent_host_name',
+                 'dependent_hostgroup_name', 'command_name', 'timeperiod_name']
         addprop = {}
         for prop in source:
             if 'alignak.commandcall.CommandCall' in str(type(source[prop])):
@@ -486,8 +488,11 @@ class CfgToBackend(object):
                     # Fred: debug and test ...
                     if values['field'].__class__ != values['type']:
                         self.log("******************************")
-                        self.log("%s: %s is %s and should be %s" % (r_name, values['field'], values['field'].__class__, values['type']))
-                        self.log("isinstance(item[values['field']], basestring): %s" % (isinstance(values['field'], basestring)))
+                        self.log("%s: %s is %s and should be %s" % (r_name, values['field'],
+                                                                    values['field'].__class__,
+                                                                    values['type']))
+                        self.log("isinstance(item[values['field']], basestring): %s" %
+                                 (isinstance(values['field'], basestring)))
                         self.log("item: %s" % (item))
                         self.log("******************************")
                         item[values['field']] = []
@@ -568,55 +573,56 @@ class CfgToBackend(object):
         :return: None
         """
         if self.type == 'command' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = []
             schema = command.get_schema()
             self.manage_resource('command', data_later, 'command_name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         if self.type == 'timeperiod' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = []
             schema = timeperiod.get_schema()
             self.manage_resource('timeperiod', data_later, 'timeperiod_name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post timeperiods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         if self.type == 'trigger' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = []
             schema = trigger.get_schema()
             self.manage_resource('trigger', data_later, 'trigger_name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post trigger ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         if self.type == 'contact' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {
-                    'field': 'contactgroups', 'type': 'list', 'resource': 'contactgroup', 'now': False
+                    'field': 'contactgroups', 'type': 'list', 'resource': 'contactgroup',
+                    'now': False
                 },
                 {
-                    'field': 'host_notification_period', 'type': 'simple', 'resource': 'timeperiod',
-                    'now': True
+                    'field': 'host_notification_period', 'type': 'simple',
+                    'resource': 'timeperiod', 'now': True
                 },
                 {
-                    'field': 'service_notification_period', 'type': 'simple', 'resource': 'timeperiod',
-                    'now': True
+                    'field': 'service_notification_period', 'type': 'simple',
+                    'resource': 'timeperiod', 'now': True
                 },
                 {
                     'field': 'host_notification_commands', 'type': 'list', 'resource': 'command',
                     'now': True
                 },
                 {
-                    'field': 'service_notification_commands', 'type': 'list', 'resource': 'command',
-                    'now': True
+                    'field': 'service_notification_commands', 'type': 'list',
+                    'resource': 'command', 'now': True
                 }
             ]
             schema = contact.get_schema()
             self.manage_resource('contact', data_later, 'contact_name', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         if self.type == 'contactgroup' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'members', 'type': 'list', 'resource': 'contact', 'now': False},
                 {'field': 'contactgroup_members', 'type': 'list', 'resource': 'contactgroup',
@@ -624,92 +630,97 @@ class CfgToBackend(object):
             ]
             schema = contactgroup.get_schema()
             self.manage_resource('contactgroup', data_later, 'contactgroup_name', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             self.update_later('contactgroup', 'members', schema)
             self.update_later('contactgroup', 'contactgroup_members', schema)
             # update_later(later, inserted, 'contact', 'contactgroups', schema)
 
         if self.type == 'escalation' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': False},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup', 'now': True}
+                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
+                 'now': True}
             ]
             schema = escalation.get_schema()
             self.manage_resource('escalation', data_later, 'escalation_name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             # update_later(later, inserted, 'escalation', 'contacts', schema)
 
         if self.type == 'hostgroup' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'members', 'type': 'list', 'resource': 'host', 'now': False},
-                {'field': 'hostgroup_members', 'type': 'list', 'resource': 'hostgroup', 'now': False}
+                {'field': 'hostgroup_members', 'type': 'list', 'resource': 'hostgroup',
+                 'now': False}
             ]
             schema = hostgroup.get_schema()
             self.manage_resource('hostgroup', data_later, 'hostgroup_name', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             self.update_later('hostgroup', 'hostgroup_members', schema)
 
         if self.type == 'host' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'parents', 'type': 'list', 'resource': 'host', 'now': False},
                 {'field': 'hostgroups', 'type': 'list', 'resource': 'hostgroup', 'now': True},
                 {'field': 'check_command', 'type': 'simple', 'resource': 'command', 'now': True},
                 {'field': 'check_period', 'type': 'simple', 'resource': 'timeperiod', 'now': True},
                 {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': False},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup', 'now': True},
+                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
+                 'now': True},
                 {'field': 'notification_period', 'type': 'simple', 'resource': 'timeperiod',
                  'now': True},
                 {'field': 'escalations', 'type': 'list', 'resource': 'escalation', 'now': True}
             ]
             schema = host.get_schema()
             self.manage_resource('host', data_later, 'host_name', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             self.update_later('host', 'parents', schema)
             # update_later(later, inserted, 'host', 'contacts', schema)
             self.update_later('hostgroup', 'members', schema)
 
         if self.type == 'hostextinfo' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = []
             schema = hostextinfo.get_schema()
             self.manage_resource('hostextinfo', data_later, 'host_name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         if self.type == 'hostdependency' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'host_name', 'type': 'string', 'resource': 'host', 'now': True},
                 {'field': 'dependent_host_name', 'type': 'list', 'resource': 'host', 'now': True},
-                {'field': 'dependent_hostgroup_name', 'type': 'list', 'resource': 'hostgroup', 'now': True}
+                {'field': 'dependent_hostgroup_name', 'type': 'list', 'resource': 'hostgroup',
+                 'now': True}
             ]
             schema = hostdependency.get_schema()
             self.manage_resource('hostdependency', data_later, 'name', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             self.update_later('hostdependency', 'host_name', schema)
 
         if self.type == 'servicedependency' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = []
             schema = servicedependency.get_schema()
             self.manage_resource('servicedependency', data_later, 'name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         if self.type == 'hostescalation' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': False},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup', 'now': True}
+                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
+                 'now': True}
             ]
             schema = hostescalation.get_schema()
             self.manage_resource('hostescalation', data_later, 'host_name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             # update_later(later, inserted, 'hostescalation', 'contacts', schema)
 
         if self.type == 'servicegroup' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'members', 'type': 'list', 'resource': 'service', 'now': False},
                 {'field': 'servicegroup_members', 'type': 'list', 'resource': 'servicegroup',
@@ -717,47 +728,51 @@ class CfgToBackend(object):
             ]
             schema = servicegroup.get_schema()
             self.manage_resource('servicegroup', data_later, 'servicegroup_name', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post servicegroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             self.update_later('servicegroup', 'servicegroup_members', schema)
 
         if self.type == 'service' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'host_name', 'type': 'simple', 'resource': 'host', 'now': True},
-                {'field': 'servicegroups', 'type': 'list', 'resource': 'servicegroup', 'now': True},
+                {'field': 'servicegroups', 'type': 'list', 'resource': 'servicegroup',
+                 'now': True},
                 {'field': 'check_command', 'type': 'simple', 'resource': 'command', 'now': True},
                 {'field': 'check_period', 'type': 'simple', 'resource': 'timeperiod', 'now': True},
                 {'field': 'notification_period', 'type': 'simple', 'resource': 'timeperiod',
                  'now': True},
                 {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': False},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup', 'now': True},
+                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
+                 'now': True},
                 {'field': 'escalations', 'type': 'list', 'resource': 'escalation', 'now': True},
                 {'field': 'maintenance_period', 'type': 'simple', 'resource': 'timeperiod',
                  'now': True},
-                {'field': 'service_dependencies', 'type': 'list', 'resource': 'service', 'now': True}
+                {'field': 'service_dependencies', 'type': 'list', 'resource': 'service',
+                 'now': True}
             ]
             schema = service.get_schema()
             self.manage_resource('service', data_later, 'service_description', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             # update_later(later, inserted, 'service', 'contacts', schema)
             self.update_later('servicegroup', 'members', schema)
 
         if self.type == 'serviceextinfo' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = []
             schema = serviceextinfo.get_schema()
             self.manage_resource('serviceextinfo', data_later, 'name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
         if self.type == 'serviceescalation' or self.type == 'all':
-            print("~~~~~~~~~~~~~~~~~~~~~~ add serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ add serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': False},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup', 'now': True}
+                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
+                 'now': True}
             ]
             schema = serviceescalation.get_schema()
             self.manage_resource('serviceescalation', data_later, 'host_name', schema)
-            # print("~~~~~~~~~~~~~~~~~~~~~~ post serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            # print("~~~~~~~~~~~~~~~~~~~~~~ post serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             # update_later(later, inserted, 'serviceescalation', 'contacts', schema)
 
     def log(self, message):

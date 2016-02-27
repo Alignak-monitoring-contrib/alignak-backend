@@ -129,14 +129,14 @@ def get_schema():
             },
             '_realm': {
                 'type': 'objectid',
-                 'ui': {
+                'ui': {
                     'title': 'Realm',
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
                     "format": None
                 },
-               'data_relation': {
+                'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
                 },
