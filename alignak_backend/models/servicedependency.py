@@ -39,22 +39,89 @@ def get_schema():
                 'default': 100
             },
             'dependent_host_name': {
-                'type': 'string'
+                'type': 'list',
+                'ui': {
+                    'title': 'Dependent hosts names',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": "link"
+                },
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
+                },
             },
             'dependent_hostgroup_name': {
-                'type': 'string',
-                'default': ''
+                'type': 'list',
+                'ui': {
+                    'title': 'Dependent hostgroups names',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": "link"
+                },
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
+                },
             },
             'dependent_service_description': {
-                'type': 'string',
-                'default': ''
+                'type': 'list',
+                'ui': {
+                    'title': 'Dependent services names',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": "link"
+                },
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
+                },
             },
             'host_name': {
-                'type': 'string'
+                'type': 'list',
+                'ui': {
+                    'title': 'Hosts names',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": "link"
+                },
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'host',
+                        'embeddable': True,
+                    }
+                },
             },
             'hostgroup_name': {
-                'type': 'string',
-                'default': 'unknown'
+                'type': 'list',
+                'ui': {
+                    'title': 'Hostgroups names',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": "link"
+                },
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
+                },
             },
             'inherits_parent': {
                 'type': 'boolean',
