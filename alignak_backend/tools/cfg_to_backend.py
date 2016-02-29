@@ -241,7 +241,15 @@ class CfgToBackend(object):
             if self.type == 'command' or self.type == 'all':
                 self.backend.delete('command', headers)
             if self.type == 'timeperiod' or self.type == 'all':
-                self.backend.delete('timeperiod', headers)
+                timeperiods = self.backend.get_all('timeperiod')
+                headers_realm = {'Content-Type': 'application/json'}
+                for cont in timeperiods:
+                    if cont['name'] == 'All time default 24x7':
+                        self.inserted['timeperiod'] = {}
+                        self.inserted['timeperiod']['All time default 24x7'] = cont['_id']
+                    else:
+                        headers_realm['If-Match'] = cont['_etag']
+                        self.backend.delete('timeperiod/' + cont['_id'], headers_realm)
             if self.type == 'hostgroup' or self.type == 'all':
                 self.backend.delete('hostgroup', headers)
             if self.type == 'hostdependency' or self.type == 'all':
