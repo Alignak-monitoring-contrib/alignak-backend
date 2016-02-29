@@ -39,10 +39,35 @@ def get_schema():
                 'default': 100
             },
             'host_name': {
-                'type': 'string',
+                'type': 'objectid',
+                'ui': {
+                    'title': 'Host name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'data_relation': {
+                    'resource': 'host',
+                    'embeddable': True
+                },
             },
             'hostgroup_name': {
-                'type': 'string',
+                'type': 'list',
+                'ui': {
+                    'title': 'Hostgroups names',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": "link"
+                },
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
+                },
             },
             'service_description': {
                 'type': 'string',
