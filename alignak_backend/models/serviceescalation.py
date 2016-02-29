@@ -70,7 +70,18 @@ def get_schema():
                 },
             },
             'service_description': {
-                'type': 'string',
+                'type': 'objectid',
+                'ui': {
+                    'title': 'Service name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'data_relation': {
+                    'resource': 'service',
+                    'embeddable': True
+                },
             },
             'first_notification': {
                 'type': 'integer',
