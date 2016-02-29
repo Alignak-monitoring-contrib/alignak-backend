@@ -39,14 +39,32 @@ def get_schema():
                 'default': 100
             },
             'host_name': {
-                'type': 'string',
-                'required': True,
-                'unique': True,
-                'default': ''
+                'type': 'objectid',
+                'ui': {
+                    'title': 'Host name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'data_relation': {
+                    'resource': 'host',
+                    'embeddable': True
+                },
             },
             'service_description': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'ui': {
+                    'title': 'Service name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'data_relation': {
+                    'resource': 'service',
+                    'embeddable': True
+                },
             },
             'notes': {
                 'type': 'string',

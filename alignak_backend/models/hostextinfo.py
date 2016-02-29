@@ -39,10 +39,18 @@ def get_schema():
                 'default': 100
             },
             'host_name': {
-                'type': 'string',
-                'required': True,
-                'unique': True,
-                'default': ''
+                'type': 'objectid',
+                'ui': {
+                    'title': 'Host name',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    "format": None
+                },
+                'data_relation': {
+                    'resource': 'host',
+                    'embeddable': True
+                },
             },
             'notes': {
                 'type': 'string',
