@@ -478,7 +478,8 @@ with app.test_request_context():
     realms = app.data.driver.db['realm']
     default_realm = realms.find_one({'name': 'All'})
     if not default_realm:
-        post_internal("realm", {"name": "All", "_parent": None, "_level": 0}, True)
+        post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
+                      True)
         print "Created top level realm"
         default_realm = realms.find_one({'name': 'All'})
     # Create default timeperiod if not defined
