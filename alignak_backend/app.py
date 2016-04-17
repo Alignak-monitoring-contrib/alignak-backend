@@ -33,6 +33,7 @@ from alignak_backend import manifest
 from alignak_backend.log import Log
 from alignak_backend.livesynthesis import Livesynthesis
 from alignak_backend.livestate import Livestate
+from alignak_backend.template import Template
 
 _subcommands = OrderedDict()
 
@@ -518,6 +519,10 @@ with app.test_request_context():
     app.on_inserted_service += Livestate.on_inserted_service
     app.on_updated_host += Livestate.on_updated_host
     app.on_updated_service += Livestate.on_updated_service
+    # template management
+    app.on_pre_POST_host += Template.pre_post_host
+    app.on_update_host += Template.on_update_host
+    app.on_updated_host += Template.on_updated_host
 
 with app.test_request_context():
     Livestate.recalculate()

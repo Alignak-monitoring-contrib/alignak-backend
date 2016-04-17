@@ -32,7 +32,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -43,7 +43,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'required': True,
                 'empty': False,
@@ -58,7 +58,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 100
             },
@@ -69,7 +69,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -80,7 +80,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -91,7 +91,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -102,7 +102,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -119,7 +119,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -136,7 +136,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'data_relation': {
                     'resource': 'command',
@@ -150,7 +150,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -161,7 +161,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'minlength': 1,
                 'maxlength': 1,
@@ -175,7 +175,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 1
             },
@@ -186,7 +186,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 5
             },
@@ -197,7 +197,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 0
             },
@@ -208,7 +208,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -219,7 +219,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -230,7 +230,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -244,7 +244,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -255,7 +255,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 0
             },
@@ -266,7 +266,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'data_relation': {
                     'resource': 'command',
@@ -281,7 +281,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -292,7 +292,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 25
             },
@@ -303,7 +303,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 50
             },
@@ -314,7 +314,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -325,7 +325,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": {
+                    'format': {
                         "list_type": "multichoices",
                         "list_allowed": {
                             u"d": u"Down",
@@ -344,7 +344,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -355,7 +355,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -366,7 +366,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -377,7 +377,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -394,7 +394,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -411,7 +411,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 60
             },
@@ -422,7 +422,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 0
             },
@@ -433,7 +433,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -447,7 +447,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": {
+                    'format': {
                         "list_type": "multichoices",
                         "list_allowed": {
                             u"d": u"Send notifications on Down state",
@@ -469,7 +469,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -480,7 +480,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": {
+                    'format': {
                         "list_type": "multichoices",
                         "list_allowed": {
                             u"d": u"Down",
@@ -499,7 +499,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -510,7 +510,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -521,7 +521,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -532,7 +532,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -543,7 +543,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -554,7 +554,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -565,7 +565,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -576,7 +576,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -587,7 +587,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -598,7 +598,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -609,7 +609,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -620,7 +620,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'data_relation': {
                     'resource': 'realm',
@@ -635,7 +635,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 'None'
             },
@@ -646,7 +646,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 'None'
             },
@@ -657,7 +657,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -668,7 +668,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -679,7 +679,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': [],
                 'schema': {
@@ -697,7 +697,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -712,7 +712,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 300
             },
@@ -723,7 +723,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -734,7 +734,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -745,7 +745,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -756,7 +756,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -767,7 +767,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -778,7 +778,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -789,7 +789,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -800,7 +800,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ['d', 'u', 'r', 'f', 's'],
                 'allowed': ['d', 'u', 'r', 'f', 's', 'n']
@@ -812,7 +812,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ['w', 'u', 'c', 'r', 'f', 's'],
                 'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n']
@@ -824,7 +824,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 2
             },
@@ -835,7 +835,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -846,7 +846,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -857,7 +857,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -868,7 +868,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -879,7 +879,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -890,7 +890,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -901,7 +901,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -912,7 +912,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -923,7 +923,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'data_relation': {
                     'resource': 'command',
@@ -938,7 +938,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -953,7 +953,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ['d', 'u']
             },
@@ -964,7 +964,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 5
             },
@@ -975,7 +975,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -1024,6 +1024,46 @@ def get_schema():
                     'orderable': True,
                     'searchable': True
                 }
+            },
+            '_is_template': {
+                'type': 'boolean',
+                'ui': {
+                    'title': 'This host is a template',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    'format': None
+                },
+                'default': False
+            },
+            '_templates': {
+                'type': 'list',
+                'ui': {
+                    'title': 'Templates to apply',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    'format': "link"
+                },
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'host',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
+            '_template_fields': {
+                'type': 'list',
+                'ui': {
+                    'title': 'Fields list use templates values',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    'format': None
+                },
+                'default': []
             }
         }
     }
