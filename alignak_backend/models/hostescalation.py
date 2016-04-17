@@ -45,7 +45,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'data_relation': {
                     'resource': 'host',
@@ -59,7 +59,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',

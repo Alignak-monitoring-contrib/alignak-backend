@@ -31,7 +31,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'required': True,
                 'empty': False,
@@ -44,7 +44,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 100
             },
@@ -55,7 +55,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
             },
             'poller_tag': {
@@ -65,7 +65,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 'None'
             },
@@ -76,7 +76,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 'None'
             },
@@ -87,7 +87,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 'fork'
             },
@@ -98,7 +98,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': -1
             },
@@ -109,7 +109,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -120,7 +120,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'data_relation': {
                     'resource': 'realm',
@@ -135,7 +135,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },

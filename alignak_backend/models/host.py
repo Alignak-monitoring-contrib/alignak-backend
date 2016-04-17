@@ -326,8 +326,8 @@ def get_schema():
                     'orderable': True,
                     'searchable': True,
                     'format': {
-                        "list_type": "multichoices",
-                        "list_allowed": {
+                        'list_type': "multichoices",
+                        'list_allowed': {
                             u"d": u"Down",
                             u"o": u"Up",
                             u"u": u"Unreachable"
@@ -448,8 +448,8 @@ def get_schema():
                     'orderable': True,
                     'searchable': True,
                     'format': {
-                        "list_type": "multichoices",
-                        "list_allowed": {
+                        'list_type': "multichoices",
+                        'list_allowed': {
                             u"d": u"Send notifications on Down state",
                             u"r": u"Send notifications on recoveries",
                             u"u": u"Send notifications on Unreachable state",
@@ -481,8 +481,8 @@ def get_schema():
                     'orderable': True,
                     'searchable': True,
                     'format': {
-                        "list_type": "multichoices",
-                        "list_allowed": {
+                        'list_type': "multichoices",
+                        'list_allowed': {
                             u"d": u"Down",
                             u"o": u"Up",
                             u"u": u"Unreachable"

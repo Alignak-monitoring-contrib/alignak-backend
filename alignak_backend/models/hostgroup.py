@@ -39,7 +39,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
             },
             'hostgroup_members': {
@@ -56,7 +56,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
             },
             'name': {
@@ -70,7 +70,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
             },
             'definition_order': {
@@ -80,7 +80,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 100
             },
@@ -92,7 +92,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
             },
             'notes': {
@@ -103,7 +103,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
 
             },
@@ -115,7 +115,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
 
             },
@@ -127,7 +127,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
 
             },
@@ -138,7 +138,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'data_relation': {
                     'resource': 'realm',

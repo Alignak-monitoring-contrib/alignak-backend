@@ -31,7 +31,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'required': True,
                 'empty': False,
@@ -45,7 +45,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 100
             },
@@ -56,7 +56,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -67,7 +67,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'schema': {
                     'type': 'objectid',
@@ -84,7 +84,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -95,7 +95,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -106,7 +106,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -121,7 +121,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -136,9 +136,9 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": {
-                        "list_type": "multichoices",
-                        "list_allowed": {
+                    'format': {
+                        'list_type': "multichoices",
+                        'list_allowed': {
                             u"d": u"Send notifications on Down state",
                             u"r": u"Send notifications on recoveries",
                             u"u": u"Send notifications on Unreachable state",
@@ -158,9 +158,9 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": {
-                        "list_type": "multichoices",
-                        "list_allowed": {
+                    'format': {
+                        'list_type': "multichoices",
+                        'list_allowed': {
                             u"w": u"Send notifications on Warning state",
                             u"u": u"Send notifications on Unknown state",
                             u"c": u"Send notifications on Critical state",
@@ -181,7 +181,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'schema': {
                     'type': 'objectid',
@@ -198,7 +198,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'schema': {
                     'type': 'objectid',
@@ -215,7 +215,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 0
             },
@@ -226,7 +226,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -237,7 +237,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -248,7 +248,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -259,7 +259,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -270,7 +270,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -281,7 +281,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -292,7 +292,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -303,7 +303,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -314,7 +314,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -325,7 +325,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -336,7 +336,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },
@@ -347,7 +347,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -358,7 +358,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': True
             },
@@ -369,7 +369,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': []
             },
@@ -380,7 +380,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': 'NOPASSWORDSET'
             },
@@ -391,7 +391,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -402,7 +402,7 @@ def get_schema():
                     'visible': False,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': ''
             },
@@ -417,7 +417,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'data_relation': {
                     'resource': 'realm',
@@ -432,7 +432,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": None
+                    'format': None
                 },
                 'default': False
             },

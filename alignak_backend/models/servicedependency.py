@@ -45,7 +45,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -62,7 +62,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -79,7 +79,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -96,7 +96,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
@@ -113,7 +113,7 @@ def get_schema():
                     'visible': True,
                     'orderable': True,
                     'searchable': True,
-                    "format": "link"
+                    'format': "link"
                 },
                 'schema': {
                     'type': 'objectid',
