@@ -519,10 +519,15 @@ with app.test_request_context():
     app.on_inserted_service += Livestate.on_inserted_service
     app.on_updated_host += Livestate.on_updated_host
     app.on_updated_service += Livestate.on_updated_service
+
     # template management
     app.on_pre_POST_host += Template.pre_post_host
     app.on_update_host += Template.on_update_host
     app.on_updated_host += Template.on_updated_host
+
+    app.on_inserted_host += Template.on_inserted_host
+    app.on_inserted_service += Template.on_inserted_service
+    app.on_deleted_item_service += Template.on_deleted_item_service
 
     app.on_pre_POST_service += Template.pre_post_service
     app.on_update_service += Template.on_update_service

@@ -1051,6 +1051,17 @@ def get_schema():
                 },
                 'default': []
             },
+            '_templates_from_host_template': {
+                'type': 'boolean',
+                'ui': {
+                    'title': 'This service come from a host template',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    'format': None
+                },
+                'default': False
+            },
             '_template_fields': {
                 'type': 'list',
                 'ui': {

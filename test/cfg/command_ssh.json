@@ -1,0 +1,4 @@
+{
+    "name": "ssh",
+    "command_line": "check_ssh $HOSTADDRESS$"
+}

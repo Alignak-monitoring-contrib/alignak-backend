@@ -1,0 +1,4 @@
+{
+    "name": "https",
+    "command_line": "check_http -H $HOSTADDRESS$ -S"
+}

@@ -1054,6 +1054,17 @@ def get_schema():
                 },
                 'default': []
             },
+            '_templates_with_services': {
+                'type': 'boolean',
+                'ui': {
+                    'title': 'Add too services of templates hosts',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    'format': None
+                },
+                'default': False
+            },
             '_template_fields': {
                 'type': 'list',
                 'ui': {
@@ -1064,6 +1075,6 @@ def get_schema():
                     'format': None
                 },
                 'default': []
-            }
+            },
         }
     }
