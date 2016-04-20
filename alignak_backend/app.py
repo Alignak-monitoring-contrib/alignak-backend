@@ -524,6 +524,10 @@ with app.test_request_context():
     app.on_update_host += Template.on_update_host
     app.on_updated_host += Template.on_updated_host
 
+    app.on_pre_POST_service += Template.pre_post_service
+    app.on_update_service += Template.on_update_service
+    app.on_updated_service += Template.on_updated_service
+
 with app.test_request_context():
     Livestate.recalculate()
     Livesynthesis.recalculate()

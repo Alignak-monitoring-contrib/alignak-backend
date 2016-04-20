@@ -153,3 +153,144 @@ class TestHookTemplate(unittest2.TestCase):
         rh = self.backend.get_all('host')
         self.assertEqual(rh[0]['name'], "testhost")
         self.assertEqual(rh[1]['name'], "host_001")
+
+
+    def test_service_templates(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get_all('command')
+        self.assertEqual(rc[0]['name'], "ping")
+
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        data['realm'] = self.realm_all
+        self.backend.post("host", data)
+        # Check if host right in backend
+        rh = self.backend.get_all('host')
+        self.assertEqual(rh[0]['name'], "srv001")
+
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        data['name'] = 'host_001'
+        data['realm'] = self.realm_all
+        self.backend.post("host", data)
+        # Check if host right in backend
+        rh = self.backend.get_all('host')
+        self.assertEqual(rh[0]['name'], "srv001")
+
+        rh = self.backend.get_all('host')
+        self.assertEqual(rh[0]['name'], "srv001")
+        self.assertEqual(rh[1]['name'], "host_001")
+
+        # add service template
+        data = {
+            'name': 'ping',
+            'host_name': rh[0]['_id'],
+            'check_command': rc[0]['_id'],
+            'business_impact': 4,
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        self.backend.post("service", data)
+        rs = self.backend.get_all('service')
+        self.assertEqual(rs[0]['name'], "ping")
+
+        data = {
+            'host_name': rh[1]['_id'],
+            '_templates': [rs[0]['_id']],
+            '_realm': self.realm_all
+        }
+        self.backend.post("service", data)
+
+        rs = self.backend.get_all('service')
+        self.assertEqual(rs[0]['name'], "ping")
+        self.assertEqual(rs[1]['name'], "ping")
+        self.assertEqual(rs[1]['host_name'], rh[1]['_id'])
+
+
+    def test_service_templates_updates(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get_all('command')
+        self.assertEqual(rc[0]['name'], "ping")
+
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        data['realm'] = self.realm_all
+        self.backend.post("host", data)
+        # Check if host right in backend
+        rh = self.backend.get_all('host')
+        self.assertEqual(rh[0]['name'], "srv001")
+
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        data['name'] = 'host_001'
+        data['realm'] = self.realm_all
+        self.backend.post("host", data)
+        # Check if host right in backend
+        rh = self.backend.get_all('host')
+        self.assertEqual(rh[0]['name'], "srv001")
+
+        rh = self.backend.get_all('host')
+        self.assertEqual(rh[0]['name'], "srv001")
+        self.assertEqual(rh[1]['name'], "host_001")
+
+        # add service template
+        data = {
+            'name': 'ping',
+            'host_name': rh[0]['_id'],
+            'check_command': rc[0]['_id'],
+            'business_impact': 4,
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        self.backend.post("service", data)
+        rs = self.backend.get_all('service')
+        self.assertEqual(rs[0]['name'], "ping")
+
+        data = {
+            'name': 'ping_test',
+            'host_name': rh[1]['_id'],
+            '_templates': [rs[0]['_id']],
+            '_realm': self.realm_all
+        }
+        self.backend.post("service", data)
+
+        rs = self.backend.get_all('service')
+        self.assertEqual(rs[0]['name'], "ping")
+        self.assertEqual(rs[1]['name'], "ping_test")
+        self.assertEqual(rs[1]['host_name'], rh[1]['_id'])
+
+        data = {'check_interval': 1}
+        resp = self.backend.patch('/'.join(['service', rs[1]['_id']]), data, {'If-Match': rs[1]['_etag']})
+
+        rs = self.backend.get_all('service')
+        self.assertEqual(rs[1]['name'], "ping_test")
+        self.assertEqual(rs[1]['check_interval'], 1)
+        if 'check_interval' in rs[1]['_template_fields']:
+            self.assertTrue(False, 'check_interval does not be in _template_fields list')
+
+        # update the template
+        data = {'initial_state': 'u'}
+        self.backend.patch('/'.join(['service', rs[0]['_id']]), data, {'If-Match': rs[0]['_etag']})
+
+        rs = self.backend.get_all('service')
+        self.assertEqual(rs[0]['initial_state'], "u")
+        self.assertEqual(rs[1]['name'], "ping_test")
+        self.assertEqual(rs[1]['initial_state'], "u")
+        if 'initial_state' not in rs[1]['_template_fields']:
+            self.assertTrue(False, 'initial_state must be in _template_fields list')
+
+        # update the template name
+        data = {'name': 'ping2'}
+        self.backend.patch('/'.join(['service', rs[0]['_id']]), data, {'If-Match': rs[0]['_etag']})
+
+        rs = self.backend.get_all('service')
+        self.assertEqual(rs[0]['name'], "ping2")
+        self.assertEqual(rs[1]['name'], "ping_test")

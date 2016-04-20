@@ -793,7 +793,7 @@ def get_schema():
                 'default': ''
             },
             'default_value': {
-                'type': 'string',
+                'type': 'list',
                 'ui': {
                     'title': 'Default value',
                     'visible': True,
@@ -1021,6 +1021,46 @@ def get_schema():
                     'orderable': True,
                     'searchable': True
                 }
+            },
+            '_is_template': {
+                'type': 'boolean',
+                'ui': {
+                    'title': 'This host is a template',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    'format': None
+                },
+                'default': False
+            },
+            '_templates': {
+                'type': 'list',
+                'ui': {
+                    'title': 'Templates to apply',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    'format': "link"
+                },
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
+            '_template_fields': {
+                'type': 'list',
+                'ui': {
+                    'title': 'Fields list use templates values',
+                    'visible': True,
+                    'orderable': True,
+                    'searchable': True,
+                    'format': None
+                },
+                'default': []
             }
-        },
+        }
     }
