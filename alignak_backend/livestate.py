@@ -25,11 +25,11 @@ class Livestate(object):
         livestate = current_app.data.driver.db['livestate']
         if livestate.count() == 0:
             host = current_app.data.driver.db['host']
-            hosts = host.find()
+            hosts = host.find({'_is_template': False})
             for h in hosts:
                 Livestate.on_inserted_host([h])
             service = current_app.data.driver.db['service']
-            services = service.find()
+            services = service.find({'_is_template': False})
             for s in services:
                 Livestate.on_inserted_service([s])
 
@@ -39,6 +39,8 @@ class Livestate(object):
             What to do when a new host is inserted in the live state ...
         """
         for index, item in enumerate(items):
+            if item['_is_template']:
+                continue
             name = ''
             if 'display_name' in item and item['display_name'] != '':
                 name = item['display_name']
@@ -67,6 +69,8 @@ class Livestate(object):
             What to do when a new service is inserted in the live state ...
         """
         for index, item in enumerate(items):
+            if item['_is_template']:
+                continue
             name = ''
             if 'display_name' in item and item['display_name'] != '':
                 name = item['display_name']
@@ -105,6 +109,8 @@ class Livestate(object):
         """
             Update field business_impact if changed
         """
+        if original['_is_template']:
+            return
         bi = True
         if 'business_impact' not in updated:
             bi = False
@@ -146,6 +152,8 @@ class Livestate(object):
         """
             Update field business_impact if changed
         """
+        if original['_is_template']:
+            return
         bi = True
         if 'business_impact' not in updated:
             bi = False

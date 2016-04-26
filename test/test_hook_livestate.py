@@ -630,3 +630,25 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[1]['display_name_host'], 'Server 001: srv001-1')
         self.assertEqual(r[1]['display_name_service'], 'ping')
+
+    def test_host_template(self):
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        self.backend.post("command", data)
+        # Check if command right in backend
+        rc = self.backend.get_all('command')
+        self.assertEqual(rc[0]['name'], "ping")
+
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        data['realm'] = self.realm_all
+        data['_is_template'] = True
+        self.backend.post("host", data)
+        # Check if host right in backend
+        rh = self.backend.get_all('host')
+        self.assertEqual(rh[0]['name'], "srv001")
+        self.assertEqual(rh[0]['_is_template'], True)
+        # Check if livestate right created
+        r = self.backend.get_all('livestate')
+        self.assertEqual(len(r), 0)
