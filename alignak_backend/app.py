@@ -22,9 +22,11 @@ from eve.auth import TokenAuth
 from eve.io.mongo import Validator
 from eve.methods.post import post_internal
 from eve.methods.patch import patch_internal
+from eve.methods.delete import deleteitem_internal
 from eve.utils import debug_error_message
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_bootstrap import Bootstrap
+from flask_apscheduler import APScheduler
 from eve_docs import eve_docs
 from flask import current_app, g, request, abort, jsonify, make_response
 
@@ -34,6 +36,7 @@ from alignak_backend.log import Log
 from alignak_backend.livesynthesis import Livesynthesis
 from alignak_backend.livestate import Livestate
 from alignak_backend.template import Template
+from alignak_backend.timeseries import Timeseries
 
 _subcommands = OrderedDict()
 
@@ -446,10 +449,33 @@ settings['PORT'] = 5000
 settings['SERVER_NAME'] = None
 settings['DEBUG'] = False
 
-# settings['SCHEMA_ENDPOINT'] = 'schema'
+settings['SCHEDULER_ACTIVE'] = 0
 
-# Read configuration file to update/completethe configuration
+settings['GRAPHITE_HOST'] = ''
+settings['GRAPHITE_PORT'] = 2004
+
+settings['INFLUXDB_HOST'] = ''
+settings['INFLUXDB_PORT'] = 8086
+settings['INFLUXDB_LOGIN'] = 'root'
+settings['INFLUXDB_PASSWORD'] = 'root'
+settings['INFLUXDB_DATABASE'] = 'alignak'
+
+# Read configuration file to update/complete the configuration
 get_settings(settings)
+
+# scheduler config
+if settings['SCHEDULER_ACTIVE'] == 1:
+    settings['JOBS'] = [
+        {
+            'id': 'cron_cache',
+            'func': 'alignak_backend.timeseries:Timeseries.cron_cache',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 60
+        }
+    ]
+    settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
+
 
 print "Application settings: %s" % settings
 
@@ -542,6 +568,16 @@ app.on_insert_realm += pre_realm_post
 app.on_inserted_realm += after_insert_realm
 app.on_updated_realm += after_update_realm
 
+with app.test_request_context():
+    app.on_inserted_loghost += Timeseries.after_inserted_loghost
+    app.on_inserted_logservice += Timeseries.after_inserted_logservice
+
+# Start scheduler (internal cron)
+with app.test_request_context():
+    scheduler = APScheduler()
+    scheduler.init_app(app)
+    scheduler.start()
+
 
 @app.route("/login", methods=['POST'])
 def login_app():
@@ -593,6 +629,47 @@ def logout_app():
     return 'ok'
 
 
+@app.route("/cron_timeseries")
+def cron_timeseries():
+    """
+    Cron used to add perfdata from retention to timeseries databases
+
+    :return: None
+    """
+    with app.test_request_context():
+        timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
+        if timeseriesretention_db.find().count() > 0:
+            tsc = timeseriesretention_db.find({'for_graphite': True, 'for_influxdb': False})
+            for data in tsc:
+                if not Timeseries.send_to_timeseries_graphite([data]):
+                    break
+                lookup = {"_id": data['_id']}
+                deleteitem_internal('timeseriesretention', False, False, **lookup)
+            tsc = timeseriesretention_db.find({'for_graphite': False, 'for_influxdb': True})
+            for data in tsc:
+                if not Timeseries.send_to_timeseries_influxdb([data]):
+                    break
+                lookup = {"_id": data['_id']}
+                deleteitem_internal('timeseriesretention', False, False, **lookup)
+            tsc = timeseriesretention_db.find({'for_graphite': True, 'for_influxdb': True})
+            for data in tsc:
+                graphite_serv = True
+                influxdb_serv = True
+                if not Timeseries.send_to_timeseries_graphite([data]):
+                    graphite_serv = False
+                if not Timeseries.send_to_timeseries_influxdb([data]):
+                    influxdb_serv = False
+                lookup = {"_id": data['_id']}
+                if graphite_serv and influxdb_serv:
+                    deleteitem_internal('timeseriesretention', False, False, **lookup)
+                elif graphite_serv and not influxdb_serv:
+                    patch_internal('timeseriesretention', {"for_graphite": False}, False, False,
+                                   **lookup)
+                elif influxdb_serv and not graphite_serv:
+                    patch_internal('timeseriesretention', {"for_influxdb": False}, False, False,
+                                   **lookup)
+
+
 def main():
     """
         Called when this module is started from shell
@@ -606,7 +683,7 @@ def main():
         app.run(
             host=settings.get('HOST', '127.0.0.1'),
             port=settings.get('PORT', 5000),
-            debug=settings.get('DEBUG', False)
+            debug=settings.get('DEBUG', True)
         )
     except Exception as e:
         print "Application run failed, exception: %s / %s" % (type(e), str(e))
