@@ -391,9 +391,10 @@ class TestHookTemplate(unittest2.TestCase):
                                   {'If-Match': rh[2]['_etag']})
         rs = self.backend.get_all('service')
         self.assertEqual(len(rs), 6)
+        rh = self.backend.get_all('host')
+        self.assertEqual(rh[2]['_templates'], [rh[0]['_id']])
 
         # Now re-add the template template_web of host
-        rh = self.backend.get_all('host')
         data = {'_templates': [rh[0]['_id'], rh[1]['_id']]}
         resp = self.backend.patch('/'.join(['host', rh[2]['_id']]), data,
                                   {'If-Match': rh[2]['_etag']})
