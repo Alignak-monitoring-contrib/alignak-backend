@@ -25,6 +25,8 @@ class Template(object):
     @staticmethod
     def pre_post_host(user_request):
         """
+        Called by EVE HOOK (app.on_pre_POST_host)
+
         If we use templates, we fill fields with template values
 
         :param user_request: request of the user
@@ -36,6 +38,229 @@ class Template(object):
         else:
             for i in user_request.json:
                 Template.fill_template_host(i)
+
+    @staticmethod
+    def on_update_host(updates, original):
+        """
+        Called by EVE HOOK (app.on_update_host)
+
+        On update host, if not template, remove in '_template_fields' fields in updates because
+        we update these fields, so they are now not dependant of template
+
+        :param updates: modified fields
+        :type updates: dict
+        :param original: original fields
+        :type original: dict
+        :return: None
+        """
+        if g.get('ignore_hook_patch', False):
+            return
+        if not original['_is_template']:
+            ignore_schema_fields = ['realm', '_template_fields', '_templates',
+                                    '_is_template',
+                                    '_templates_with_services']
+            for field_name, field_value in updates.iteritems():
+                if field_name not in ignore_schema_fields:
+                    if field_name in original['_template_fields']:
+                        original['_template_fields'].remove(field_name)
+            updates['_template_fields'] = original['_template_fields']
+
+    @staticmethod
+    def on_updated_host(updates, original):
+        """
+        Called by EVE HOOK (app.on_updated_host)
+
+        After host updated,
+        if host is a template, report value of fields updated on host used this template
+        if host is not template, add or remove services templates if _templates changed
+
+        :param updates: modified fields
+        :type updates: dict
+        :param original: original fields
+        :type original: dict
+        :return: None
+        """
+        if g.get('ignore_hook_patch', False):
+            g.ignore_hook_patch = False
+            return
+        if original['_is_template']:
+            # We must update all host use this template
+            host_db = current_app.data.driver.db['host']
+            hosts = host_db.find({'_templates': original['_id']})
+            for host in hosts:
+                Template.update_host_use_template(host, updates)
+        else:
+            if '_templates'in updates and updates['_templates'] != original['_templates']:
+                if original['_templates_with_services']:
+                    service_db = current_app.data.driver.db['service']
+                    # Get all services of this host
+                    myservices = service_db.find({'_is_template': False,
+                                                  'host_name': original['_id']})
+                    myservices_template_id = []
+                    myservices_bis = {}
+                    for myservice in myservices:
+                        myservices_template_id.append(myservice['_templates'][0])
+                        myservices_bis[myservice['_templates'][0]] = myservice
+
+                    services = {}
+                    service_template_id = []
+                    # loop on host templates and add into services the service are templates
+                    for hostid in updates['_templates']:
+                        services_template = service_db.find({'_is_template': True,
+                                                             'host_name': hostid})
+                        for srv in services_template:
+                            services[srv['name']] = Template.prepare_service_to_post(srv,
+                                                                                     original[
+                                                                                         '_id'])
+                            service_template_id.append(services[srv['name']]['_templates'][0])
+                    services_to_add = list(set(service_template_id) - set(myservices_template_id))
+                    services_to_del = list(set(myservices_template_id) - set(service_template_id))
+                    for s_name, service in services.iteritems():
+                        if service['_templates'][0] in services_to_add:
+                            post_internal('service', [service])
+                    for template_id in services_to_del:
+                        if template_id in myservices_bis:
+                            lookup = {"_id": myservices_bis[template_id]['_id']}
+                            deleteitem_internal('service', False, False, **lookup)
+
+    @staticmethod
+    def on_inserted_host(items):
+        """
+        Called by EVE HOOK (app.on_inserted_host)
+
+        After host inserted, if it use a template (or templates) and the the host use template
+        with services, we add templates services to this host
+
+        :param items: list of hosts
+        :type items: list
+        :return: None
+        """
+        service_db = current_app.data.driver.db['service']
+        for index, item in enumerate(items):
+            if item['_templates'] != [] and item['_templates_with_services']:
+                # add services
+                services = {}
+                # loop on host templates and add into services the service are templates
+                for hostid in item['_templates']:
+                    services_template = service_db.find({'_is_template': True,
+                                                         'host_name': hostid})
+                    for srv in services_template:
+                        services[srv['name']] = Template.prepare_service_to_post(srv,
+                                                                                 item[
+                                                                                     '_id'])
+                # when ok, add all services to this host
+                post_internal('service', [services[k] for k in services])
+
+    @staticmethod
+    def on_inserted_service(items):
+        """
+        Called by EVE HOOK (app.on_inserted_service)
+
+        After service inserted, if it is a template and the host linked is a template with services
+        we add the service in all hosts have this host in template
+
+        :param items: List of services
+        :type items: list
+        :return: None
+        """
+        host_db = current_app.data.driver.db['host']
+        services = []
+        for index, item in enumerate(items):
+            if item['_templates_from_host_template'] and item['_is_template']:
+                # case where this service is template host+service, so add this service on all hosts
+                # use the host template and have _templates_with_services=True
+                hostid = item['host_name']
+                hosts = host_db.find(
+                    {'_templates': hostid, '_templates_with_services': True})
+                for hs in hosts:
+                    services.append(Template.prepare_service_to_post(item, hs['_id']))
+        if services != []:
+            post_internal('service', services)
+
+    @staticmethod
+    def on_deleted_item_service(item):
+        """
+        Called by EVE HOOK (app.on_deleted_item_service)
+
+        After deleted a template service, we delete all services are linked to this template
+
+        :param item: service dict
+        :type item: dict
+        :return: None
+        """
+        service_db = current_app.data.driver.db['service']
+        if item['_is_template']:
+            services = service_db.find({'_templates': item['_id']})
+            for service in services:
+                lookup = {"_id": service['_id']}
+                deleteitem_internal('service', False, False, **lookup)
+
+    @staticmethod
+    def pre_post_service(user_request):
+        """
+        Called by EVE HOOK (app.on_pre_POST_service)
+
+        If we use templates, we fill fields with template values
+
+        :param user_request: request of the user
+        :type user_request: object
+        :return: None
+        """
+        if isinstance(user_request.json, dict):
+            Template.fill_template_service(user_request.json)
+        else:
+            for i in user_request.json:
+                Template.fill_template_service(i)
+
+    @staticmethod
+    def on_update_service(updates, original):
+        """
+        Called by EVE HOOK (app.on_update_service)
+
+        On update service, if not template, remove in '_template_fields' fields in updates because
+        we update these fields, so they are now not dependant of template
+
+        :param updates: modified fields
+        :type updates: dict
+        :param original: original fields
+        :type original: dict
+        :return: None
+        """
+        if g.get('ignore_hook_patch', False):
+            return
+        if not original['_is_template']:
+            ignore_schema_fields = ['realm', '_template_fields', '_templates',
+                                    '_is_template',
+                                    '_templates_from_host_template']
+            for field_name, field_value in updates.iteritems():
+                if field_name not in ignore_schema_fields:
+                    if field_name in original['_template_fields']:
+                        original['_template_fields'].remove(field_name)
+            updates['_template_fields'] = original['_template_fields']
+
+    @staticmethod
+    def on_updated_service(updates, original):
+        """
+        Called by EVE HOOK (app.on_updated_service)
+
+        After service updated, if service is a template, report value of fields updated on
+        service used this template
+
+        :param updates: modified fields
+        :type updates: dict
+        :param original: original fields
+        :type original: dict
+        :return: None
+        """
+        if g.get('ignore_hook_patch', False):
+            g.ignore_hook_patch = False
+            return
+        if original['_is_template']:
+            # We must update all service use this template
+            service_db = current_app.data.driver.db['service']
+            services = service_db.find({'_templates': original['_id']})
+            for service in services:
+                Template.update_service_use_template(service, updates)
 
     @staticmethod
     def fill_template_host(item):
@@ -72,51 +297,6 @@ class Template(object):
                         item['_template_fields'].append(key)
 
     @staticmethod
-    def on_update_host(updates, original):
-        """
-        On update host, if not template, remove in '_template_fields' fields in updates because
-        we update these fields, so they are now not dependant of template
-
-        :param updates: modified fields
-        :type updates: dict
-        :param original: original fields
-        :type original: dict
-        :return: None
-        """
-        if g.get('ignore_hook_patch', False):
-            return
-        if not original['_is_template']:
-            ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template',
-                                    '_templates_with_services']
-            for field_name, field_value in updates.iteritems():
-                if field_name not in ignore_schema_fields:
-                    if field_name in original['_template_fields']:
-                        original['_template_fields'].remove(field_name)
-            updates['_template_fields'] = original['_template_fields']
-
-    @staticmethod
-    def on_updated_host(updates, original):
-        """
-        After host updated, if host is a template, report value of fields updated on host used
-        this template
-
-        :param updates: modified fields
-        :type updates: dict
-        :param original: original fields
-        :type original: dict
-        :return: None
-        """
-        if g.get('ignore_hook_patch', False):
-            g.ignore_hook_patch = False
-            return
-        if original['_is_template']:
-            # We must update all host use this template
-            host_db = current_app.data.driver.db['host']
-            hosts = host_db.find({'_templates': original['_id']})
-            for host in hosts:
-                Template.update_host_use_template(host, updates)
-
-    @staticmethod
     def update_host_use_template(host, fields):
         """
         This update (patch) host with values of template
@@ -141,21 +321,6 @@ class Template(object):
             g.ignore_hook_patch = True
             lookup = {"_id": host['_id']}
             patch_internal('host', to_patch, False, False, **lookup)
-
-    @staticmethod
-    def pre_post_service(user_request):
-        """
-        If we use templates, we fill fields with template values
-
-        :param user_request: request of the user
-        :type user_request: object
-        :return: None
-        """
-        if isinstance(user_request.json, dict):
-            Template.fill_template_service(user_request.json)
-        else:
-            for i in user_request.json:
-                Template.fill_template_service(i)
 
     @staticmethod
     def fill_template_service(item):
@@ -192,74 +357,6 @@ class Template(object):
                         item['_template_fields'].append(key)
 
     @staticmethod
-    def on_update_service(updates, original):
-        """
-        On update service, if not template, remove in '_template_fields' fields in updates because
-        we update these fields, so they are now not dependant of template
-
-        :param updates: modified fields
-        :type updates: dict
-        :param original: original fields
-        :type original: dict
-        :return: None
-        """
-        if g.get('ignore_hook_patch', False):
-            return
-        if not original['_is_template']:
-            ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template',
-                                    '_templates_from_host_template']
-            for field_name, field_value in updates.iteritems():
-                if field_name not in ignore_schema_fields:
-                    if field_name in original['_template_fields']:
-                        original['_template_fields'].remove(field_name)
-            updates['_template_fields'] = original['_template_fields']
-
-    @staticmethod
-    def on_updated_service(updates, original):
-        """
-        After service updated, if service is a template, report value of fields updated on
-        service used this template
-
-        :param updates: modified fields
-        :type updates: dict
-        :param original: original fields
-        :type original: dict
-        :return: None
-        """
-        if g.get('ignore_hook_patch', False):
-            g.ignore_hook_patch = False
-            return
-        if original['_is_template']:
-            # We must update all service use this template
-            service_db = current_app.data.driver.db['service']
-            services = service_db.find({'_templates': original['_id']})
-            for service in services:
-                Template.update_service_use_template(service, updates)
-
-    @staticmethod
-    def on_inserted_service(items):
-        """
-        After service inserted, if it is a template and the host linked is a template with services
-        we add the service in all hosts have this host in template
-
-        :param items: List of services
-        :type items: list
-        :return: None
-        """
-        host_db = current_app.data.driver.db['host']
-        services = []
-        for index, item in enumerate(items):
-            if item['_templates_from_host_template'] and item['_is_template']:
-                # case where this service is template host+service, so add this service on all hosts
-                # use the host template and have _templates_with_services=True
-                hostid = item['host_name']
-                hosts = host_db.find({'_templates': hostid, '_templates_with_services': True})
-                for hs in hosts:
-                    services.append(Template.prepare_service_to_post(item, hs['_id']))
-        if services != []:
-            post_internal('service', services)
-
-    @staticmethod
     def update_service_use_template(service, fields):
         """
         This update (patch) service with values of template
@@ -284,47 +381,6 @@ class Template(object):
             g.ignore_hook_patch = True
             lookup = {"_id": service['_id']}
             patch_internal('service', to_patch, False, False, **lookup)
-
-    @staticmethod
-    def on_inserted_host(items):
-        """
-        After host inserted, if it use a template (or templates) and the the host use template
-        with services, we add templates services to this host
-
-        :param items: list of hosts
-        :type items: list
-        :return: None
-        """
-        service_db = current_app.data.driver.db['service']
-        for index, item in enumerate(items):
-            if item['_templates'] != [] and item['_templates_with_services']:
-                # add services
-                services = {}
-                # loop on host templates and add into services the service are templates
-                for hostid in item['_templates']:
-                    services_template = service_db.find({'_is_template': True,
-                                                         'host_name': hostid})
-                    for srv in services_template:
-                        services[srv['name']] = Template.prepare_service_to_post(srv, item['_id'])
-                # when ok, add all services to this host
-                post_internal('service', [services[k] for k in services])
-
-    @staticmethod
-    def on_deleted_item_service(item):
-        """
-        After deleted a template service, we delete all services are linked to this template
-
-        :param item: service dict
-        :type item: dict
-        :return: None
-        """
-        service_db = current_app.data.driver.db['service']
-        if item['_is_template']:
-            services = service_db.find({'_templates': item['_id']})
-            print(services)
-            for service in services:
-                lookup = {"_id": service['_id']}
-                deleteitem_internal('service', False, False, **lookup)
 
     @staticmethod
     def prepare_service_to_post(item, hostid):

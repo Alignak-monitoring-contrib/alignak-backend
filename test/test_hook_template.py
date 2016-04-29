@@ -294,7 +294,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[1]['name'], "ping_test")
 
 
-    def test_host_servcies_template(self):
+    def test_host_services_template(self):
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
@@ -353,7 +353,8 @@ class TestHookTemplate(unittest2.TestCase):
         data['name'] = 'https'
         data['check_command'] = rc[2]['_id']
         self.backend.post("service", data)
-        rs = self.backend.get_all('service')
+        params = {'sort': '_id'}
+        rs = self.backend.get_all('service', params)
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ssh")
         self.assertEqual(rs[2]['name'], "http")
@@ -369,7 +370,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
         rh = self.backend.get_all('host')
         self.assertEqual(rh[2]['name'], "host_001")
-        rs = self.backend.get_all('service')
+        rs = self.backend.get_all('service', params)
         self.assertEqual(len(rs), 8)
         self.assertEqual(rs[4]['name'], "http")
         self.assertEqual(rs[5]['_is_template'], False)
@@ -380,9 +381,24 @@ class TestHookTemplate(unittest2.TestCase):
         # Now update a service template
         data = {'name': 'ping2'}
         self.backend.patch('/'.join(['service', rs[0]['_id']]), data, {'If-Match': rs[0]['_etag']})
-        rs = self.backend.get_all('service')
+        rs = self.backend.get_all('service', params)
         self.assertEqual(rs[0]['name'], "ping2")
         self.assertEqual(rs[5]['name'], "ping2")
+
+        # Now remove the template template_web of the host
+        data = {'_templates': [rh[0]['_id']]}
+        resp = self.backend.patch('/'.join(['host', rh[2]['_id']]), data,
+                                  {'If-Match': rh[2]['_etag']})
+        rs = self.backend.get_all('service')
+        self.assertEqual(len(rs), 6)
+
+        # Now re-add the template template_web of host
+        rh = self.backend.get_all('host')
+        data = {'_templates': [rh[0]['_id'], rh[1]['_id']]}
+        resp = self.backend.patch('/'.join(['host', rh[2]['_id']]), data,
+                                  {'If-Match': rh[2]['_etag']})
+        rs = self.backend.get_all('service')
+        self.assertEqual(len(rs), 8)
 
         # Now add a new template
         data = {
@@ -394,11 +410,20 @@ class TestHookTemplate(unittest2.TestCase):
             '_templates_from_host_template': True,
             '_realm': self.realm_all
         }
-        self.backend.post("service", data)
-        rs = self.backend.get_all('service')
+        ret_new = self.backend.post("service", data)
+        rs = self.backend.get_all('service', params)
         self.assertEqual(len(rs), 10)
+        self.assertEqual(rs[9]['_templates'][0], ret_new['_id'])
+        self.assertFalse(rs[9]['_is_template'])
+        self.assertEqual(rs[8]['_templates'], [])
+        self.assertTrue(rs[8]['_is_template'])
 
         # Now delete a new template
-        self.backend.delete('/'.join(['service', rs[0]['_id']]), {'If-Match': rs[0]['_etag']})
-        rs = self.backend.get_all('service')
+        rs = self.backend.get('/'.join(['service', ret_new['_id']]))
+        self.backend.delete('/'.join(['service', ret_new['_id']]), {'If-Match': rs['_etag']})
+        rs = self.backend.get_all('service', params)
+        service_name = []
+        for serv in rs:
+            service_name.append(serv['name'])
         self.assertEqual(len(rs), 8)
+        self.assertEqual(['ping2', 'ssh', 'http', 'https', 'ping2', 'ssh', 'http', 'https'], service_name)
