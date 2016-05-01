@@ -7,4 +7,4 @@ configparser ; python_version < '3.0'
 future
 influxdb
 flask-apscheduler
-urllib2
+
