@@ -1,4 +1,4 @@
-#pylint: skip-file
+# pylint: skip-file
 import socket
 import pickle
 import random
