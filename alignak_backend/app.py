@@ -683,7 +683,7 @@ def main():
         app.run(
             host=settings.get('HOST', '127.0.0.1'),
             port=settings.get('PORT', 5000),
-            debug=settings.get('DEBUG', True)
+            debug=settings.get('DEBUG', False)
         )
     except Exception as e:
         print "Application run failed, exception: %s / %s" % (type(e), str(e))
