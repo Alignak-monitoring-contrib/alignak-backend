@@ -10,6 +10,8 @@ It is used to:
 
     * end user (webui, command line...) can get and add configurations elements
     * Alignak gets its configuration from the backend when the arbiter module is starting
+    * user rights management
+    * template management for host and services
 
 * manage retention
 
@@ -19,3 +21,8 @@ It is used to:
 
     * Alignak adds/updates hosts and services states in the backend
     * end user (webui, command line...) can get this information
+
+* timeseries for perfdata
+
+    * send perfdata to graphite/carbon
+    * send perfdata to influxdb
