@@ -42,6 +42,7 @@ class TestHookTemplate(unittest2.TestCase):
         cls.backend.delete("livesynthesis", {})
 
     def test_host_templates(self):
+        params = {'sort': '_id'}
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
@@ -56,7 +57,7 @@ class TestHookTemplate(unittest2.TestCase):
         data['_is_template'] = True
         self.backend.post("host", data)
         # Check if host right in backend
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
 
         data = {
@@ -66,7 +67,7 @@ class TestHookTemplate(unittest2.TestCase):
         }
         self.backend.post("host", data)
 
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['check_command'], rc[0]['_id'])
@@ -92,11 +93,12 @@ class TestHookTemplate(unittest2.TestCase):
         }]
         self.backend.post("host", data)
 
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[2]['name'], "host_002")
         self.assertEqual(rh[3]['name'], "host_003")
 
     def test_host_templates_updates(self):
+        params = {'sort': '_id'}
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
@@ -111,7 +113,7 @@ class TestHookTemplate(unittest2.TestCase):
         data['_is_template'] = True
         self.backend.post("host", data)
         # Check if host right in backend
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
 
         data = {
@@ -121,7 +123,7 @@ class TestHookTemplate(unittest2.TestCase):
         }
         self.backend.post("host", data)
 
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['check_command'], rc[0]['_id'])
@@ -129,7 +131,7 @@ class TestHookTemplate(unittest2.TestCase):
         data = {'check_interval': 1}
         resp = self.backend.patch('/'.join(['host', rh[1]['_id']]), data, {'If-Match': rh[1]['_etag']})
 
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['check_interval'], 1)
         if 'check_interval' in rh[1]['_template_fields']:
@@ -139,7 +141,7 @@ class TestHookTemplate(unittest2.TestCase):
         data = {'initial_state': 'o'}
         self.backend.patch('/'.join(['host', rh[0]['_id']]), data, {'If-Match': rh[0]['_etag']})
 
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['initial_state'], "o")
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['initial_state'], "o")
@@ -150,11 +152,12 @@ class TestHookTemplate(unittest2.TestCase):
         data = {'name': 'testhost'}
         self.backend.patch('/'.join(['host', rh[0]['_id']]), data, {'If-Match': rh[0]['_etag']})
 
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "testhost")
         self.assertEqual(rh[1]['name'], "host_001")
 
     def test_service_templates(self):
+        params = {'sort': '_id'}
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
@@ -168,7 +171,7 @@ class TestHookTemplate(unittest2.TestCase):
         data['realm'] = self.realm_all
         self.backend.post("host", data)
         # Check if host right in backend
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -177,10 +180,10 @@ class TestHookTemplate(unittest2.TestCase):
         data['realm'] = self.realm_all
         self.backend.post("host", data)
         # Check if host right in backend
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
 
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[1]['name'], "host_001")
 
@@ -210,6 +213,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[1]['host_name'], rh[1]['_id'])
 
     def test_service_templates_updates(self):
+        params = {'sort': '_id'}
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
@@ -223,7 +227,7 @@ class TestHookTemplate(unittest2.TestCase):
         data['realm'] = self.realm_all
         self.backend.post("host", data)
         # Check if host right in backend
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -232,10 +236,10 @@ class TestHookTemplate(unittest2.TestCase):
         data['realm'] = self.realm_all
         self.backend.post("host", data)
         # Check if host right in backend
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
 
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[1]['name'], "host_001")
 
@@ -295,6 +299,7 @@ class TestHookTemplate(unittest2.TestCase):
 
 
     def test_host_services_template(self):
+        params = {'sort': '_id'}
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
@@ -329,7 +334,7 @@ class TestHookTemplate(unittest2.TestCase):
         data['name'] = 'template_web'
         self.backend.post("host", data)
         # Check if host right in backend
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[0]['name'], "template_standard_linux")
         self.assertEqual(rh[1]['name'], "template_web")
 
@@ -353,7 +358,6 @@ class TestHookTemplate(unittest2.TestCase):
         data['name'] = 'https'
         data['check_command'] = rc[2]['_id']
         self.backend.post("service", data)
-        params = {'sort': '_id'}
         rs = self.backend.get_all('service', params)
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ssh")
@@ -368,7 +372,7 @@ class TestHookTemplate(unittest2.TestCase):
             'realm': self.realm_all
         }
         self.backend.post("host", data)
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[2]['name'], "host_001")
         rs = self.backend.get_all('service', params)
         self.assertEqual(len(rs), 8)
@@ -391,7 +395,7 @@ class TestHookTemplate(unittest2.TestCase):
                                   {'If-Match': rh[2]['_etag']})
         rs = self.backend.get_all('service')
         self.assertEqual(len(rs), 6)
-        rh = self.backend.get_all('host')
+        rh = self.backend.get_all('host', params)
         self.assertEqual(rh[2]['_templates'], [rh[0]['_id']])
 
         # Now re-add the template template_web of host

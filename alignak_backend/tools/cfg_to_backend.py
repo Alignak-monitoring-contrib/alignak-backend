@@ -115,7 +115,7 @@ class CfgToBackend(object):
 
         # Verbose
         self.verbose = False
-        if '--verbose' in args:
+        if '--verbose' in args and args['--verbose']:
             self.verbose = True
 
         # Define here the path of the cfg files
@@ -465,6 +465,13 @@ class CfgToBackend(object):
                     prop_to_del.append(prop)
                 elif prop == 'imported_from':
                     prop_to_del.append(prop)
+                elif prop == 'invalid_entries':
+                    prop_to_del.append(prop)
+                elif prop == 'activated_once':
+                    prop_to_del.append(prop)
+                elif prop == 'unresolved':
+                    prop_to_del.append(prop)
+
                 # case we have [''], rewrite it to []
                 elif isinstance(item[prop], list) and len(item[prop]) == 1 and item[prop][0] == '':
                     del item[prop][0]
