@@ -468,7 +468,7 @@ if settings['SCHEDULER_ACTIVE'] == 1:
     settings['JOBS'] = [
         {
             'id': 'cron_cache',
-            'func': 'alignak_backend.timeseries:Timeseries.cron_cache',
+            'func': 'alignak_backend.scheduler:cron_cache',
             'args': (),
             'trigger': 'interval',
             'seconds': 60

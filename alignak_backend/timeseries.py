@@ -13,7 +13,6 @@ from influxdb import InfluxDBClient
 from eve.methods.post import post_internal
 from alignak_backend.carboniface import CarbonIface
 from alignak_backend.perfdata import PerfDatas
-import alignak_backend.app
 
 
 class Timeseries(object):
@@ -223,14 +222,3 @@ class Timeseries(object):
             return True
         except:  # pylint: disable=W0702
             return False
-
-    @staticmethod
-    def cron_cache():
-        """
-        It's the scheduler used to send to graphite / influxdb retention perfdata if previously
-        graphite / influxdb wasn't available
-
-        :return: None
-        """
-        # test communication and see if data in cache
-        alignak_backend.app.cron_timeseries()
