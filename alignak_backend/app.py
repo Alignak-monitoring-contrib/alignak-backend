@@ -573,10 +573,11 @@ with app.test_request_context():
     app.on_inserted_logservice += Timeseries.after_inserted_logservice
 
 # Start scheduler (internal cron)
-with app.test_request_context():
-    scheduler = APScheduler()
-    scheduler.init_app(app)
-    scheduler.start()
+if settings['SCHEDULER_ACTIVE'] == 1:
+    with app.test_request_context():
+        scheduler = APScheduler()
+        scheduler.init_app(app)
+        scheduler.start()
 
 
 @app.route("/login", methods=['POST'])
