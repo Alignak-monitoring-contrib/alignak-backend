@@ -575,7 +575,9 @@ class CfgToBackend(object):
                 self.errors_found.append("  Issues: %s" % (e.response['_issues']))
             else:
                 self.log("POST response : %s:" % (response))
-                if id_name in item:
+                if r_name not in ['command', 'timeperiod']:
+                    self.inserted[r_name][item['uuid']] = response['_id']
+                elif id_name in item:
                     self.inserted[r_name][item[id_name]] = response['_id']
                 else:
                     self.inserted[r_name][item['name']] = response['_id']
@@ -670,7 +672,7 @@ class CfgToBackend(object):
             ]
             schema = hostgroup.get_schema()
             self.manage_resource('hostgroup', data_later, 'hostgroup_name', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             self.update_later('hostgroup', 'hostgroup_members', schema)
 
         if self.type == 'host' or self.type == 'all':
@@ -744,7 +746,7 @@ class CfgToBackend(object):
             ]
             schema = servicegroup.get_schema()
             self.manage_resource('servicegroup', data_later, 'servicegroup_name', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post servicegroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post servicegroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             self.update_later('servicegroup', 'servicegroup_members', schema)
 
         if self.type == 'service' or self.type == 'all':
@@ -768,7 +770,7 @@ class CfgToBackend(object):
             ]
             schema = service.get_schema()
             self.manage_resource('service', data_later, 'service_description', schema)
-            print("~~~~~~~~~~~~~~~~~~~~~~ post service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            print("~~~~~~~~~~~~~~~~~~~~~~ post service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             self.update_later('servicegroup', 'members', schema)
 
         if self.type == 'serviceextinfo' or self.type == 'all':
