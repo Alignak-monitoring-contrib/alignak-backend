@@ -252,6 +252,60 @@ When the Alignak Backend is running, it exists an endpoint with the API document
 
     http://127.0.0.1:5000/docs
 
+Rights management
+-----------------
+
+The is a right management into backend. With that, it will very simple to create a frontend with
+user rights ;)
+
+Right to all data without restrictions in a realm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You have the possibility to give access (read, create, update and delete) to all resource to a
+user/contact (it's like you have by default with *admin* account)
+
+In *contact* resource, set:
+
+* *back_role_super_admin* to *True*
+* *_realm* to the realm id you want
+* *_sub_realm* to *True* if you want this realm + all children or *False* for only this realm
+
+
+Right to a resource in a realm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add a resource *contactrestrictrole* for each crud (create, read, update, delete) and resource
+
+For that, add a right read of commands with the *contactrestrictrole*:
+
+* *contact* to id of the contact
+* *realm* to the id of the realm where you want have the read access
+* *sub_realm* to *True* if want have the read access in all realm children
+* *resource* with the name of resource, in our case *command*
+* *crud* to *read* because we want read access
+
+For each resource and each crud you need add a *contactrestrictrole*.
+
+
+Rights to an object of a resource in a realm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's possible to give access to an object of a resource.
+
+For example, you have 3 hosts in the realm *reamlxxx* and want give access to read only to host
+*host 1*. We can do this with crud *custom* in *contactrestrictrole* (see previous point and
+replace the crud *read* by *custom*).
+
+When it's crud *custom* defined, you need add user/contact id in the object.
+So in the host, modify the fields:
+
+* *_users_read* to the user/contact id
+
+Remember the realm id of the resource (*realm* or *_realm* according the resource) must be same
+than realm of the *contactrestrictrole* or in a children of the realm if *sub_realm* is *True*
+
+
+
 List of resources
 -----------------
 
