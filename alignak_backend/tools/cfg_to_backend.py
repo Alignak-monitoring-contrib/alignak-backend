@@ -58,11 +58,18 @@ Use cases:
 """
 from __future__ import print_function
 import re
+import traceback
 from future.utils import iteritems
 from docopt import docopt
 from docopt import DocoptExit
 
+from . import VERSION as __version__
+
 from alignak_backend_client.client import Backend, BackendException
+from logging import getLogger, DEBUG, INFO, WARNING
+loggerClient = getLogger('alignak_backend_client.client')
+loggerClient.setLevel(INFO)
+
 try:
     from alignak.daemons.arbiterdaemon import Arbiter
     from alignak.objects.item import Item
@@ -108,7 +115,7 @@ class CfgToBackend(object):
 
         # Get command line parameters
         try:
-            args = docopt(__doc__, version='0.2.0')
+            args = docopt(__doc__, version=__version__)
         except DocoptExit:
             print("Command line parsing error")
             exit(64)
@@ -491,6 +498,7 @@ class CfgToBackend(object):
             # Hack for check_command_args
             if 'check_command_args' in item and isinstance(item['check_command_args'], list):
                 item['check_command_args'] = '!'.join(item['check_command_args'])
+
             for k, values in enumerate(data_later):
                 # {'field': 'hostgroups', 'type': 'list', 'resource': 'hostgroup'},
                 if values['field'] in item and values['type'] == 'simple':
@@ -538,6 +546,11 @@ class CfgToBackend(object):
                 elif values['field'] in item and values['type'] == 'list' and not values['now']:
                     later_tmp[values['field']] = item[values['field']]
                     del item[values['field']]
+
+            # Special case of contactgroups
+            if r_name == 'contactgroup' and 'unknown_members' in item:
+                item.pop('unknown_members', None)
+
             # Special case of contacts
             if r_name == 'contact':
                 item['back_role_super_admin'] = False
@@ -556,8 +569,10 @@ class CfgToBackend(object):
             # Force imported_from with Alignak ...
             # item['imported_from'] = 'cfg_to_backend'
 
+            # Remove Shinken template link...
             if 'use' in item:
                 del item['use']
+
             # Case where no realm but alignak define internal realm name 'Default'
             if 'realm' in item:
                 if item['realm'] == 'Default':
@@ -569,16 +584,19 @@ class CfgToBackend(object):
 
             self.log("before_post: %s : %s:" % (r_name, item))
             try:
-                response = self.backend.post(r_name, item, headers)
+                # With headers=None, the post method manages correctly the posted data ... json conversion
+                response = self.backend.post(r_name, item, headers=None)
             except BackendException as e:
                 print("***** Exception: %s" % str(e))
+                print("***** Traceback: %s", traceback.format_exc())
                 if "_issues" in e.response:
                     print("ERROR: %s" % e.response['_issues'])
                 self.errors_found.append("# Post error for: %s : %s" % (r_name, item))
                 self.errors_found.append("  Issues: %s" % (e.response['_issues']))
             else:
                 self.log("POST response : %s:" % (response))
-                if r_name not in ['command', 'timeperiod']:
+                if r_name not in ['command', 'timeperiod', 'contact']:
+                    # No UUID in those imported objects ...
                     self.inserted[r_name][item['uuid']] = response['_id']
                 elif id_name in item:
                     self.inserted[r_name][item[id_name]] = response['_id']
@@ -803,5 +821,14 @@ class CfgToBackend(object):
         if self.verbose:
             print(message)
 
-if __name__ == "__main__":  # pragma: no cover
+def main():
+    """
+    Main function
+    """
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("cfg_to_backend, version: %s" % __version__)
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     CfgToBackend()
+
+if __name__ == "__main__":  # pragma: no cover
+    main()
