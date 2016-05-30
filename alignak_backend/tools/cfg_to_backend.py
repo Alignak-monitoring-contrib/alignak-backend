@@ -218,11 +218,14 @@ class CfgToBackend(object):
         :return: None
         """
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Backend authentication ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        # Backend authentication with token generation
-        headers = {'Content-Type': 'application/json'}
-        payload = {'username': self.username, 'password': self.password, 'action': 'generate'}
-        self.backend = Backend(self.backend_url)
-        self.backend.login(self.username, self.password)
+        try:
+            # Backend authentication with token generation
+            headers = {'Content-Type': 'application/json'}
+            payload = {'username': self.username, 'password': self.password, 'action': 'generate'}
+            self.backend = Backend(self.backend_url)
+            self.backend.login(self.username, self.password)
+        except BackendException as e:
+            print("Backend exception: %s" % str(e))
 
         if self.backend.token is None:
             print("Access denied!")
