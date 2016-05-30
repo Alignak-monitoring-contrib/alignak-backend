@@ -595,7 +595,7 @@ class CfgToBackend(object):
                 self.errors_found.append("  Issues: %s" % (e.response['_issues']))
             else:
                 self.log("POST response : %s:" % (response))
-                if r_name not in ['command', 'timeperiod', 'contact']:
+                if r_name not in ['command', 'timeperiod', 'contact', 'hostdependency']:
                     # No UUID in those imported objects ...
                     self.inserted[r_name][item['uuid']] = response['_id']
                 elif id_name in item:
