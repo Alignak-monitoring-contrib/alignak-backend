@@ -80,7 +80,8 @@ setup(
     data_files = [(paths['etc'], ['etc/settings.cfg'])],
 
     install_requires=[
-        'Eve', 'flask-bootstrap', 'docopt', 'jsonschema', 'Eve-docs', 'future', 'configparser'
+        'Eve>=0.5', 'flask-bootstrap', 'docopt', 'jsonschema', 'Eve-docs', 'configparser',
+        'future', 'influxdb', 'flask-apscheduler'
     ],
 
     entry_points={
