@@ -151,7 +151,7 @@ class CfgToBackend(object):
         # get realm id
         self.realm_all = ''
         realms = self.backend.get_all('realm')
-        for cont in realms:
+        for cont in realms['_items']:
             if cont['name'] == 'All' and cont['_level'] == 0:
                 self.realm_all = cont['_id']
 
@@ -246,7 +246,7 @@ class CfgToBackend(object):
             if self.type == 'timeperiod' or self.type == 'all':
                 timeperiods = self.backend.get_all('timeperiod')
                 headers_realm = {'Content-Type': 'application/json'}
-                for cont in timeperiods:
+                for cont in timeperiods['_items']:
                     if cont['name'] == 'All time default 24x7':
                         self.inserted['timeperiod'] = {}
                         self.inserted['timeperiod']['All time default 24x7'] = cont['_id']
@@ -266,13 +266,13 @@ class CfgToBackend(object):
             if self.type == 'contact' or self.type == 'all':
                 contacts = self.backend.get_all('contact')
                 headers_contact = {'Content-Type': 'application/json'}
-                for cont in contacts:
+                for cont in contacts['_items']:
                     if cont['name'] != 'admin':
                         headers_contact['If-Match'] = cont['_etag']
                         self.backend.delete('contact/' + cont['_id'], headers_contact)
                 realms = self.backend.get_all('realm')
                 headers_realm = {'Content-Type': 'application/json'}
-                for cont in realms:
+                for cont in realms['_items']:
                     if cont['name'] != 'All' and cont['_level'] != 0:
                         headers_realm['If-Match'] = cont['_etag']
                         self.backend.delete('realm/' + cont['_id'], headers_realm)
