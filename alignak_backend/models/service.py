@@ -793,7 +793,7 @@ def get_schema():
                 'default': ''
             },
             'default_value': {
-                'type': 'list',
+                'type': 'string',
                 'ui': {
                     'title': 'Default value',
                     'visible': True,
@@ -801,7 +801,7 @@ def get_schema():
                     'searchable': True,
                     'format': None
                 },
-                'default': []
+                'default': ''
             },
             'business_impact': {
                 'type': 'integer',
