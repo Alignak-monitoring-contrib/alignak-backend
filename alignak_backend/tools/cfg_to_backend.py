@@ -63,7 +63,7 @@ from future.utils import iteritems
 from docopt import docopt
 from docopt import DocoptExit
 
-from . import VERSION as __version__
+from alignak_backend import __version__
 
 from alignak_backend_client.client import Backend, BackendException
 from logging import getLogger, DEBUG, INFO, WARNING
