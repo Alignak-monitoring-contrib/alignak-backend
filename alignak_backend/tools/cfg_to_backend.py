@@ -114,6 +114,7 @@ class CfgToBackend(object):
         self.result = True
         self.later = {}
         self.inserted = {}
+        self.inserted_uuid = {}
         self.default_tp = None
 
         # Get command line parameters
@@ -414,15 +415,19 @@ class CfgToBackend(object):
                 for val in item['value']:
                     val = val.strip()
                     if val != '':
-                        if val not in self.inserted[item['resource']] and val not in self.inserted[item['resource']].values():
+                        if val not in self.inserted[item['resource']] and \
+                           val not in self.inserted[item['resource']].values() and \
+                           val not in self.inserted_uuid[item['resource']].values():
                             self.errors_found.append("# Unknown %s: %s for %s" % (item['resource'],
                                                                                   val, resource))
                         else:
                             if val in self.inserted[item['resource']]:
                                 data[field].append(self.inserted[item['resource']][val])
-                            else:
+                            elif val in self.inserted[item['resource']].values():
                                 idx = self.inserted[item['resource']].values().index(val)
                                 data[field].append(self.inserted[item['resource']].keys()[idx])
+                            elif val in self.inserted_uuid[item['resource']]:
+                                data[field].append(self.inserted_uuid[item['resource']][val])
 
             try:
                 headers['If-Match'] = item['_etag']
@@ -457,6 +462,8 @@ class CfgToBackend(object):
         """
         if r_name not in self.inserted:
             self.inserted[r_name] = {}
+        if r_name not in self.inserted_uuid:
+            self.inserted_uuid[r_name] = {}
         if r_name not in self.later:
             self.later[r_name] = {}
         for k, values in enumerate(data_later):
@@ -652,6 +659,7 @@ class CfgToBackend(object):
             else:
                 self.log("Element insertion response : %s:" % (response))
                 self.inserted[r_name][response['_id']] = item['name']
+                self.inserted_uuid[r_name][response['_id']] = item_obj.uuid
 
                 for k, values in enumerate(data_later):
                     if values['field'] in later_tmp:
