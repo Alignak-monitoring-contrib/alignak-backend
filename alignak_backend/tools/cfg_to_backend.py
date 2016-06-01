@@ -414,11 +414,15 @@ class CfgToBackend(object):
                 for val in item['value']:
                     val = val.strip()
                     if val != '':
-                        if val not in self.inserted[item['resource']]:
+                        if val not in self.inserted[item['resource']] and val not in self.inserted[item['resource']].values():
                             self.errors_found.append("# Unknown %s: %s for %s" % (item['resource'],
                                                                                   val, resource))
                         else:
-                            data[field].append(self.inserted[item['resource']][val])
+                            if val in self.inserted[item['resource']]:
+                                data[field].append(self.inserted[item['resource']][val])
+                            else:
+                                idx = self.inserted[item['resource']].values().index(val)
+                                data[field].append(self.inserted[item['resource']].keys()[idx])
 
             try:
                 headers['If-Match'] = item['_etag']
