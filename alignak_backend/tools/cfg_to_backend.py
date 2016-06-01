@@ -698,8 +698,8 @@ class CfgToBackend(object):
             print("~~~~~~~~~~~~~~~~~~~~~~ add contact ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
                 {
-                    'field': 'contactgroups', 'type': 'list', 'resource': 'contactgroup',
-                    'now': False
+                    'field': 'contactgroups', 'type': 'list',
+                    'resource': 'contactgroup', 'now': False
                 },
                 {
                     'field': 'host_notification_period', 'type': 'simple',
@@ -710,8 +710,8 @@ class CfgToBackend(object):
                     'resource': 'timeperiod', 'now': True
                 },
                 {
-                    'field': 'host_notification_commands', 'type': 'list', 'resource': 'command',
-                    'now': True
+                    'field': 'host_notification_commands', 'type': 'list',
+                    'resource': 'command', 'now': True
                 },
                 {
                     'field': 'service_notification_commands', 'type': 'list',
@@ -724,9 +724,14 @@ class CfgToBackend(object):
         if self.type == 'contactgroup' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'members', 'type': 'list', 'resource': 'contact', 'now': True},
-                {'field': 'contactgroup_members', 'type': 'list', 'resource': 'contactgroup',
-                 'now': False}
+                {
+                    'field': 'members', 'type': 'list',
+                    'resource': 'contact', 'now': True
+                },
+                {
+                    'field': 'contactgroup_members', 'type': 'list',
+                    'resource': 'contactgroup', 'now': False
+                }
             ]
             schema = contactgroup.get_schema()
             self.manage_resource('contactgroup', data_later, 'contactgroup_name', schema)
@@ -736,9 +741,14 @@ class CfgToBackend(object):
         if self.type == 'escalation' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': True},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
-                 'now': True}
+                {
+                    'field': 'contacts', 'type': 'list',
+                    'resource': 'contact', 'now': True
+                },
+                {
+                    'field': 'contact_groups', 'type': 'list',
+                    'resource': 'contactgroup', 'now': True
+                }
             ]
             schema = escalation.get_schema()
             self.manage_resource('escalation', data_later, 'escalation_name', schema)
@@ -746,9 +756,14 @@ class CfgToBackend(object):
         if self.type == 'hostgroup' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'members', 'type': 'list', 'resource': 'host', 'now': False},
-                {'field': 'hostgroup_members', 'type': 'list', 'resource': 'hostgroup',
-                 'now': False}
+                {
+                    'field': 'members', 'type': 'list',
+                    'resource': 'host', 'now': False
+                },
+                {
+                    'field': 'hostgroup_members', 'type': 'list',
+                    'resource': 'hostgroup', 'now': False
+                }
             ]
             schema = hostgroup.get_schema()
             self.manage_resource('hostgroup', data_later, 'hostgroup_name', schema)
@@ -758,16 +773,38 @@ class CfgToBackend(object):
         if self.type == 'host' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'parents', 'type': 'list', 'resource': 'host', 'now': False},
-                {'field': 'hostgroups', 'type': 'list', 'resource': 'hostgroup', 'now': True},
-                {'field': 'check_command', 'type': 'simple', 'resource': 'command', 'now': True},
-                {'field': 'check_period', 'type': 'simple', 'resource': 'timeperiod', 'now': True},
-                {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': True},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
-                 'now': True},
-                {'field': 'notification_period', 'type': 'simple', 'resource': 'timeperiod',
-                 'now': True},
-                {'field': 'escalations', 'type': 'list', 'resource': 'escalation', 'now': True}
+                {
+                    'field': 'parents', 'type': 'list',
+                    'resource': 'host', 'now': False
+                },
+                {
+                    'field': 'hostgroups', 'type': 'list',
+                    'resource': 'hostgroup', 'now': True
+                },
+                {
+                    'field': 'check_command', 'type': 'simple',
+                    'resource': 'command', 'now': True
+                },
+                {
+                    'field': 'check_period', 'type': 'simple',
+                    'resource': 'timeperiod', 'now': True
+                },
+                {
+                    'field': 'contacts', 'type': 'list',
+                    'resource': 'contact', 'now': True
+                },
+                {
+                    'field': 'contact_groups', 'type': 'list',
+                    'resource': 'contactgroup', 'now': True
+                },
+                {
+                    'field': 'notification_period', 'type': 'simple',
+                    'resource': 'timeperiod', 'now': True
+                },
+                {
+                    'field': 'escalations', 'type': 'list',
+                    'resource': 'escalation', 'now': True
+                }
             ]
             schema = host.get_schema()
             self.manage_resource('host', data_later, 'host_name', schema)
@@ -784,11 +821,22 @@ class CfgToBackend(object):
         if self.type == 'hostdependency' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add hostdependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'host_name', 'type': 'list', 'resource': 'host', 'now': True},
-                {'field': 'dependent_host_name', 'type': 'list', 'resource': 'host', 'now': True},
-                {'field': 'dependent_hostgroup_name', 'type': 'list', 'resource': 'hostgroup',
-                 'now': True},
-                {'field': 'hostgroup_name', 'type': 'list', 'resource': 'hostgroup', 'now': True}
+                {
+                    'field': 'host_name', 'type': 'list',
+                    'resource': 'host', 'now': True
+                },
+                {
+                    'field': 'dependent_host_name', 'type': 'list',
+                    'resource': 'host', 'now': True
+                },
+                {
+                    'field': 'dependent_hostgroup_name', 'type': 'list',
+                    'resource': 'hostgroup', 'now': True
+                },
+                {
+                    'field': 'hostgroup_name', 'type': 'list',
+                    'resource': 'hostgroup', 'now': True
+                }
             ]
             schema = hostdependency.get_schema()
             self.manage_resource('hostdependency', data_later, 'name', schema)
@@ -796,13 +844,26 @@ class CfgToBackend(object):
         if self.type == 'servicedependency' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add servicedependency ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'dependent_host_name', 'type': 'list', 'resource': 'host', 'now': True},
-                {'field': 'dependent_hostgroup_name', 'type': 'list', 'resource': 'hostgroup',
-                 'now': True},
-                {'field': 'dependent_service_description', 'type': 'list', 'resource': 'service',
-                 'now': True},
-                {'field': 'host_name', 'type': 'list', 'resource': 'host', 'now': True},
-                {'field': 'hostgroup_name', 'type': 'list', 'resource': 'hostgroup', 'now': True}
+                {
+                    'field': 'dependent_host_name', 'type': 'list',
+                    'resource': 'host', 'now': True
+                },
+                {
+                    'field': 'dependent_hostgroup_name', 'type': 'list',
+                    'resource': 'hostgroup', 'now': True
+                },
+                {
+                    'field': 'dependent_service_description', 'type': 'list',
+                    'resource': 'service', 'now': True
+                },
+                {
+                    'field': 'host_name', 'type': 'list',
+                    'resource': 'host', 'now': True
+                },
+                {
+                    'field': 'hostgroup_name', 'type': 'list',
+                    'resource': 'hostgroup', 'now': True
+                }
             ]
             schema = servicedependency.get_schema()
             self.manage_resource('servicedependency', data_later, 'name', schema)
@@ -810,9 +871,14 @@ class CfgToBackend(object):
         if self.type == 'hostescalation' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add hostescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': True},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
-                 'now': True}
+                {
+                    'field': 'contacts', 'type': 'list',
+                    'resource': 'contact', 'now': True
+                },
+                {
+                    'field': 'contact_groups', 'type': 'list',
+                    'resource': 'contactgroup', 'now': True
+                }
             ]
             schema = hostescalation.get_schema()
             self.manage_resource('hostescalation', data_later, 'host_name', schema)
@@ -820,9 +886,14 @@ class CfgToBackend(object):
         if self.type == 'servicegroup' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add servicegroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'members', 'type': 'list', 'resource': 'service', 'now': False},
-                {'field': 'servicegroup_members', 'type': 'list', 'resource': 'servicegroup',
-                 'now': False}
+                {
+                    'field': 'members', 'type': 'list',
+                    'resource': 'service', 'now': False
+                },
+                {
+                    'field': 'servicegroup_members', 'type': 'list',
+                    'resource': 'servicegroup', 'now': False
+                }
             ]
             schema = servicegroup.get_schema()
             self.manage_resource('servicegroup', data_later, 'servicegroup_name', schema)
@@ -832,21 +903,47 @@ class CfgToBackend(object):
         if self.type == 'service' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'host_name', 'type': 'simple', 'resource': 'host', 'now': True},
-                {'field': 'servicegroups', 'type': 'list', 'resource': 'servicegroup',
-                 'now': True},
-                {'field': 'check_command', 'type': 'simple', 'resource': 'command', 'now': True},
-                {'field': 'check_period', 'type': 'simple', 'resource': 'timeperiod', 'now': True},
-                {'field': 'notification_period', 'type': 'simple', 'resource': 'timeperiod',
-                 'now': True},
-                {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': True},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
-                 'now': True},
-                {'field': 'escalations', 'type': 'list', 'resource': 'escalation', 'now': True},
-                {'field': 'maintenance_period', 'type': 'simple', 'resource': 'timeperiod',
-                 'now': True},
-                {'field': 'service_dependencies', 'type': 'list', 'resource': 'service',
-                 'now': True}
+                {
+                    'field': 'host_name', 'type': 'simple',
+                    'resource': 'host', 'now': True
+                },
+                {
+                    'field': 'servicegroups', 'type': 'list',
+                    'resource': 'servicegroup', 'now': True
+                },
+                {
+                    'field': 'check_command', 'type': 'simple',
+                    'resource': 'command', 'now': True
+                },
+                {
+                    'field': 'check_period', 'type': 'simple',
+                    'resource': 'timeperiod', 'now': True
+                },
+                {
+                    'field': 'notification_period', 'type': 'simple',
+                    'resource': 'timeperiod', 'now': True
+                },
+                {
+                    'field': 'contacts', 'type': 'list',
+                    'resource': 'contact', 'now': True
+                },
+                {
+                    'field': 'contact_groups', 'type': 'list',
+                    'resource': 'contactgroup',
+                    'now': True
+                },
+                {
+                    'field': 'escalations', 'type': 'list',
+                    'resource': 'escalation', 'now': True
+                },
+                {
+                    'field': 'maintenance_period', 'type': 'simple',
+                    'resource': 'timeperiod', 'now': True
+                },
+                {
+                    'field': 'service_dependencies', 'type': 'list',
+                    'resource': 'service', 'now': True
+                }
             ]
             schema = service.get_schema()
             self.manage_resource('service', data_later, 'service_description', schema)
@@ -862,9 +959,14 @@ class CfgToBackend(object):
         if self.type == 'serviceescalation' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add serviceescalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             data_later = [
-                {'field': 'contacts', 'type': 'list', 'resource': 'contact', 'now': True},
-                {'field': 'contact_groups', 'type': 'list', 'resource': 'contactgroup',
-                 'now': True}
+                {
+                    'field': 'contacts', 'type': 'list',
+                    'resource': 'contact', 'now': True
+                },
+                {
+                    'field': 'contact_groups', 'type': 'list',
+                    'resource': 'contactgroup', 'now': True
+                }
             ]
             schema = serviceescalation.get_schema()
             self.manage_resource('serviceescalation', data_later, 'host_name', schema)
