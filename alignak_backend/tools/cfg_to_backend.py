@@ -54,6 +54,7 @@ Use cases:
         2 if backend access is denied (check provided username/password)
         3 if required configuration cannot be loaded by Alignak
         4 if some problems were encountered during backend importation
+        5 if an exception occured when creating/updating  data in the backend
         64 if command line parameters are not used correctly
 
 """
@@ -413,16 +414,27 @@ class CfgToBackend(object):
                         else:
                             data[field].append(self.inserted[item['resource']][val])
 
-            headers['If-Match'] = item['_etag']
-            self.log("before_patch: %s : %s:" % (''.join([resource, '/', index]), data))
-            resp = self.backend.patch(''.join([resource, '/', index]), data, headers, True)
-            if '_status' in resp:
-                if resp['_status'] == 'ERR':
-                    raise ValueError(resp['_issues'])
-                elif resp['_status'] == 'OK':
-                    for (ind, it) in iteritems(self.later[resource]):
-                        if index in self.later[resource][ind]:
-                            self.later[resource][ind][index]['_etag'] = resp['_etag']
+            try:
+                headers['If-Match'] = item['_etag']
+                self.log("before_patch: %s : %s:" % (''.join([resource, '/', index]), data))
+                resp = self.backend.patch(''.join([resource, '/', index]), data, headers, True)
+            except BackendException as e:
+                print("# Patch error for: %s : %s" % (resource, data))
+                print("***** Exception: %s" % str(e))
+                print("***** Traceback: %s", traceback.format_exc())
+                self.errors_found.append("# Post error for: %s : %s" % (r_name, item))
+                if "_issues" in e.response:
+                    print("***** issues: %s" % e.response['_issues'])
+                    self.errors_found.append("  Issues: %s" % (e.response['_issues']))
+                exit(5)
+            else:
+                if '_status' in resp:
+                    if resp['_status'] == 'ERR':
+                        raise ValueError(resp['_issues'])
+                    elif resp['_status'] == 'OK':
+                        for (ind, it) in iteritems(self.later[resource]):
+                            if index in self.later[resource][ind]:
+                                self.later[resource][ind][index]['_etag'] = resp['_etag']
 
     def manage_resource(self, r_name, data_later, id_name, schema):
         """
@@ -596,12 +608,14 @@ class CfgToBackend(object):
                 # With headers=None, the post method manages correctly the posted data ... json conversion
                 response = self.backend.post(r_name, item, headers=None)
             except BackendException as e:
+                print("# Post error for: %s : %s" % (r_name, item))
                 print("***** Exception: %s" % str(e))
                 print("***** Traceback: %s", traceback.format_exc())
+                self.errors_found.append("# Post error for: %s : %s" % (r_name, item))
                 if "_issues" in e.response:
                     print("***** issues: %s" % e.response['_issues'])
-                self.errors_found.append("# Post error for: %s : %s" % (r_name, item))
-                self.errors_found.append("  Issues: %s" % (e.response['_issues']))
+                    self.errors_found.append("  Issues: %s" % (e.response['_issues']))
+                exit(5)
             else:
                 self.log("POST response : %s:" % (response))
                 if id_name in item:
