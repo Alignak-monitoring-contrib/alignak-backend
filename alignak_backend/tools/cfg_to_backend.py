@@ -578,6 +578,8 @@ class CfgToBackend(object):
                 item['realm'] = self.realm_all
             else:
                 item['_realm'] = self.realm_all
+            if r_name in ['service']:
+                item.pop('realm', None)
 
             # Remove unnecessary uuid in data
             if 'uuid' in item:
