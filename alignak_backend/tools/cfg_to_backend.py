@@ -549,10 +549,6 @@ class CfgToBackend(object):
                     later_tmp[values['field']] = item[values['field']]
                     del item[values['field']]
 
-            # Special case of contactgroups
-            if r_name == 'contactgroup' and 'unknown_members' in item:
-                item.pop('unknown_members', None)
-
             # Special case of contacts
             if r_name == 'contact':
                 item['back_role_super_admin'] = False
