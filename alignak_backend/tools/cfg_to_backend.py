@@ -61,16 +61,15 @@ Use cases:
 from __future__ import print_function
 import re
 import traceback
-from future.utils import iteritems
+
+from logging import getLogger, DEBUG, INFO, WARNING
+
 from docopt import docopt
 from docopt import DocoptExit
 
-from alignak_backend import __version__
+from future.utils import iteritems
 
 from alignak_backend_client.client import Backend, BackendException
-from logging import getLogger, DEBUG, INFO, WARNING
-loggerClient = getLogger('alignak_backend_client.client')
-loggerClient.setLevel(INFO)
 
 try:
     from alignak.daemons.arbiterdaemon import Arbiter
@@ -80,6 +79,8 @@ try:
 except ImportError:
     print("Alignak is not installed...")
     exit(1)
+
+from alignak_backend import __version__
 
 from alignak_backend.models import command
 from alignak_backend.models import timeperiod
@@ -98,6 +99,9 @@ from alignak_backend.models import hostescalation
 from alignak_backend.models import servicegroup
 from alignak_backend.models import service
 from alignak_backend.models import serviceescalation
+
+loggerClient = getLogger('alignak_backend_client.client')
+loggerClient.setLevel(INFO)
 
 
 class CfgToBackend(object):
@@ -216,11 +220,11 @@ class CfgToBackend(object):
 
         self.recompose_dateranges()
         self.import_objects()
-        # print all errors found
-        print('################################## errors report ##################################')
-        for error in self.errors_found:
-            print(error)
-        print('###################################################################################')
+        if self.errors_found:
+            print('############################# errors report ##################################')
+            for error in self.errors_found:
+                print(error)
+            print('##############################################################################')
         self.result = len(self.errors_found) == 0
 
     def authenticate(self):
@@ -232,8 +236,8 @@ class CfgToBackend(object):
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Backend authentication ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         try:
             # Backend authentication with token generation
-            headers = {'Content-Type': 'application/json'}
-            payload = {'username': self.username, 'password': self.password, 'action': 'generate'}
+            # headers = {'Content-Type': 'application/json'}
+            # payload = {'username': self.username, 'password': self.password, 'action': 'generate'}
             self.backend = Backend(self.backend_url)
             self.backend.login(self.username, self.password)
         except BackendException as e:
@@ -391,7 +395,7 @@ class CfgToBackend(object):
         self.log(source)
         return source
 
-    def update_later(self, resource, field, schema):
+    def update_later(self, resource, field):
         """
         Update field of resource having a link with other resources (objectid in backend)
 
@@ -401,6 +405,7 @@ class CfgToBackend(object):
         :type field: str
         :return: None
         """
+        # pylint: disable=too-many-nested-blocks
         headers = {'Content-Type': 'application/json'}
         for (index, item) in iteritems(self.later[resource][field]):
             print("Late update for: %s/%s -> %s" % (resource, index, item))
@@ -445,7 +450,7 @@ class CfgToBackend(object):
                     if resp['_status'] == 'ERR':
                         raise ValueError(resp['_issues'])
                     elif resp['_status'] == 'OK':
-                        for (ind, it) in iteritems(self.later[resource]):
+                        for (ind, dummy) in iteritems(self.later[resource]):
                             if index in self.later[resource][ind]:
                                 self.later[resource][ind][index]['_etag'] = resp['_etag']
 
@@ -460,13 +465,14 @@ class CfgToBackend(object):
         :param schema:
         :return:
         """
+        # pylint: disable=too-many-locals
         if r_name not in self.inserted:
             self.inserted[r_name] = {}
         if r_name not in self.inserted_uuid:
             self.inserted_uuid[r_name] = {}
         if r_name not in self.later:
             self.later[r_name] = {}
-        for k, values in enumerate(data_later):
+        for dummy, values in enumerate(data_later):
             if values['field'] not in self.later[r_name]:
                 self.later[r_name][values['field']] = {}
         alignak_resource = r_name + 's'
@@ -528,7 +534,6 @@ class CfgToBackend(object):
             for prop in prop_to_del:
                 del item[prop]
             later_tmp = {}
-            headers = {'Content-Type': 'application/json'}
 
             # Special case of contacts
             if r_name == 'contact' and 'contact_name' in item and item['contact_name'] == "admin":
@@ -555,7 +560,7 @@ class CfgToBackend(object):
                 item['check_command_args'] = '!'.join(item['check_command_args'])
 
             self.log("Creating links with other objects (data_later)")
-            for k, values in enumerate(data_later):
+            for dummy, values in enumerate(data_later):
                 if values['field'] in item and values['type'] == 'simple':
                     if values['now'] \
                             and values['resource'] in self.inserted \
@@ -567,7 +572,9 @@ class CfgToBackend(object):
                             # values['field'], item[values['field']], values['resource']
                         # ))
                         if item[values['field']] in self.inserted[values['resource']].values():
-                            index = self.inserted[values['resource']].values().index(item[values['field']])
+                            index = self.inserted[values['resource']].values().index(
+                                item[values['field']]
+                            )
                             # print("   but found in stored values %s" % index)
                             item[values['field']] = \
                                 self.inserted[values['resource']].keys()[index]
@@ -584,7 +591,7 @@ class CfgToBackend(object):
                     if isinstance(item[values['field']], basestring):
                         item[values['field']] = item[values['field']].split()
 
-                    for keylist, vallist in enumerate(item[values['field']]):
+                    for dummy, vallist in enumerate(item[values['field']]):
                         vallist = vallist.strip()
                         if values['resource'] in self.inserted and \
                                 vallist in self.inserted[values['resource']]:
@@ -647,7 +654,7 @@ class CfgToBackend(object):
 
             self.log("before_post: %s : %s:" % (r_name, item))
             try:
-                # With headers=None, the post method manages correctly the posted data ... json conversion
+                # With headers=None, the post method manages correctly the posted data ...
                 response = self.backend.post(r_name, item, headers=None)
             except BackendException as e:
                 print("# Post error for: %s : %s" % (r_name, item))
@@ -661,7 +668,7 @@ class CfgToBackend(object):
                 self.inserted[r_name][response['_id']] = item['name']
                 self.inserted_uuid[r_name][response['_id']] = item_obj.uuid
 
-                for k, values in enumerate(data_later):
+                for dummy, values in enumerate(data_later):
                     if values['field'] in later_tmp:
                         print("***Update later: %s/%s, with %s = %s" % (
                             r_name, response['_id'], values['field'], later_tmp[values['field']]
@@ -739,7 +746,7 @@ class CfgToBackend(object):
             schema = contactgroup.get_schema()
             self.manage_resource('contactgroup', data_later, 'contactgroup_name', schema)
             print("~~~~~~~~~~~~~~~~~~~~~~ post contactgroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            self.update_later('contactgroup', 'contactgroup_members', schema)
+            self.update_later('contactgroup', 'contactgroup_members')
 
         if self.type == 'escalation' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add escalation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -771,7 +778,7 @@ class CfgToBackend(object):
             schema = hostgroup.get_schema()
             self.manage_resource('hostgroup', data_later, 'hostgroup_name', schema)
             print("~~~~~~~~~~~~~~~~~~~~~~ post hostgroups ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            self.update_later('hostgroup', 'hostgroup_members', schema)
+            self.update_later('hostgroup', 'hostgroup_members')
 
         if self.type == 'host' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -812,8 +819,8 @@ class CfgToBackend(object):
             schema = host.get_schema()
             self.manage_resource('host', data_later, 'host_name', schema)
             print("~~~~~~~~~~~~~~~~~~~~~~ post host ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            self.update_later('host', 'parents', schema)
-            self.update_later('hostgroup', 'members', schema)
+            self.update_later('host', 'parents')
+            self.update_later('hostgroup', 'members')
 
         if self.type == 'hostextinfo' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add hostextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -901,7 +908,7 @@ class CfgToBackend(object):
             schema = servicegroup.get_schema()
             self.manage_resource('servicegroup', data_later, 'servicegroup_name', schema)
             print("~~~~~~~~~~~~~~~~~~~~~~ post servicegroup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            self.update_later('servicegroup', 'servicegroup_members', schema)
+            self.update_later('servicegroup', 'servicegroup_members')
 
         if self.type == 'service' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -951,7 +958,7 @@ class CfgToBackend(object):
             schema = service.get_schema()
             self.manage_resource('service', data_later, 'service_description', schema)
             print("~~~~~~~~~~~~~~~~~~~~~~ post service ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            self.update_later('servicegroup', 'members', schema)
+            self.update_later('servicegroup', 'members')
 
         if self.type == 'serviceextinfo' or self.type == 'all':
             print("~~~~~~~~~~~~~~~~~~~~~~ add serviceextinfo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -984,6 +991,7 @@ class CfgToBackend(object):
         """
         if self.verbose:
             print(message)
+
 
 def main():
     """

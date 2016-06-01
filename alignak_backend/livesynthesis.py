@@ -115,7 +115,7 @@ class Livesynthesis(object):
             ls = Livesynthesis()
             ls.recalculate()
         else:
-            for index, item in enumerate(items):
+            for dummy, item in enumerate(items):
                 typecheck = 'services'
                 if item['service_description'] is None:
                     typecheck = 'hosts'

@@ -22,6 +22,7 @@ class Log(object):
     """
         Logger for the application
     """
+    # pylint: disable=too-few-public-methods
     def __init__(self):
         self.namespace = "{modulename}.{classname}".format(
             classname=self.__class__.__name__,
@@ -35,6 +36,7 @@ class Log(object):
     def set_file_logger(self,
                         path='logs', filename='backend.log',
                         when="D", interval=1, backupCount=6):  # pragma: no cover
+        # pylint: disable=too-many-arguments
         """
         Configure handler for file logging ...
 

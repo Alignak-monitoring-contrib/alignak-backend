@@ -30,7 +30,7 @@ class Timeseries(object):
         :return: None
         """
         host_db = current_app.data.driver.db['host']
-        for index, item in enumerate(items):
+        for dummy, item in enumerate(items):
             ts = Timeseries.prepare_data(item)
             host_info = host_db.find_one({'_id': item['host_name']})
             send_data = []
@@ -58,7 +58,7 @@ class Timeseries(object):
         """
         service_db = current_app.data.driver.db['service']
         host_db = current_app.data.driver.db['host']
-        for index, item in enumerate(items):
+        for dummy, item in enumerate(items):
             ts = Timeseries.prepare_data(item)
             service_info = service_db.find_one({'_id': item['service_description']})
             host_info = host_db.find_one({'_id': service_info['host_name']})

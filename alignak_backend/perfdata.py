@@ -50,7 +50,7 @@ def guess_int_or_float(val):
     """
     try:
         return to_best_int_float(val)
-    except Exception as exp:
+    except Exception:
         return None
 
 
@@ -58,6 +58,7 @@ class Metric(object):
     """
     Class providing a small abstraction for one metric of a Perfdatas class
     """
+    # pylint: disable=too-few-public-methods
     def __init__(self, string):
         self.name = self.value = self.uom = \
             self.warning = self.critical = self.min = self.max = None
@@ -94,6 +95,7 @@ class PerfDatas(object):
     """
     Class providing performance data extracted from a check output
     """
+    # pylint: disable=too-few-public-methods
     def __init__(self, string):
         string = string or ''
         elts = PERFDATA_SPLIT_PATTERN.findall(string)

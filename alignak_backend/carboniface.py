@@ -149,14 +149,21 @@ if __name__ == '__main__':
     data = []
     for el in range(10):
         data.append(('test.cryogenics.temperature{0}'.format(el), (time.time(),
-                                                                   300*random.random())))
+                                                                   300 * random.random())))
 
     def keep_updating():
         global data
         global carbon
         t = threading.Timer(1, keep_updating)
-        data = map(lambda x: (x[0], (time.time(),
-                                     x[1][1]+((-1)**random.randint(1, 2))*random.random())), data)
+        data = map(
+            lambda x: (
+                x[0], (
+                    time.time(),
+                    x[1][1] + ((-1)**random.randint(1, 2)) * random.random()
+                )
+            ),
+            data
+        )
         carbon.send_data(data)
         rnd = random.random()
         if rnd > 0.85:

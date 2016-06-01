@@ -38,7 +38,7 @@ class Livestate(object):
         """
             What to do when a new host is inserted in the live state ...
         """
-        for index, item in enumerate(items):
+        for dummy, item in enumerate(items):
             if item['_is_template']:
                 continue
             name = ''
@@ -68,7 +68,7 @@ class Livestate(object):
         """
             What to do when a new service is inserted in the live state ...
         """
-        for index, item in enumerate(items):
+        for dummy, item in enumerate(items):
             if item['_is_template']:
                 continue
             name = ''
