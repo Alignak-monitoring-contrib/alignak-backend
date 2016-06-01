@@ -507,6 +507,8 @@ class CfgToBackend(object):
             if 'allow_unknown' in schema and schema['allow_unknown']:
                 for prop in item_obj.customs.keys():
                     item[prop] = item_obj.customs[prop]
+            elif 'customs' in schema:
+                item['customs'] = item_obj.customs
 
             # convert objects
             item = self.convert_objects(item)
