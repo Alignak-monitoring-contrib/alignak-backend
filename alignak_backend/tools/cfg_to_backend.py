@@ -399,8 +399,11 @@ class CfgToBackend(object):
         """
         headers = {'Content-Type': 'application/json'}
         for (index, item) in iteritems(self.later[resource][field]):
+            print("Late update for: %s/%s -> %s" % (resource, index, item))
             if item['type'] == 'simple':
-                data = {field: self.inserted[item['resource']][item['value']]}
+                data = {
+                    field: self.inserted[item['resource']][item['value']]
+                }
             elif item['type'] == 'list':
                 data = {field: []}
                 if isinstance(item['value'], basestring):
@@ -464,14 +467,25 @@ class CfgToBackend(object):
 
         for item_obj in getattr(self.arbiter.conf, alignak_resource):
             item = {}
+
+            self.log("...................................")
+            self.log("Manage resource %s: %s (%s)" % (r_name, item_obj.uuid, item_obj.get_name()))
+            print ("Manage resource %s: %s (%s)" % (r_name, item_obj.uuid, item_obj.get_name()))
+            # TODO
+            # Only deal with properties,
             for prop in item_obj.properties.keys():
                 if not hasattr(item_obj, prop):
                     continue
                 item[prop] = getattr(item_obj, prop)
+            # As of it, ignore attributes (use, name, definition_order and register) !
 
+            # Ignore specific items ...
             if item[id_name] in ['bp_rule', '_internal_host_up', '_echo']:
                 continue
 
+            # TODO
+            # Only import element custom variables if schema allows unknown fields ...
+            # ... not the best solution. They should be imported in 'customs' defined array field!
             if 'allow_unknown' in schema and schema['allow_unknown']:
                 for prop in item_obj.customs.keys():
                     item[prop] = item_obj.customs[prop]
@@ -582,6 +596,10 @@ class CfgToBackend(object):
             if 'use' in item:
                 del item['use']
 
+            # Remove Alignak uuid if populated...
+            if 'uuid' in item:
+                del item['uuid']
+
             # Case where no realm but alignak define internal realm name 'Default'
             if 'realm' in item:
                 if item['realm'] == 'Default':
@@ -592,11 +610,6 @@ class CfgToBackend(object):
                 item['_realm'] = self.realm_all
             if r_name in ['service']:
                 item.pop('realm', None)
-
-            # Remove unnecessary uuid in data
-            if 'uuid' in item:
-                self.log("removed 'uuid' field from: %s : %s:" % (r_name, item))
-                item.pop('uuid', None)
 
             # Remove unnecessary 'unknown_members' in data
             if 'unknown_members' in item:
@@ -617,13 +630,16 @@ class CfgToBackend(object):
                     self.errors_found.append("  Issues: %s" % (e.response['_issues']))
                 exit(5)
             else:
-                self.log("POST response : %s:" % (response))
+                self.log("Element insertion response : %s:" % (response))
                 if id_name in item:
                     self.inserted[r_name][item[id_name]] = response['_id']
                 else:
                     self.inserted[r_name][item['name']] = response['_id']
                 for k, values in enumerate(data_later):
                     if values['field'] in later_tmp:
+                        print("***Update later: %s/%s, with %s = %s" % (
+                            r_name, response['_id'], values['field'], later_tmp[values['field']]
+                        ))
                         self.later[r_name][values['field']][response['_id']] = {
                             'type': values['type'],
                             'resource': values['resource'],
@@ -851,7 +867,7 @@ def main():
     fill = CfgToBackend()
     if not fill.result:
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("cfg_to_backend, version: %s, some problems were encountered during importation")
+        print("cfg_to_backend, some problems were encountered during importation")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         exit(4)
 
