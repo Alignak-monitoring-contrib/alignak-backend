@@ -492,7 +492,6 @@ class CfgToBackend(object):
             later_tmp = {}
             headers = {'Content-Type': 'application/json'}
 
-            # Fred
             # Special case of contacts
             if r_name == 'contact' and 'contact_name' in item and item['contact_name'] == "admin":
                 break
