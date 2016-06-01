@@ -584,6 +584,11 @@ class CfgToBackend(object):
             else:
                 item['_realm'] = self.realm_all
 
+            # Remove unnecessary uuid in data
+            if 'uuid' in item:
+                self.log("removed 'uuid' field from: %s : %s:" % (r_name, item))
+                item.pop('uuid', None)
+
             self.log("before_post: %s : %s:" % (r_name, item))
             try:
                 # With headers=None, the post method manages correctly the posted data ... json conversion
@@ -592,15 +597,12 @@ class CfgToBackend(object):
                 print("***** Exception: %s" % str(e))
                 print("***** Traceback: %s", traceback.format_exc())
                 if "_issues" in e.response:
-                    print("ERROR: %s" % e.response['_issues'])
+                    print("***** issues: %s" % e.response['_issues'])
                 self.errors_found.append("# Post error for: %s : %s" % (r_name, item))
                 self.errors_found.append("  Issues: %s" % (e.response['_issues']))
             else:
                 self.log("POST response : %s:" % (response))
-                if r_name not in ['command', 'timeperiod', 'contact', 'hostdependency']:
-                    # No UUID in those imported objects ...
-                    self.inserted[r_name][item['uuid']] = response['_id']
-                elif id_name in item:
+                if id_name in item:
                     self.inserted[r_name][item[id_name]] = response['_id']
                 else:
                     self.inserted[r_name][item['name']] = response['_id']
