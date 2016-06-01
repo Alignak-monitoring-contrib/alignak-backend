@@ -25,14 +25,14 @@ def get_schema():
     return {
         # 'allow_unknown': True,
         'schema': {
-              # 'uuid': {
-                # 'type': 'string',
-                # 'required': True,
-                # 'empty': False,
-                # 'unique': True
+            # 'uuid': {
+            # 'type': 'string',
+            # 'required': True,
+            # 'empty': False,
+            # 'unique': True
             # },
 
-          'name': {
+            'name': {
                 'type': 'string',
                 'ui': {
                     'title': 'Name',
@@ -45,6 +45,10 @@ def get_schema():
                 'empty': False,
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
+            },
+            'customs': {
+                'type': 'list',
+                'default': []
             },
             'definition_order': {
                 'type': 'integer',

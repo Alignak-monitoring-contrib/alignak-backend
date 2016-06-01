@@ -26,10 +26,10 @@ def get_schema():
         # 'allow_unknown': True,
         'schema': {
             # 'uuid': {
-                # 'type': 'string',
-                # 'required': True,
-                # 'empty': False,
-                # 'unique': True
+            # 'type': 'string',
+            # 'required': True,
+            # 'empty': False,
+            # 'unique': True
             # },
 
             'members': {
