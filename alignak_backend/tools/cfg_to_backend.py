@@ -589,6 +589,11 @@ class CfgToBackend(object):
                 self.log("removed 'uuid' field from: %s : %s:" % (r_name, item))
                 item.pop('uuid', None)
 
+            # Remove unnecessary 'unknown_members' in data
+            if 'unknown_members' in item:
+                self.log("removed 'unknown_members' field from: %s : %s:" % (r_name, item))
+                item.pop('unknown_members', None)
+
             self.log("before_post: %s : %s:" % (r_name, item))
             try:
                 # With headers=None, the post method manages correctly the posted data ... json conversion
