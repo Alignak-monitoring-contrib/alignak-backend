@@ -23,8 +23,16 @@ def get_schema():
     :rtype: dict
     """
     return {
+        # 'allow_unknown': True,
         'schema': {
-            'name': {
+              # 'uuid': {
+                # 'type': 'string',
+                # 'required': True,
+                # 'empty': False,
+                # 'unique': True
+            # },
+
+          'name': {
                 'type': 'string',
                 'ui': {
                     'title': 'Name',
