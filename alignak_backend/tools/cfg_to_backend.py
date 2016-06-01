@@ -835,7 +835,7 @@ def main():
     fill = CfgToBackend()
     if not fill.result:
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("cfg_to_backend, version: %s, some problmes were encountered during importation")
+        print("cfg_to_backend, version: %s, some problems were encountered during importation")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         exit(4)
 
