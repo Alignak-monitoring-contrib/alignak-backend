@@ -21,7 +21,7 @@ class TestHookLivestate(unittest2.TestCase):
         cls.backend.delete("livestate", {})
         cls.backend.delete("livesynthesis", {})
         realms = cls.backend.get_all('realm')
-        for cont in realms:
+        for cont in realms['_items']:
             cls.realm_all = cont['_id']
 
     @classmethod
@@ -44,6 +44,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -52,9 +53,11 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host')
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
         # Check if livestate right created
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['last_state'], 'UNREACHABLE')
         self.assertEqual(r[0]['last_state_type'], 'HARD')
@@ -73,6 +76,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -81,6 +85,7 @@ class TestHookLivestate(unittest2.TestCase):
         data['realm'] = self.realm_all
         self.backend.post("host", data)
         rh = self.backend.get_all('host')
+        rh = rh['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -90,10 +95,12 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("service", data)
         # Check if service right in backend
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping")
 
         # Check if livestate right created
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['last_state'], 'OK')
         self.assertEqual(r[1]['last_state_type'], 'HARD')
@@ -111,6 +118,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -133,12 +141,14 @@ class TestHookLivestate(unittest2.TestCase):
         # check if business_impact of host changed
         params = {'sort': 'name'}
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
 
         self.assertEqual(rh[0]['business_impact'], 1)
         self.assertEqual(rh[1]['business_impact'], 5)
 
         # Check if livestate right updated
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[0]['business_impact'], 1)
         self.assertEqual(r[1]['business_impact'], 5)
@@ -150,6 +160,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -158,6 +169,7 @@ class TestHookLivestate(unittest2.TestCase):
         data['realm'] = self.realm_all
         self.backend.post("host", data)
         rh = self.backend.get_all('host')
+        rh = rh['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -176,10 +188,12 @@ class TestHookLivestate(unittest2.TestCase):
 
         # check if business_impact of service changed
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['business_impact'], 1)
 
         # Check if livestate right updated
         r = self.backend.get_all('livestate')
+        r = r['_items']
 
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['business_impact'], 1)
@@ -191,6 +205,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -201,6 +216,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("host", data)
 
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001')
@@ -218,6 +234,7 @@ class TestHookLivestate(unittest2.TestCase):
         rh = self.backend.post("host", data)
 
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001')
@@ -230,6 +247,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001')
@@ -242,6 +260,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001')
@@ -254,6 +273,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001-1')
@@ -265,6 +285,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -275,6 +296,7 @@ class TestHookLivestate(unittest2.TestCase):
         rh = self.backend.post("host", data)
 
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001 alias')
@@ -287,6 +309,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'srv001 alias beta')
@@ -299,6 +322,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'srv001 alias beta')
@@ -311,6 +335,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001-1')
@@ -322,6 +347,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -331,6 +357,7 @@ class TestHookLivestate(unittest2.TestCase):
         rh = self.backend.post("host", data)
 
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'srv001')
@@ -343,6 +370,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'srv001-1')
@@ -355,6 +383,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'srv001 alias beta')
@@ -367,6 +396,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001-1')
@@ -378,6 +408,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -395,6 +426,7 @@ class TestHookLivestate(unittest2.TestCase):
         rs = self.backend.post("service", data)
 
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check of server srv001')
@@ -411,6 +443,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -429,6 +462,7 @@ class TestHookLivestate(unittest2.TestCase):
         rs = self.backend.post("service", data)
 
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check of server srv001')
@@ -441,6 +475,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check of server srv001')
@@ -453,6 +488,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check of server srv001')
@@ -465,6 +501,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check of server srv001 (2)')
@@ -476,6 +513,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -493,6 +531,7 @@ class TestHookLivestate(unittest2.TestCase):
         rs = self.backend.post("service", data)
 
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check alias')
@@ -505,6 +544,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check alias (2)')
@@ -517,6 +557,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check alias (2)')
@@ -529,6 +570,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'check ping for srv001')
@@ -540,6 +582,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -556,6 +599,7 @@ class TestHookLivestate(unittest2.TestCase):
         rs = self.backend.post("service", data)
 
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping')
@@ -568,6 +612,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping-1')
@@ -580,6 +625,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping alias')
@@ -592,6 +638,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rs = self.backend.patch("service/" + rs['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'check ping srv001')
@@ -603,6 +650,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -625,6 +673,7 @@ class TestHookLivestate(unittest2.TestCase):
         }
         rh = self.backend.patch("host/" + rh['_id'], datap, headers)
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001-1')
         self.assertEqual(r[0]['display_name_service'], '')
@@ -638,6 +687,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -647,8 +697,10 @@ class TestHookLivestate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host')
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[0]['_is_template'], True)
         # Check if livestate right created
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 0)

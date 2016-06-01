@@ -17,8 +17,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         time.sleep(3)
         cls.backend = Backend('http://127.0.0.1:5000')
         cls.backend.login("admin", "admin", "force")
-        realms = cls.backend.get_all('realm')
-        for cont in realms:
+        r = cls.backend.get_all('realm')
+        r = r['_items']
+        for cont in r:
             cls.realm_all = cont['_id']
 
     @classmethod
@@ -38,6 +39,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
@@ -45,6 +47,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if livesynthesis right created
         r = self.backend.get_all('livesynthesis')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['hosts_total'], 1)
         self.assertEqual(r[0]['hosts_up_hard'], 0)
@@ -71,6 +74,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
 
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -78,6 +82,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         data['realm'] = self.realm_all
         self.backend.post("host", data)
         rh = self.backend.get_all('host')
+        rh = rh['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -88,6 +93,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         # Check if livesynthesis right created
         r = self.backend.get_all('livesynthesis')
+        r = r['_items']
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['hosts_total'], 1)
         self.assertEqual(r[0]['hosts_up_hard'], 0)

@@ -24,8 +24,9 @@ class TestHookTemplate(unittest2.TestCase):
         cls.backend.delete("command", {})
         cls.backend.delete("livestate", {})
         cls.backend.delete("livesynthesis", {})
-        realms = cls.backend.get_all('realm')
-        for cont in realms:
+        r = cls.backend.get_all('realm')
+        r = r['_items']
+        for cont in r:
             cls.realm_all = cont['_id']
 
     @classmethod
@@ -49,6 +50,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -58,6 +60,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
 
         data = {
@@ -68,6 +71,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
 
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['check_command'], rc[0]['_id'])
@@ -94,6 +98,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
 
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[2]['name'], "host_002")
         self.assertEqual(rh[3]['name'], "host_003")
 
@@ -105,6 +110,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -114,6 +120,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
 
         data = {
@@ -124,6 +131,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
 
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['check_command'], rc[0]['_id'])
@@ -132,6 +140,7 @@ class TestHookTemplate(unittest2.TestCase):
         resp = self.backend.patch('/'.join(['host', rh[1]['_id']]), data, {'If-Match': rh[1]['_etag']})
 
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['check_interval'], 1)
         if 'check_interval' in rh[1]['_template_fields']:
@@ -142,6 +151,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.patch('/'.join(['host', rh[0]['_id']]), data, {'If-Match': rh[0]['_etag']})
 
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['initial_state'], "o")
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['initial_state'], "o")
@@ -153,6 +163,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.patch('/'.join(['host', rh[0]['_id']]), data, {'If-Match': rh[0]['_etag']})
 
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "testhost")
         self.assertEqual(rh[1]['name'], "host_001")
 
@@ -164,6 +175,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -172,6 +184,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -181,9 +194,11 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
 
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[1]['name'], "host_001")
 
@@ -198,6 +213,7 @@ class TestHookTemplate(unittest2.TestCase):
         }
         self.backend.post("service", data)
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping")
 
         data = {
@@ -208,6 +224,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("service", data)
 
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ping")
         self.assertEqual(rs[1]['host_name'], rh[1]['_id'])
@@ -220,6 +237,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -228,6 +246,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
 
         data = json.loads(open('cfg/host_srv001.json').read())
@@ -237,9 +256,11 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
 
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "srv001")
         self.assertEqual(rh[1]['name'], "host_001")
 
@@ -254,6 +275,7 @@ class TestHookTemplate(unittest2.TestCase):
         }
         self.backend.post("service", data)
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping")
 
         data = {
@@ -265,6 +287,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("service", data)
 
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ping_test")
         self.assertEqual(rs[1]['host_name'], rh[1]['_id'])
@@ -273,6 +296,7 @@ class TestHookTemplate(unittest2.TestCase):
         resp = self.backend.patch('/'.join(['service', rs[1]['_id']]), data, {'If-Match': rs[1]['_etag']})
 
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[1]['name'], "ping_test")
         self.assertEqual(rs[1]['check_interval'], 1)
         if 'check_interval' in rs[1]['_template_fields']:
@@ -283,6 +307,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.patch('/'.join(['service', rs[0]['_id']]), data, {'If-Match': rs[0]['_etag']})
 
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['initial_state'], "u")
         self.assertEqual(rs[1]['name'], "ping_test")
         self.assertEqual(rs[1]['initial_state'], "u")
@@ -294,6 +319,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.patch('/'.join(['service', rs[0]['_id']]), data, {'If-Match': rs[0]['_etag']})
 
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping2")
         self.assertEqual(rs[1]['name'], "ping_test")
 
@@ -319,6 +345,7 @@ class TestHookTemplate(unittest2.TestCase):
 
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
         self.assertEqual(rc[1]['name'], "http")
         self.assertEqual(rc[2]['name'], "https")
@@ -335,6 +362,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.backend.post("host", data)
         # Check if host right in backend
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[0]['name'], "template_standard_linux")
         self.assertEqual(rh[1]['name'], "template_web")
 
@@ -359,6 +387,7 @@ class TestHookTemplate(unittest2.TestCase):
         data['check_command'] = rc[2]['_id']
         self.backend.post("service", data)
         rs = self.backend.get_all('service', params)
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ssh")
         self.assertEqual(rs[2]['name'], "http")
@@ -373,8 +402,10 @@ class TestHookTemplate(unittest2.TestCase):
         }
         self.backend.post("host", data)
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[2]['name'], "host_001")
         rs = self.backend.get_all('service', params)
+        rs = rs['_items']
         self.assertEqual(len(rs), 8)
         self.assertEqual(rs[4]['name'], "http")
         self.assertEqual(rs[5]['_is_template'], False)
@@ -386,6 +417,7 @@ class TestHookTemplate(unittest2.TestCase):
         data = {'name': 'ping2'}
         self.backend.patch('/'.join(['service', rs[0]['_id']]), data, {'If-Match': rs[0]['_etag']})
         rs = self.backend.get_all('service', params)
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping2")
         self.assertEqual(rs[5]['name'], "ping2")
 
@@ -394,8 +426,10 @@ class TestHookTemplate(unittest2.TestCase):
         resp = self.backend.patch('/'.join(['host', rh[2]['_id']]), data,
                                   {'If-Match': rh[2]['_etag']})
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(len(rs), 6)
         rh = self.backend.get_all('host', params)
+        rh = rh['_items']
         self.assertEqual(rh[2]['_templates'], [rh[0]['_id']])
 
         # Now re-add the template template_web of host
@@ -403,6 +437,7 @@ class TestHookTemplate(unittest2.TestCase):
         resp = self.backend.patch('/'.join(['host', rh[2]['_id']]), data,
                                   {'If-Match': rh[2]['_etag']})
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(len(rs), 8)
 
         # Now add a new template
@@ -417,6 +452,7 @@ class TestHookTemplate(unittest2.TestCase):
         }
         ret_new = self.backend.post("service", data)
         rs = self.backend.get_all('service', params)
+        rs = rs['_items']
         self.assertEqual(len(rs), 10)
         self.assertEqual(rs[9]['_templates'][0], ret_new['_id'])
         self.assertFalse(rs[9]['_is_template'])
@@ -427,6 +463,7 @@ class TestHookTemplate(unittest2.TestCase):
         rs = self.backend.get('/'.join(['service', ret_new['_id']]))
         self.backend.delete('/'.join(['service', ret_new['_id']]), {'If-Match': rs['_etag']})
         rs = self.backend.get_all('service', params)
+        rs = rs['_items']
         service_name = []
         for serv in rs:
             service_name.append(serv['name'])
