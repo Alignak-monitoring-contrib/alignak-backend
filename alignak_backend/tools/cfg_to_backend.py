@@ -249,6 +249,7 @@ class CfgToBackend(object):
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Authenticated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
     def delete_data(self):
+        # pylint: disable=fixme
         """
         Delete data in backend
 
@@ -290,10 +291,19 @@ class CfgToBackend(object):
                         self.backend.delete('contact/' + cont['_id'], headers_contact)
                 realms = self.backend.get_all('realm')
                 headers_realm = {'Content-Type': 'application/json'}
-                for cont in realms['_items']:
-                    if cont['name'] != 'All' and cont['_level'] != 0:
-                        headers_realm['If-Match'] = cont['_etag']
-                        self.backend.delete('realm/' + cont['_id'], headers_realm)
+                for realm in realms['_items']:
+                    print ("Realm: %s" % realm)
+                    if realm['name'] != 'All' and realm['_level'] != 0:
+
+                        headers_realm['If-Match'] = realm['_etag']
+                        # TODO: fix error: alignak_backend_client.client.BackendException:
+                        # Backend error code 1003: Backend HTTPError:
+                        # <class 'requests.exceptions.HTTPError'> /
+                        # 409 Client Error: CONFLICT for url:
+                        # http://127.0.0.1:5000/realm/574f4bc44c988c303107b0f6
+
+                        # self.backend.delete('realm/' + realm['_id'], headers_realm)
+                        # self.backend.delete('realm/' + realm['_id'], headers=None)
             if self.type == 'contactgroup' or self.type == 'all':
                 self.backend.delete('contactgroup', headers)
             if self.type == 'contactrestrictrole' or self.type == 'all':

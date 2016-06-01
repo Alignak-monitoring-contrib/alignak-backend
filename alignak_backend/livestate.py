@@ -81,6 +81,9 @@ class Livestate(object):
 
             host_db = current_app.data.driver.db['host']
             host_info = host_db.find_one({'_id': item['host_name']})
+            if not host_info:
+                print ("Host not found: %s" % item)
+                return
             name_h = host_info['name']
             if 'alias' in host_info and host_info['alias'] != '':
                 name_h = host_info['alias']

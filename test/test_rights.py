@@ -21,6 +21,7 @@ class TestRights(unittest2.TestCase):
         cls.backend.delete("livestate", {})
         cls.backend.delete("livesynthesis", {})
         contacts = cls.backend.get_all('contact')
+        contacts = contacts['_items']
         headers_contact = {'Content-Type': 'application/json'}
         for cont in contacts:
             if cont['name'] != 'admin':
@@ -30,6 +31,7 @@ class TestRights(unittest2.TestCase):
                 cls.contact_admin = cont
 
         realms = cls.backend.get_all('realm')
+        realms = realms['_items']
         headers_realm = {'Content-Type': 'application/json'}
         for cont in realms:
             if cont['name'] != 'All':
@@ -154,13 +156,17 @@ class TestRights(unittest2.TestCase):
         backend_user4.login("user4", "test", "force")
 
         h = backend_user1.get_all('command', {'sort': "name"})
+        h = h['_items']
         self.assertEqual(len(h), 3)
 
         h = backend_user2.get_all('command', {'sort': "name"})
+        h = h['_items']
         self.assertEqual(len(h), 2)
 
         h = backend_user3.get_all('command', {'sort': "name"})
+        h = h['_items']
         self.assertEqual(len(h), 0)
 
         h = backend_user4.get_all('command', {'sort': "name"})
+        h = h['_items']
         self.assertEqual(len(h), 1)
