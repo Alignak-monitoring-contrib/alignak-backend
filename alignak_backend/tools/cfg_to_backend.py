@@ -543,12 +543,6 @@ class CfgToBackend(object):
                    not item['service_notification_period']:
                     item['service_notification_period'] = self.default_tp
 
-            # Special case of hostgroups
-            # if r_name in ['host', 'hostgroup']:
-                # print("%s: %s" % (r_name, item))
-            if r_name in ['service']:
-                print("%s: %s" % (r_name, item))
-
             # Hack for check_command_args
             if 'check_command_args' in item and isinstance(item['check_command_args'], list):
                 item['check_command_args'] = '!'.join(item['check_command_args'])
@@ -560,17 +554,14 @@ class CfgToBackend(object):
                             and values['resource'] in self.inserted \
                             and item[values['field']] in self.inserted[values['resource']]:
                         self.log("***Found: %s = %s" % (values['field'], item[values['field']]))
-                        print("***Found: %s = %s" % (values['field'], item[values['field']]))
-                        # Do not change found field!
-                        # item[values['field']] = \
-                            # self.inserted[values['resource']][item[values['field']]]
+                        # print("***Found: %s = %s" % (values['field'], item[values['field']]))
                     else:
-                        print("***Not found: %s = %s in inserted %ss identifiers" % (
-                            values['field'], item[values['field']], values['resource']
-                        ))
+                        # print("***Not found: %s = %s in inserted %ss identifiers" % (
+                            # values['field'], item[values['field']], values['resource']
+                        # ))
                         if item[values['field']] in self.inserted[values['resource']].values():
                             index = self.inserted[values['resource']].values().index(item[values['field']])
-                            print("   but found in stored values %s" % index)
+                            # print("   but found in stored values %s" % index)
                             item[values['field']] = \
                                 self.inserted[values['resource']].keys()[index]
                         else:
