@@ -114,6 +114,7 @@ class CfgToBackend(object):
         self.result = True
         self.later = {}
         self.inserted = {}
+        self.default_tp = None
 
         # Get command line parameters
         try:
@@ -256,13 +257,15 @@ class CfgToBackend(object):
             if self.type == 'timeperiod' or self.type == 'all':
                 timeperiods = self.backend.get_all('timeperiod')
                 headers_realm = {'Content-Type': 'application/json'}
-                for cont in timeperiods['_items']:
-                    if cont['name'] == 'All time default 24x7':
+                for tp in timeperiods['_items']:
+                    if tp['name'] == 'All time default 24x7':
                         self.inserted['timeperiod'] = {}
-                        self.inserted['timeperiod']['All time default 24x7'] = cont['_id']
+                        # self.inserted['timeperiod']['All time default 24x7'] = tp['_id']
+                        self.inserted['timeperiod'][tp['_id']] = 'All time default 24x7'
+                        self.default_tp = tp['_id']
                     else:
-                        headers_realm['If-Match'] = cont['_etag']
-                        self.backend.delete('timeperiod/' + cont['_id'], headers_realm)
+                        headers_realm['If-Match'] = tp['_etag']
+                        self.backend.delete('timeperiod/' + tp['_id'], headers_realm)
             if self.type == 'hostgroup' or self.type == 'all':
                 self.backend.delete('hostgroup', headers)
             if self.type == 'hostdependency' or self.type == 'all':
@@ -522,45 +525,75 @@ class CfgToBackend(object):
             if r_name == 'contact' and 'contact_name' in item and item['contact_name'] == "admin":
                 break
 
+            # TODO
+            # Special case of contacts (still)
+            # Always define timeperiods ... good idea to confirm ?
+            if r_name == 'contact':
+                item['back_role_super_admin'] = False
+                if 'is_admin' in item and item['is_admin']:
+                    item['back_role_super_admin'] = True
+
+                if 'host_notification_period' not in item or \
+                   not item['host_notification_period']:
+                    item['host_notification_period'] = self.default_tp
+
+                if 'service_notification_period' not in item or \
+                   not item['service_notification_period']:
+                    item['service_notification_period'] = self.default_tp
+
+            # Special case of hostgroups
+            # if r_name in ['host', 'hostgroup']:
+                # print("%s: %s" % (r_name, item))
+            if r_name in ['service']:
+                print("%s: %s" % (r_name, item))
+
             # Hack for check_command_args
             if 'check_command_args' in item and isinstance(item['check_command_args'], list):
                 item['check_command_args'] = '!'.join(item['check_command_args'])
 
+            self.log("Creating links with other objects (data_later)")
             for k, values in enumerate(data_later):
-                # {'field': 'hostgroups', 'type': 'list', 'resource': 'hostgroup'},
                 if values['field'] in item and values['type'] == 'simple':
                     if values['now'] \
                             and values['resource'] in self.inserted \
                             and item[values['field']] in self.inserted[values['resource']]:
-                        item[values['field']] = \
-                            self.inserted[values['resource']][item[values['field']]]
+                        self.log("***Found: %s = %s" % (values['field'], item[values['field']]))
+                        print("***Found: %s = %s" % (values['field'], item[values['field']]))
+                        # Do not change found field!
+                        # item[values['field']] = \
+                            # self.inserted[values['resource']][item[values['field']]]
                     else:
-                        later_tmp[values['field']] = item[values['field']]
-                        del item[values['field']]
+                        print("***Not found: %s = %s in inserted %ss identifiers" % (
+                            values['field'], item[values['field']], values['resource']
+                        ))
+                        if item[values['field']] in self.inserted[values['resource']].values():
+                            index = self.inserted[values['resource']].values().index(item[values['field']])
+                            print("   but found in stored values %s" % index)
+                            item[values['field']] = \
+                                self.inserted[values['resource']].keys()[index]
+                        else:
+                            print("***Not found: %s = %s in inserted %ss identifiers nor values" % (
+                                values['field'], item[values['field']], values['resource']
+                            ))
+                            later_tmp[values['field']] = item[values['field']]
+                            del item[values['field']]
                 elif values['field'] in item and values['type'] == 'list' and values['now']:
                     add = True
                     objectsid = []
 
-                    # Fred: debug and test ...
-                    if item[values['field']].__class__ != values['type']:
-                        self.log("******************************")
-                        self.log("%s: %s is %s and should be %s" % (r_name, values['field'],
-                                                                    item[values['field']].__class__,
-                                                                    values['type']))
-                        self.log("isinstance(item[values['field']], basestring): %s" %
-                                 (isinstance(values['field'], basestring)))
-                        self.log("item: %s" % (item))
-                        self.log("******************************")
-                        item[values['field']] = []
-                    # Fred: debug and test ...
-
                     if isinstance(item[values['field']], basestring):
                         item[values['field']] = item[values['field']].split()
+
                     for keylist, vallist in enumerate(item[values['field']]):
                         vallist = vallist.strip()
                         if values['resource'] in self.inserted and \
                                 vallist in self.inserted[values['resource']]:
-                            objectsid.append(self.inserted[values['resource']][vallist])
+                            # objectsid.append(self.inserted[values['resource']][vallist])
+                            objectsid.append(vallist)
+                        elif values['resource'] in self.inserted and \
+                                vallist in self.inserted[values['resource']].values():
+                            index = self.inserted[values['resource']].values().index(vallist)
+                            objectsid.append(self.inserted[values['resource']].keys()[index])
                         elif values['resource'] in self.inserted:
                             add = True
                         else:
@@ -568,21 +601,17 @@ class CfgToBackend(object):
                     if add:
                         item[values['field']] = objectsid
                     else:
+                        print("***Not found: %s = %s in inserted %ss identifiers not values" % (
+                            values['field'], item[values['field']], values['resource']
+                        ))
                         later_tmp[values['field']] = item[values['field']]
                         del item[values['field']]
                 elif values['field'] in item and values['type'] == 'list' and not values['now']:
+                    print("***Not found: %s = %s in inserted %ss identifiers not values" % (
+                        values['field'], item[values['field']], values['resource']
+                    ))
                     later_tmp[values['field']] = item[values['field']]
                     del item[values['field']]
-
-            # Special case of contacts
-            if r_name == 'contact':
-                item['back_role_super_admin'] = False
-                if 'is_admin' in item and item['is_admin']:
-                    item['back_role_super_admin'] = True
-                if 'host_notification_period' not in item:
-                    item['host_notification_period'] = self.inserted['timeperiod']['24x7']
-                if 'service_notification_period' not in item:
-                    item['service_notification_period'] = self.inserted['timeperiod']['24x7']
 
             # If id name is name ... keep it!
             if id_name != 'name':
@@ -631,10 +660,8 @@ class CfgToBackend(object):
                 exit(5)
             else:
                 self.log("Element insertion response : %s:" % (response))
-                if id_name in item:
-                    self.inserted[r_name][item[id_name]] = response['_id']
-                else:
-                    self.inserted[r_name][item['name']] = response['_id']
+                self.inserted[r_name][response['_id']] = item['name']
+
                 for k, values in enumerate(data_later):
                     if values['field'] in later_tmp:
                         print("***Update later: %s/%s, with %s = %s" % (
