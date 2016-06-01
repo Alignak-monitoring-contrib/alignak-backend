@@ -52,7 +52,8 @@ Use cases:
         0 if required operation succeeded
         1 if Alignak is not installed
         2 if backend access is denied (check provided username/password)
-        3 if required configuration cannot be loaded
+        3 if required configuration cannot be loaded by Alignak
+        4 if some problems were encountered during backend importation
         64 if command line parameters are not used correctly
 
 """
@@ -109,7 +110,7 @@ class CfgToBackend(object):
     errors_found = []
 
     def __init__(self):
-
+        self.result = True
         self.later = {}
         self.inserted = {}
 
@@ -217,6 +218,7 @@ class CfgToBackend(object):
         for error in self.errors_found:
             print(error)
         print('###################################################################################')
+        self.result = len(self.errors_found) == 0
 
     def authenticate(self):
         """
@@ -828,7 +830,12 @@ def main():
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     print("cfg_to_backend, version: %s" % __version__)
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    CfgToBackend()
+    fill = CfgToBackend()
+    if not fill.result:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("cfg_to_backend, version: %s, some problmes were encountered during importation")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        exit(4)
 
 if __name__ == "__main__":  # pragma: no cover
     main()
