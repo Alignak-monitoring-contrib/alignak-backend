@@ -428,10 +428,8 @@ class CfgToBackend(object):
                 print("# Patch error for: %s : %s" % (resource, data))
                 print("***** Exception: %s" % str(e))
                 print("***** Traceback: %s", traceback.format_exc())
-                self.errors_found.append("# Post error for: %s : %s" % (r_name, item))
                 if "_issues" in e.response:
                     print("***** issues: %s" % e.response['_issues'])
-                    self.errors_found.append("  Issues: %s" % (e.response['_issues']))
                 exit(5)
             else:
                 if '_status' in resp:
@@ -653,10 +651,8 @@ class CfgToBackend(object):
                 print("# Post error for: %s : %s" % (r_name, item))
                 print("***** Exception: %s" % str(e))
                 print("***** Traceback: %s", traceback.format_exc())
-                self.errors_found.append("# Post error for: %s : %s" % (r_name, item))
                 if "_issues" in e.response:
                     print("***** issues: %s" % e.response['_issues'])
-                    self.errors_found.append("  Issues: %s" % (e.response['_issues']))
                 exit(5)
             else:
                 self.log("Element insertion response : %s:" % (response))
