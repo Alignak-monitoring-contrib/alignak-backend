@@ -592,7 +592,10 @@ class CfgToBackend(object):
                         item[values['field']] = item[values['field']].split()
 
                     for dummy, vallist in enumerate(item[values['field']]):
-                        vallist = vallist.strip()
+                        if not vallist:
+                            continue
+                        if hasattr(vallist, 'strip'):
+                            vallist = vallist.strip()
                         if values['resource'] in self.inserted and \
                                 vallist in self.inserted[values['resource']]:
                             # objectsid.append(self.inserted[values['resource']][vallist])
