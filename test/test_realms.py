@@ -32,6 +32,7 @@ class TestRealms(unittest2.TestCase):
 
         realms = cls.backend.get_all('realm')
         realms = realms['_items']
+        print realms
         headers_realm = {'Content-Type': 'application/json'}
         for cont in realms:
             if cont['name'] != 'All' and cont['_level'] != 0:
