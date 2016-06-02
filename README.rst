@@ -30,6 +30,22 @@ Documentation
 
 You can find online documentation on `Read The Docs <http://alignak-backend.readthedocs.org>`_.
 
+Release strategy
+----------------------------------------
+
+Alignak backend and its *satellites* (backend client, and backend import tools) must all have the
+same features level. As of it, take care to install the same minor version on your system to
+ensure compatibility of all the packages each other.
+
+The current version of Alignak backend is 0.4. This version contains:
+
+- compatibility with Alignak 0.2 (objects serialization and uuid)
+- to be completed ...
+
+Previous versions:
+
+- 0.3: version compatible with Alignak version 0.1
+
 Short description
 -------------------
 
