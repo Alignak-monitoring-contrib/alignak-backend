@@ -80,7 +80,7 @@ except ImportError:
     print("Alignak is not installed...")
     exit(1)
 
-from alignak_backend import __version__
+from alignak_backend.tools import VERSION as __version__
 
 from alignak_backend.models import command
 from alignak_backend.models import timeperiod
