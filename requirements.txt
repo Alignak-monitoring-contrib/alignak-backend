@@ -5,7 +5,7 @@ Eve-docs
 flask-bootstrap
 configparser ; python_version < '3.0'
 future
-influxdb
 # Force python-dateutil version because flask-apscheduler requires this version !
 python-dateutil==2.4.2
 flask-apscheduler
+influxdb
