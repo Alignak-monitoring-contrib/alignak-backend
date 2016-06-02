@@ -4,6 +4,9 @@ jsonschema
 Eve-docs
 flask-bootstrap
 configparser ; python_version < '3.0'
+; Force python-dateutil version else dependencies problems are raised because another
+; dependent package installs the 2.5 version ...
+python-dateutil==2.4.2
 future
 influxdb
 flask-apscheduler
