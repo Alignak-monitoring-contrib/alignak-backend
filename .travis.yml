@@ -18,12 +18,14 @@ script:
   - cd test
   - pip freeze  # so to help eventual debug: know what exact versions are in use can be rather useful.
   - cd ..
-  - pep8 --max-line-length=100 --exclude='*.pyc' alignak_backend/*
-  - pylint --rcfile=.pylintrc -r no alignak_backend/*
+  - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' alignak_backend/*
+  - pylint --rcfile=.pylintrc alignak_backend/*
   - pep257 --select=D300 alignak_backend
   - cd test
-  - nosetests -xv --process-restartworker --processes=1 --process-timeout=300
-#  - coverage combine
+  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_backend
+  # - nosetests -xv --process-restartworker --processes=1 --process-timeout=300
+  - coverage combine
+  - coverage report -m
   - cd ..
 # specific call to launch coverage data into coveralls.io
 #after_success:
