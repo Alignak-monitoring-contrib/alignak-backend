@@ -37,6 +37,10 @@ if [ $? -ne 0 ]; then
 fi
 echo 'tests ...'
 cd test
+# coverage erase
 nosetests -xv --process-restartworker --processes=1 --process-timeout=300 test*.py
-echo 'coverage combine ...'
+# nosetests -xv --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_backend test*.py
+# echo 'coverage combine ...'
+# coverage combine
+# coverage report -m
 cd ..
