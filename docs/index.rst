@@ -17,7 +17,6 @@ Contents:
    run
    api
    tutorial
-   tools
 
 Indices and tables
 ==================

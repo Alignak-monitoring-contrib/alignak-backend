@@ -17,6 +17,7 @@ class TestHookLivestate(unittest2.TestCase):
         time.sleep(3)
         cls.backend = Backend('http://127.0.0.1:5000')
         cls.backend.login("admin", "admin", "force")
+        cls.backend.delete("command", {})
         cls.backend.delete("host", {})
         cls.backend.delete("livestate", {})
         cls.backend.delete("livesynthesis", {})

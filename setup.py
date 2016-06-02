@@ -86,8 +86,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'alignak_backend = alignak_backend.main:main',
-            'cfg_to_backend = alignak_backend.tools.cfg_to_backend:main',
+            'alignak_backend = alignak_backend.main:main'
         ],
     },
 
