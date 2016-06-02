@@ -9,8 +9,8 @@ nose
 pylint
 pep8
 pep257
-# alignak_backend_client
--e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-client.git@status_post_files#egg=alignak_backend_client
-# -e git+https://github.com/Alignak-monitoring-contrib/alignak-backend-client.git#egg=alignak_backend_client
 uwsgi
+# alignak_backend_client
+-e git+git://github.com/Alignak-monitoring-contrib/alignak-backend-client.git@develop#egg=alignak_backend_client
+# alignak
 -e git+https://github.com/Alignak-monitoring/alignak.git@develop#egg=alignak
