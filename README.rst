@@ -35,7 +35,8 @@ Release strategy
 
 Alignak backend and its *satellites* (backend client, and backend import tools) must all have the
 same features level. As of it, take care to install the same minor version on your system to
-ensure compatibility of all the packages each other.
+ensure compatibility between all the packages. Use 0.4.x version of Backend import and Backend
+client with a 0.4.x version of the Backend.
 
 The current version of Alignak backend is 0.4. This version contains:
 
