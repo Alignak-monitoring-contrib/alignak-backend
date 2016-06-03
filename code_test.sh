@@ -18,13 +18,29 @@
 # along with Alignak.  If not, see <http://www.gnu.org/licenses/>.
 
 echo 'pep8 ...'
-pep8 --max-line-length=100 --exclude='*.pyc, *.ini' alignak_backend/*
+pep8 --max-line-length=100 --exclude='*.pyc, *.ini'  --ignore='E402' alignak_backend/*
+if [ $? -ne 0 ]; then
+    echo "pep8 not compliant"
+    exit
+fi
 echo 'pylint ...'
 pylint --rcfile=.pylintrc alignak_backend/
+if [ $? -ne 0 ]; then
+    echo "pylint not compliant"
+    exit
+fi
 echo 'pep157 ...'
 pep257 --select=D300 alignak_backend
+if [ $? -ne 0 ]; then
+    echo "pep257 not compliant"
+    exit
+fi
 echo 'tests ...'
 cd test
+# coverage erase
 nosetests -xv --process-restartworker --processes=1 --process-timeout=300 test*.py
-echo 'coverage combine ...'
+# nosetests -xv --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_backend test*.py
+# echo 'coverage combine ...'
+# coverage combine
+# coverage report -m
 cd ..

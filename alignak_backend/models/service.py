@@ -23,8 +23,15 @@ def get_schema():
     :rtype: dict
     """
     return {
-        'allow_unknown': True,
+        # 'allow_unknown': True,
         'schema': {
+            # 'uuid': {
+            # 'type': 'string',
+            # 'required': True,
+            # 'empty': False,
+            # 'unique': True
+            # },
+
             'imported_from': {
                 'type': 'string',
                 'ui': {
@@ -49,6 +56,10 @@ def get_schema():
                 'empty': False,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
                 'dependencies': ['host_name', 'check_command']
+            },
+            'customs': {
+                'type': 'list',
+                'default': []
             },
             'definition_order': {
                 'type': 'integer',
@@ -793,7 +804,7 @@ def get_schema():
                 'default': ''
             },
             'default_value': {
-                'type': 'list',
+                'type': 'string',
                 'ui': {
                     'title': 'Default value',
                     'visible': True,
@@ -801,7 +812,7 @@ def get_schema():
                     'searchable': True,
                     'format': None
                 },
-                'default': []
+                'default': ''
             },
             'business_impact': {
                 'type': 'integer',

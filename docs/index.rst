@@ -3,10 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Alignak Backend's documentation!
+Alignak Backend's documentation!
 ===========================================
 
-Contents:
+Project version:
+--------------------------------------------------
+
+Main version: |version|, release: |release|
+
+Documentation content:
+--------------------------------------------------
 
 .. toctree::
    :maxdepth: 2
@@ -17,7 +23,6 @@ Contents:
    run
    api
    tutorial
-   tools
 
 Indices and tables
 ==================

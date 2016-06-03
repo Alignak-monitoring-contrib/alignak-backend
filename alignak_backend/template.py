@@ -59,7 +59,7 @@ class Template(object):
             ignore_schema_fields = ['realm', '_template_fields', '_templates',
                                     '_is_template',
                                     '_templates_with_services']
-            for field_name, field_value in updates.iteritems():
+            for field_name, dummy in updates.iteritems():
                 if field_name not in ignore_schema_fields:
                     if field_name in original['_template_fields']:
                         original['_template_fields'].remove(field_name)
@@ -80,6 +80,7 @@ class Template(object):
         :type original: dict
         :return: None
         """
+        # pylint: disable=too-many-locals
         if g.get('ignore_hook_patch', False):
             g.ignore_hook_patch = False
             return
@@ -115,7 +116,7 @@ class Template(object):
                             service_template_id.append(services[srv['name']]['_templates'][0])
                     services_to_add = list(set(service_template_id) - set(myservices_template_id))
                     services_to_del = list(set(myservices_template_id) - set(service_template_id))
-                    for s_name, service in services.iteritems():
+                    for dummy, service in services.iteritems():
                         if service['_templates'][0] in services_to_add:
                             post_internal('service', [service])
                     for template_id in services_to_del:
@@ -136,7 +137,7 @@ class Template(object):
         :return: None
         """
         service_db = current_app.data.driver.db['service']
-        for index, item in enumerate(items):
+        for dummy, item in enumerate(items):
             if item['_templates'] != [] and item['_templates_with_services']:
                 # add services
                 services = {}
@@ -165,7 +166,7 @@ class Template(object):
         """
         host_db = current_app.data.driver.db['host']
         services = []
-        for index, item in enumerate(items):
+        for dummy, item in enumerate(items):
             if item['_templates_from_host_template'] and item['_is_template']:
                 # case where this service is template host+service, so add this service on all hosts
                 # use the host template and have _templates_with_services=True
@@ -232,7 +233,7 @@ class Template(object):
             ignore_schema_fields = ['realm', '_template_fields', '_templates',
                                     '_is_template',
                                     '_templates_from_host_template']
-            for field_name, field_value in updates.iteritems():
+            for field_name, dummy in updates.iteritems():
                 if field_name not in ignore_schema_fields:
                     if field_name in original['_template_fields']:
                         original['_template_fields'].remove(field_name)

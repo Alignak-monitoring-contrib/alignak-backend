@@ -140,6 +140,7 @@ class MyTokenAuth(TokenAuth):
         :type parents: dict or None
         :return: None
         """
+        # pylint: disable=too-many-arguments
         search_field = right
         if custom:
             search_field = 'custom'
@@ -157,6 +158,7 @@ class MyTokenAuth(TokenAuth):
 
 class MyValidator(Validator):
     """Specific validator for data model fields types extension"""
+    # pylint: disable=unused-argument
     def _validate_title(self, title, field, value):
         """Validate 'title' field (always valid)"""
         return
@@ -178,6 +180,7 @@ def pre_get(resource, user_request, lookup):
     :type lookup: dict
     :return: None
     """
+    # pylint: disable=unused-argument
     if g.get('back_role_super_admin', False):
         return
     # Only in case not super-admin
@@ -235,6 +238,7 @@ def pre_realm_patch(updates, original):
     :type original: dict
     :return: None
     """
+    # pylint: disable=unused-argument
     if not g.updateRealm:
         if '_tree_parents' in updates:
             abort(make_response("Update _tree_parents is forbidden", 412))
@@ -250,8 +254,9 @@ def after_insert_realm(items):
     :type items: dict
     :return: None
     """
+    # pylint: disable=unused-argument
     realmsdrv = current_app.data.driver.db['realm']
-    for index, item in enumerate(items):
+    for dummy, item in enumerate(items):
         # update _children fields on all parents
         if len(item['_tree_parents']) > 0:
             parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
@@ -343,6 +348,7 @@ def pre_contact_patch(updates, original):
     :type original: dict
     :return: None
     """
+    # pylint: disable=unused-argument
     if 'password' in updates:
         updates['password'] = generate_password_hash(updates['password'])
 
@@ -354,7 +360,7 @@ def generate_token():
     :return: user token
     """
     t = int(time.time() * 1000)
-    return str(t)+'-'+str(uuid.uuid4())
+    return str(t) + '-' + str(uuid.uuid4())
 
 
 def get_settings(prev_settings):
@@ -507,8 +513,8 @@ with app.test_request_context():
     if not default_realm:
         post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
                       True)
-        print "Created top level realm"
         default_realm = realms.find_one({'name': 'All'})
+        print "Created top level realm:", default_realm
     # Create default timeperiod if not defined
     timeperiods = app.data.driver.db['timeperiod']
     default_timeperiod = timeperiods.find_one({'name': 'All time default 24x7'})

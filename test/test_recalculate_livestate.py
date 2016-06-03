@@ -22,8 +22,9 @@ class TestRecalculateLivestate(unittest2.TestCase):
         cls.backend.delete("command", {})
         cls.backend.delete("livestate", {})
         cls.backend.delete("livesynthesis", {})
-        realms = cls.backend.get_all('realm')
-        for cont in realms:
+        r = cls.backend.get_all('realm')
+        r = r['_items']
+        for cont in r:
             cls.realm_all = cont['_id']
 
     def test_recalculate(self):
@@ -33,6 +34,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.backend.post("command", data)
         # Check if command right in backend
         rc = self.backend.get_all('command')
+        rc = rc['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
         # add host
@@ -41,6 +43,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
         data['realm'] = self.realm_all
         self.backend.post("host", data)
         rh = self.backend.get_all('host')
+        rh = rh['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -50,6 +53,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.backend.post("service", data)
         # Check if service right in backend
         rs = self.backend.get_all('service')
+        rs = rs['_items']
         self.assertEqual(rs[0]['name'], "ping")
 
         self.backend.delete("livestate", {})
@@ -62,6 +66,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.backend = Backend('http://127.0.0.1:5000')
         self.backend.login("admin", "admin", "force")
         r = self.backend.get_all('livestate')
+        r = r['_items']
         self.assertEqual(len(r), 2)
         self.assertEqual(r[1]['last_state'], 'OK')
         self.assertEqual(r[1]['last_state_type'], 'HARD')

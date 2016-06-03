@@ -80,14 +80,14 @@ setup(
     data_files = [(paths['etc'], ['etc/settings.cfg'])],
 
     install_requires=[
-        'Eve>=0.5', 'flask-bootstrap', 'docopt', 'jsonschema', 'Eve-docs', 'configparser',
+        'python-dateutil==2.4.2', 'Eve>=0.5', 'flask-bootstrap', 'docopt', 'jsonschema',
+        'Eve-docs', 'configparser',
         'future', 'influxdb', 'flask-apscheduler'
     ],
 
     entry_points={
         'console_scripts': [
-            'alignak_backend = alignak_backend.main:main',
-            'cfg_to_backend = alignak_backend.tools.cfg_to_backend:main',
+            'alignak_backend = alignak_backend.main:main'
         ],
     },
 

@@ -23,8 +23,15 @@ def get_schema():
     :rtype: dict
     """
     return {
-        'allow_unknown': True,
+        # 'allow_unknown': True,
         'schema': {
+            # 'uuid': {
+            # 'type': 'string',
+            # 'required': True,
+            # 'empty': False,
+            # 'unique': True
+            # },
+
             'imported_from': {
                 'type': 'string',
                 'ui': {
@@ -50,6 +57,10 @@ def get_schema():
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
                 'dependencies': ['check_command']
+            },
+            'customs': {
+                'type': 'list',
+                'default': []
             },
             'definition_order': {
                 'type': 'integer',

@@ -3,12 +3,15 @@
 
 
 """
-Alignak REST backend
+    Alignak REST backend
+
+    This module is an Alignak REST backend
 """
-# Application manifest
-VERSION = (0, 4, 0)
+# Application version and manifest
+VERSION = (0, 4, 3)
 
 __application__ = u"Alignak_Backend"
+__short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
 __author__ = u"Alignak team"
 __copyright__ = u"(c) 2015 - %s" % __author__

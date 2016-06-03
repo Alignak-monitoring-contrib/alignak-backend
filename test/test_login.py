@@ -60,12 +60,6 @@ class Test_1_Login(unittest2.TestCase):
         time.sleep(3)
         cls.backend = Backend('http://127.0.0.1:5000')
 
-        print ("")
-        print ("populate backend content")
-        q = subprocess.Popen(['../alignak_backend/tools/cfg_to_backend.py', '--delete', 'cfg/default/shinken.cfg'])
-        q.communicate()
-        time.sleep(1)
-
     @classmethod
     def tearDownClass(cls):
         print ("")
