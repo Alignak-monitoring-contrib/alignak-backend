@@ -4,8 +4,8 @@
 
 """
     Alignak REST backend
-	
-	This module is an Alignak REST backend
+
+    This module is an Alignak REST backend
 """
 # Application version and manifest
 VERSION = (0, 4, 3)
