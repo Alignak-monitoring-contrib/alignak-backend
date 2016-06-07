@@ -59,8 +59,8 @@ def get_schema():
                 'dependencies': ['check_command']
             },
             'customs': {
-                'type': 'list',
-                'default': []
+                'type': 'dict',
+                'default': {}
             },
             'definition_order': {
                 'type': 'integer',

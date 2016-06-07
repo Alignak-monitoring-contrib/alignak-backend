@@ -58,8 +58,8 @@ def get_schema():
                 'dependencies': ['host_name', 'check_command']
             },
             'customs': {
-                'type': 'list',
-                'default': []
+                'type': 'dict',
+                'default': {}
             },
             'definition_order': {
                 'type': 'integer',
