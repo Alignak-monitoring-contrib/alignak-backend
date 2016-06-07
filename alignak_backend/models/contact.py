@@ -47,8 +47,8 @@ def get_schema():
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
             'customs': {
-                'type': 'list',
-                'default': []
+                'type': 'dict',
+                'default': {}
             },
             'definition_order': {
                 'type': 'integer',

@@ -54,12 +54,14 @@ class Livestate(object):
                     'last_state': 'UP', 'last_state_type': 'HARD', 'output': '',
                     'long_output': '', 'perf_data': '', 'type': 'host',
                     'business_impact': item['business_impact'], 'display_name_host': name,
-                    '_realm': item['realm']}
+                    '_realm': item['realm'], 'name': item['name']}
             if item['initial_state'] == 'd':
                 data['state'] = 'DOWN'
+                data['state_id'] = 1
                 data['last_state'] = 'DOWN'
             elif item['initial_state'] == 'u':
                 data['state'] = 'UNREACHABLE'
+                data['state_id'] = 2
                 data['last_state'] = 'UNREACHABLE'
             post_internal("livestate", data)
 
@@ -95,15 +97,19 @@ class Livestate(object):
                     'last_state': 'OK', 'last_state_type': 'HARD', 'output': '',
                     'long_output': '', 'perf_data': '', 'type': 'service',
                     'business_impact': item['business_impact'], 'display_name_service': name,
-                    'display_name_host': name_h, '_realm': item['_realm']}
+                    'display_name_host': name_h, '_realm': item['_realm'],
+                    'name': host_info['name'] + '/' + item['name']}
             if item['initial_state'] == 'w':
                 data['state'] = 'WARNING'
+                data['state_id'] = 1
                 data['last_state'] = 'WARNING'
             elif item['initial_state'] == 'c':
                 data['state'] = 'CRITICAL'
+                data['state_id'] = 2
                 data['last_state'] = 'CRITICAL'
             elif item['initial_state'] == 'u':
                 data['state'] = 'UNKNOWN'
+                data['state_id'] = 3
                 data['last_state'] = 'UNKNOWN'
             post_internal("livestate", data)
 

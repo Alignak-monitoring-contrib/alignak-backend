@@ -24,6 +24,11 @@ def get_schema():
     """
     return {
         'schema': {
+            'name': {
+                'type': 'string',
+                'default': '',
+                'required': True
+            },
             'service_description': {
                 'type': 'objectid',
                 'data_relation': {
