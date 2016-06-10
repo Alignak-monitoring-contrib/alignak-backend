@@ -1,11 +1,14 @@
 # pylint: skip-file
+from future.standard_library import install_aliases
+install_aliases()
+
 import socket
 import pickle
 import random
 import time
 import struct
 import threading
-import urllib2
+from urllib.request import urlopen, Request
 
 """
 Get it here: https://gist.github.com/otger/6606437#file-carboniface-py
@@ -131,12 +134,12 @@ class CarbonIface(object):
         if tags:
             postdata += ', "tags": "{0}"'.format(str(tags))
         postdata += '}'
-        req = urllib2.Request(self.url_post_event)
+        req = Request(self.url_post_event)
         req.add_data(postdata)
 
         try:
-            urllib2.urlopen(req)
-        except Exception, _:
+            urlopen(req)
+        except Exception as _:
             # log.exception('Error when sending event to carbon')
             pass
 

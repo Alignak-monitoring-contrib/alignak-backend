@@ -7,6 +7,7 @@
     This module manages the backend, its configuration and starts the backend
 """
 
+from __future__ import print_function
 import sys
 import traceback
 import os
@@ -16,7 +17,7 @@ import json
 import re
 from collections import OrderedDict
 from datetime import timedelta
-from configparser import ConfigParser
+from future.utils import iteritems
 
 from eve import Eve
 from eve.auth import TokenAuth
@@ -28,12 +29,13 @@ from eve.utils import debug_error_message
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_bootstrap import Bootstrap
 from flask_apscheduler import APScheduler
-from eve_docs import eve_docs
-from flask import current_app, g, request, abort, jsonify, make_response
+from eve_swagger import swagger
+from flask import current_app, g, request, abort, jsonify, make_response, send_from_directory, \
+    redirect
 
 from alignak_backend.models import register_models
 from alignak_backend import manifest
-from alignak_backend.log import Log
+import alignak_backend.log
 from alignak_backend.livesynthesis import Livesynthesis
 from alignak_backend.livestate import Livestate
 from alignak_backend.template import Template
@@ -390,9 +392,9 @@ def pre_user_post(items):
     :type items: list
     :return: None
     """
-    for index, item in enumerate(items):
+    for key, item in enumerate(items):
         if 'password' in item:
-            items[index]['password'] = generate_password_hash(item['password'])
+            items[key]['password'] = generate_password_hash(item['password'])
 
 
 def pre_user_patch(updates, original):
@@ -454,7 +456,7 @@ def get_settings(prev_settings):
                     match = comment_re.search(content)
 
                 conf = json.loads(content)
-                for key, value in conf.iteritems():
+                for key, value in iteritems(conf):
                     if key.startswith('RATE_LIMIT_') and value is not None:
                         prev_settings[key] = tuple(value)
                     else:
@@ -462,15 +464,15 @@ def get_settings(prev_settings):
                 return
 
 
-print "--------------------------------------------------------------------------------"
-print "%s, version %s" % (manifest['name'], manifest['version'])
-print "Copyright %s" % manifest['copyright']
-print "License %s" % manifest['license']
-print "--------------------------------------------------------------------------------"
+print("--------------------------------------------------------------------------------")
+print("%s, version %s" % (manifest['name'], manifest['version']))
+print("Copyright %s" % manifest['copyright'])
+print("License %s" % manifest['license'])
+print("--------------------------------------------------------------------------------")
 
-print "Doc: %s" % manifest['doc']
-print "Release notes: %s" % manifest['release']
-print "--------------------------------------------------------------------------------"
+print("Doc: %s" % manifest['doc'])
+print("Release notes: %s" % manifest['release'])
+print("--------------------------------------------------------------------------------")
 
 # Application configuration
 settings = {}
@@ -527,15 +529,18 @@ if settings['SCHEDULER_ACTIVE']:
     settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
 
 
-print "Application settings: %s" % settings
+print("Application settings: %s" % settings)
 
 # Add model schema to the configuration
 settings['DOMAIN'] = register_models()
 
+base_path = os.path.dirname(os.path.abspath(alignak_backend.__file__))
+
 app = Eve(
     settings=settings,
     validator=MyValidator,
-    auth=MyTokenAuth
+    auth=MyTokenAuth,
+    static_folder=base_path
 )
 # hooks pre-init
 app.on_pre_GET += pre_get
@@ -547,7 +552,19 @@ app.on_update_realm += pre_realm_patch
 
 # docs api
 Bootstrap(app)
-app.register_blueprint(eve_docs, url_prefix='/docs')
+app.register_blueprint(swagger)
+app.config['SWAGGER_INFO'] = {
+    'title': manifest['name'],
+    'version': manifest['version'],
+    'description': manifest['description'],
+    'contact': {
+        'name': manifest['author']
+    },
+    'license': {
+        'name': manifest['license']
+    }
+}
+
 
 # Create default account when have no user.
 with app.test_request_context():
@@ -558,7 +575,7 @@ with app.test_request_context():
         post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
                       True)
         default_realm = realms.find_one({'name': 'All'})
-        print "Created top level realm:", default_realm
+        print("Created top level realm:", default_realm)
     # Create default timeperiod if not defined
     timeperiods = app.data.driver.db['timeperiod']
     default_timeperiod = timeperiods.find_one({'name': '24x7'})
@@ -574,7 +591,7 @@ with app.test_request_context():
                                                     {u'friday': u'00:00-24:00'},
                                                     {u'saturday': u'00:00-24:00'},
                                                     {u'sunday': u'00:00-24:00'}]}, True)
-        print "Created default timeperiod"
+        print("Created default timeperiod")
         default_timeperiod = timeperiods.find_one({'name': '24x7'})
     # Create default username/user if not defined
     try:
@@ -589,7 +606,7 @@ with app.test_request_context():
                                "host_notification_period": default_timeperiod['_id'],
                                "service_notification_period": default_timeperiod['_id'],
                                "_realm": default_realm['_id']})
-        print "Created Super admin"
+        print("Created Super admin")
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
     app.on_inserted_host += Livestate.on_inserted_host
@@ -737,24 +754,46 @@ def cron_timeseries():
                                    **lookup)
 
 
+@app.route('/docs')
+def redir_index():
+    """
+    Redirect /docs to /docs/index.html
+
+    :return: redirect to endpoint /docs/index.html
+    """
+    return redirect('/docs/index.html')
+
+
+@app.route('/docs/<path:path>')
+def index(path):
+    """
+    Deliver static files of swagger-ui folder
+
+    :param path: path + files of swagger-ui to load
+    :type path: string
+    :return:
+    """
+    return send_from_directory(base_path, 'swagger-ui/' + path)
+
+
 def main():
     """
         Called when this module is started from shell
     """
     try:
-        print "--------------------------------------------------------------------------------"
-        print "%s, listening on %s:%d" % (
+        print("--------------------------------------------------------------------------------")
+        print("%s, listening on %s:%d" % (
             manifest['name'], app.config.get('HOST', '127.0.0.1'), app.config.get('PORT', 8090)
-        )
-        print "--------------------------------------------------------------------------------"
+        ))
+        print("--------------------------------------------------------------------------------")
         app.run(
             host=settings.get('HOST', '127.0.0.1'),
             port=settings.get('PORT', 5000),
             debug=settings.get('DEBUG', False)
         )
     except Exception as e:
-        print "Application run failed, exception: %s / %s" % (type(e), str(e))
-        print "Back trace of this kill: %s" % traceback.format_exc()
+        print("Application run failed, exception: %s / %s" % (type(e), str(e)))
+        print("Back trace of this kill: %s" % traceback.format_exc())
         sys.exit(1)
 
 if __name__ == "__main__":

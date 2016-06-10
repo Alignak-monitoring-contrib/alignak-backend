@@ -126,12 +126,11 @@ class TestHookTemplate(unittest2.TestCase):
         template_fields = []
         ignore_fields = ['name', 'realm', '_template_fields', '_templates', '_is_template',
                          '_templates_with_services']
-        for key in schema['schema'].iterkeys():
+        for key in schema['schema']:
             if key not in ignore_fields:
                 template_fields.append(key)
 
-        self.assertItemsEqual([x.encode('UTF8') for x in rh[1]['_template_fields']],
-                              template_fields)
+        self.assertItemsEqual(rh[1]['_template_fields'], template_fields)
 
         datal = [{
             'name': 'host_002',
@@ -435,6 +434,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[0]['name'], "ping2")
         self.assertEqual(rs[1]['name'], "ping_test")
 
+    # pylint: disable=too-many-locals
     def test_host_services_template(self):
         """
         Test when use and add / modify / delete (host + service) template
@@ -532,11 +532,54 @@ class TestHookTemplate(unittest2.TestCase):
         resp = response.json()
         rs = resp['_items']
         self.assertEqual(len(rs), 8)
-        self.assertEqual(rs[4]['name'], "http")
-        self.assertEqual(rs[5]['_is_template'], False)
-        self.assertEqual(rs[5]['name'], "ping")
-        self.assertEqual(rs[6]['name'], "ssh")
-        self.assertEqual(rs[7]['name'], "https")
+        ref = [
+            {
+                'name': 'http',
+                '_is_template': True
+            },
+            {
+                'name': 'ping',
+                '_is_template': True
+            },
+            {
+                'name': 'ssh',
+                '_is_template': True
+            },
+            {
+                'name': 'https',
+                '_is_template': True
+            },
+            {
+                'name': 'http',
+                '_is_template': False
+            },
+            {
+                'name': 'ping',
+                '_is_template': False
+            },
+            {
+                'name': 'ssh',
+                '_is_template': False
+            },
+            {
+                'name': 'https',
+                '_is_template': False
+            }
+        ]
+        service_db = []
+        ping_db_template = 0
+        ping_db_nottemplate = 0
+        num = 0
+        for value in rs:
+            service_db.append({'name': value['name'], '_is_template': value['_is_template']})
+            if value['name'] == "ping":
+                if value['_is_template']:
+                    ping_db_template = num
+                else:
+                    ping_db_nottemplate = num
+            num += 1
+
+        self.assertItemsEqual(ref, service_db)
 
         # Now update a service template
         data = {'name': 'ping2'}
@@ -549,8 +592,8 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         rs = resp['_items']
-        self.assertEqual(rs[0]['name'], "ping2")
-        self.assertEqual(rs[5]['name'], "ping2")
+        self.assertEqual(rs[ping_db_template]['name'], "ping2")
+        self.assertEqual(rs[ping_db_nottemplate]['name'], "ping2")
 
         # Now remove the template template_web of the host
         data = {'_templates': [rh[0]['_id']]}
@@ -624,5 +667,5 @@ class TestHookTemplate(unittest2.TestCase):
         for serv in resp['_items']:
             service_name.append(serv['name'])
         self.assertEqual(len(resp['_items']), 8)
-        self.assertEqual(['ping2', 'ssh', 'http', 'https', 'ping2', 'ssh', 'http', 'https'],
-                         service_name)
+        self.assertItemsEqual(['ping2', 'ssh', 'http', 'https', 'ping2', 'ssh', 'http', 'https'],
+                              service_name)
