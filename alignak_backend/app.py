@@ -517,9 +517,10 @@ with app.test_request_context():
         print "Created top level realm:", default_realm
     # Create default timeperiod if not defined
     timeperiods = app.data.driver.db['timeperiod']
-    default_timeperiod = timeperiods.find_one({'name': 'All time default 24x7'})
+    default_timeperiod = timeperiods.find_one({'name': '24x7'})
     if not default_timeperiod:
-        post_internal("timeperiod", {"name": "All time default 24x7",
+        post_internal("timeperiod", {"name": "24x7",
+                                     "alias": "All time default 24x7",
                                      "_realm": default_realm['_id'],
                                      "is_active": True,
                                      "dateranges": [{u'monday': u'00:00-24:00'},
@@ -530,7 +531,7 @@ with app.test_request_context():
                                                     {u'saturday': u'00:00-24:00'},
                                                     {u'sunday': u'00:00-24:00'}]}, True)
         print "Created default timeperiod"
-        default_timeperiod = timeperiods.find_one({'name': 'All time default 24x7'})
+        default_timeperiod = timeperiods.find_one({'name': '24x7'})
     # Create default username/contact if not defined
     try:
         contacts = app.data.driver.db['contact']
