@@ -168,13 +168,15 @@ class Template(object):
         services = []
         for dummy, item in enumerate(items):
             if item['_templates_from_host_template'] and item['_is_template']:
-                # case where this service is template host+service, so add this service on all hosts
+                # case where this service is template host+service, so add this service on all
+                # hosts
                 # use the host template and have _templates_with_services=True
                 hostid = item['host_name']
                 hosts = host_db.find(
                     {'_templates': hostid, '_templates_with_services': True})
                 for hs in hosts:
                     services.append(Template.prepare_service_to_post(item, hs['_id']))
+        print("yolooo:")
         if services != []:
             post_internal('service', services)
 
@@ -405,6 +407,10 @@ class Template(object):
         del item['_id']
         del item['_created']
         del item['_updated']
+        if '_status' in item:
+            del item['_status']
+        if '_links' in item:
+            del item['_links']
         item['_is_template'] = False
         item['_templates_from_host_template'] = True
         item['_template_fields'] = []

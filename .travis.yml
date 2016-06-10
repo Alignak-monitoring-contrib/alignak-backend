@@ -24,6 +24,8 @@ script:
   - pylint --rcfile=.pylintrc alignak_backend/*
   - pep257 --select=D300 alignak_backend
   - cd test
+  - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' test_*.py
+  - pylint --rcfile=../.pylintrc test_*.py
   # - coverage erase
   - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300
   # - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_backend
