@@ -14,11 +14,11 @@ You can use many possibilities, but we suggest you use uwsgi and start it in the
 
 With socket (+ nginx / apache in frontal)::
 
-   uwsgi -s /tmp/uwsgi.sock -w alignakbackend:app --enable-threads
+   uwsgi -s /tmp/uwsgi.sock -w alignakbackend:app --enable-threads -p 4
 
 With direct http port::
 
-   uwsgi -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads
+   uwsgi -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads -p 4
 
 
 Alignak-backend runs on port 80 like specified in arguments, so use::

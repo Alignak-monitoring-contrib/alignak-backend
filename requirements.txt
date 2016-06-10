@@ -9,3 +9,4 @@ configparser ; python_version < '3.0'
 future
 flask-apscheduler
 influxdb
+uwsgi
