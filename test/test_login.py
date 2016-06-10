@@ -1,123 +1,160 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This module test login to backend
+"""
 
-import unittest2
-import requests
+from __future__ import print_function
 import time
+import shlex
 import subprocess
-import json
-from alignak_backend_client.client import Backend
+import requests
+import unittest2
 
 
 class Test_0_LoginCreation(unittest2.TestCase):
+    """
+    This class test login creation
+    """
 
     @classmethod
     def setUpClass(cls):
-        print ("")
-        print ("start backend")
-        cls.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads'])
-        time.sleep(1)
-        cls.backend = Backend('http://127.0.0.1:5000')
+        """
+        This method:
+          * delete mongodb database
+          * start the backend with uwsgi
+
+        :return: None
+        """
+        print("")
+        print("start backend")
+        # Delete used mongo DBs
+        exit_code = subprocess.call(
+            shlex.split(
+                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend')
+        )
+        assert exit_code == 0
+
+        cls.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000',
+                                  '--protocol=http', '--enable-threads', '--pidfile',
+                                  '/tmp/uwsgi.pid'])
+        time.sleep(3)
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Kill uwsgi
+
+        :return: None
+        """
+        subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+        time.sleep(2)
 
     def test_0(self):
-        print ""
+        """
+        Test default admin user creation when start backend and have no users in resource contact
 
+        :return: None
+        """
         # Login and delete defined contacts ...
-        self.backend.login("admin", "admin")
-        self.backend.delete("contact", {})
+        endpoint = 'http://127.0.0.1:5000'
+
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+        # get token
+        response = requests.post(endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        token = resp['token']
+        auth = requests.auth.HTTPBasicAuth(token, '')
+
+        requests.delete(endpoint + '/contact', auth=auth)
+        response = requests.post(endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
 
         # No login possible ...
-        assert not self.backend.login("admin", "admin")
+        self.assertEqual(resp['_status'], "ERR")
 
         # Stop and restart backend ...
-        print ("")
-        print ("stop backend")
+        print("")
+        print("stop backend")
         self.p.kill()
-        print ("")
-        print ("start backend")
-        self.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads'])
-        time.sleep(1)
-        self.backend = Backend('http://127.0.0.1:5000')
+        print("")
+        print("start backend")
+        self.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000',
+                                   '--protocol=http', '--enable-threads', '--pidfile',
+                                   '/tmp/uwsgi.pid'])
+        time.sleep(3)
 
         # Login is now possible because backend recreated super admin user
-        assert self.backend.login("admin", "admin")
-        print "Super admin is now defined in backend ..."
-        token = self.backend.token
-        assert token
+        response = requests.post(endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        assert resp['token']
+        print("Super admin is now defined in backend ...")
 
-        print ("")
-        print ("stop backend")
+        print("")
+        print("stop backend")
         self.p.kill()
 
 
 class Test_1_Login(unittest2.TestCase):
+    """
+    The class test login to backend
+    """
 
     @classmethod
     def setUpClass(cls):
-        print ("")
-        print ("start backend")
-        cls.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000', '--protocol=http', '--enable-threads'])
+        """
+        This method:
+          * delete mongodb database
+          * start the backend with uwsgi
+
+        :return: None
+        """
+        print("")
+        print("start backend")
+        # Delete used mongo DBs
+        exit_code = subprocess.call(
+            shlex.split(
+                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend')
+        )
+        assert exit_code == 0
+
+        cls.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000',
+                                  '--protocol=http', '--enable-threads', '--pidfile',
+                                  '/tmp/uwsgi.pid'])
         time.sleep(3)
-        cls.backend = Backend('http://127.0.0.1:5000')
+        cls.endpoint = 'http://127.0.0.1:5000'
 
     @classmethod
     def tearDownClass(cls):
-        print ("")
-        print ("stop backend")
-        cls.p.kill()
+        """
+        Kill uwsgi
 
-    @classmethod
-    def setUp(cls):
-        print "..."
-
-    @classmethod
-    def tearDown(cls):
-        print "..."
+        :return: None
+        """
+        subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+        time.sleep(2)
 
     def test_0(self):
-        print ""
+        """
+        Test login to have token and parameter to force generate a new token
 
-        # generate parameter may have following values:
-        # - enabled:    require current token (default)
-        # - force:      force new token generation
-        # - disabled    not to used actually !!!!!!!!!!!!!!!!!!!!!
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+        # get token
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        assert resp['token']
+        token = resp['token']
 
-        assert self.backend.login("admin", "admin")
-        token = self.backend.token
-        assert self.backend.authenticated
-        print token
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        assert resp['token']
+        token = resp['token']
 
-        assert self.backend.login("admin", "admin")
-        assert token == self.backend.token
-        assert self.backend.authenticated
-        token = self.backend.token
-        print token
-
-        assert self.backend.login("admin", "admin", "force")
-        assert token != self.backend.token
-        assert self.backend.authenticated
-        token = self.backend.token
-        print token
-        assert token
-
-        assert self.backend.logout()
-        assert not self.backend.token
-        assert not self.backend.authenticated
-
-    def test_1(self):
-        print ""
-
-        assert self.backend.login("admin", "admin")
-        assert self.backend.token
-        token = self.backend.token
-        print token
-
-        # Not yet implemented in backend ...
-        # assert self.backend.login("guest", "guest")
-        # assert self.backend.token
-        # assert token != self.backend.token
-        # token = self.backend.token
-        # print token
-
-        assert self.backend.logout()
-        assert not self.backend.token
+        params['action'] = 'generate'
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        assert token != resp['token']
