@@ -81,11 +81,12 @@ class Livesynthesis(object):
     @staticmethod
     def on_updated_livestate(updated, original):
         """
-            What to do when the live state is updated ...
+            What to do when the livestate is updated ...
         """
-        if 'state' not in updated:
+        if 'state' not in updated and 'state_type' not in updated:
             return
-        elif updated['state'] == updated['last_state'] \
+        elif 'state' in updated and 'state_type' in updated and \
+                        updated['state'] == updated['last_state'] \
                 and updated['state_type'] == updated['last_state_type']:
             return
 
@@ -98,16 +99,23 @@ class Livesynthesis(object):
             typecheck = 'services'
             if original['service_description'] is None:
                 typecheck = 'hosts'
-            data = {"$inc": {"%s_%s_%s" % (typecheck, updated['last_state'].lower(),
-                                           updated['last_state_type'].lower()): -1,
-                             "%s_%s_%s" % (typecheck, updated['state'].lower(),
-                                           updated['state_type'].lower()): 1}}
+            state = original['state']
+            if 'state' in updated:
+                state = updated['state']
+            state_type = original['state_type']
+            if 'state_type' in updated:
+                state_type = updated['state_type']
+            print("-1 %s_%s_%s" % (typecheck, original['state'].lower(), original['state_type'].lower()))
+            print("+1 %s_%s_%s" % (typecheck, state.lower(), state_type.lower()))
+            data = {"$inc": {"%s_%s_%s" % (typecheck, original['state'].lower(),
+                                           original['state_type'].lower()): -1,
+                             "%s_%s_%s" % (typecheck, state.lower(), state_type.lower()): 1}}
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
     @staticmethod
     def on_inserted_livestate(items):
         """
-            What to do when an element is inserted in the live state ...
+            What to do when an element is inserted in the livestate ...
         """
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         live_current = livesynthesis_db.find_one()

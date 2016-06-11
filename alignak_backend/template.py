@@ -176,7 +176,6 @@ class Template(object):
                     {'_templates': hostid, '_templates_with_services': True})
                 for hs in hosts:
                     services.append(Template.prepare_service_to_post(item, hs['_id']))
-        print("yolooo:")
         if services != []:
             post_internal('service', services)
 
