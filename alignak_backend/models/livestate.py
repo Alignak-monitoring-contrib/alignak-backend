@@ -128,6 +128,14 @@ def get_schema():
                 'default': 'host',
                 'allowed': ["host", "service"]
             },
+            'latency': {
+                'type': 'float',
+                'default': 0.0
+            },
+            'execution_time': {
+                'type': 'float',
+                'default': 0.0
+            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {
