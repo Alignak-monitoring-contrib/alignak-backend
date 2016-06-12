@@ -85,8 +85,8 @@ class Livesynthesis(object):
         """
         if 'state' not in updated and 'state_type' not in updated:
             return
-        elif 'state' in updated and 'state_type' in updated and \
-                        updated['state'] == updated['last_state'] \
+        elif 'state' in updated and 'state_type' in updated \
+                and updated['state'] == updated['last_state'] \
                 and updated['state_type'] == updated['last_state_type']:
             return
 
@@ -105,8 +105,6 @@ class Livesynthesis(object):
             state_type = original['state_type']
             if 'state_type' in updated:
                 state_type = updated['state_type']
-            print("-1 %s_%s_%s" % (typecheck, original['state'].lower(), original['state_type'].lower()))
-            print("+1 %s_%s_%s" % (typecheck, state.lower(), state_type.lower()))
             data = {"$inc": {"%s_%s_%s" % (typecheck, original['state'].lower(),
                                            original['state_type'].lower()): -1,
                              "%s_%s_%s" % (typecheck, state.lower(), state_type.lower()): 1}}

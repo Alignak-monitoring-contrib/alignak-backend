@@ -177,7 +177,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_unknown_hard'], 0)
         self.assertEqual(r[0]['services_unknown_soft'], 0)
 
-
     def test_update_host_service(self):
         """
         Test livesynthesis when update livestate of host and service
@@ -215,7 +214,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_host = copy.copy(r[0])
-        ls_service = copy.copy(r[1])
+        # ls_service = copy.copy(r[1])
 
         # update livestate host down
         # => DOWN SOFT
@@ -312,7 +311,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_unknown_hard'], 0)
         self.assertEqual(r[0]['services_unknown_soft'], 0)
 
-
         # => last_(state|state_type) are changed
         data = {
             'state': 'DOWN',
@@ -359,4 +357,3 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_critical_soft'], 0)
         self.assertEqual(r[0]['services_unknown_hard'], 0)
         self.assertEqual(r[0]['services_unknown_soft'], 0)
-
