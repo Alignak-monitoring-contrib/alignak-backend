@@ -11,6 +11,7 @@ import subprocess
 import copy
 import requests
 import unittest2
+from alignak_backend.livesynthesis import Livesynthesis
 
 
 class TestHookLivesynthesis(unittest2.TestCase):
@@ -357,3 +358,61 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_critical_soft'], 0)
         self.assertEqual(r[0]['services_unknown_hard'], 0)
         self.assertEqual(r[0]['services_unknown_soft'], 0)
+
+    def test_hosts_update(self):
+        """
+        Test all scenarii
+
+        :return: None
+        """
+        # scenario 1
+        original = {
+            'state': 'UP',
+            'state_type': 'HARD',
+            'service_description': None
+        }
+        updated = {
+            'state': 'DOWN',
+            'state_type': 'SOFT'
+        }
+        minus, plus = Livesynthesis.livesynthesis_to_update(updated, original)
+        self.assertEqual(minus, 'hosts_up_hard')
+        self.assertEqual(plus, 'hosts_down_soft')
+
+        # scenario 2
+        original = {
+            'state': 'UP',
+            'state_type': 'SOFT',
+            'service_description': None
+        }
+        updated = {
+            'state': 'DOWN',
+        }
+        minus, plus = Livesynthesis.livesynthesis_to_update(updated, original)
+        self.assertEqual(minus, 'hosts_up_soft')
+        self.assertEqual(plus, 'hosts_down_soft')
+
+        # scenario 3
+        original = {
+            'state': 'UP',
+            'state_type': 'SOFT',
+            'service_description': None
+        }
+        updated = {
+            'state_type': 'HARD',
+        }
+        minus, plus = Livesynthesis.livesynthesis_to_update(updated, original)
+        self.assertEqual(minus, 'hosts_up_soft')
+        self.assertEqual(plus, 'hosts_up_hard')
+
+        # scenario 4
+        original = {
+            'state': 'UP',
+            'state_type': 'SOFT',
+            'service_description': None
+        }
+        updated = {
+        }
+        minus, plus = Livesynthesis.livesynthesis_to_update(updated, original)
+        self.assertFalse(minus)
+        self.assertFalse(plus)

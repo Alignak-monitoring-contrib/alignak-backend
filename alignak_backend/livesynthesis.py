@@ -83,32 +83,47 @@ class Livesynthesis(object):
         """
             What to do when the livestate is updated ...
         """
-        if 'state' not in updated and 'state_type' not in updated:
-            return
-        elif 'state' in updated and 'state_type' in updated \
-                and updated['state'] == updated['last_state'] \
-                and updated['state_type'] == updated['last_state_type']:
-            return
+        minus, plus = Livesynthesis.livesynthesis_to_update(updated, original)
+        if minus:
+            livesynthesis_db = current_app.data.driver.db['livesynthesis']
+            live_current = livesynthesis_db.find_one()
+            if live_current is None:
+                ls = Livesynthesis()
+                ls.recalculate()
+            data = {"$inc": {minus: -1, plus: 1}}
+            ret = current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']},
+                                                                  data)
 
-        livesynthesis_db = current_app.data.driver.db['livesynthesis']
-        live_current = livesynthesis_db.find_one()
-        if live_current is None:
-            ls = Livesynthesis()
-            ls.recalculate()
+    @staticmethod
+    def livesynthesis_to_update(updated, original):
+        """
+        Define fields counters to minus and plus (or nothing to do)
+
+        :param updated:
+        :param original:
+        :return: list with field name (minus, plus)
+        :rtype: list
+        """
+        type_check = 'services'
+        if original['service_description'] is None:
+            type_check = 'hosts'
+        if 'state' not in updated and 'state_type' not in updated:
+            return False, False
+        elif 'state' in updated and 'state_type' not in updated:
+            plus = "%s_%s_%s" % (type_check, updated['state'].lower(),
+                                 original['state_type'].lower())
+        elif 'state' not in updated and 'state_type' in updated:
+            plus = "%s_%s_%s" % (type_check, original['state'].lower(),
+                                 updated['state_type'].lower())
         else:
-            typecheck = 'services'
-            if original['service_description'] is None:
-                typecheck = 'hosts'
-            state = original['state']
-            if 'state' in updated:
-                state = updated['state']
-            state_type = original['state_type']
-            if 'state_type' in updated:
-                state_type = updated['state_type']
-            data = {"$inc": {"%s_%s_%s" % (typecheck, original['state'].lower(),
-                                           original['state_type'].lower()): -1,
-                             "%s_%s_%s" % (typecheck, state.lower(), state_type.lower()): 1}}
-            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+            # so have 'state' and 'state_type' in updated
+            plus = "%s_%s_%s" % (type_check, updated['state'].lower(),
+                                 updated['state_type'].lower())
+        minus = "%s_%s_%s" % (type_check, original['state'].lower(),
+                              original['state_type'].lower())
+        if minus == plus:
+            return False, False
+        return minus, plus
 
     @staticmethod
     def on_inserted_livestate(items):
