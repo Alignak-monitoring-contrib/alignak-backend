@@ -91,8 +91,7 @@ class Livesynthesis(object):
                 ls = Livesynthesis()
                 ls.recalculate()
             data = {"$inc": {minus: -1, plus: 1}}
-            ret = current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']},
-                                                                  data)
+            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
     @staticmethod
     def livesynthesis_to_update(updated, original):
