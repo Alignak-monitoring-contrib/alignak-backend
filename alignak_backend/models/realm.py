@@ -49,6 +49,42 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
+            'hosts_critical_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 5
+            },
+            'hosts_warning_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 3
+            },
+            'services_critical_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 5
+            },
+            'services_warning_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 3
+            },
+            'global_critical_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 5
+            },
+            'global_warning_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 3
+            },
             '_parent': {
                 'type': 'objectid',
                 'data_relation': {
