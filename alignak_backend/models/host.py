@@ -407,6 +407,38 @@ def get_schema():
             'location': {
                 'type': 'point'
             },
+            'notes': {
+                'type': 'string',
+                'default': ''
+            },
+            'notes_url': {
+                'type': 'string',
+                'default': ''
+            },
+            'icon_image': {
+                'type': 'string',
+                'default': ''
+            },
+            'icon_image_alt': {
+                'type': 'string',
+                'default': ''
+            },
+            'vrml_image': {
+                'type': 'string',
+                'default': ''
+            },
+            'statusmap_image': {
+                'type': 'string',
+                'default': ''
+            },
+            '2d_coords': {
+                'type': 'string',
+                'default': ''
+            },
+            '3d_coords': {
+                'type': 'string',
+                'default': ''
+            },
             '_users_read': {
                 'type': 'list',
                 'schema': {
