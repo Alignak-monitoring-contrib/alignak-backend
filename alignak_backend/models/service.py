@@ -399,22 +399,6 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
-            'notes': {
-                'type': 'string',
-                'default': ''
-            },
-            'notes_url': {
-                'type': 'string',
-                'default': ''
-            },
-            'icon_image': {
-                'type': 'string',
-                'default': ''
-            },
-            'icon_image_alt': {
-                'type': 'string',
-                'default': ''
-            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {
