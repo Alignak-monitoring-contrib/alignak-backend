@@ -155,14 +155,6 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
-            'retain_status_information': {
-                'type': 'boolean',
-                'default': True
-            },
-            'retain_nonstatus_information': {
-                'type': 'boolean',
-                'default': True
-            },
             'notificationways': {
                 'type': 'list',
                 'default': []

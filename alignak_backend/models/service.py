@@ -163,14 +163,6 @@ def get_schema():
                 'type': 'boolean',
                 'default': True
             },
-            'retain_status_information': {
-                'type': 'boolean',
-                'default': True
-            },
-            'retain_nonstatus_information': {
-                'type': 'boolean',
-                'default': True
-            },
             'notification_interval': {
                 'type': 'integer',
                 'default': 60
