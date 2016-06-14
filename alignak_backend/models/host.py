@@ -404,6 +404,9 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
+            'location': {
+                'type': 'point'
+            },
             '_users_read': {
                 'type': 'list',
                 'schema': {
