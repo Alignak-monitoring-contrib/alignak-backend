@@ -13,6 +13,7 @@ import os
 import time
 import uuid
 import json
+import re
 from collections import OrderedDict
 from datetime import timedelta
 from configparser import ConfigParser
@@ -361,57 +362,42 @@ def generate_token():
 
 def get_settings(prev_settings):
     """
-    Get settings of application from config file to update/complete previously existing gsettings
+    Get settings of application from config file to update/complete previously existing settings
 
     :param prev_settings: previous settings
     :type prev_settings: dict
     :return: None
     """
     settings_filenames = [
-        '/usr/local/etc/alignak_backend/settings.cfg',
-        '/etc/alignak_backend/settings.cfg',
-        os.path.abspath('./etc/settings.cfg'),
-        os.path.abspath('../etc/settings.cfg'),
-        os.path.abspath('./settings.cfg')
+        '/usr/local/etc/alignak_backend/settings.json',
+        '/etc/alignak_backend/settings.json',
+        os.path.abspath('./etc/settings.json'),
+        os.path.abspath('../etc/settings.json'),
+        os.path.abspath('./settings.json')
     ]
 
-    # Define some variables available
-    defaults = {
-        '_cwd': os.getcwd()
-    }
-    config = ConfigParser(defaults=defaults)
-    cfg_file = config.read(settings_filenames)
-    if not cfg_file:
-        print "No configuration file found, using default configuration"
-    else:
-        print "Configuration read from file(s): %s" % cfg_file
-    for key, value in config.items('DEFAULT'):
-        if key.startswith('_'):
-            continue
-        if key.upper() in prev_settings:
-            app_default = prev_settings[key.upper()]
-            if isinstance(app_default, timedelta):
-                prev_settings[key.upper()] = timedelta(value)
-            elif isinstance(app_default, bool):
-                prev_settings[key.upper()] = True if value in [
-                    'true', 'True', 'on', 'On', 'y', 'yes', '1'
-                ] else False
-            elif isinstance(app_default, float):
-                prev_settings[key.upper()] = float(value)
-            elif isinstance(app_default, int):
-                prev_settings[key.upper()] = int(value)
-            else:
-                # All the string keys need to be coerced into str()
-                # because Flask expects some of them not to be unicode
-                prev_settings[key.upper()] = str(value)
-        else:
-            if value.isdigit():
-                prev_settings[key.upper()] = int(value)
-            else:
-                prev_settings[key.upper()] = str(value)
-        if key.lower() == "server_name":
-            if prev_settings[key.upper()].lower() == 'none':
-                prev_settings[key.upper()] = None
+    comment_re = re.compile(
+        '(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+        re.DOTALL | re.MULTILINE
+    )
+    for filename in settings_filenames:
+        if os.path.isfile(filename):
+            with open(filename) as stream:
+                content = ''.join(stream.readlines())
+                # Looking for comments
+                match = comment_re.search(content)
+                while match:
+                    # single line comment
+                    content = content[:match.start()] + content[match.end():]
+                    match = comment_re.search(content)
+
+                conf = json.loads(content)
+                for key, value in conf.iteritems():
+                    if key.startswith('RATE_LIMIT_') and value is not None:
+                        prev_settings[key] = tuple(value)
+                    else:
+                        prev_settings[key] = value
+                return
 
 
 print "--------------------------------------------------------------------------------"
@@ -451,7 +437,7 @@ settings['PORT'] = 5000
 settings['SERVER_NAME'] = None
 settings['DEBUG'] = False
 
-settings['SCHEDULER_ACTIVE'] = 0
+settings['SCHEDULER_ACTIVE'] = False
 
 settings['GRAPHITE_HOST'] = ''
 settings['GRAPHITE_PORT'] = 2004
@@ -466,7 +452,7 @@ settings['INFLUXDB_DATABASE'] = 'alignak'
 get_settings(settings)
 
 # scheduler config
-if settings['SCHEDULER_ACTIVE'] == 1:
+if settings['SCHEDULER_ACTIVE']:
     settings['JOBS'] = [
         {
             'id': 'cron_cache',
@@ -576,7 +562,7 @@ with app.test_request_context():
     app.on_inserted_logservice += Timeseries.after_inserted_logservice
 
 # Start scheduler (internal cron)
-if settings['SCHEDULER_ACTIVE'] == 1:
+if settings['SCHEDULER_ACTIVE']:
     with app.test_request_context():
         scheduler = APScheduler()
         scheduler.init_app(app)
@@ -631,6 +617,21 @@ def logout_app():
     Log out from backend
     """
     return 'ok'
+
+
+@app.route("/backendconfig")
+def backend_config():
+    """
+    Offer toute to get the backend config
+    """
+    my_config = {"PAGINATION_LIMIT": settings['PAGINATION_LIMIT'],
+                 "PAGINATION_DEFAULT": settings['PAGINATION_DEFAULT'],
+                 'metrics': []}
+    if settings['GRAPHITE_HOST'] is not None:
+        my_config['metrics'].append('graphite')
+    if settings['INFLUXDB_HOST'] is not None:
+        my_config['metrics'].append('influxdb')
+    return jsonify(my_config)
 
 
 @app.route("/cron_timeseries")

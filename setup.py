@@ -77,7 +77,7 @@ setup(
     # package_data={
         # 'sample': ['package_data.dat'],
     # },
-    data_files = [(paths['etc'], ['etc/settings.cfg'])],
+    data_files = [(paths['etc'], ['etc/settings.json'])],
 
     install_requires=[
         'python-dateutil==2.4.2', 'Eve>=0.5', 'flask-bootstrap', 'docopt', 'jsonschema',
