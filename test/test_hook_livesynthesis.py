@@ -150,7 +150,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh[0]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
@@ -206,7 +206,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh[0]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
@@ -369,7 +369,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         original = {
             'state': 'UP',
             'state_type': 'HARD',
-            'service_description': None
+            'service': None
         }
         updated = {
             'state': 'DOWN',
@@ -383,7 +383,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         original = {
             'state': 'UP',
             'state_type': 'SOFT',
-            'service_description': None
+            'service': None
         }
         updated = {
             'state': 'DOWN',
@@ -396,7 +396,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         original = {
             'state': 'UP',
             'state_type': 'SOFT',
-            'service_description': None
+            'service': None
         }
         updated = {
             'state_type': 'HARD',
@@ -409,7 +409,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         original = {
             'state': 'UP',
             'state_type': 'SOFT',
-            'service_description': None
+            'service': None
         }
         updated = {
         }

@@ -29,7 +29,7 @@ def get_schema():
                 'default': '',
                 'required': True
             },
-            'service_description': {
+            'service': {
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'service',
@@ -42,7 +42,7 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
-            'host_name': {
+            'host': {
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'host',
@@ -149,7 +149,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

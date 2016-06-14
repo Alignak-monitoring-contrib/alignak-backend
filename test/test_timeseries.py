@@ -21,8 +21,8 @@ class TestRTimeseries(unittest2.TestCase):
         :return: None
         """
         item = {
-            'host_name': 'srv001',
-            'service_description': 'check_xxx',
+            'host': 'srv001',
+            'service': 'check_xxx',
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,

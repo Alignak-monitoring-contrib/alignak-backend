@@ -66,22 +66,22 @@ def get_schema():
                 'type': 'list',
                 'default': ['d', 'u', 'r', 'w', 'c']
             },
-            'contacts': {
+            'users': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
             },
-            'contact_groups': {
+            'usergroups': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contactgroup',
+                        'resource': 'usergroup',
                         'embeddable': True,
                     }
                 },
@@ -99,7 +99,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -109,7 +109,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -119,7 +119,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

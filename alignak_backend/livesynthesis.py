@@ -58,11 +58,11 @@ class Livesynthesis(object):
         if live_current['hosts_total'] != hosts_cnt:
             data = {"hosts_total": hosts_cnt}
             data['hosts_up_hard'] = livestates.find(
-                {"service_description": None, "state": "UP"}).count()
+                {"service": None, "state": "UP"}).count()
             data['hosts_down_hard'] = livestates.find(
-                {"service_description": None, "state": "DOWN"}).count()
+                {"service": None, "state": "DOWN"}).count()
             data['hosts_unreachable_hard'] = livestates.find(
-                {"service_description": None, "state": "UNREACHABLE"}).count()
+                {"service": None, "state": "UNREACHABLE"}).count()
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
 
@@ -104,7 +104,7 @@ class Livesynthesis(object):
         :rtype: list
         """
         type_check = 'services'
-        if original['service_description'] is None:
+        if original['service'] is None:
             type_check = 'hosts'
         if 'state' not in updated and 'state_type' not in updated:
             return False, False
@@ -137,7 +137,7 @@ class Livesynthesis(object):
         else:
             for dummy, item in enumerate(items):
                 typecheck = 'services'
-                if item['service_description'] is None:
+                if item['service'] is None:
                     typecheck = 'hosts'
                 data = {"$inc": {"%s_%s_%s" % (typecheck, item['state'].lower(),
                                                item['state_type'].lower()): 1,

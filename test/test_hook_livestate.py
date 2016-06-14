@@ -113,8 +113,8 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r[0]['last_check'], 0)
         self.assertEqual(r[0]['state_type'], 'HARD')
         self.assertEqual(r[0]['state'], 'UNREACHABLE')
-        self.assertEqual(r[0]['host_name'], rh[0]['_id'])
-        self.assertEqual(r[0]['service_description'], None)
+        self.assertEqual(r[0]['host'], rh[0]['_id'])
+        self.assertEqual(r[0]['service'], None)
         self.assertEqual(r[0]['business_impact'], 5)
         self.assertEqual(r[0]['type'], 'host')
 
@@ -147,7 +147,7 @@ class TestHookLivestate(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh[0]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
@@ -167,8 +167,8 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r[1]['last_check'], 0)
         self.assertEqual(r[1]['state_type'], 'HARD')
         self.assertEqual(r[1]['state'], 'OK')
-        self.assertEqual(r[1]['host_name'], rh[0]['_id'])
-        self.assertEqual(r[1]['service_description'], rs[0]['_id'])
+        self.assertEqual(r[1]['host'], rh[0]['_id'])
+        self.assertEqual(r[1]['service'], rs[0]['_id'])
         self.assertEqual(r[1]['type'], 'service')
 
     def test_update_host_business_impact(self):
@@ -257,7 +257,7 @@ class TestHookLivestate(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh[0]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         response = requests.post(self.endpoint + '/service', json=data, headers=headers,
@@ -356,7 +356,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'Server 001: srv001')
 
-        # * Case we update host host_name
+        # * Case we update host host
         datap = {'name': 'srv001-1'}
         headers_patch = {
             'Content-Type': 'application/json',
@@ -437,7 +437,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'srv001 alias beta')
 
-        # * Case we update host host_name
+        # * Case we update host host
         datap = {'name': 'srv001-1'}
         headers_patch = {
             'Content-Type': 'application/json',
@@ -467,7 +467,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(resp['_items'][0]['display_name_service'], '')
         self.assertEqual(resp['_items'][0]['display_name_host'], 'Server 001: srv001-1')
 
-    def test_display_name_host__host_name(self):
+    def test_display_name_host__host(self):
         """
         Test the livestate hook fill (on creation and update) the field display_name_host in
         livestate resource when create and update the host (field name of host)
@@ -501,7 +501,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r[0]['display_name_service'], '')
         self.assertEqual(r[0]['display_name_host'], 'srv001')
 
-        # * Case we update host host_name
+        # * Case we update host host
         datap = {'name': 'srv001-1'}
         headers_patch = {
             'Content-Type': 'application/json',
@@ -575,7 +575,7 @@ class TestHookLivestate(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh['_id']
+        data['host'] = rh['_id']
         data['check_command'] = resp['_items'][0]['_id']
         data['display_name'] = 'ping check of server srv001'
         data['_realm'] = self.realm_all
@@ -609,7 +609,7 @@ class TestHookLivestate(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh['_id']
+        data['host'] = rh['_id']
         data['check_command'] = resp['_items'][0]['_id']
         data['display_name'] = 'ping check of server srv001'
         data['alias'] = 'check ping'
@@ -639,7 +639,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(resp['_items'][1]['display_name_host'], 'srv001')
         self.assertEqual(resp['_items'][1]['display_name_service'], 'ping check of server srv001')
 
-        # * Case we update service service_description
+        # * Case we update service service
         datap = {'name': 'check_ping'}
         headers_patch = {
             'Content-Type': 'application/json',
@@ -698,7 +698,7 @@ class TestHookLivestate(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh['_id']
+        data['host'] = rh['_id']
         data['check_command'] = rc[0]['_id']
         data['alias'] = 'ping check alias'
         data['_realm'] = self.realm_all
@@ -729,7 +729,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping check alias (2)')
 
-        # * Case we update service service_description
+        # * Case we update service service
         datap = {'name': 'check-1'}
         headers_patch = {
             'Content-Type': 'application/json',
@@ -759,7 +759,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(resp['_items'][1]['display_name_host'], 'srv001')
         self.assertEqual(resp['_items'][1]['display_name_service'], 'check ping for srv001')
 
-    def test_display_name_service__service_description(self):
+    def test_display_name_service__service(self):
         """
         Test the livestate hook fill (on creation and update) the field display_name_service in
         livestate resource when create and update the service (field name of service)
@@ -788,7 +788,7 @@ class TestHookLivestate(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh['_id']
+        data['host'] = rh['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         responses = requests.post(self.endpoint + '/service', json=data, headers=headers,
@@ -802,7 +802,7 @@ class TestHookLivestate(unittest2.TestCase):
         self.assertEqual(r[1]['display_name_host'], 'srv001')
         self.assertEqual(r[1]['display_name_service'], 'ping')
 
-        # * Case we update service service_description
+        # * Case we update service service
         datap = {'name': 'ping-1'}
         headers_patch = {
             'Content-Type': 'application/json',
@@ -878,7 +878,7 @@ class TestHookLivestate(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh['_id']
+        data['host'] = rh['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)

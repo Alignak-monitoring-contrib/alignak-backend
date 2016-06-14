@@ -23,15 +23,7 @@ def get_schema():
     :rtype: dict
     """
     return {
-        # 'allow_unknown': True,
         'schema': {
-            # 'uuid': {
-            # 'type': 'string',
-            # 'required': True,
-            # 'empty': False,
-            # 'unique': True
-            # },
-
             'members': {
                 'type': 'list',
                 'schema': {
@@ -40,13 +32,6 @@ def get_schema():
                         'resource': 'host',
                         'embeddable': True,
                     }
-                },
-                'ui': {
-                    'title': 'Members',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
                 },
             },
             'hostgroup_members': {
@@ -58,13 +43,6 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
-                'ui': {
-                    'title': 'Hosts groups members',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
             },
             'name': {
                 'type': 'string',
@@ -72,81 +50,29 @@ def get_schema():
                 'empty': False,
                 'unique': True,
                 'default': '',
-                'ui': {
-                    'title': 'Name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
             },
             'definition_order': {
                 'type': 'integer',
-                'ui': {
-                    'title': 'Definition order',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': 100
             },
             'alias': {
                 'type': 'string',
                 'default': '',
-                'ui': {
-                    'title': 'Alias',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
             },
             'notes': {
                 'type': 'string',
                 'default': '',
-                'ui': {
-                    'title': 'Notes',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
-
             },
             'notes_url': {
                 'type': 'string',
                 'default': '',
-                'ui': {
-                    'title': 'Notes (URL)',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
-
             },
             'action_url': {
                 'type': 'string',
                 'default': '',
-                'ui': {
-                    'title': 'Action (URL)',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
-
             },
             'realm': {
                 'type': 'objectid',
-                'ui': {
-                    'title': 'Realm',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
@@ -157,7 +83,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -167,7 +93,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -177,25 +103,10 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
             },
-            # This to define if the object in this model are to be used in the UI
-            'ui': {
-                'type': 'boolean',
-                'default': True,
-                'required': False,
-                # UI parameters for the objects
-                'ui': {
-                    'list_title': 'Hosts groups list (%d items)',
-                    'page_title': 'Host group: %s',
-                    'uid': 'hostgroup_name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True
-                }
-            }
         }
     }

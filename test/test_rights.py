@@ -49,11 +49,11 @@ class TestRights(unittest2.TestCase):
         resp = response.json()
         cls.token = resp['token']
         cls.auth = requests.auth.HTTPBasicAuth(cls.token, '')
-        # get contact admin
-        response = requests.get(cls.endpoint + '/contact',
+        # get user admin
+        response = requests.get(cls.endpoint + '/user',
                                 auth=cls.auth)
         resp = response.json()
-        cls.contact_admin = resp['_items'][0]
+        cls.user_admin = resp['_items'][0]
 
         # get realms
         response = requests.get(cls.endpoint + '/realm',
@@ -80,52 +80,52 @@ class TestRights(unittest2.TestCase):
         resp = response.json()
         cls.dagobah = resp['_id']
 
-        # Add contacts / users
+        # Add users
         data = {'name': 'user1', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.contact_admin['host_notification_period'],
-                'service_notification_period': cls.contact_admin['service_notification_period'],
+                'host_notification_period': cls.user_admin['host_notification_period'],
+                'service_notification_period': cls.user_admin['service_notification_period'],
                 '_realm': cls.realmAll_id}
-        response = requests.post(cls.endpoint + '/contact', json=data, headers=headers,
+        response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
         cls.user1_id = resp['_id']
-        data = {'contact': resp['_id'], 'realm': cls.sluis, 'resource': 'command', 'crud': 'read',
+        data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': 'command', 'crud': 'read',
                 'sub_realm': True}
-        requests.post(cls.endpoint + '/contactrestrictrole', json=data, headers=headers,
+        requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
                       auth=cls.auth)
 
         data = {'name': 'user2', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.contact_admin['host_notification_period'],
-                'service_notification_period': cls.contact_admin['service_notification_period'],
+                'host_notification_period': cls.user_admin['host_notification_period'],
+                'service_notification_period': cls.user_admin['service_notification_period'],
                 '_realm': cls.realmAll_id}
-        response = requests.post(cls.endpoint + '/contact', json=data, headers=headers,
+        response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
         cls.user2_id = resp['_id']
-        data = {'contact': resp['_id'], 'realm': cls.hoth, 'resource': 'command', 'crud': 'read'}
-        requests.post(cls.endpoint + '/contactrestrictrole', json=data, headers=headers,
+        data = {'user': resp['_id'], 'realm': cls.hoth, 'resource': 'command', 'crud': 'read'}
+        requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
                       auth=cls.auth)
 
         data = {'name': 'user3', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.contact_admin['host_notification_period'],
-                'service_notification_period': cls.contact_admin['service_notification_period'],
+                'host_notification_period': cls.user_admin['host_notification_period'],
+                'service_notification_period': cls.user_admin['service_notification_period'],
                 '_realm': cls.realmAll_id}
-        response = requests.post(cls.endpoint + '/contact', json=data, headers=headers,
+        response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
         cls.user3_id = resp['_id']
 
         data = {'name': 'user4', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.contact_admin['host_notification_period'],
-                'service_notification_period': cls.contact_admin['service_notification_period'],
+                'host_notification_period': cls.user_admin['host_notification_period'],
+                'service_notification_period': cls.user_admin['service_notification_period'],
                 '_realm': cls.realmAll_id}
-        response = requests.post(cls.endpoint + '/contact', json=data, headers=headers,
+        response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
         cls.user4_id = resp['_id']
-        data = {'contact': resp['_id'], 'realm': cls.sluis, 'resource': 'command',
+        data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': 'command',
                 'crud': 'custom'}
-        requests.post(cls.endpoint + '/contactrestrictrole', json=data, headers=headers,
+        requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
                       auth=cls.auth)
 
     @classmethod

@@ -96,7 +96,7 @@ class Template(object):
                     service_db = current_app.data.driver.db['service']
                     # Get all services of this host
                     myservices = service_db.find({'_is_template': False,
-                                                  'host_name': original['_id']})
+                                                  'host': original['_id']})
                     myservices_template_id = []
                     myservices_bis = {}
                     for myservice in myservices:
@@ -108,7 +108,7 @@ class Template(object):
                     # loop on host templates and add into services the service are templates
                     for hostid in updates['_templates']:
                         services_template = service_db.find({'_is_template': True,
-                                                             'host_name': hostid})
+                                                             'host': hostid})
                         for srv in services_template:
                             services[srv['name']] = Template.prepare_service_to_post(srv,
                                                                                      original[
@@ -144,7 +144,7 @@ class Template(object):
                 # loop on host templates and add into services the service are templates
                 for hostid in item['_templates']:
                     services_template = service_db.find({'_is_template': True,
-                                                         'host_name': hostid})
+                                                         'host': hostid})
                     for srv in services_template:
                         services[srv['name']] = Template.prepare_service_to_post(srv,
                                                                                  item[
@@ -171,7 +171,7 @@ class Template(object):
                 # case where this service is template host+service, so add this service on all
                 # hosts
                 # use the host template and have _templates_with_services=True
-                hostid = item['host_name']
+                hostid = item['host']
                 hosts = host_db.find(
                     {'_templates': hostid, '_templates_with_services': True})
                 for hs in hosts:
@@ -335,7 +335,7 @@ class Template(object):
         """
         service = current_app.data.driver.db['service']
         ignore_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
-                         '_is_template', '_realm', 'host_name', '_templates_from_host_template']
+                         '_is_template', '_realm', 'host', '_templates_from_host_template']
         fields_not_update = []
         for field_name, field_value in item.iteritems():
             fields_not_update.append(field_name)
@@ -400,7 +400,7 @@ class Template(object):
         ignore_schema_fields = ['_realm', '_template_fields', '_templates',
                                 '_is_template', '_templates_from_host_template']
         schema = service_schema()
-        item['host_name'] = hostid
+        item['host'] = hostid
         item['_templates'] = [item['_id']]
         del item['_etag']
         del item['_id']

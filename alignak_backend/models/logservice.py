@@ -24,7 +24,7 @@ def get_schema():
     """
     return {
         'schema': {
-            'service_description': {
+            'service': {
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'service',
@@ -92,7 +92,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
