@@ -70,12 +70,12 @@ class MyTokenAuth(TokenAuth):
         :type resource: str
         :param method: method used: GET | POST | PATCH | DELETE
         :type method: str
-        :return: True if contact exist and password is ok or if no roles defined, otherwise False
+        :return: True if user exist and password is ok or if no roles defined, otherwise False
         :rtype: bool
         """
-        _contacts = current_app.data.driver.db['contact']
-        contact = _contacts.find_one({'token': token})
-        if contact:
+        _users = current_app.data.driver.db['user']
+        user = _users.find_one({'token': token})
+        if user:
             g.updateRealm = False
             # get children of realms for rights
             realmsdrv = current_app.data.driver.db['realm']
@@ -86,9 +86,9 @@ class MyTokenAuth(TokenAuth):
                 self.realms_children[realm['_id']] = realm['_tree_children']
                 self.realms_parents[realm['_id']] = realm['_tree_parents']
 
-            g.back_role_super_admin = contact['back_role_super_admin']
-            contactrestrictroles = current_app.data.driver.db['contactrestrictrole']
-            contactrestrictrole = contactrestrictroles.find({'contact': contact['_id']})
+            g.back_role_super_admin = user['back_role_super_admin']
+            userrestrictroles = current_app.data.driver.db['userrestrictrole']
+            userrestrictrole = userrestrictroles.find({'user': user['_id']})
             g.resources_get = {}
             g.resources_get_parents = {}
             get_parents = {}
@@ -101,7 +101,7 @@ class MyTokenAuth(TokenAuth):
             g.resources_delete = {}
             g.resources_delete_parents = {}
             g.resources_delete_custom = {}
-            for rights in contactrestrictrole:
+            for rights in userrestrictrole:
                 self.add_resources_realms('read', rights, False, g.resources_get, get_parents)
                 self.add_resources_realms('read', rights, True, g.resources_get_custom)
                 self.add_resources_realms('create', rights, False, g.resources_post)
@@ -121,8 +121,8 @@ class MyTokenAuth(TokenAuth):
                 g.resources_patch[resource] = list(set(g.resources_patch[resource]))
             for resource in g.resources_delete:
                 g.resources_delete[resource] = list(set(g.resources_delete[resource]))
-            g.users_id = contact['_id']
-        return contact
+            g.users_id = user['_id']
+        return user
 
     def add_resources_realms(self, right, data, custom, resource, parents=None):
         """
@@ -130,7 +130,7 @@ class MyTokenAuth(TokenAuth):
 
         :param right: right in list: create, read, update, delete
         :type right: str
-        :param data: data (one record) from contactrestrictrole (from mongo)
+        :param data: data (one record) from userrestrictrole (from mongo)
         :type data: dict
         :param custom: True if it's a custom right, otherwise False
         :type custom: bool
@@ -163,10 +163,6 @@ class MyValidator(Validator):
         """Validate 'title' field (always valid)"""
         return
 
-    def _validate_ui(self, title, field, value):
-        """Validate 'ui' field (always valid)"""
-        return
-
 
 def pre_get(resource, user_request, lookup):
     """
@@ -184,7 +180,7 @@ def pre_get(resource, user_request, lookup):
     if g.get('back_role_super_admin', False):
         return
     # Only in case not super-admin
-    if resource != 'contact':
+    if resource != 'user':
         # get all resources we can have rights in read
         resources_get = g.get('resources_get', {})
         resources_get_parents = g.get('resources_get_parents', {})
@@ -323,10 +319,10 @@ def after_delete_realm(item):
         g.updateRealm = False
 
 
-def pre_contact_post(items):
+def pre_user_post(items):
     """
     Hook before insert.
-    When add contact, hash the backend password of the user
+    When add user, hash the backend password of the user
 
     :param items: list of items (list because can use bulk)
     :type items: list
@@ -337,10 +333,10 @@ def pre_contact_post(items):
             items[index]['password'] = generate_password_hash(item['password'])
 
 
-def pre_contact_patch(updates, original):
+def pre_user_patch(updates, original):
     """
     Hook before update.
-    When update contact, hash the backend password of the user if try to change it
+    When update user, hash the backend password of the user if try to change it
 
     :param updates: list of fields user try to update
     :type updates: dict
@@ -495,8 +491,8 @@ app = Eve(
 )
 # hooks pre-init
 app.on_pre_GET += pre_get
-app.on_insert_contact += pre_contact_post
-app.on_update_contact += pre_contact_patch
+app.on_insert_user += pre_user_post
+app.on_update_user += pre_user_patch
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
 app.on_update_realm += pre_realm_patch
@@ -505,7 +501,7 @@ app.on_update_realm += pre_realm_patch
 Bootstrap(app)
 app.register_blueprint(eve_docs, url_prefix='/docs')
 
-# Create default account when have no contact.
+# Create default account when have no user.
 with app.test_request_context():
     # Create default realm if not defined
     realms = app.data.driver.db['realm']
@@ -532,19 +528,19 @@ with app.test_request_context():
                                                     {u'sunday': u'00:00-24:00'}]}, True)
         print "Created default timeperiod"
         default_timeperiod = timeperiods.find_one({'name': '24x7'})
-    # Create default username/contact if not defined
+    # Create default username/user if not defined
     try:
-        contacts = app.data.driver.db['contact']
+        users = app.data.driver.db['user']
     except Exception as e:
         sys.exit("[ERROR] Impossible to connect to MongoDB (%s)" % e)
-    super_admin_contact = contacts.find_one({'back_role_super_admin': True})
-    if not super_admin_contact:
-        post_internal("contact", {"name": "admin",
-                                  "password": "admin",
-                                  "back_role_super_admin": True,
-                                  "host_notification_period": default_timeperiod['_id'],
-                                  "service_notification_period": default_timeperiod['_id'],
-                                  "_realm": default_realm['_id']})
+    super_admin_user = users.find_one({'back_role_super_admin': True})
+    if not super_admin_user:
+        post_internal("user", {"name": "admin",
+                               "password": "admin",
+                               "back_role_super_admin": True,
+                               "host_notification_period": default_timeperiod['_id'],
+                               "service_notification_period": default_timeperiod['_id'],
+                               "_realm": default_realm['_id']})
         print "Created Super admin"
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
@@ -612,20 +608,20 @@ def login_app():
             description='Username and password must be provided as credentials for login.'
         )
     else:
-        _contacts = app.data.driver.db['contact']
-        contact = _contacts.find_one({'name': posted_data['username']})
-        if contact:
-            if check_password_hash(contact['password'], posted_data['password']):
+        _users = app.data.driver.db['user']
+        user = _users.find_one({'name': posted_data['username']})
+        if user:
+            if check_password_hash(user['password'], posted_data['password']):
                 if 'action' in posted_data:
-                    if posted_data['action'] == 'generate' or not contact['token']:
+                    if posted_data['action'] == 'generate' or not user['token']:
                         token = generate_token()
-                        _contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                        _users.update({'_id': user['_id']}, {'$set': {'token': token}})
                         return jsonify({'token': token})
-                elif not contact['token']:
+                elif not user['token']:
                     token = generate_token()
-                    _contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                    _users.update({'_id': user['_id']}, {'$set': {'token': token}})
                     return jsonify({'token': token})
-                return jsonify({'token': contact['token']})
+                return jsonify({'token': user['token']})
         abort(401, description='Please provide proper credentials')
 
 

@@ -38,15 +38,8 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
-            'host_name': {
+            'host': {
                 'type': 'objectid',
-                'ui': {
-                    'title': 'Host name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'data_relation': {
                     'resource': 'host',
                     'embeddable': True
@@ -54,13 +47,6 @@ def get_schema():
             },
             'hostgroup_name': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Hostgroups names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -87,22 +73,22 @@ def get_schema():
                 'type': 'list',
                 'default': ['d', 'u', 'r', 'w', 'c']
             },
-            'contacts': {
+            'users': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
             },
-            'contact_groups': {
+            'usergroups': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contactgroup',
+                        'resource': 'usergroup',
                         'embeddable': True,
                     }
                 },
@@ -126,7 +112,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -136,7 +122,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -146,7 +132,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

@@ -49,7 +49,7 @@ class Livestate(object):
             else:
                 name = item['name']
 
-            data = {'host_name': item['_id'], 'service_description': None, 'state': 'UP',
+            data = {'host': item['_id'], 'service': None, 'state': 'UP',
                     'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
                     'last_state': 'UP', 'last_state_type': 'HARD', 'output': '',
                     'long_output': '', 'perf_data': '', 'type': 'host',
@@ -82,7 +82,7 @@ class Livestate(object):
                 name = item['name']
 
             host_db = current_app.data.driver.db['host']
-            host_info = host_db.find_one({'_id': item['host_name']})
+            host_info = host_db.find_one({'_id': item['host']})
             if not host_info:
                 print ("Host not found: %s" % item)
                 return
@@ -92,7 +92,7 @@ class Livestate(object):
             if 'display_name' in host_info and host_info['display_name'] != '':
                 name_h = host_info['display_name']
 
-            data = {'host_name': item['host_name'], 'service_description': item['_id'],
+            data = {'host': item['host'], 'service': item['_id'],
                     'state': 'OK', 'state_type': 'HARD', 'acknowledged': False, 'last_check': 0,
                     'last_state': 'OK', 'last_state_type': 'HARD', 'output': '',
                     'long_output': '', 'perf_data': '', 'type': 'service',
@@ -140,8 +140,8 @@ class Livestate(object):
 
         if bi or name != '':
             livestate_db = current_app.data.driver.db['livestate']
-            live_current = livestate_db.find_one({'host_name': original['_id'],
-                                                  'service_description': None})
+            live_current = livestate_db.find_one({'host': original['_id'],
+                                                  'service': None})
             data = {}
             if bi:
                 data['business_impact'] = updated['business_impact']
@@ -150,7 +150,7 @@ class Livestate(object):
             lookup = {"_id": live_current['_id']}
             patch_internal('livestate', data, False, False, **lookup)
             if name != '':
-                lives = livestate_db.find({'host_name': original['_id'], 'type': 'service'})
+                lives = livestate_db.find({'host': original['_id'], 'type': 'service'})
                 data = {'display_name_host': name}
                 for live in lives:
                     lookup = {"_id": live['_id']}
@@ -183,7 +183,7 @@ class Livestate(object):
 
         if bi or name != '':
             livestate_db = current_app.data.driver.db['livestate']
-            live_current = livestate_db.find_one({'service_description': original['_id']})
+            live_current = livestate_db.find_one({'service': original['_id']})
             data = {}
             if bi:
                 data['business_impact'] = updated['business_impact']

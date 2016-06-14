@@ -95,7 +95,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh[0]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Resource information of contactgroup
+Resource information of usergroup
 """
 
 
@@ -12,7 +12,7 @@ def get_name():
     :return: name of this resource
     :rtype: str
     """
-    return 'contactgroup'
+    return 'usergroup'
 
 
 def get_schema():
@@ -23,93 +23,43 @@ def get_schema():
     :rtype: dict
     """
     return {
-        # 'allow_unknown': True,
         'schema': {
-            # 'uuid': {
-            # 'type': 'string',
-            # 'required': True,
-            # 'empty': False,
-            # 'unique': True
-            # },
-
-            'members': {
+            'users': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Contact members',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
             },
-            'contactgroup_members': {
+            'usergroup_members': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Contactgroup members',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contactgroup',
+                        'resource': 'usergroup',
                         'embeddable': True,
                     }
                 },
             },
             'name': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'required': True,
                 'empty': False,
                 'unique': True
             },
             'definition_order': {
                 'type': 'integer',
-                'ui': {
-                    'title': 'Definition order',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': 100
             },
             'alias': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Alias',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': ''
             },
             '_realm': {
                 'type': 'objectid',
-                'ui': {
-                    'title': 'Realm',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
@@ -118,13 +68,6 @@ def get_schema():
             },
             '_sub_realm': {
                 'type': 'boolean',
-                'ui': {
-                    'title': 'Readable on sub realms',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': False
             },
             '_users_read': {
@@ -132,7 +75,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -143,7 +86,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -154,7 +97,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

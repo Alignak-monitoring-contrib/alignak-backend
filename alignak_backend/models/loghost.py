@@ -24,7 +24,7 @@ def get_schema():
     """
     return {
         'schema': {
-            'host_name': {
+            'host': {
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'host',
@@ -92,7 +92,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

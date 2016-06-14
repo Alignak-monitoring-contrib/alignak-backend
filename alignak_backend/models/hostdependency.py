@@ -38,15 +38,8 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
-            'dependent_host_name': {
+            'dependent_host': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Dependent hosts name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -57,13 +50,6 @@ def get_schema():
             },
             'dependent_hostgroup_name': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Dependent hostgroups names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -72,15 +58,8 @@ def get_schema():
                     }
                 },
             },
-            'host_name': {
+            'host': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Hosts names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -91,13 +70,6 @@ def get_schema():
             },
             'hostgroup_name': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Hostgroups names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -132,13 +104,6 @@ def get_schema():
             },
             '_sub_realm': {
                 'type': 'boolean',
-                'ui': {
-                    'title': 'Readable on sub realms',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': False
             },
             '_users_read': {
@@ -146,7 +111,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -156,7 +121,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -166,7 +131,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

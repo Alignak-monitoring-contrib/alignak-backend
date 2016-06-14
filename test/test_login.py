@@ -52,11 +52,11 @@ class Test_0_LoginCreation(unittest2.TestCase):
 
     def test_0(self):
         """
-        Test default admin user creation when start backend and have no users in resource contact
+        Test default admin user creation when start backend and have no users in resource user
 
         :return: None
         """
-        # Login and delete defined contacts ...
+        # Login and delete defined users ...
         endpoint = 'http://127.0.0.1:5000'
 
         headers = {'Content-Type': 'application/json'}
@@ -67,7 +67,7 @@ class Test_0_LoginCreation(unittest2.TestCase):
         token = resp['token']
         auth = requests.auth.HTTPBasicAuth(token, '')
 
-        requests.delete(endpoint + '/contact', auth=auth)
+        requests.delete(endpoint + '/user', auth=auth)
         response = requests.post(endpoint + '/login', json=params, headers=headers)
         resp = response.json()
 

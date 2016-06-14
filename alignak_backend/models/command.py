@@ -26,102 +26,39 @@ def get_schema():
         'schema': {
             'name': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'definition_order': {
                 'type': 'integer',
-                'ui': {
-                    'title': 'Definition order',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': 100
             },
             'command_line': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Command line',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
             },
             'poller_tag': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Poller tag',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': 'None'
             },
             'reactionner_tag': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Reactionner tag',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': 'None'
             },
             'module_type': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Module type',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': 'fork'
             },
             'timeout': {
                 'type': 'integer',
-                'ui': {
-                    'title': 'Timeout',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': -1
             },
             'enable_environment_macros': {
                 'type': 'boolean',
-                'ui': {
-                    'title': 'Environment macros',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': False
             },
             '_realm': {
                 'type': 'objectid',
-                'ui': {
-                    'title': 'Realm',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
@@ -130,13 +67,6 @@ def get_schema():
             },
             '_sub_realm': {
                 'type': 'boolean',
-                'ui': {
-                    'title': 'Readable on sub realms',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': False
             },
             '_users_read': {
@@ -144,7 +74,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -155,7 +85,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -166,27 +96,11 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
                 'default': [],
             },
-            # This to define if the object in this model are to be used in the UI
-            'ui': {
-                'type': 'boolean',
-                'default': True,
-                'required': False,
-
-                # UI parameters for the objects
-                'ui': {
-                    'list_title': 'Commands list (%d items)',
-                    'page_title': 'Command: %s',
-                    'uid': 'command_name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True
-                }
-            }
         }
     }

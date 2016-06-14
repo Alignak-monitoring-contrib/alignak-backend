@@ -38,29 +38,15 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
-            'host_name': {
+            'host': {
                 'type': 'objectid',
-                'ui': {
-                    'title': 'Host name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'data_relation': {
                     'resource': 'host',
                     'embeddable': True
                 },
             },
-            'service_description': {
+            'service': {
                 'type': 'objectid',
-                'ui': {
-                    'title': 'Service name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'data_relation': {
                     'resource': 'service',
                     'embeddable': True
@@ -95,7 +81,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -105,7 +91,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -115,7 +101,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

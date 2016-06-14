@@ -32,7 +32,7 @@ class Timeseries(object):
         host_db = current_app.data.driver.db['host']
         for dummy, item in enumerate(items):
             ts = Timeseries.prepare_data(item)
-            host_info = host_db.find_one({'_id': item['host_name']})
+            host_info = host_db.find_one({'_id': item['host']})
             send_data = []
             for d in ts['data']:
                 send_data.append(
@@ -60,8 +60,8 @@ class Timeseries(object):
         host_db = current_app.data.driver.db['host']
         for dummy, item in enumerate(items):
             ts = Timeseries.prepare_data(item)
-            service_info = service_db.find_one({'_id': item['service_description']})
-            host_info = host_db.find_one({'_id': service_info['host_name']})
+            service_info = service_db.find_one({'_id': item['service']})
+            host_info = host_db.find_one({'_id': service_info['host']})
             send_data = []
             for d in ts['data']:
                 send_data.append(

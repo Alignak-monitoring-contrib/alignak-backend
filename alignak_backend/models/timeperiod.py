@@ -30,81 +30,32 @@ def get_schema():
             },
             'name': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'definition_order': {
                 'type': 'integer',
-                'ui': {
-                    'title': 'Definition order',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': 100
             },
             'alias': {
                 'type': 'string',
-                'ui': {
-                    'title': 'Alias',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': ''
             },
             'dateranges': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Date ranges',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': []
             },
             'exclude': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Exclude',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': []
             },
             'is_active': {
                 'type': 'boolean',
-                'ui': {
-                    'title': 'Active',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': False
             },
             '_realm': {
                 'type': 'objectid',
-                'ui': {
-                    'title': 'Realm',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
@@ -116,7 +67,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -126,7 +77,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -136,7 +87,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

@@ -95,7 +95,7 @@ class TestRecalculateLivestate(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host_name'] = rh[0]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
@@ -123,6 +123,6 @@ class TestRecalculateLivestate(unittest2.TestCase):
         self.assertEqual(r[1]['last_check'], 0)
         self.assertEqual(r[1]['state_type'], 'HARD')
         self.assertEqual(r[1]['state'], 'OK')
-        self.assertEqual(r[1]['host_name'], rh[0]['_id'])
-        self.assertEqual(r[1]['service_description'], rs[0]['_id'])
+        self.assertEqual(r[1]['host'], rh[0]['_id'])
+        self.assertEqual(r[1]['service'], rs[0]['_id'])
         self.assertEqual(r[1]['type'], 'service')

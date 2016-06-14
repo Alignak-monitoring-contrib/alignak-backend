@@ -1,6 +1,6 @@
 {
     "name": "ping",
-    "host_name": "srv001",
+    "host": "srv001",
     "check_command": "ping",
     "business_impact": 4
 }

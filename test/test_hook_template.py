@@ -288,7 +288,7 @@ class TestHookTemplate(unittest2.TestCase):
         # add service template
         data = {
             'name': 'ping',
-            'host_name': rh[0]['_id'],
+            'host': rh[0]['_id'],
             'check_command': rc[0]['_id'],
             'business_impact': 4,
             '_is_template': True,
@@ -301,7 +301,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[0]['name'], "ping")
 
         data = {
-            'host_name': rh[1]['_id'],
+            'host': rh[1]['_id'],
             '_templates': [rs[0]['_id']],
             '_realm': self.realm_all
         }
@@ -312,7 +312,7 @@ class TestHookTemplate(unittest2.TestCase):
         rs = resp['_items']
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ping")
-        self.assertEqual(rs[1]['host_name'], rh[1]['_id'])
+        self.assertEqual(rs[1]['host'], rh[1]['_id'])
 
     def test_service_templates_updates(self):
         """
@@ -357,7 +357,7 @@ class TestHookTemplate(unittest2.TestCase):
         # add service template
         data = {
             'name': 'ping',
-            'host_name': rh[0]['_id'],
+            'host': rh[0]['_id'],
             'check_command': rc[0]['_id'],
             'business_impact': 4,
             '_is_template': True,
@@ -371,7 +371,7 @@ class TestHookTemplate(unittest2.TestCase):
 
         data = {
             'name': 'ping_test',
-            'host_name': rh[1]['_id'],
+            'host': rh[1]['_id'],
             '_templates': [rs[0]['_id']],
             '_realm': self.realm_all
         }
@@ -382,7 +382,7 @@ class TestHookTemplate(unittest2.TestCase):
         rs = resp['_items']
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ping_test")
-        self.assertEqual(rs[1]['host_name'], rh[1]['_id'])
+        self.assertEqual(rs[1]['host'], rh[1]['_id'])
 
         datap = {'check_interval': 1}
         headers_patch = {
@@ -490,7 +490,7 @@ class TestHookTemplate(unittest2.TestCase):
         # Add services templates
         data = {
             'name': 'ping',
-            'host_name': rh[0]['_id'],
+            'host': rh[0]['_id'],
             'check_command': rc[0]['_id'],
             'business_impact': 4,
             '_is_template': True,
@@ -501,7 +501,7 @@ class TestHookTemplate(unittest2.TestCase):
         data['check_command'] = rc[3]['_id']
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
         data['name'] = 'http'
-        data['host_name'] = rh[1]['_id']
+        data['host'] = rh[1]['_id']
         data['check_command'] = rc[1]['_id']
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
         data['name'] = 'https'
@@ -591,7 +591,7 @@ class TestHookTemplate(unittest2.TestCase):
         # Now add a new template service
         data = {
             'name': 'ssh_new_method',
-            'host_name': rh[0]['_id'],
+            'host': rh[0]['_id'],
             'check_command': rc[0]['_id'],
             'business_impact': 4,
             '_is_template': True,

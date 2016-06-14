@@ -27,35 +27,14 @@ def get_schema():
         'schema': {
             'type': {
                 'type': 'string',
-                'ui': {
-                    'title': "Preference's type",
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': ''
             },
             'user': {
                 'type': 'string',
-                'ui': {
-                    'title': "User name",
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': ''
             },
             'data': {
                 'type': 'dict',
-                'ui': {
-                    'title': "Preference's dictionary",
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': []
             },
         }
