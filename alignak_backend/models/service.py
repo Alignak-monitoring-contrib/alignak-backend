@@ -336,12 +336,12 @@ def get_schema():
                 'default': 2
             },
             'trigger': {
-                'type': 'string',
-                'default': ''
-            },
-            'trigger_name': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'trigger',
+                    'embeddable': True
+                },
+                'nullable': True
             },
             'trigger_broker_raise_enabled': {
                 'type': 'boolean',
