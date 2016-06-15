@@ -93,7 +93,18 @@ def get_schema():
                 },
                 'default': []
             },
-            '_tree_children': {
+            '_children': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'realm',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
+            '_all_children': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',

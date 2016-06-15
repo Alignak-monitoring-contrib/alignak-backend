@@ -55,8 +55,8 @@ class MyTokenAuth(TokenAuth):
     """
     Class to manage authentication
     """
-    realms_children = {}
-    realms_parents = {}
+    children_realms = {}
+    parent_realms = {}
 
     """Authentication token class"""
     def check_auth(self, token, allowed_roles, resource, method):
@@ -81,11 +81,11 @@ class MyTokenAuth(TokenAuth):
             # get children of realms for rights
             realmsdrv = current_app.data.driver.db['realm']
             allrealms = realmsdrv.find()
-            self.realms_children = {}
-            self.realms_parents = {}
+            self.children_realms = {}
+            self.parent_realms = {}
             for realm in allrealms:
-                self.realms_children[realm['_id']] = realm['_tree_children']
-                self.realms_parents[realm['_id']] = realm['_tree_parents']
+                self.children_realms[realm['_id']] = realm['_all_children']
+                self.parent_realms[realm['_id']] = realm['_tree_parents']
 
             g.back_role_super_admin = user['back_role_super_admin']
             userrestrictroles = current_app.data.driver.db['userrestrictrole']
@@ -152,9 +152,9 @@ class MyTokenAuth(TokenAuth):
                 parents[data['resource']] = []
             resource[data['resource']].append(data['realm'])
             if right == 'read' and not custom:
-                parents[data['resource']].extend(self.realms_parents[data['realm']])
+                parents[data['resource']].extend(self.parent_realms[data['realm']])
             if data['sub_realm']:
-                resource[data['resource']].extend(self.realms_children[data['realm']])
+                resource[data['resource']].extend(self.children_realms[data['realm']])
 
 
 class MyValidator(Validator):
@@ -217,16 +217,19 @@ def pre_realm_post(items):
     """
     realmsdrv = current_app.data.driver.db['realm']
     for index, item in enumerate(items):
-        # generate _level
+        # Default parent
         if '_parent' not in item:
             # Use default realm as a parent
             dr = realmsdrv.find_one({'name': 'All'})
             item['_parent'] = dr['_id']
+
+        # Compute _level
         parent_realm = realmsdrv.find_one({'_id': item['_parent']})
-        items[index]['_level'] = parent_realm['_level'] + 1
-        # get parents (there is no children)
-        items[index]['_tree_parents'] = parent_realm['_tree_parents']
-        items[index]['_tree_parents'].append(parent_realm['_id'])
+        item['_level'] = parent_realm['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_realm['_tree_parents']
+        item['_tree_parents'].append(parent_realm['_id'])
 
 
 def pre_realm_patch(updates, original):
@@ -239,39 +242,37 @@ def pre_realm_patch(updates, original):
     :type original: dict
     :return: None
     """
-    # pylint: disable=unused-argument
     if not g.updateRealm:
         if '_tree_parents' in updates:
             abort(make_response("Updating _tree_parents is forbidden", 412))
-        if '_tree_children' in updates:
-            abort(make_response("Updating _tree_children is forbidden", 412))
+        if '_children' in updates:
+            abort(make_response("Updating _children is forbidden", 412))
+        if '_all_children' in updates:
+            abort(make_response("Updating _all_children is forbidden", 412))
 
-    if '_parent' in updates:
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
         realmsdrv = current_app.data.driver.db['realm']
-
-        # Delete self reference in former parent children tree
-        if len(original['_tree_parents']) > 0:
-            for parent in original['_tree_parents']:
-                parent = realmsdrv.find_one({'_id': parent})
-                print "Parent: %s, _tree_children: %s" % (parent['name'], parent['_tree_children'])
-                if original['_id'] in parent['_tree_children']:
-                    parent['_tree_children'].remove(original['_id'])
-                print "Parent: %s, _tree_children: %s" % (parent['name'], parent['_tree_children'])
-                lookup = {"_id": parent['_id']}
-                g.updateRealm = True
-                patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                               **lookup)
-                g.updateRealm = False
 
         # Add self reference in new parent children tree
         parent = realmsdrv.find_one({'_id': updates['_parent']})
-        if original['_id'] not in parent['_tree_children']:
-            parent['_tree_children'].append(original['_id'])
+        if original['_id'] not in parent['_children']:
+            parent['_children'].append(original['_id'])
         lookup = {"_id": parent['_id']}
         g.updateRealm = True
-        patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
+        patch_internal('realm', {"_children": parent['_children']}, False, False,
                        **lookup)
         g.updateRealm = False
+
+        # Delete self reference in former parent children tree
+        if len(original['_tree_parents']) > 0:
+            parent = realmsdrv.find_one({'_id': original['_tree_parents'][-1]})
+            if original['_id'] in parent['_children']:
+                parent['_children'].remove(original['_id'])
+            lookup = {"_id": parent['_id']}
+            g.updateRealm = True
+            patch_internal('realm', {"_children": parent['_children']}, False, False,
+                           **lookup)
+            g.updateRealm = False
 
         updates['_level'] = parent['_level'] + 1
         updates['_tree_parents'] = original['_tree_parents']
@@ -279,6 +280,7 @@ def pre_realm_patch(updates, original):
             updates['_tree_parents'].remove(original['_parent'])
         if updates['_parent'] not in original['_tree_parents']:
             updates['_tree_parents'].append(updates['_parent'])
+
 
 def after_insert_realm(items):
     """
@@ -289,17 +291,24 @@ def after_insert_realm(items):
     :return: None
     """
     # pylint: disable=unused-argument
-    realmsdrv = current_app.data.driver.db['realm']
     for dummy, item in enumerate(items):
+        print "Inserted: %s (%s): %s" % (item['_id'], item['name'], item)
         # update _children fields on all parents
-        if len(item['_tree_parents']) > 0:
-            parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
-            parent['_tree_children'].append(item['_id'])
-            lookup = {"_id": parent['_id']}
-            g.updateRealm = True
-            patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                           **lookup)
-            g.updateRealm = False
+        print "=> Update parents children: %s (%s), parent: %s" % (item['_id'], item['name'], item['_parent'])
+
+        realmsdrv = current_app.data.driver.db['realm']
+        parent = realmsdrv.find_one({'_id': item['_parent']})
+        print "=> after_insert_realm, update parent (before): %s (%s) - %s" % (parent['_id'], parent['name'], parent['_all_children'])
+        parent['_children'].append(item['_id'])
+        parent['_all_children'].append(item['_id'])
+        print "=> after_insert_realm, update parent (after): %s (%s) - %s" % (parent['_id'], parent['name'], parent['_all_children'])
+        lookup = {"_id": parent['_id']}
+        g.updateRealm = True
+        patch_internal('realm', {
+            "_children": parent['_children'],
+            "_all_children": parent['_all_children']
+        }, False, False, **lookup)
+        g.updateRealm = False
 
 
 def after_update_realm(updated, original):
@@ -313,17 +322,21 @@ def after_update_realm(updated, original):
     :return: None
     """
     if g.updateRealm:
-        if '_tree_children' in updated and updated['_tree_children'] != original['_tree_children']:
-            if len(original['_tree_parents']) > 0:
-                realmsdrv = current_app.data.driver.db['realm']
-                parent = realmsdrv.find_one({'_id': original['_tree_parents'][-1]})
-                if len(original['_tree_children']) < len(updated['_tree_children']):
-                    parent['_tree_children'].append(updated['_tree_children'][-1])
-                elif len(original['_tree_children']) > len(updated['_tree_children']):
-                    del parent['_tree_children'][-1]
-                lookup = {"_id": parent['_id']}
-                patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                               **lookup)
+        print "after_update_realm, updated: %s (%s): %s" % (original['_id'], original['name'], updated)
+
+        realmsdrv = current_app.data.driver.db['realm']
+        parent = realmsdrv.find_one({'_id': original['_parent']})
+        if parent:
+            print "=> after_update_realm, parent (before): %s (%s) - %s" % (parent['_id'], parent['name'], parent['_all_children'])
+            parent['_all_children'].append(original['_id'])
+            print "=> after_update_realm, parent (after): %s (%s) - %s" % (parent['_id'], parent['name'], parent['_all_children'])
+            lookup = {"_id": parent['_id']}
+            g.updateRealm = True
+            cr = patch_internal('realm', {
+                "_all_children": parent['_all_children']
+            }, False, False, **lookup)
+            print "=> after_update_realm, cr: ", cr
+            g.updateRealm = False
 
 
 def pre_delete_realm(item):
@@ -334,7 +347,8 @@ def pre_delete_realm(item):
     :type item: dict
     :return: None
     """
-    if len(item['_tree_children']) > 0:
+    print "pre_delete_realm"
+    if len(item['_children']) > 0:
         abort(409, description=debug_error_message("Item have children, so can't delete it"))
 
 
@@ -349,11 +363,18 @@ def after_delete_realm(item):
     realmsdrv = current_app.data.driver.db['realm']
     if len(item['_tree_parents']) > 0:
         parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
-        del parent['_tree_children'][-1]
+        print "Parent: %s, _children: %s" % (parent['name'], parent['_children'])
+        if item['_id'] in parent['_children']:
+            parent['_children'].remove(item['_id'])
+        if item['_id'] in parent['_all_children']:
+            parent['_all_children'].remove(item['_id'])
+        print "Parent: %s, _children: %s" % (parent['name'], parent['_children'])
         lookup = {"_id": parent['_id']}
         g.updateRealm = True
-        patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                       **lookup)
+        patch_internal('realm', {
+            "_children": parent['_children'],
+            "_all_children": parent['_children']
+        }, False, False, **lookup)
         g.updateRealm = False
 
 
