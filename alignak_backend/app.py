@@ -209,7 +209,7 @@ def pre_get(resource, user_request, lookup):
 
 def pre_realm_post(items):
     """
-    Hook before add new realm
+    Hook before adding new realm
 
     :param items: realm fields
     :type items: dict
@@ -220,8 +220,7 @@ def pre_realm_post(items):
         # generate _level
         if '_parent' not in item:
             # Use default realm as a parent
-            realms = app.data.driver.db['realm']
-            dr = realms.find_one({'name': 'All'})
+            dr = realmsdrv.find_one({'name': 'All'})
             item['_parent'] = dr['_id']
         parent_realm = realmsdrv.find_one({'_id': item['_parent']})
         items[index]['_level'] = parent_realm['_level'] + 1
@@ -232,7 +231,7 @@ def pre_realm_post(items):
 
 def pre_realm_patch(updates, original):
     """
-    Hook before update existent realm
+    Hook before updating existing realm
 
     :param updates: modified fields
     :type updates: dict
@@ -243,10 +242,43 @@ def pre_realm_patch(updates, original):
     # pylint: disable=unused-argument
     if not g.updateRealm:
         if '_tree_parents' in updates:
-            abort(make_response("Update _tree_parents is forbidden", 412))
+            abort(make_response("Updating _tree_parents is forbidden", 412))
         if '_tree_children' in updates:
-            abort(make_response("Update _tree_parents is forbidden", 412))
+            abort(make_response("Updating _tree_children is forbidden", 412))
 
+    if '_parent' in updates:
+        realmsdrv = current_app.data.driver.db['realm']
+
+        # Delete self reference in former parent children tree
+        if len(original['_tree_parents']) > 0:
+            for parent in original['_tree_parents']:
+                parent = realmsdrv.find_one({'_id': parent})
+                print "Parent: %s, _tree_children: %s" % (parent['name'], parent['_tree_children'])
+                if original['_id'] in parent['_tree_children']:
+                    parent['_tree_children'].remove(original['_id'])
+                print "Parent: %s, _tree_children: %s" % (parent['name'], parent['_tree_children'])
+                lookup = {"_id": parent['_id']}
+                g.updateRealm = True
+                patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
+                               **lookup)
+                g.updateRealm = False
+
+        # Add self reference in new parent children tree
+        parent = realmsdrv.find_one({'_id': updates['_parent']})
+        if original['_id'] not in parent['_tree_children']:
+            parent['_tree_children'].append(original['_id'])
+        lookup = {"_id": parent['_id']}
+        g.updateRealm = True
+        patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
+                       **lookup)
+        g.updateRealm = False
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
 
 def after_insert_realm(items):
     """
@@ -296,7 +328,7 @@ def after_update_realm(updated, original):
 
 def pre_delete_realm(item):
     """
-    Hook before delete a realm. It deny delete if realm have child / children
+    Hook before deleting a realm. Denies deletion if realm has child / children
 
     :param item: fields of the item / record
     :type item: dict
@@ -308,7 +340,7 @@ def pre_delete_realm(item):
 
 def after_delete_realm(item):
     """
-    Hook after delete a realm. Update tree children of parent realm
+    Hook after realm deletion. Update tree children of parent realm
 
     :param item: fields of the item / record
     :type item: dict

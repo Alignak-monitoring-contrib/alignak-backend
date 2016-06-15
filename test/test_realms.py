@@ -223,7 +223,7 @@ class TestRealms(unittest2.TestCase):
         self.assertEqual(re[0]['_tree_children'], [realmAll_A_id, realmAll_B_id,
                                                    realmAll_C_id, realmAll_A1_id])
 
-        # verify we can't update _tree_parents of a realm manually
+        # Check that we can't update _tree_parents of a realm manually
         response = requests.get(self.endpoint + '/realm', params={'where': '{"name":"All A.1"}'},
                                 auth=self.auth)
         resp = response.json()
@@ -236,4 +236,73 @@ class TestRealms(unittest2.TestCase):
         response = requests.patch(self.endpoint + '/realm/' + realmAll_A1_id, json=data,
                                   headers=headers, auth=self.auth)
         self.assertEqual(response.status_code, 412)
-        self.assertEqual(response.text, 'Update _tree_parents is forbidden')
+        self.assertEqual(response.text, 'Updating _tree_parents is forbidden')
+
+        # Check that we can't update _tree_children of a realm manually
+        response = requests.get(self.endpoint + '/realm', params={'where': '{"name":"All A.1"}'},
+                                auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        data = {'_tree_children': []}
+        headers = {
+            'Content-Type': 'application/json',
+            'If-Match': re[0]['_etag']
+        }
+        response = requests.patch(self.endpoint + '/realm/' + realmAll_A1_id, json=data,
+                                  headers=headers, auth=self.auth)
+        self.assertEqual(response.status_code, 412)
+        self.assertEqual(response.text, 'Updating _tree_children is forbidden')
+
+        # Update realm name
+        response = requests.get(self.endpoint + '/realm', params={'where': '{"name":"All A.1"}'},
+                                auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        data = {'name': "All B.1"}
+        headers = {
+            'Content-Type': 'application/json',
+            'If-Match': re[0]['_etag']
+        }
+        response = requests.patch(self.endpoint + '/realm/' + realmAll_A1_id, json=data,
+                                  headers=headers, auth=self.auth)
+        self.assertEqual(response.status_code, 200)
+        resp = response.json()
+
+        response = requests.get(self.endpoint + '/realm/' + realmAll_A1_id, auth=self.auth)
+        re = response.json()
+        self.assertEqual(re['name'], "All B.1")
+        self.assertEqual(re['_parent'], realmAll_A_id)
+        self.assertEqual(re['_level'], 2)
+        self.assertEqual(re['_tree_parents'], [self.realmAll_id, realmAll_A_id])
+        self.assertEqual(re['_tree_children'], [])
+
+
+        # Update realm parent
+        response = requests.get(self.endpoint + '/realm', params={'where': '{"name":"All B.1"}'},
+                                auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        data = {'_parent': realmAll_B_id}
+        headers = {
+            'Content-Type': 'application/json',
+            'If-Match': re[0]['_etag']
+        }
+        response = requests.patch(self.endpoint + '/realm/' + realmAll_A1_id, json=data,
+                                  headers=headers, auth=self.auth)
+        self.assertEqual(response.status_code, 200)
+        resp = response.json()
+
+        response = requests.get(self.endpoint + '/realm', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        for item in re:
+            print("Item: %s (%s)" % (item['_id'], item['name']))
+
+        response = requests.get(self.endpoint + '/realm/' + realmAll_A1_id, auth=self.auth)
+        re = response.json()
+        self.assertEqual(re['name'], "All B.1")
+        self.assertEqual(re['_parent'], realmAll_B_id)
+        self.assertEqual(re['_level'], 2)
+        self.assertEqual(re['_tree_parents'], [self.realmAll_id, realmAll_B_id])
+        self.assertEqual(re['_tree_children'], [])
+
