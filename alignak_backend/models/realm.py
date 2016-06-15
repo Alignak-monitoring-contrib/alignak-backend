@@ -39,7 +39,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'host',
+                        'resource': 'realm',
                         'embeddable': True,
                     }
                 },
