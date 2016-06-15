@@ -120,8 +120,32 @@ class TestRealms(unittest2.TestCase):
         response = requests.get(self.endpoint + '/realm', params=sort_level, auth=self.auth)
         resp = response.json()
         re = resp['_items']
+        self.assertEqual(len(re), 3)
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_tree_children'], [realmAll_A_id, realmAll_B_id])
+
+        # Sub realm without _parent
+        data = {"name": "All C"}
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        realmAll_C_id = copy.copy(resp['_id'])
+
+        response = requests.get(self.endpoint + '/realm/' + resp['_id'], auth=self.auth)
+        re = response.json()
+        self.assertEqual(re['name'], "All C")
+        self.assertEqual(re['_parent'], self.realmAll_id)
+        self.assertEqual(re['_level'], 1)
+        self.assertEqual(re['_tree_parents'], [self.realmAll_id])
+        self.assertEqual(re['_tree_children'], [])
+
+        # Get all realms
+        response = requests.get(self.endpoint + '/realm', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 4)
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_tree_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id])
 
         # ** Add sub_sub_realms
         data = {"name": "All A.1", "_parent": realmAll_A_id}
@@ -143,7 +167,9 @@ class TestRealms(unittest2.TestCase):
 
         # ** Realm All
         self.assertEqual(re[0]['_tree_parents'], [])
-        self.assertEqual(re[0]['_tree_children'], [realmAll_A_id, realmAll_B_id, realmAll_A1_id])
+        self.assertEqual(re[0]['_tree_children'], [
+            realmAll_A_id, realmAll_B_id, realmAll_C_id, realmAll_A1_id
+        ])
 
         # *** Add sub_sub_sub_realms
         data = {"name": "All A.1.a", "_parent": realmAll_A1_id}
@@ -169,8 +195,7 @@ class TestRealms(unittest2.TestCase):
 
         # *** Realm All
         self.assertEqual(re[0]['_tree_parents'], [])
-        self.assertEqual(re[0]['_tree_children'], [realmAll_A_id, realmAll_B_id, realmAll_A1_id,
-                                                   realmAll_A1a_id])
+        self.assertEqual(re[0]['_tree_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id,                                           realmAll_A1_id, realmAll_A1a_id])
 
         # Delete 'All A.1' will not work because have sub realm
         headers = {'If-Match': realmAll_A1_etag}
@@ -188,14 +213,15 @@ class TestRealms(unittest2.TestCase):
         response = requests.get(self.endpoint + '/realm', params=sort_level, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        self.assertEqual(len(re), 4)
+        self.assertEqual(len(re), 5)
         # Realm All A.1
-        self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
-        self.assertEqual(re[3]['_tree_children'], [])
+        self.assertEqual(re[4]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
+        self.assertEqual(re[4]['_tree_children'], [])
 
         # Realm All
         self.assertEqual(re[0]['_tree_parents'], [])
-        self.assertEqual(re[0]['_tree_children'], [realmAll_A_id, realmAll_B_id, realmAll_A1_id])
+        self.assertEqual(re[0]['_tree_children'], [realmAll_A_id, realmAll_B_id,
+                                                   realmAll_C_id, realmAll_A1_id])
 
         # verify we can't update _tree_parents of a realm manually
         response = requests.get(self.endpoint + '/realm', params={'where': '{"name":"All A.1"}'},
