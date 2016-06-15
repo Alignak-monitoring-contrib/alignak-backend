@@ -24,17 +24,7 @@ def get_schema():
     """
     return {
         'schema': {
-            'members': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'service',
-                        'embeddable': True,
-                    }
-                },
-            },
-            'servicegroup_members': {
+            'servicegroups': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',

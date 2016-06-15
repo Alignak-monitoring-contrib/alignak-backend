@@ -24,17 +24,7 @@ def get_schema():
     """
     return {
         'schema': {
-            'users': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'user',
-                        'embeddable': True,
-                    }
-                },
-            },
-            'usergroup_members': {
+            'usergroups': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
