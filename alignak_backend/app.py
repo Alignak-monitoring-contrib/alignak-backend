@@ -221,8 +221,8 @@ def pre_realm_post(items):
         if '_parent' not in item:
             # Use default realm as a parent
             realms = app.data.driver.db['realm']
-            default_realm = realms.find_one({'name': 'All'})
-            item['_parent'] = default_realm['_id']
+            dr = realms.find_one({'name': 'All'})
+            item['_parent'] = dr['_id']
         parent_realm = realmsdrv.find_one({'_id': item['_parent']})
         items[index]['_level'] = parent_realm['_level'] + 1
         # get parents (there is no children)
