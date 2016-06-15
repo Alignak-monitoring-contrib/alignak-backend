@@ -34,17 +34,17 @@ def get_schema():
                 'empty': False,
                 'unique': True,
             },
-            'realm_members': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'host',
-                        'embeddable': True,
-                    }
-                },
-                'default': []
-            },
+            # 'realm_members': {
+                # 'type': 'list',
+                # 'schema': {
+                    # 'type': 'objectid',
+                    # 'data_relation': {
+                        # 'resource': 'realm',
+                        # 'embeddable': True,
+                    # }
+                # },
+                # 'default': []
+            # },
             'default': {
                 'type': 'boolean',
                 'default': False
