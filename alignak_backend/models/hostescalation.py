@@ -45,7 +45,7 @@ def get_schema():
                     'embeddable': True
                 },
             },
-            'hostgroup_name': {
+            'hostgroup': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -66,8 +66,12 @@ def get_schema():
                 'default': 30
             },
             'escalation_period': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                },
+                'required': True,
             },
             'escalation_options': {
                 'type': 'list',

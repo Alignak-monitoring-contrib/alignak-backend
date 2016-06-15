@@ -50,7 +50,7 @@ def get_schema():
                     'embeddable': True
                 },
             },
-            'hostgroup_name': {
+            'hostgroups': {
                 'type': 'string',
                 'default': ''
             },
