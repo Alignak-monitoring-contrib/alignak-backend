@@ -91,7 +91,7 @@ def get_schema():
                     'resource': 'realm',
                     'embeddable': True
                 },
-                'required': True,
+                # 'required': True,
             },
             '_tree_parents': {
                 'type': 'list',
