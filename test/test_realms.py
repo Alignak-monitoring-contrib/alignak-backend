@@ -32,7 +32,8 @@ class TestRealms(unittest2.TestCase):
         # Delete used mongo DBs
         exit_code = subprocess.call(
             shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend')
+                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend'
+            )
         )
         assert exit_code == 0
 
@@ -257,26 +258,34 @@ class TestRealms(unittest2.TestCase):
         self.assertEqual(re[0]['name'], 'All')
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id])
+        self.assertEqual(re[0]['_all_children'], [
+            realmAll_A_id, realmAll_B_id, realmAll_C_id, realmAll_A1_id, realmAll_A1a_id
+        ])
         # ** Realm All A
         self.assertEqual(re[1]['name'], 'All A')
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [realmAll_A1_id])
+        self.assertEqual(re[1]['_all_children'], [realmAll_A1_id, realmAll_A1a_id])
         # ** Realm All A.1
         self.assertEqual(re[2]['name'], 'All A.1')
         self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
         self.assertEqual(re[2]['_children'], [realmAll_A1a_id])
+        self.assertEqual(re[2]['_all_children'], [realmAll_A1a_id])
         # ** Realm All A.1.a
         self.assertEqual(re[3]['name'], 'All A.1.a')
         self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id, realmAll_A_id, realmAll_A1_id])
         self.assertEqual(re[3]['_children'], [])
+        self.assertEqual(re[3]['_all_children'], [])
         # ** Realm All B
         self.assertEqual(re[4]['name'], 'All B')
         self.assertEqual(re[4]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[4]['_children'], [])
+        self.assertEqual(re[4]['_all_children'], [])
         # ** Realm All C
         self.assertEqual(re[5]['name'], 'All C')
         self.assertEqual(re[5]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[5]['_children'], [])
+        self.assertEqual(re[5]['_all_children'], [])
 
         # Delete 'All A.1' will not work because it has sub realms
         headers = {'If-Match': realmAll_A1_etag}
@@ -302,22 +311,29 @@ class TestRealms(unittest2.TestCase):
         self.assertEqual(re[0]['name'], 'All')
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id])
+        self.assertEqual(re[0]['_all_children'], [
+            realmAll_A_id, realmAll_B_id, realmAll_C_id, realmAll_A1_id
+        ])
         # ** Realm All A
         self.assertEqual(re[1]['name'], 'All A')
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [realmAll_A1_id])
+        self.assertEqual(re[1]['_all_children'], [realmAll_A1_id])
         # ** Realm All A.1
         self.assertEqual(re[2]['name'], 'All A.1')
         self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
         self.assertEqual(re[2]['_children'], [])
+        self.assertEqual(re[2]['_all_children'], [])
         # ** Realm All B
         self.assertEqual(re[3]['name'], 'All B')
         self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[3]['_children'], [])
+        self.assertEqual(re[3]['_all_children'], [])
         # ** Realm All C
         self.assertEqual(re[4]['name'], 'All C')
         self.assertEqual(re[4]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[4]['_children'], [])
+        self.assertEqual(re[4]['_all_children'], [])
 
 
         # Check that we can't update _tree_parents of a realm manually
