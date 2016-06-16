@@ -58,11 +58,13 @@ class Livesynthesis(object):
         if live_current['hosts_total'] != hosts_cnt:
             data = {"hosts_total": hosts_cnt}
             data['hosts_up_hard'] = livestates.find(
-                {"service": None, "state": "UP"}).count()
+                {"service": None, "state": "UP", 'acknowledged': False}).count()
             data['hosts_down_hard'] = livestates.find(
-                {"service": None, "state": "DOWN"}).count()
+                {"service": None, "state": "DOWN", 'acknowledged': False}).count()
             data['hosts_unreachable_hard'] = livestates.find(
-                {"service": None, "state": "UNREACHABLE"}).count()
+                {"service": None, "state": "UNREACHABLE", 'acknowledged': False}).count()
+            data['hosts_acknowledged'] = livestates.find(
+                {"service": None, 'acknowledged': True}).count()
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
 
@@ -71,10 +73,20 @@ class Livesynthesis(object):
         services_cnt = services.find({'_is_template': False}).count()
         if live_current['services_total'] != services_cnt:
             data = {"services_total": services_cnt}
-            data['services_ok_hard'] = livestates.find({"state": "OK"}).count()
-            data['services_warning_hard'] = livestates.find({"state": "WARNING"}).count()
-            data['services_critical_hard'] = livestates.find({"state": "CRITICAL"}).count()
-            data['services_unknown_hard'] = livestates.find({"state": "UNKNOWN"}).count()
+            data['services_ok_hard'] = livestates.find({"type": "service",
+                                                        "state": "OK",
+                                                        "acknowledged": False}).count()
+            data['services_warning_hard'] = livestates.find({"type": "service",
+                                                             "state": "WARNING",
+                                                             'acknowledged': False}).count()
+            data['services_critical_hard'] = livestates.find({"type": "service",
+                                                              "state": "CRITICAL",
+                                                              'acknowledged': False}).count()
+            data['services_unknown_hard'] = livestates.find({"type": "service",
+                                                             "state": "UNKNOWN",
+                                                             'acknowledged': False}).count()
+            data['services_acknowledged'] = livestates.find({"type": "service",
+                                                             'acknowledged': True}).count()
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
 
@@ -118,8 +130,19 @@ class Livesynthesis(object):
             # so have 'state' and 'state_type' in updated
             plus = "%s_%s_%s" % (type_check, updated['state'].lower(),
                                  updated['state_type'].lower())
+
         minus = "%s_%s_%s" % (type_check, original['state'].lower(),
                               original['state_type'].lower())
+
+        # check acknowledge
+        if 'acknowledged' in updated and updated['acknowledged'] and not original['acknowledged']:
+            plus = "%s_acknowledged" % (type_check)
+        elif 'acknowledged' in updated and not updated['acknowledged'] \
+                and original['acknowledged']:
+            minus = "%s_acknowledged" % (type_check)
+        elif 'acknowledged' in original and original['acknowledged']:
+            return False, False
+
         if minus == plus:
             return False, False
         return minus, plus
