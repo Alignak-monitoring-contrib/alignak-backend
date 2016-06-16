@@ -24,6 +24,10 @@ def get_schema():
     """
     return {
         'schema': {
+            'imported_from': {
+                'type': 'string',
+                'default': 'unknown'
+            },
             'name': {
                 'type': 'string',
                 'required': True,
@@ -31,27 +35,21 @@ def get_schema():
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
-            'customs': {
-                'type': 'dict',
-                'default': {}
-            },
             'definition_order': {
                 'type': 'integer',
                 'default': 100
             },
             'alias': {
                 'type': 'string',
-                'default': ''
+                'default': '',
             },
-            'usergroups': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'usergroup',
-                        'embeddable': True,
-                    }
-                },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
+            'customs': {
+                'type': 'dict',
+                'default': {}
             },
             'host_notifications_enabled': {
                 'type': 'boolean',

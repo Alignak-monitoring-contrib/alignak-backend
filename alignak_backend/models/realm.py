@@ -26,7 +26,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': ''
+                'default': 'unknown'
             },
             'name': {
                 'type': 'string',
@@ -34,20 +34,57 @@ def get_schema():
                 'empty': False,
                 'unique': True,
             },
-            'realm_members': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'realm',
-                        'embeddable': True,
-                    }
-                },
-                'default': []
+            'definition_order': {
+                'type': 'integer',
+                'default': 100
+            },
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
             },
             'default': {
                 'type': 'boolean',
                 'default': False
+            },
+            'hosts_critical_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 5
+            },
+            'hosts_warning_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 3
+            },
+            'services_critical_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 5
+            },
+            'services_warning_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 3
+            },
+            'global_critical_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 5
+            },
+            'global_warning_threshold': {
+                'type': 'integer',
+                'min': 0,
+                'max': 100,
+                'default': 3
             },
             '_parent': {
                 'type': 'objectid',
@@ -55,7 +92,7 @@ def get_schema():
                     'resource': 'realm',
                     'embeddable': True
                 },
-                'required': True,
+                # 'required': True,
             },
             '_tree_parents': {
                 'type': 'list',
@@ -68,7 +105,18 @@ def get_schema():
                 },
                 'default': []
             },
-            '_tree_children': {
+            '_children': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'realm',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
+            '_all_children': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',

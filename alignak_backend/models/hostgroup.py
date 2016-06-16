@@ -24,32 +24,15 @@ def get_schema():
     """
     return {
         'schema': {
-            'members': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'host',
-                        'embeddable': True,
-                    }
-                },
-            },
-            'hostgroup_members': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'hostgroup',
-                        'embeddable': True,
-                    }
-                },
+            'imported_from': {
+                'type': 'string',
+                'default': 'unknown'
             },
             'name': {
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
-                'default': '',
             },
             'definition_order': {
                 'type': 'integer',
@@ -70,6 +53,28 @@ def get_schema():
             'action_url': {
                 'type': 'string',
                 'default': '',
+            },
+            'hostgroups': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
+            'hosts': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'host',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
             },
             'realm': {
                 'type': 'objectid',

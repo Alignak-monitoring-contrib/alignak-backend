@@ -24,17 +24,37 @@ def get_schema():
     """
     return {
         'schema': {
-            'members': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'service',
-                        'embeddable': True,
-                    }
-                },
+            'imported_from': {
+                'type': 'string',
+                'default': 'unknown'
             },
-            'servicegroup_members': {
+            'name': {
+                'type': 'string',
+                'required': True,
+                'empty': False,
+                'unique': True,
+            },
+            'definition_order': {
+                'type': 'integer',
+                'default': 100
+            },
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes_url': {
+                'type': 'string',
+                'default': '',
+            },
+            'action_url': {
+                'type': 'string',
+                'default': '',
+            },
+            'servicegroups': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -44,32 +64,15 @@ def get_schema():
                     }
                 },
             },
-            'name': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
-                'unique': True,
-                'default': ''
-            },
-            'definition_order': {
-                'type': 'integer',
-                'default': 100
-            },
-            'alias': {
-                'type': 'string',
-                'default': ''
-            },
-            'notes': {
-                'type': 'string',
-                'default': ''
-            },
-            'notes_url': {
-                'type': 'string',
-                'default': ''
-            },
-            'action_url': {
-                'type': 'string',
-                'default': ''
+            'services': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
+                },
             },
             '_realm': {
                 'type': 'objectid',

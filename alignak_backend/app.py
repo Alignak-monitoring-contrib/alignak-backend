@@ -13,6 +13,7 @@ import os
 import time
 import uuid
 import json
+import re
 from collections import OrderedDict
 from datetime import timedelta
 from configparser import ConfigParser
@@ -54,8 +55,8 @@ class MyTokenAuth(TokenAuth):
     """
     Class to manage authentication
     """
-    realms_children = {}
-    realms_parents = {}
+    children_realms = {}
+    parent_realms = {}
 
     """Authentication token class"""
     def check_auth(self, token, allowed_roles, resource, method):
@@ -80,11 +81,11 @@ class MyTokenAuth(TokenAuth):
             # get children of realms for rights
             realmsdrv = current_app.data.driver.db['realm']
             allrealms = realmsdrv.find()
-            self.realms_children = {}
-            self.realms_parents = {}
+            self.children_realms = {}
+            self.parent_realms = {}
             for realm in allrealms:
-                self.realms_children[realm['_id']] = realm['_tree_children']
-                self.realms_parents[realm['_id']] = realm['_tree_parents']
+                self.children_realms[realm['_id']] = realm['_all_children']
+                self.parent_realms[realm['_id']] = realm['_tree_parents']
 
             g.back_role_super_admin = user['back_role_super_admin']
             userrestrictroles = current_app.data.driver.db['userrestrictrole']
@@ -151,9 +152,9 @@ class MyTokenAuth(TokenAuth):
                 parents[data['resource']] = []
             resource[data['resource']].append(data['realm'])
             if right == 'read' and not custom:
-                parents[data['resource']].extend(self.realms_parents[data['realm']])
+                parents[data['resource']].extend(self.parent_realms[data['realm']])
             if data['sub_realm']:
-                resource[data['resource']].extend(self.realms_children[data['realm']])
+                resource[data['resource']].extend(self.children_realms[data['realm']])
 
 
 class MyValidator(Validator):
@@ -208,25 +209,32 @@ def pre_get(resource, user_request, lookup):
 
 def pre_realm_post(items):
     """
-    Hook before add new realm
+    Hook before adding new realm
 
     :param items: realm fields
     :type items: dict
     :return: None
     """
     realmsdrv = current_app.data.driver.db['realm']
-    for index, item in enumerate(items):
-        # generate _level
+    for dummy, item in enumerate(items):
+        # Default parent
+        if '_parent' not in item:
+            # Use default realm as a parent
+            dr = realmsdrv.find_one({'name': 'All'})
+            item['_parent'] = dr['_id']
+
+        # Compute _level
         parent_realm = realmsdrv.find_one({'_id': item['_parent']})
-        items[index]['_level'] = parent_realm['_level'] + 1
-        # get parents (there is no children)
-        items[index]['_tree_parents'] = parent_realm['_tree_parents']
-        items[index]['_tree_parents'].append(parent_realm['_id'])
+        item['_level'] = parent_realm['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_realm['_tree_parents']
+        item['_tree_parents'].append(parent_realm['_id'])
 
 
 def pre_realm_patch(updates, original):
     """
-    Hook before update existent realm
+    Hook before updating existing realm
 
     :param updates: modified fields
     :type updates: dict
@@ -234,12 +242,44 @@ def pre_realm_patch(updates, original):
     :type original: dict
     :return: None
     """
-    # pylint: disable=unused-argument
     if not g.updateRealm:
         if '_tree_parents' in updates:
-            abort(make_response("Update _tree_parents is forbidden", 412))
-        if '_tree_children' in updates:
-            abort(make_response("Update _tree_parents is forbidden", 412))
+            abort(make_response("Updating _tree_parents is forbidden", 412))
+        if '_children' in updates:
+            abort(make_response("Updating _children is forbidden", 412))
+        if '_all_children' in updates:
+            abort(make_response("Updating _all_children is forbidden", 412))
+
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
+        realmsdrv = current_app.data.driver.db['realm']
+
+        # Add self reference in new parent children tree
+        parent = realmsdrv.find_one({'_id': updates['_parent']})
+        if original['_id'] not in parent['_children']:
+            parent['_children'].append(original['_id'])
+        lookup = {"_id": parent['_id']}
+        g.updateRealm = True
+        patch_internal('realm', {"_children": parent['_children']}, False, False,
+                       **lookup)
+        g.updateRealm = False
+
+        # Delete self reference in former parent children tree
+        if len(original['_tree_parents']) > 0:
+            parent = realmsdrv.find_one({'_id': original['_tree_parents'][-1]})
+            if original['_id'] in parent['_children']:
+                parent['_children'].remove(original['_id'])
+            lookup = {"_id": parent['_id']}
+            g.updateRealm = True
+            patch_internal('realm', {"_children": parent['_children']}, False, False,
+                           **lookup)
+            g.updateRealm = False
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
 
 
 def after_insert_realm(items):
@@ -251,17 +291,19 @@ def after_insert_realm(items):
     :return: None
     """
     # pylint: disable=unused-argument
-    realmsdrv = current_app.data.driver.db['realm']
     for dummy, item in enumerate(items):
         # update _children fields on all parents
-        if len(item['_tree_parents']) > 0:
-            parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
-            parent['_tree_children'].append(item['_id'])
-            lookup = {"_id": parent['_id']}
-            g.updateRealm = True
-            patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                           **lookup)
-            g.updateRealm = False
+        realmsdrv = current_app.data.driver.db['realm']
+        parent = realmsdrv.find_one({'_id': item['_parent']})
+        parent['_children'].append(item['_id'])
+        parent['_all_children'].append(item['_id'])
+        lookup = {"_id": parent['_id']}
+        g.updateRealm = True
+        patch_internal('realm', {
+            "_children": parent['_children'],
+            "_all_children": parent['_all_children']
+        }, False, False, **lookup)
+        g.updateRealm = False
 
 
 def after_update_realm(updated, original):
@@ -275,34 +317,49 @@ def after_update_realm(updated, original):
     :return: None
     """
     if g.updateRealm:
-        if '_tree_children' in updated and updated['_tree_children'] != original['_tree_children']:
-            if len(original['_tree_parents']) > 0:
-                realmsdrv = current_app.data.driver.db['realm']
-                parent = realmsdrv.find_one({'_id': original['_tree_parents'][-1]})
-                if len(original['_tree_children']) < len(updated['_tree_children']):
-                    parent['_tree_children'].append(updated['_tree_children'][-1])
-                elif len(original['_tree_children']) > len(updated['_tree_children']):
-                    del parent['_tree_children'][-1]
-                lookup = {"_id": parent['_id']}
-                patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                               **lookup)
+        if '_all_children' in updated and updated['_all_children'] != original['_all_children']:
+            s = set(original['_all_children'])
+            diff = [x for x in updated['_all_children'] if x not in s]
+            added_children = (diff != [])
+            if not added_children:
+                s = set(updated['_all_children'])
+                diff = [x for x in original['_all_children'] if x not in s]
+
+            realmsdrv = current_app.data.driver.db['realm']
+            parent = realmsdrv.find_one({'_id': original['_parent']})
+            if not parent:
+                return
+
+            for d in diff:
+                if added_children:
+                    if d not in parent['_all_children']:
+                        parent['_all_children'].append(d)
+                else:
+                    if d in parent['_all_children']:
+                        parent['_all_children'].remove(d)
+            lookup = {"_id": parent['_id']}
+            g.updateRealm = True
+            patch_internal('realm', {
+                "_all_children": parent['_all_children']
+            }, False, False, **lookup)
+            g.updateRealm = False
 
 
 def pre_delete_realm(item):
     """
-    Hook before delete a realm. It deny delete if realm have child / children
+    Hook before deleting a realm. Denies deletion if realm has child / children
 
     :param item: fields of the item / record
     :type item: dict
     :return: None
     """
-    if len(item['_tree_children']) > 0:
+    if len(item['_children']) > 0:
         abort(409, description=debug_error_message("Item have children, so can't delete it"))
 
 
 def after_delete_realm(item):
     """
-    Hook after delete a realm. Update tree children of parent realm
+    Hook after realm deletion. Update tree children of parent realm
 
     :param item: fields of the item / record
     :type item: dict
@@ -311,11 +368,16 @@ def after_delete_realm(item):
     realmsdrv = current_app.data.driver.db['realm']
     if len(item['_tree_parents']) > 0:
         parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
-        del parent['_tree_children'][-1]
+        if item['_id'] in parent['_children']:
+            parent['_children'].remove(item['_id'])
+        if item['_id'] in parent['_all_children']:
+            parent['_all_children'].remove(item['_id'])
         lookup = {"_id": parent['_id']}
         g.updateRealm = True
-        patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                       **lookup)
+        patch_internal('realm', {
+            "_children": parent['_children'],
+            "_all_children": parent['_children']
+        }, False, False, **lookup)
         g.updateRealm = False
 
 
@@ -361,57 +423,43 @@ def generate_token():
 
 def get_settings(prev_settings):
     """
-    Get settings of application from config file to update/complete previously existing gsettings
+    Get settings of application from config file to update/complete previously existing settings
 
     :param prev_settings: previous settings
     :type prev_settings: dict
     :return: None
     """
     settings_filenames = [
-        '/usr/local/etc/alignak_backend/settings.cfg',
-        '/etc/alignak_backend/settings.cfg',
-        os.path.abspath('./etc/settings.cfg'),
-        os.path.abspath('../etc/settings.cfg'),
-        os.path.abspath('./settings.cfg')
+        '/usr/local/etc/alignak_backend/settings.json',
+        '/etc/alignak_backend/settings.json',
+        os.path.abspath('./etc/settings.json'),
+        os.path.abspath('../etc/settings.json'),
+        os.path.abspath('./settings.json')
     ]
 
-    # Define some variables available
-    defaults = {
-        '_cwd': os.getcwd()
-    }
-    config = ConfigParser(defaults=defaults)
-    cfg_file = config.read(settings_filenames)
-    if not cfg_file:
-        print "No configuration file found, using default configuration"
-    else:
-        print "Configuration read from file(s): %s" % cfg_file
-    for key, value in config.items('DEFAULT'):
-        if key.startswith('_'):
-            continue
-        if key.upper() in prev_settings:
-            app_default = prev_settings[key.upper()]
-            if isinstance(app_default, timedelta):
-                prev_settings[key.upper()] = timedelta(value)
-            elif isinstance(app_default, bool):
-                prev_settings[key.upper()] = True if value in [
-                    'true', 'True', 'on', 'On', 'y', 'yes', '1'
-                ] else False
-            elif isinstance(app_default, float):
-                prev_settings[key.upper()] = float(value)
-            elif isinstance(app_default, int):
-                prev_settings[key.upper()] = int(value)
-            else:
-                # All the string keys need to be coerced into str()
-                # because Flask expects some of them not to be unicode
-                prev_settings[key.upper()] = str(value)
-        else:
-            if value.isdigit():
-                prev_settings[key.upper()] = int(value)
-            else:
-                prev_settings[key.upper()] = str(value)
-        if key.lower() == "server_name":
-            if prev_settings[key.upper()].lower() == 'none':
-                prev_settings[key.upper()] = None
+    # pylint: disable=anomalous-backslash-in-string
+    comment_re = re.compile(
+        '(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+        re.DOTALL | re.MULTILINE
+    )
+    for filename in settings_filenames:
+        if os.path.isfile(filename):
+            with open(filename) as stream:
+                content = ''.join(stream.readlines())
+                # Looking for comments
+                match = comment_re.search(content)
+                while match:
+                    # single line comment
+                    content = content[:match.start()] + content[match.end():]
+                    match = comment_re.search(content)
+
+                conf = json.loads(content)
+                for key, value in conf.iteritems():
+                    if key.startswith('RATE_LIMIT_') and value is not None:
+                        prev_settings[key] = tuple(value)
+                    else:
+                        prev_settings[key] = value
+                return
 
 
 print "--------------------------------------------------------------------------------"
@@ -451,7 +499,7 @@ settings['PORT'] = 5000
 settings['SERVER_NAME'] = None
 settings['DEBUG'] = False
 
-settings['SCHEDULER_ACTIVE'] = 0
+settings['SCHEDULER_ACTIVE'] = False
 
 settings['GRAPHITE_HOST'] = ''
 settings['GRAPHITE_PORT'] = 2004
@@ -466,7 +514,7 @@ settings['INFLUXDB_DATABASE'] = 'alignak'
 get_settings(settings)
 
 # scheduler config
-if settings['SCHEDULER_ACTIVE'] == 1:
+if settings['SCHEDULER_ACTIVE']:
     settings['JOBS'] = [
         {
             'id': 'cron_cache',
@@ -576,7 +624,7 @@ with app.test_request_context():
     app.on_inserted_logservice += Timeseries.after_inserted_logservice
 
 # Start scheduler (internal cron)
-if settings['SCHEDULER_ACTIVE'] == 1:
+if settings['SCHEDULER_ACTIVE']:
     with app.test_request_context():
         scheduler = APScheduler()
         scheduler.init_app(app)
@@ -631,6 +679,21 @@ def logout_app():
     Log out from backend
     """
     return 'ok'
+
+
+@app.route("/backendconfig")
+def backend_config():
+    """
+    Offer toute to get the backend config
+    """
+    my_config = {"PAGINATION_LIMIT": settings['PAGINATION_LIMIT'],
+                 "PAGINATION_DEFAULT": settings['PAGINATION_DEFAULT'],
+                 'metrics': []}
+    if settings['GRAPHITE_HOST'] is not None:
+        my_config['metrics'].append('graphite')
+    if settings['INFLUXDB_HOST'] is not None:
+        my_config['metrics'].append('influxdb')
+    return jsonify(my_config)
 
 
 @app.route("/cron_timeseries")

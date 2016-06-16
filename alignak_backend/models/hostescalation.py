@@ -38,6 +38,14 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
             'host': {
                 'type': 'objectid',
                 'data_relation': {
@@ -45,7 +53,7 @@ def get_schema():
                     'embeddable': True
                 },
             },
-            'hostgroup_name': {
+            'hostgroup': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -66,8 +74,12 @@ def get_schema():
                 'default': 30
             },
             'escalation_period': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                },
+                'required': True,
             },
             'escalation_options': {
                 'type': 'list',

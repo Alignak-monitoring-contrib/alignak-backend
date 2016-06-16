@@ -26,7 +26,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': ''
+                'default': 'unknown'
             },
             'name': {
                 'type': 'string',
@@ -38,7 +38,15 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
-            'dependent_host': {
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
+            'dependent_hosts': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -48,7 +56,7 @@ def get_schema():
                     }
                 },
             },
-            'dependent_hostgroup_name': {
+            'dependent_hostgroups': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -58,7 +66,7 @@ def get_schema():
                     }
                 },
             },
-            'host': {
+            'hosts': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -68,7 +76,7 @@ def get_schema():
                     }
                 },
             },
-            'hostgroup_name': {
+            'hostgroups': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -91,8 +99,12 @@ def get_schema():
                 'default': ['n']
             },
             'dependency_period': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                },
+                'required': True,
             },
             '_realm': {
                 'type': 'objectid',

@@ -26,7 +26,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': ''
+                'default': 'unknown'
             },
             'name': {
                 'type': 'string',
@@ -36,10 +36,6 @@ def get_schema():
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
                 'dependencies': ['check_command']
             },
-            'customs': {
-                'type': 'dict',
-                'default': {}
-            },
             'definition_order': {
                 'type': 'integer',
                 'default': 100
@@ -47,6 +43,10 @@ def get_schema():
             'alias': {
                 'type': 'string',
                 'default': ''
+            },
+            'customs': {
+                'type': 'dict',
+                'default': {}
             },
             'display_name': {
                 'type': 'string',
@@ -62,16 +62,6 @@ def get_schema():
                     'type': 'objectid',
                     'data_relation': {
                         'resource': 'host',
-                        'embeddable': True,
-                    }
-                },
-            },
-            'hostgroups': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'hostgroup',
                         'embeddable': True,
                     }
                 },
@@ -345,12 +335,12 @@ def get_schema():
                 'default': 2
             },
             'trigger': {
-                'type': 'string',
-                'default': ''
-            },
-            'trigger_name': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'trigger',
+                    'embeddable': True
+                },
+                'nullable': True
             },
             'trigger_broker_raise_enabled': {
                 'type': 'boolean',
@@ -403,6 +393,10 @@ def get_schema():
             'obsess_over_host': {
                 'type': 'boolean',
                 'default': False
+            },
+            'location': {
+                'type': 'point',
+                'default': {"type": "Point", "coordinates": [100.0, 10.0]}
             },
             '_users_read': {
                 'type': 'list',

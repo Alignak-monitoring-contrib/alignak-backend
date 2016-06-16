@@ -24,17 +24,29 @@ def get_schema():
     """
     return {
         'schema': {
-            'users': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'user',
-                        'embeddable': True,
-                    }
-                },
+            'imported_from': {
+                'type': 'string',
+                'default': 'unknown'
             },
-            'usergroup_members': {
+            'name': {
+                'type': 'string',
+                'required': True,
+                'empty': False,
+                'unique': True,
+            },
+            'definition_order': {
+                'type': 'integer',
+                'default': 100
+            },
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
+            'usergroups': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -44,19 +56,15 @@ def get_schema():
                     }
                 },
             },
-            'name': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
-                'unique': True
-            },
-            'definition_order': {
-                'type': 'integer',
-                'default': 100
-            },
-            'alias': {
-                'type': 'string',
-                'default': ''
+            'users': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'user',
+                        'embeddable': True,
+                    }
+                },
             },
             '_realm': {
                 'type': 'objectid',

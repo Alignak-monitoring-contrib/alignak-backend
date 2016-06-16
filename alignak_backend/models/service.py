@@ -26,7 +26,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': ''
+                'default': 'unknown'
             },
             'name': {
                 'type': 'string',
@@ -50,7 +50,7 @@ def get_schema():
                     'embeddable': True
                 },
             },
-            'hostgroup_name': {
+            'hostgroups': {
                 'type': 'string',
                 'default': ''
             },
@@ -61,16 +61,6 @@ def get_schema():
             'display_name': {
                 'type': 'string',
                 'default': ''
-            },
-            'servicegroups': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'servicegroup',
-                        'embeddable': True,
-                    }
-                },
             },
             'is_volatile': {
                 'type': 'boolean',
@@ -336,12 +326,12 @@ def get_schema():
                 'default': 2
             },
             'trigger': {
-                'type': 'string',
-                'default': ''
-            },
-            'trigger_name': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'trigger',
+                    'embeddable': True
+                },
+                'nullable': True
             },
             'trigger_broker_raise_enabled': {
                 'type': 'boolean',
