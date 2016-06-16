@@ -453,7 +453,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_unknown_hard'], 0)
         self.assertEqual(r[0]['services_unknown_soft'], 0)
 
-
     def test_hosts_update(self):
         """
         Test all scenarii
