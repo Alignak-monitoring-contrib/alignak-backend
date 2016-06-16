@@ -327,19 +327,22 @@ def after_update_realm(updated, original):
 
             realmsdrv = current_app.data.driver.db['realm']
             parent = realmsdrv.find_one({'_id': original['_parent']})
-            if parent:
+            if not parent:
+                return
+
+            for d in diff:
                 if added_children:
-                    for d in diff:
+                    if d not in parent['_all_children']:
                         parent['_all_children'].append(d)
                 else:
-                    for d in diff:
+                    if d in parent['_all_children']:
                         parent['_all_children'].remove(d)
-                lookup = {"_id": parent['_id']}
-                g.updateRealm = True
-                patch_internal('realm', {
-                    "_all_children": parent['_all_children']
-                }, False, False, **lookup)
-                g.updateRealm = False
+            lookup = {"_id": parent['_id']}
+            g.updateRealm = True
+            patch_internal('realm', {
+                "_all_children": parent['_all_children']
+            }, False, False, **lookup)
+            g.updateRealm = False
 
 
 def pre_delete_realm(item):

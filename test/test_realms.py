@@ -79,6 +79,7 @@ class TestRealms(unittest2.TestCase):
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
     def test_add_realm(self):
+        # pylint: disable=too-many-locals
         """
         Test add realms, add children, check than we can't delete a realm if it has children
 
@@ -118,7 +119,6 @@ class TestRealms(unittest2.TestCase):
         self.assertEqual(re[1]['name'], "All A")
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [])
-
 
         data = {"name": "All B", "_parent": self.realmAll_id}
         response = requests.post(self.endpoint + '/realm', json=data, headers=headers,
@@ -335,7 +335,6 @@ class TestRealms(unittest2.TestCase):
         self.assertEqual(re[4]['_children'], [])
         self.assertEqual(re[4]['_all_children'], [])
 
-
         # Check that we can't update _tree_parents of a realm manually
         response = requests.get(self.endpoint + '/realm', params={'where': '{"name":"All A.1"}'},
                                 auth=self.auth)
@@ -404,7 +403,6 @@ class TestRealms(unittest2.TestCase):
         self.assertEqual(re['_tree_parents'], [self.realmAll_id, realmAll_A_id])
         self.assertEqual(re['_children'], [])
 
-
         # Update realm parent
         response = requests.get(self.endpoint + '/realm', params={'where': '{"name":"All B.1"}'},
                                 auth=self.auth)
@@ -434,7 +432,6 @@ class TestRealms(unittest2.TestCase):
         self.assertEqual(re['_level'], 2)
         self.assertEqual(re['_tree_parents'], [self.realmAll_id, realmAll_B_id])
         self.assertEqual(re['_children'], [])
-
 
         # Check all realms hierarchy
         response = requests.get(self.endpoint + '/realm', params=sort_name, auth=self.auth)
