@@ -620,8 +620,7 @@ app.on_inserted_realm += after_insert_realm
 app.on_updated_realm += after_update_realm
 
 with app.test_request_context():
-    app.on_inserted_loghost += Timeseries.after_inserted_loghost
-    app.on_inserted_logservice += Timeseries.after_inserted_logservice
+    app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
 
 # Start scheduler (internal cron)
 if settings['SCHEDULER_ACTIVE']:

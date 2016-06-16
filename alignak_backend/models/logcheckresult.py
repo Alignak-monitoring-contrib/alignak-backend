@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Resource information of loghost
+Resource information of logcheckresult
 """
 
 
@@ -12,7 +12,7 @@ def get_name():
     :return: name of this resource
     :rtype: str
     """
-    return 'loghost'
+    return 'logcheckresult'
 
 
 def get_schema():
@@ -32,15 +32,24 @@ def get_schema():
                 },
                 'required': True,
             },
+            'service': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'service',
+                    'embeddable': True
+                },
+                'required': True,
+                'nullable': True
+            },
             'state': {
                 'type': 'string',
-                'default': 'UP',
-                'allowed': ["UP", "DOWN", "UNREACHABLE"]
+                'allowed': ["UP", "DOWN", "UNREACHABLE", "OK", "WARNING", "CRITICAL", "UNKNOWN"],
+                'required': True,
             },
             'state_type': {
                 'type': 'string',
-                'default': 'HARD',
-                'allowed': ["HARD", "SOFT"]
+                'allowed': ["HARD", "SOFT"],
+                'required': True,
             },
             'state_id': {
                 'type': 'integer',
