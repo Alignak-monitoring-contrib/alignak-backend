@@ -396,7 +396,7 @@ def get_schema():
             },
             'location': {
                 'type': 'point',
-                'default': {"type":"Point","coordinates":[100.0,10.0]}
+                'default': {"type": "Point", "coordinates": [100.0, 10.0]}
             },
             '_users_read': {
                 'type': 'list',
