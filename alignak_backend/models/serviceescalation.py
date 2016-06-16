@@ -38,6 +38,14 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
             'host': {
                 'type': 'objectid',
                 'data_relation': {

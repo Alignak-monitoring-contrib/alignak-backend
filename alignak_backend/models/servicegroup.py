@@ -24,6 +24,36 @@ def get_schema():
     """
     return {
         'schema': {
+            'imported_from': {
+                'type': 'string',
+                'default': 'unknown'
+            },
+            'name': {
+                'type': 'string',
+                'required': True,
+                'empty': False,
+                'unique': True,
+            },
+            'definition_order': {
+                'type': 'integer',
+                'default': 100
+            },
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes_url': {
+                'type': 'string',
+                'default': '',
+            },
+            'action_url': {
+                'type': 'string',
+                'default': '',
+            },
             'servicegroups': {
                 'type': 'list',
                 'schema': {
@@ -33,33 +63,6 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
-            },
-            'name': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
-                'unique': True,
-                'default': ''
-            },
-            'definition_order': {
-                'type': 'integer',
-                'default': 100
-            },
-            'alias': {
-                'type': 'string',
-                'default': ''
-            },
-            'notes': {
-                'type': 'string',
-                'default': ''
-            },
-            'notes_url': {
-                'type': 'string',
-                'default': ''
-            },
-            'action_url': {
-                'type': 'string',
-                'default': ''
             },
             '_realm': {
                 'type': 'objectid',

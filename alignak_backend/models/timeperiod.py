@@ -26,7 +26,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': ''
+                'default': 'unknown'
             },
             'name': {
                 'type': 'string',
@@ -40,7 +40,11 @@ def get_schema():
             },
             'alias': {
                 'type': 'string',
-                'default': ''
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
             },
             'dateranges': {
                 'type': 'list',

@@ -26,7 +26,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': ''
+                'default': 'unknown'
             },
             'name': {
                 'type': 'string',
@@ -36,10 +36,6 @@ def get_schema():
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$',
                 'dependencies': ['check_command']
             },
-            'customs': {
-                'type': 'dict',
-                'default': {}
-            },
             'definition_order': {
                 'type': 'integer',
                 'default': 100
@@ -47,6 +43,10 @@ def get_schema():
             'alias': {
                 'type': 'string',
                 'default': ''
+            },
+            'customs': {
+                'type': 'dict',
+                'default': {}
             },
             'display_name': {
                 'type': 'string',
@@ -405,7 +405,8 @@ def get_schema():
                 'default': False
             },
             'location': {
-                'type': 'point'
+                'type': 'point',
+                'default': {"type":"Point","coordinates":[100.0,10.0]}
             },
             '_users_read': {
                 'type': 'list',

@@ -24,6 +24,10 @@ def get_schema():
     """
     return {
         'schema': {
+            'imported_from': {
+                'type': 'string',
+                'default': 'unknown'
+            },
             'name': {
                 'type': 'string',
                 'required': True,
@@ -33,6 +37,14 @@ def get_schema():
             'definition_order': {
                 'type': 'integer',
                 'default': 100
+            },
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
             },
             'command_line': {
                 'type': 'string',
