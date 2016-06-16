@@ -64,6 +64,16 @@ def get_schema():
                     }
                 },
             },
+            'services': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
+                },
+            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {

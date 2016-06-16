@@ -56,6 +56,16 @@ def get_schema():
                     }
                 },
             },
+            'users': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'user',
+                        'embeddable': True,
+                    }
+                },
+            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {

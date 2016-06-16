@@ -66,16 +66,6 @@ def get_schema():
                     }
                 },
             },
-            'hostgroups': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'hostgroup',
-                        'embeddable': True,
-                    }
-                },
-            },
             'check_command': {
                 'type': 'objectid',
                 'data_relation': {

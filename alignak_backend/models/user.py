@@ -51,16 +51,6 @@ def get_schema():
                 'type': 'dict',
                 'default': {}
             },
-            'usergroups': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'usergroup',
-                        'embeddable': True,
-                    }
-                },
-            },
             'host_notifications_enabled': {
                 'type': 'boolean',
                 'default': True

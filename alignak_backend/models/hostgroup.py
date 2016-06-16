@@ -65,6 +65,17 @@ def get_schema():
                 },
                 'default': []
             },
+            'hosts': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'host',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
             'realm': {
                 'type': 'objectid',
                 'data_relation': {

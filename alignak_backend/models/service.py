@@ -62,16 +62,6 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
-            'servicegroups': {
-                'type': 'list',
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'servicegroup',
-                        'embeddable': True,
-                    }
-                },
-            },
             'is_volatile': {
                 'type': 'boolean',
                 'default': False
