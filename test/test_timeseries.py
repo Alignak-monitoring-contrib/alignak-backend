@@ -14,6 +14,8 @@ class TestRTimeseries(unittest2.TestCase):
     This class test timepseries preparation
     """
 
+    maxDiff = None
+
     def test_prepare_data(self):
         """
         Prepare timeseries from a web perfdata
@@ -127,4 +129,4 @@ class TestRTimeseries(unittest2.TestCase):
                 }
             ]
         }
-        self.assertEqual(reference, ret)
+        self.assertItemsEqual(reference, ret)

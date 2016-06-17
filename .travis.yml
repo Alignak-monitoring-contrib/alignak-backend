@@ -2,7 +2,7 @@ language: python
 sudo: true
 python:
   - "2.7"
-#  - "3.4"
+  - "3.4"
 
 services:
   - mongodb
@@ -19,6 +19,7 @@ script:
   - pip freeze  # so to help eventual debug: know what exact versions are in use can be rather useful.
   - cd ..
   - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' alignak_backend/*
+  - rm -fr alignak_backend/__pycache__
   - pylint --rcfile=.pylintrc alignak_backend/*
   - pep257 --select=D300 alignak_backend
   - cd test
