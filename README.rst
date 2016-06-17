@@ -72,7 +72,7 @@ It is used to:
 Bugs, issues and contributing
 ----------------------------------------
 
-Please report any issue using the project GitHub repository: <https://github.com/Alignak-monitoring-contrib/alignak-backend/issues>`_.
+Please report any issue using the project `GitHub repository: <https://github.com/Alignak-monitoring-contrib/alignak-backend/issues>`_.
 
 License
 ----------------------------------------
