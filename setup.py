@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import os
 import sys
 import re
@@ -53,7 +54,7 @@ elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
         'libexec': "/usr/local/libexec/alignak_backend/plugins",
     }
 else:
-    print "Unsupported platform, sorry!"
+    print("Unsupported platform, sorry!")
     exit(1)
 
 setup(
@@ -81,7 +82,7 @@ setup(
 
     install_requires=[
         'python-dateutil==2.4.2', 'Eve>=0.5', 'flask-bootstrap', 'docopt', 'jsonschema',
-        'Eve-docs', 'configparser',
+        'eve-swagger', 'configparser',
         'future', 'influxdb', 'flask-apscheduler'
     ],
 
