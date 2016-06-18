@@ -694,7 +694,7 @@ with app.test_request_context():
         post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
                       True)
         default_realm = realms.find_one({'name': 'All'})
-        print "Created top level realm: %s" % default_realm
+        print("Created top level realm: %s" % default_realm)
     # Create default hostgroup if not defined
     hgs = app.data.driver.db['hostgroup']
     default_hg = hgs.find_one({'name': 'All'})
