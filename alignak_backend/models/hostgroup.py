@@ -54,6 +54,28 @@ def get_schema():
                 'type': 'string',
                 'default': '',
             },
+            '_level': {
+                'type': 'integer',
+                'default': 0,
+            },
+            '_parent': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'hostgroup',
+                    'embeddable': True
+                },
+            },
+            '_tree_parents': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
             'hostgroups': {
                 'type': 'list',
                 'schema': {
@@ -76,6 +98,8 @@ def get_schema():
                 },
                 'default': []
             },
+            # Still of interest? Each host got from Alignak configuration has its own realm ...
+            # ... so this value is not useful because host realm takes precedence.
             'realm': {
                 'type': 'objectid',
                 'data_relation': {
