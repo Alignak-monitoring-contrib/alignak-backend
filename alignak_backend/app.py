@@ -80,6 +80,7 @@ class MyTokenAuth(TokenAuth):
         user = _users.find_one({'token': token})
         if user:
             g.updateRealm = False
+            g.updateGroup = False
             # get children of realms for rights
             realmsdrv = current_app.data.driver.db['realm']
             allrealms = realmsdrv.find()
@@ -207,6 +208,122 @@ def pre_get(resource, user_request, lookup):
                                            {'_realm': {'$in': resources_get_parents[resource]}}]},
                                  {'$and': [{'_users_read': users_id},
                                            {'_realm': {'$in': resources_get_custom[resource]}}]}]
+
+
+def pre_hostgroup_post(items):
+    """
+    Hook before adding a new hostgroup
+
+    Manage hostgroup level and parents tree.
+
+    :param items: hostgroup fields
+    :type items: dict
+    :return: None
+    """
+    hgs_drv = current_app.data.driver.db['hostgroup']
+    for dummy, item in enumerate(items):
+        # Default parent
+        if '_parent' not in item:
+            # Use default hostgroup as a parent
+            def_hg = hgs_drv.find_one({'name': 'All'})
+            if def_hg:
+                item['_parent'] = def_hg['_id']
+
+        # Compute _level
+        parent_hg = hgs_drv.find_one({'_id': item['_parent']})
+        item['_level'] = parent_hg['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_hg['_tree_parents']
+        item['_tree_parents'].append(parent_hg['_id'])
+
+
+def pre_hostgroup_patch(updates, original):
+    """
+    Hook before updating existing hostgroup
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if not g.updateGroup:
+        if '_tree_parents' in updates:
+            abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
+        hgs_drv = current_app.data.driver.db['hostgroup']
+
+        # Find parent
+        parent = hgs_drv.find_one({'_id': updates['_parent']})
+        if not parent:
+            abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
+
+
+def pre_servicegroup_post(items):
+    """
+    Hook before adding a new servicegroup
+
+    Manage servicegroup level and parents tree.
+
+    :param items: servicegroup fields
+    :type items: dict
+    :return: None
+    """
+    sgs_drv = current_app.data.driver.db['servicegroup']
+    for dummy, item in enumerate(items):
+        # Default parent
+        if '_parent' not in item:
+            # Use default servicegroup as a parent
+            def_sg = sgs_drv.find_one({'name': 'All'})
+            if def_sg:
+                item['_parent'] = def_sg['_id']
+
+        # Compute _level
+        parent_sg = sgs_drv.find_one({'_id': item['_parent']})
+        item['_level'] = parent_sg['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_sg['_tree_parents']
+        item['_tree_parents'].append(parent_sg['_id'])
+
+
+def pre_servicegroup_patch(updates, original):
+    """
+    Hook before updating existing servicegroup
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if not g.updateGroup:
+        if '_tree_parents' in updates:
+            abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
+        sgs_drv = current_app.data.driver.db['servicegroup']
+
+        # Find parent
+        parent = sgs_drv.find_one({'_id': updates['_parent']})
+        if not parent:
+            abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
 
 
 def pre_realm_post(items):
@@ -549,6 +666,8 @@ app.on_update_user += pre_user_patch
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
 app.on_update_realm += pre_realm_patch
+app.on_update_hostgroup += pre_hostgroup_patch
+app.on_update_servicegroup += pre_servicegroup_patch
 
 # docs api
 Bootstrap(app)
@@ -575,7 +694,25 @@ with app.test_request_context():
         post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
                       True)
         default_realm = realms.find_one({'name': 'All'})
-        print("Created top level realm:", default_realm)
+        print("Created top level realm: %s" % default_realm)
+    # Create default hostgroup if not defined
+    hgs = app.data.driver.db['hostgroup']
+    default_hg = hgs.find_one({'name': 'All'})
+    if not default_hg:
+        post_internal("hostgroup", {
+            "name": "All", "alias": "All hosts", "_parent": None, "_level": 0
+        }, True)
+        default_hg = hgs.find_one({'name': 'All'})
+        print("Created top level hostgroup: %s" % default_hg)
+    # Create default servicegroup if not defined
+    sgs = app.data.driver.db['servicegroup']
+    default_sg = sgs.find_one({'name': 'All'})
+    if not default_sg:
+        post_internal("servicegroup", {
+            "name": "All", "alias": "All services", "_parent": None, "_level": 0
+        }, True)
+        default_sg = sgs.find_one({'name': 'All'})
+        print("Created top level servicegroup: %s" % default_sg)
     # Create default timeperiod if not defined
     timeperiods = app.data.driver.db['timeperiod']
     default_timeperiod = timeperiods.find_one({'name': '24x7'})
@@ -591,8 +728,8 @@ with app.test_request_context():
                                                     {u'friday': u'00:00-24:00'},
                                                     {u'saturday': u'00:00-24:00'},
                                                     {u'sunday': u'00:00-24:00'}]}, True)
-        print("Created default timeperiod")
         default_timeperiod = timeperiods.find_one({'name': '24x7'})
+        print("Created default timeperiod: %s" % default_timeperiod)
     # Create default username/user if not defined
     try:
         users = app.data.driver.db['user']
@@ -606,7 +743,7 @@ with app.test_request_context():
                                "host_notification_period": default_timeperiod['_id'],
                                "service_notification_period": default_timeperiod['_id'],
                                "_realm": default_realm['_id']})
-        print("Created Super admin")
+        print("Created super admin user")
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
     app.on_inserted_host += Livestate.on_inserted_host
@@ -635,6 +772,9 @@ with app.test_request_context():
 app.on_insert_realm += pre_realm_post
 app.on_inserted_realm += after_insert_realm
 app.on_updated_realm += after_update_realm
+
+app.on_insert_hostgroup += pre_hostgroup_post
+app.on_insert_servicegroup += pre_servicegroup_post
 
 with app.test_request_context():
     app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
