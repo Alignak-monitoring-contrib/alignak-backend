@@ -57,6 +57,9 @@ class TestGroups(unittest2.TestCase):
         resp = response.json()
         cls.realmAll_id = resp['_items'][0]['_id']
 
+        cls.hgAll_id = None
+        cls.sgAll_id = None
+
     @classmethod
     def tearDownClass(cls):
         """
@@ -80,7 +83,7 @@ class TestGroups(unittest2.TestCase):
     def test_add_hostgroup(self):
         # pylint: disable=too-many-locals
         """
-        Test add hostgroups, add children, check than we can't delete a hostgroup if it has children
+        Test add hostgroups
 
         :return: None
         """
@@ -318,7 +321,7 @@ class TestGroups(unittest2.TestCase):
     def test_add_servicegroup(self):
         # pylint: disable=too-many-locals
         """
-        Test add servicegroups, add children, check than we can't delete a servicegroup if it has children
+        Test add servicegroups
 
         :return: None
         """
