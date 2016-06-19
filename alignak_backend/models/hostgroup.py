@@ -98,15 +98,6 @@ def get_schema():
                 },
                 'default': []
             },
-            # Still of interest? Each host got from Alignak configuration has its own realm ...
-            # ... so this value is not useful because host realm takes precedence.
-            'realm': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'realm',
-                    'embeddable': True
-                }
-            },
             '_users_read': {
                 'type': 'list',
                 'schema': {
