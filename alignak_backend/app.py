@@ -715,8 +715,8 @@ with app.test_request_context():
         print("Created top level servicegroup: %s" % default_sg)
     # Create default timeperiod if not defined
     timeperiods = app.data.driver.db['timeperiod']
-    default_timeperiod = timeperiods.find_one({'name': '24x7'})
-    if not default_timeperiod:
+    always = timeperiods.find_one({'name': '24x7'})
+    if not always:
         post_internal("timeperiod", {"name": "24x7",
                                      "alias": "All time default 24x7",
                                      "_realm": default_realm['_id'],
@@ -728,8 +728,16 @@ with app.test_request_context():
                                                     {u'friday': u'00:00-24:00'},
                                                     {u'saturday': u'00:00-24:00'},
                                                     {u'sunday': u'00:00-24:00'}]}, True)
-        default_timeperiod = timeperiods.find_one({'name': '24x7'})
-        print("Created default timeperiod: %s" % default_timeperiod)
+        always = timeperiods.find_one({'name': '24x7'})
+        print("Created default Always timeperiod: %s" % always)
+    never = timeperiods.find_one({'name': 'Never'})
+    if not never:
+        post_internal("timeperiod", {"name": "Never",
+                                     "alias": "No time is a good time",
+                                     "_realm": default_realm['_id'],
+                                     "is_active": True}, True)
+        never = timeperiods.find_one({'name': 'Never'})
+        print("Created default timeperiod Never: %s" % never)
     # Create default username/user if not defined
     try:
         users = app.data.driver.db['user']
@@ -740,8 +748,8 @@ with app.test_request_context():
         post_internal("user", {"name": "admin",
                                "password": "admin",
                                "back_role_super_admin": True,
-                               "host_notification_period": default_timeperiod['_id'],
-                               "service_notification_period": default_timeperiod['_id'],
+                               "host_notification_period": always['_id'],
+                               "service_notification_period": always['_id'],
                                "_realm": default_realm['_id']})
         print("Created super admin user")
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
