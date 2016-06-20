@@ -737,7 +737,7 @@ with app.test_request_context():
                                      "_realm": default_realm['_id'],
                                      "is_active": True}, True)
         never = timeperiods.find_one({'name': 'Never'})
-        print("Created default timeperiod Never: %s" % never)
+        print("Created default Never timeperiod: %s" % never)
     # Create default username/user if not defined
     try:
         users = app.data.driver.db['user']

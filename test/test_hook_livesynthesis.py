@@ -97,7 +97,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if livesynthesis right created
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
@@ -142,7 +144,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
@@ -198,7 +202,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()

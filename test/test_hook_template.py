@@ -99,7 +99,9 @@ class TestHookTemplate(unittest2.TestCase):
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         data['_is_template'] = True
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend
@@ -111,7 +113,7 @@ class TestHookTemplate(unittest2.TestCase):
         data = {
             'name': 'host_001',
             '_templates': [rh[0]['_id']],
-            'realm': self.realm_all
+            '_realm': self.realm_all
         }
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
 
@@ -124,7 +126,8 @@ class TestHookTemplate(unittest2.TestCase):
 
         schema = host_schema()
         template_fields = []
-        ignore_fields = ['name', 'realm', '_template_fields', '_templates', '_is_template',
+        ignore_fields = ['name', 'realm', '_realm', '_template_fields',
+                         '_templates', '_is_template',
                          '_templates_with_services']
         for key in schema['schema']:
             if key not in ignore_fields:
@@ -135,11 +138,11 @@ class TestHookTemplate(unittest2.TestCase):
         datal = [{
             'name': 'host_002',
             '_templates': [rh[0]['_id']],
-            'realm': self.realm_all
+            '_realm': self.realm_all
         }, {
             'name': 'host_003',
             '_templates': [rh[0]['_id']],
-            'realm': self.realm_all
+            '_realm': self.realm_all
         }]
 
         requests.post(self.endpoint + '/host', json=datal, headers=headers, auth=self.auth)
@@ -170,7 +173,9 @@ class TestHookTemplate(unittest2.TestCase):
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         data['_is_template'] = True
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend
@@ -182,7 +187,7 @@ class TestHookTemplate(unittest2.TestCase):
         data = {
             'name': 'host_001',
             '_templates': [rh[0]['_id']],
-            'realm': self.realm_all
+            '_realm': self.realm_all
         }
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
 
@@ -264,7 +269,9 @@ class TestHookTemplate(unittest2.TestCase):
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
@@ -275,7 +282,9 @@ class TestHookTemplate(unittest2.TestCase):
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         data['name'] = 'host_001'
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
@@ -333,7 +342,9 @@ class TestHookTemplate(unittest2.TestCase):
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
@@ -344,7 +355,9 @@ class TestHookTemplate(unittest2.TestCase):
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         data['name'] = 'host_001'
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
@@ -473,7 +486,9 @@ class TestHookTemplate(unittest2.TestCase):
         # Add host templates
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         data['name'] = 'template_standard_linux'
         data['_is_template'] = True
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
@@ -521,7 +536,7 @@ class TestHookTemplate(unittest2.TestCase):
             'name': 'host_001',
             '_templates': [rh[0]['_id'], rh[1]['_id']],
             '_templates_with_services': True,
-            'realm': self.realm_all
+            '_realm': self.realm_all
         }
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
