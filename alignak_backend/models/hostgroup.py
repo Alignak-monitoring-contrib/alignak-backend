@@ -98,6 +98,14 @@ def get_schema():
                 },
                 'default': []
             },
+            '_realm': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'realm',
+                    'embeddable': True
+                },
+                'required': True,
+            },
             '_users_read': {
                 'type': 'list',
                 'schema': {

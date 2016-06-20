@@ -112,11 +112,13 @@ class TestRealms(unittest2.TestCase):
 
         # ** Realm All
         self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_level'], 0)
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_children'], [realmAll_A_id])
         self.assertEqual(re[0]['_all_children'], [realmAll_A_id])
         # ** Realm All A
         self.assertEqual(re[1]['name'], "All A")
+        self.assertEqual(re[1]['_level'], 1)
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [])
 
@@ -133,16 +135,19 @@ class TestRealms(unittest2.TestCase):
 
         # ** Realm All
         self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_level'], 0)
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_children'], [realmAll_A_id, realmAll_B_id])
         self.assertEqual(re[0]['_all_children'], [realmAll_A_id, realmAll_B_id])
         # ** Realm All A
         self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_level'], 1)
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [])
         self.assertEqual(re[1]['_all_children'], [])
         # ** Realm All B
         self.assertEqual(re[2]['name'], 'All B')
+        self.assertEqual(re[2]['_level'], 1)
         self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[2]['_children'], [])
         self.assertEqual(re[2]['_children'], [])
@@ -170,21 +175,25 @@ class TestRealms(unittest2.TestCase):
 
         # ** Realm All
         self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_level'], 0)
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id])
         self.assertEqual(re[0]['_all_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id])
         # ** Realm All A
         self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_level'], 1)
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [])
         self.assertEqual(re[1]['_all_children'], [])
         # ** Realm All B
         self.assertEqual(re[2]['name'], 'All B')
+        self.assertEqual(re[2]['_level'], 1)
         self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[2]['_children'], [])
         self.assertEqual(re[2]['_all_children'], [])
         # ** Realm All C
         self.assertEqual(re[3]['name'], 'All C')
+        self.assertEqual(re[3]['_level'], 1)
         self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[3]['_children'], [])
         self.assertEqual(re[3]['_all_children'], [])
@@ -207,6 +216,7 @@ class TestRealms(unittest2.TestCase):
 
         # ** Realm All
         self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_level'], 0)
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id])
         self.assertEqual(re[0]['_all_children'], [
@@ -214,21 +224,25 @@ class TestRealms(unittest2.TestCase):
         ])
         # ** Realm All A
         self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_level'], 1)
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [realmAll_A1_id])
         self.assertEqual(re[1]['_all_children'], [realmAll_A1_id])
         # ** Realm All A.1
         self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_level'], 2)
         self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
         self.assertEqual(re[2]['_children'], [])
         self.assertEqual(re[2]['_all_children'], [])
         # ** Realm All B
         self.assertEqual(re[3]['name'], 'All B')
+        self.assertEqual(re[3]['_level'], 1)
         self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[3]['_children'], [])
         self.assertEqual(re[3]['_all_children'], [])
         # ** Realm All C
         self.assertEqual(re[4]['name'], 'All C')
+        self.assertEqual(re[4]['_level'], 1)
         self.assertEqual(re[4]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[4]['_children'], [])
         self.assertEqual(re[4]['_all_children'], [])
@@ -256,6 +270,7 @@ class TestRealms(unittest2.TestCase):
 
         # ** Realm All
         self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_level'], 0)
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id])
         self.assertEqual(re[0]['_all_children'], [
@@ -263,26 +278,31 @@ class TestRealms(unittest2.TestCase):
         ])
         # ** Realm All A
         self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_level'], 1)
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [realmAll_A1_id])
         self.assertEqual(re[1]['_all_children'], [realmAll_A1_id, realmAll_A1a_id])
         # ** Realm All A.1
         self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_level'], 2)
         self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
         self.assertEqual(re[2]['_children'], [realmAll_A1a_id])
         self.assertEqual(re[2]['_all_children'], [realmAll_A1a_id])
         # ** Realm All A.1.a
         self.assertEqual(re[3]['name'], 'All A.1.a')
+        self.assertEqual(re[3]['_level'], 3)
         self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id, realmAll_A_id, realmAll_A1_id])
         self.assertEqual(re[3]['_children'], [])
         self.assertEqual(re[3]['_all_children'], [])
         # ** Realm All B
         self.assertEqual(re[4]['name'], 'All B')
+        self.assertEqual(re[4]['_level'], 1)
         self.assertEqual(re[4]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[4]['_children'], [])
         self.assertEqual(re[4]['_all_children'], [])
         # ** Realm All C
         self.assertEqual(re[5]['name'], 'All C')
+        self.assertEqual(re[5]['_level'], 1)
         self.assertEqual(re[5]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[5]['_children'], [])
         self.assertEqual(re[5]['_all_children'], [])
@@ -316,21 +336,25 @@ class TestRealms(unittest2.TestCase):
         ])
         # ** Realm All A
         self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_level'], 1)
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [realmAll_A1_id])
         self.assertEqual(re[1]['_all_children'], [realmAll_A1_id])
         # ** Realm All A.1
         self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_level'], 2)
         self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id, realmAll_A_id])
         self.assertEqual(re[2]['_children'], [])
         self.assertEqual(re[2]['_all_children'], [])
         # ** Realm All B
         self.assertEqual(re[3]['name'], 'All B')
+        self.assertEqual(re[3]['_level'], 1)
         self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[3]['_children'], [])
         self.assertEqual(re[3]['_all_children'], [])
         # ** Realm All C
         self.assertEqual(re[4]['name'], 'All C')
+        self.assertEqual(re[4]['_level'], 1)
         self.assertEqual(re[4]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[4]['_children'], [])
         self.assertEqual(re[4]['_all_children'], [])
@@ -441,21 +465,26 @@ class TestRealms(unittest2.TestCase):
 
         # ** Realm All
         self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_level'], 0)
         self.assertEqual(re[0]['_tree_parents'], [])
         self.assertEqual(re[0]['_children'], [realmAll_A_id, realmAll_B_id, realmAll_C_id])
         # ** Realm All A
         self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_level'], 1)
         self.assertEqual(re[1]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[1]['_children'], [])
         # ** Realm All B
         self.assertEqual(re[2]['name'], 'All B')
+        self.assertEqual(re[2]['_level'], 1)
         self.assertEqual(re[2]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[2]['_children'], [realmAll_B1_id])
         # ** Realm All B.1
         self.assertEqual(re[3]['name'], 'All B.1')
+        self.assertEqual(re[3]['_level'], 2)
         self.assertEqual(re[3]['_tree_parents'], [self.realmAll_id, realmAll_B_id])
         self.assertEqual(re[3]['_children'], [])
         # ** Realm All C
         self.assertEqual(re[4]['name'], 'All C')
+        self.assertEqual(re[4]['_level'], 1)
         self.assertEqual(re[4]['_tree_parents'], [self.realmAll_id])
         self.assertEqual(re[4]['_children'], [])
