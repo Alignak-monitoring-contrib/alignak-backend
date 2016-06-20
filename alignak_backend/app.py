@@ -207,7 +207,6 @@ def pre_get(resource, user_request, lookup):
 
 
 
-
 def pre_hostgroup_post(items):
     """
     Hook before adding a new hostgroup
