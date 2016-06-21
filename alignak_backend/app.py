@@ -5,6 +5,9 @@
     ``alignak_backend.app`` module
 
     This module manages the backend, its configuration and starts the backend
+
+    Default date format is:
+        '%a, %d %b %Y %H:%M:%S GMT'
 """
 
 from __future__ import print_function
@@ -16,7 +19,7 @@ import uuid
 import json
 import re
 from collections import OrderedDict
-from datetime import timedelta
+from datetime import datetime, timedelta
 from future.utils import iteritems
 
 from eve import Eve
@@ -206,6 +209,231 @@ def pre_get(resource, user_request, lookup):
                                        {'_realm': {'$in': resources_get_custom[resource]}}]}]
 
 
+# Log checks results
+def pre_logcheckresult_post(items):
+    """
+    Hook before adding new forcecheck
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    hosts_drv = current_app.data.driver.db['host']
+    for dummy, item in enumerate(items):
+        # Set _realm as host's _realm
+        host = hosts_drv.find_one({'_id': item['host']})
+        item['_realm'] = host['_realm']
+
+
+def after_insert_logcheckresult(items):
+    """
+    Hook after logcheckresult inserted.
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        # Create an history event for the new forcecheck
+        data = {
+            'host': item['host'],
+            'service': item['service'],
+            'user': None,
+            'type': 'check.result',
+            'message': '',
+            'check_result': item['_id']
+        }
+        post_internal("history", data, True)
+        # print("Created new history for check result: %s" % data)
+
+
+# Actions acknowledge
+def pre_actionacknowledge_post(items):
+    """
+    Hook before adding new acknowledge
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    hosts_drv = current_app.data.driver.db['host']
+    for dummy, item in enumerate(items):
+        # Set _realm as host's _realm
+        host = hosts_drv.find_one({'_id': item['host']})
+        item['_realm'] = host['_realm']
+
+
+def after_insert_actionacknowledge(items):
+    """
+    Hook after action acknowledge inserted.
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        # Create an history event for the new acknowledge
+        data = {
+            'host': item['host'],
+            'service': item['service'],
+            'user': item['user'],
+            'type': 'ack.' + item['action'],
+            'message': item['comment']
+        }
+        post_internal("history", data, True)
+        # print("Created new history for acknowledge: %s" % data)
+
+
+def after_update_actionacknowledge(updated, original):
+    """
+    Hook update on actionacknowledge
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if 'processed' in updated and updated['processed']:
+        # Create an history event for the new acknowledge
+        data = {
+            'host': original['host'],
+            'service': original['service'],
+            'user': original['user'],
+            'type': 'ack.processed',
+            'message': original['comment'],
+            'content': {
+            }
+        }
+        post_internal("history", data, True)
+        # print("Created new history for acknowledge: %s" % data)
+
+
+# Actions downtime
+def pre_actiondowntime_post(items):
+    """
+    Hook before adding new downtime
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    hosts_drv = current_app.data.driver.db['host']
+    for dummy, item in enumerate(items):
+        # Set _realm as host's _realm
+        host = hosts_drv.find_one({'_id': item['host']})
+        item['_realm'] = host['_realm']
+
+
+def after_insert_actiondowntime(items):
+    """
+    Hook after action downtime inserted.
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        # Create an history event for the new downtime
+        data = {
+            'host': item['host'],
+            'service': item['service'],
+            'user': item['user'],
+            'type': 'downtime.' + item['action'],
+            'message': item['comment']
+        }
+        post_internal("history", data, True)
+        # print("Created new history for downtime: %s" % data)
+
+
+def after_update_actiondowntime(updated, original):
+    """
+    Hook update on actiondowntime
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if 'processed' in updated and updated['processed']:
+        # Create an history event for the new downtime
+        data = {
+            'host': original['host'],
+            'service': original['service'],
+            'user': original['user'],
+            'type': 'downtime.processed',
+            'message': original['comment'],
+            'content': {
+            }
+        }
+        post_internal("history", data, True)
+        # print("Created new history for downtime: %s" % data)
+
+
+# Actions forcecheck
+def pre_actionforcecheck_post(items):
+    """
+    Hook before adding new forcecheck
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    hosts_drv = current_app.data.driver.db['host']
+    for dummy, item in enumerate(items):
+        # Set _realm as host's _realm
+        host = hosts_drv.find_one({'_id': item['host']})
+        item['_realm'] = host['_realm']
+
+
+def after_insert_actionforcecheck(items):
+    """
+    Hook after action forcecheck inserted.
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        # Create an history event for the new forcecheck
+        data = {
+            'host': item['host'],
+            'service': item['service'],
+            'user': item['user'],
+            'type': 'check.request',
+            'message': item['comment']
+        }
+        post_internal("history", data, True)
+        print("Created new history for forcecheck: %s" % data)
+
+
+def after_update_actionforcecheck(updated, original):
+    """
+    Hook update on actionforcecheck
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if 'processed' in updated and updated['processed']:
+        # Create an history event for the new forcecheck
+        data = {
+            'host': original['host'],
+            'service': original['service'],
+            'user': original['user'],
+            'type': 'check.requested',
+            'message': original['comment'],
+            'content': {
+            }
+        }
+        post_internal("history", data, True)
+        print("Created new history for forcecheck: %s" % data)
+
+
+# Hosts groups
 def pre_hostgroup_post(items):
     """
     Hook before adding a new hostgroup
@@ -264,6 +492,7 @@ def pre_hostgroup_patch(updates, original):
             updates['_tree_parents'].append(updates['_parent'])
 
 
+# Services groups
 def pre_servicegroup_post(items):
     """
     Hook before adding a new servicegroup
@@ -779,6 +1008,21 @@ app.on_updated_realm += after_update_realm
 
 app.on_insert_hostgroup += pre_hostgroup_post
 app.on_insert_servicegroup += pre_servicegroup_post
+
+app.on_insert_actionacknowledge += pre_actionacknowledge_post
+app.on_inserted_actionacknowledge += after_insert_actionacknowledge
+app.on_updated_actionacknowledge += after_update_actionacknowledge
+
+app.on_insert_actiondowntime += pre_actiondowntime_post
+app.on_inserted_actiondowntime += after_insert_actiondowntime
+app.on_updated_actiondowntime += after_update_actiondowntime
+
+app.on_insert_actionforcecheck += pre_actionforcecheck_post
+app.on_inserted_actionforcecheck += after_insert_actionforcecheck
+app.on_updated_actionforcecheck += after_update_actionforcecheck
+
+app.on_insert_logcheckresult += pre_logcheckresult_post
+app.on_inserted_logcheckresult += after_insert_logcheckresult
 
 with app.test_request_context():
     app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult

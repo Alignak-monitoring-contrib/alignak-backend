@@ -68,6 +68,19 @@ def get_schema():
                 'default': 'OK',
                 'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
             },
+            'last_state_type': {
+                'type': 'string',
+                'allowed': ["HARD", "SOFT"],
+                'required': True,
+            },
+            'last_state_id': {
+                'type': 'integer',
+                'default': 0
+            },
+            'state_changed': {
+                'type': 'boolean',
+                'default': False
+            },
             'output': {
                 'type': 'string',
                 'default': ''
@@ -95,6 +108,10 @@ def get_schema():
                     'embeddable': True
                 },
                 'required': True,
+            },
+            '_sub_realm': {
+                'type': 'boolean',
+                'default': False
             },
             '_users_read': {
                 'type': 'list',
