@@ -96,7 +96,9 @@ class TestHookLivestate(unittest2.TestCase):
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
@@ -139,7 +141,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
@@ -149,6 +153,8 @@ class TestHookLivestate(unittest2.TestCase):
         data = json.loads(open('cfg/service_srv001_ping.json').read())
         data['host'] = rh[0]['_id']
         data['check_command'] = rc[0]['_id']
+        if 'realm' in data:
+            del data['realm']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
         # Check if service right in backend
@@ -193,7 +199,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         response = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                  auth=self.auth)
         rh = response.json()
@@ -249,7 +257,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
@@ -310,7 +320,9 @@ class TestHookLivestate(unittest2.TestCase):
         data = json.loads(open('cfg/host_srv001.json').read())
         data['display_name'] = 'Server 001: srv001'
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
 
         response = requests.get(self.endpoint + '/livestate', params=sort_id, auth=self.auth)
@@ -328,7 +340,9 @@ class TestHookLivestate(unittest2.TestCase):
         data['display_name'] = 'Server 001: srv001'
         data['alias'] = 'Server 001: srv001 alias'
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         responsep = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                   auth=self.auth)
         rh = responsep.json()
@@ -409,7 +423,9 @@ class TestHookLivestate(unittest2.TestCase):
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         data['alias'] = 'Server 001: srv001 alias'
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         reponsep = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                  auth=self.auth)
         rh = reponsep.json()
@@ -489,7 +505,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         reponsep = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                  auth=self.auth)
         rh = reponsep.json()
@@ -568,7 +586,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = resp['_items'][0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         reponsep = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                  auth=self.auth)
         rh = reponsep.json()
@@ -602,7 +622,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = resp['_items'][0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         responsep = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                   auth=self.auth)
         rh = responsep.json()
@@ -691,7 +713,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         responsep = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                   auth=self.auth)
         rh = responsep.json()
@@ -781,7 +805,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         responsep = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                   auth=self.auth)
         rh = responsep.json()
@@ -871,7 +897,9 @@ class TestHookLivestate(unittest2.TestCase):
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         responsep = requests.post(self.endpoint + '/host', json=data, headers=headers,
                                   auth=self.auth)
         rh = responsep.json()
@@ -918,7 +946,9 @@ class TestHookLivestate(unittest2.TestCase):
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = resp['_items'][0]['_id']
-        data['realm'] = self.realm_all
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
         data['_is_template'] = True
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend

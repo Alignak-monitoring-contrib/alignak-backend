@@ -54,7 +54,7 @@ class Livestate(object):
                     'last_state': 'UP', 'last_state_type': 'HARD', 'output': '',
                     'long_output': '', 'perf_data': '', 'type': 'host',
                     'business_impact': item['business_impact'], 'display_name_host': name,
-                    '_realm': item['realm'], 'name': item['name']}
+                    '_realm': item['_realm'], 'name': item['name']}
             if item['initial_state'] == 'd':
                 data['state'] = 'DOWN'
                 data['state_id'] = 1

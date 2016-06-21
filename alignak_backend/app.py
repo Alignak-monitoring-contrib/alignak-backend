@@ -193,21 +193,17 @@ def pre_get(resource, user_request, lookup):
         if resource not in resources_get and resource not in resources_get_custom:
             lookup["_id"] = 0
         else:
-            # add search on realms
-            if 'realm' in app.settings['DOMAIN'][resource]['schema']:
-                lookup['realm'] = {'$in': resources_get[resource]}
-            else:
-                if resource not in resources_get:
-                    resources_get[resource] = []
-                if resource not in resources_get_parents:
-                    resources_get_parents[resource] = []
-                if resource not in resources_get_custom:
-                    resources_get_custom[resource] = []
-                lookup['$or'] = [{'_realm': {'$in': resources_get[resource]}},
-                                 {'$and': [{'_sub_realm': True},
-                                           {'_realm': {'$in': resources_get_parents[resource]}}]},
-                                 {'$and': [{'_users_read': users_id},
-                                           {'_realm': {'$in': resources_get_custom[resource]}}]}]
+            if resource not in resources_get:
+                resources_get[resource] = []
+            if resource not in resources_get_parents:
+                resources_get_parents[resource] = []
+            if resource not in resources_get_custom:
+                resources_get_custom[resource] = []
+            lookup['$or'] = [{'_realm': {'$in': resources_get[resource]}},
+                             {'$and': [{'_sub_realm': True},
+                                       {'_realm': {'$in': resources_get_parents[resource]}}]},
+                             {'$and': [{'_users_read': users_id},
+                                       {'_realm': {'$in': resources_get_custom[resource]}}]}]
 
 
 def pre_hostgroup_post(items):

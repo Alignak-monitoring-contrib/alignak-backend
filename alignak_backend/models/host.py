@@ -245,14 +245,6 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
-            'realm': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'realm',
-                    'embeddable': True
-                },
-                'required': True,
-            },
             'poller_tag': {
                 'type': 'string',
                 'default': 'None'
@@ -397,6 +389,18 @@ def get_schema():
             'location': {
                 'type': 'point',
                 'default': {"type": "Point", "coordinates": [100.0, 10.0]}
+            },
+            '_realm': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'realm',
+                    'embeddable': True
+                },
+                'required': True,
+            },
+            '_sub_realm': {
+                'type': 'boolean',
+                'default': False
             },
             '_users_read': {
                 'type': 'list',
