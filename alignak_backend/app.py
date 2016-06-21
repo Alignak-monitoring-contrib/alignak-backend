@@ -241,7 +241,7 @@ def after_insert_logcheckresult(items):
             'user': None,
             'type': 'check.result',
             'message': '',
-            'check_result': item['_id']
+            'logcheckresult': item['_id']
         }
         post_internal("history", data, True)
         # print("Created new history for check result: %s" % data)
