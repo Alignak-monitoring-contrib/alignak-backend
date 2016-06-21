@@ -24,10 +24,6 @@ def get_schema():
     """
     return {
         'schema': {
-            'date': {
-                'type': 'integer',
-                'default': None
-            },
             'host': {
                 'type': 'objectid',
                 'data_relation': {

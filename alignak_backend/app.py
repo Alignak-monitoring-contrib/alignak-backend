@@ -233,7 +233,6 @@ def after_insert_logcheckresult(items):
     for dummy, item in enumerate(items):
         # Create an history event for the new forcecheck
         data = {
-            'date': datetime.utcnow(),
             'host': item['host'],
             'service': item['service'],
             'user': None,
@@ -272,7 +271,6 @@ def after_insert_actionacknowledge(items):
     for dummy, item in enumerate(items):
         # Create an history event for the new acknowledge
         data = {
-            'date': datetime.utcnow(),
             'host': item['host'],
             'service': item['service'],
             'user': item['user'],
@@ -296,7 +294,6 @@ def after_update_actionacknowledge(updated, original):
     if 'processed' in updated and updated['processed']:
         # Create an history event for the new acknowledge
         data = {
-            'date': datetime.utcnow(),
             'host': original['host'],
             'service': original['service'],
             'user': original['user'],
@@ -336,7 +333,6 @@ def after_insert_actiondowntime(items):
     for dummy, item in enumerate(items):
         # Create an history event for the new downtime
         data = {
-            'date': datetime.utcnow(),
             'host': item['host'],
             'service': item['service'],
             'user': item['user'],
@@ -360,7 +356,6 @@ def after_update_actiondowntime(updated, original):
     if 'processed' in updated and updated['processed']:
         # Create an history event for the new downtime
         data = {
-            'date': datetime.utcnow(),
             'host': original['host'],
             'service': original['service'],
             'user': original['user'],
@@ -400,7 +395,6 @@ def after_insert_actionforcecheck(items):
     for dummy, item in enumerate(items):
         # Create an history event for the new forcecheck
         data = {
-            'date': datetime.utcnow(),
             'host': item['host'],
             'service': item['service'],
             'user': item['user'],
@@ -424,7 +418,6 @@ def after_update_actionforcecheck(updated, original):
     if 'processed' in updated and updated['processed']:
         # Create an history event for the new forcecheck
         data = {
-            'date': datetime.utcnow(),
             'host': original['host'],
             'service': original['service'],
             'user': original['user'],
