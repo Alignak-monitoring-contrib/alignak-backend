@@ -206,7 +206,6 @@ def pre_get(resource, user_request, lookup):
                                        {'_realm': {'$in': resources_get_custom[resource]}}]}]
 
 
-
 def pre_hostgroup_post(items):
     """
     Hook before adding a new hostgroup
