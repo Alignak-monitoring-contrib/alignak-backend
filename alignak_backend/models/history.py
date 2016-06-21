@@ -80,7 +80,7 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
-            'check_result': {
+            'logcheckresult': {
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'logcheckresult',

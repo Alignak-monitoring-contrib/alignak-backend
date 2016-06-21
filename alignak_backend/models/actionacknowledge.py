@@ -79,8 +79,7 @@ def get_schema():
                 'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
-                },
-                'required': True,
+                }
             },
             '_sub_realm': {
                 'type': 'boolean',
