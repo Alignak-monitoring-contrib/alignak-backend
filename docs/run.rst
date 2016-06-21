@@ -43,7 +43,7 @@ On start, some useful information are printed on the console::
       Doc: https://github.com/Alignak-monitoring-contrib/alignak-backend
       Release notes: Alignak REST Backend
       --------------------------------------------------------------------------------
-      Configuration read from file(s): ['/etc/alignak_backend/settings.cfg']
+      Configuration read from file(s): ['/etc/alignak_backend/settings.json']
       Application settings: {'MONGO_PORT': '27017', 'RATE_LIMIT_POST': 'None', 'X_HEADERS': 'Authorization, If-Match, X-HTTP-Method-Override, Content-Type', 'X_DOMAINS': '*', 'MONGO_DBNAME': 'alignak-backend', 'RATE_LIMIT_GET': 'None', 'MONGO_HOST': 'localhost', 'DEBUG': 'False', 'RATE_LIMIT_PATCH': 'None', 'PAGINATION_LIMIT': '100', 'RATE_LIMIT_DELETE': 'None'}
 
 
