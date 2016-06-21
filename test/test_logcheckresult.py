@@ -204,4 +204,4 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service'], None)
         self.assertEqual(re[0]['type'], "check.result")
         self.assertEqual(re[0]['message'], "")
-        self.assertEqual(re[0]['check_result'], check_id)
+        self.assertEqual(re[0]['logcheckresult'], check_id)
