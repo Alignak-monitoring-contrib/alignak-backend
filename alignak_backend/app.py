@@ -5,6 +5,9 @@
     ``alignak_backend.app`` module
 
     This module manages the backend, its configuration and starts the backend
+
+    Default date format is:
+        '%a, %d %b %Y %H:%M:%S GMT'
 """
 
 from __future__ import print_function
