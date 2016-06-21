@@ -18,8 +18,11 @@ With socket (+ nginx / apache in frontal)::
 
 With direct http port::
 
-   uwsgi -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads -p 4
+   uwsgi --wsgi-file alignakbackend.py -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads -p 4
 
+Maybe, you've to add plugin python on some distributions (Debian)::
+
+   uwsgi --plugin python --wsgi-file alignakbackend.py -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads -p 4
 
 Alignak-backend runs on port 80 like specified in arguments, so use::
 
