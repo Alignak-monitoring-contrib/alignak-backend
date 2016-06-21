@@ -74,5 +74,27 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
+            '_realm': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'realm',
+                    'embeddable': True
+                },
+                'required': True,
+            },
+            '_sub_realm': {
+                'type': 'boolean',
+                'default': False
+            },
+            '_users_read': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'user',
+                        'embeddable': True,
+                    }
+                },
+            },
         }
     }
