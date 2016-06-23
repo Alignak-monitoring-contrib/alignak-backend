@@ -47,14 +47,12 @@ def get_schema():
                 'nullable': True
             },
             'start_time': {
-                'type': 'datetime',
-                'nullable': True,
-                'default': None
+                'type': 'integer',
+                'default': 0
             },
             'end_time': {
-                'type': 'datetime',
-                'nullable': True,
-                'default': None
+                'type': 'integer',
+                'default': 86400
             },
             'fixed': {
                 'type': 'boolean',
@@ -63,14 +61,6 @@ def get_schema():
             'duration': {
                 'type': 'integer',
                 'default': 86400
-            },
-            'trigger': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'trigger',
-                    'embeddable': True
-                },
-                'nullable': True
             },
             'user': {
                 'type': 'objectid',

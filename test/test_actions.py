@@ -7,6 +7,7 @@ This test check the hostgroups and the tree feature of hostgroups (children)
 from __future__ import print_function
 import json
 import time
+from calendar import timegm
 from datetime import datetime, timedelta
 import shlex
 import subprocess
@@ -311,12 +312,15 @@ class TestActions(unittest2.TestCase):
         # Add an downtime
         now = datetime.utcnow()
         later = now + timedelta(days=2, hours=4, minutes=3, seconds=12)
+        now = timegm(now.timetuple())
+        later = timegm(later.timetuple())
+        print("Now: %s, %s" % (now, later))
         data = {
             "action": "add",
             "host": rh[0]['_id'],
             "service": None,
-            "start_time": now.strftime('%a, %d %b %Y %H:%M:%S GMT'),
-            "end_time": later.strftime('%a, %d %b %Y %H:%M:%S GMT'),
+            "start_time": now,
+            "end_time": later,
             "fixed": True,
             "user": self.user_admin,
             "comment": "User comment",
@@ -533,3 +537,59 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service'], None)
         self.assertEqual(re[1]['type'], "check.requested")
         self.assertEqual(re[1]['message'], "User comment")
+
+    def test_history_comment(self):
+        """
+        Test history: add user comment
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+
+        # No existing forcechecks
+        response = requests.get(
+            self.endpoint + '/history', params=sort_id, auth=self.auth
+        )
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 0)
+
+        # Get host in the backend
+        response = requests.get(self.endpoint + '/host', auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[0]['name'], "srv001")
+
+        # Get service in the backend
+        response = requests.get(self.endpoint + '/service', auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(rs[0]['name'], "ping")
+
+        # -------------------------------------------
+        # Add an history comment
+        data = {
+            "host": rh[0]['_id'],
+            "service": None,
+            "user": self.user_admin,
+            "type": "webui.comment",
+            "message": "User comment",
+            "_realm": self.realm_all
+        }
+        response = requests.post(
+            self.endpoint + '/history', json=data, headers=headers, auth=self.auth
+        )
+        resp = response.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        # Get history
+        response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 1)
+
+        self.assertEqual(re[0]['host'], rh[0]['_id'])
+        self.assertEqual(re[0]['service'], None)
+        self.assertEqual(re[0]['type'], "webui.comment")
+        self.assertEqual(re[0]['message'], "User comment")
