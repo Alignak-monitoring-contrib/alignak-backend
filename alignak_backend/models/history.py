@@ -53,6 +53,9 @@ def get_schema():
                 'type': 'string',
                 'required': True,
                 'allowed': [
+                    # WebUI user comment
+                    "webui.comment",
+
                     # Check result
                     "check.result",
 
