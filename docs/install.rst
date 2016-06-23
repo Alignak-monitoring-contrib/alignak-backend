@@ -10,6 +10,10 @@ To use this backend, you first need to install and run MongoDB_
 
 .. _MongoDB: http://docs.mongodb.org/manual/
 
+If you want to run with uwsgi, you need to install uwsgi and plugin python (on Debian)::
+
+    sudo apt-get install uwsgi uwsgi-plugin-python
+
 Install with pip
 ----------------
 
@@ -44,7 +48,7 @@ Install from source without pip
 
 If you are on Debian::
 
-    apt-get -y install python python-dev python-pip git
+    sudo apt-get -y install python python-dev python-pip git
 
 
 Get the project sources::
@@ -52,7 +56,7 @@ Get the project sources::
     git clone https://github.com/Alignak-monitoring/alignak-backend
 
 
-Install python prerequisites::
+Install python prerequisites (Normally, you can install with user *alignak* )::
 
     pip install -r alignak-backend/requirements.txt
 
@@ -60,4 +64,4 @@ Install python prerequisites::
 And install::
 
     cd alignak-backend
-    python setup.py install
+    sudo python setup.py install
