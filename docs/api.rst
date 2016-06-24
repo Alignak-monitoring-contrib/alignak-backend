@@ -358,7 +358,7 @@ If you create a host with fields:
 
 The backend will create the host + all services related to the services templates linked to the host.
 
-With an example, it's better! We have the templates:
+With an example, it's better! We have the templates::
 
     standard_template (host)
             |------------------> check_cpu_template (service)
@@ -367,7 +367,7 @@ With an example, it's better! We have the templates:
 
 We create a host linked to *standard_template* template and with *_templates_with_services* to True.
 
-We have now:
+We have now::
 
     standard_template (host)
             |------------------> check_cpu_template (service)
