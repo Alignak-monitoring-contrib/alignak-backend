@@ -432,4 +432,16 @@ List of log resources:
 
    resources/log*
 
+Action part
+~~~~~~~~
+
+List of action resources:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   resources/action*
+
+
 

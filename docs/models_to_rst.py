@@ -40,7 +40,8 @@ for filepath in f:
         if not resource_name.startswith('live'):
             if not resource_name.startswith('retention'):
                 if not resource_name.startswith('log'):
-                    resource_name = ''.join(['config', resource_name])
+                    if not resource_name.startswith('action'):
+                        resource_name = ''.join(['config', resource_name])
 
         target = open(''.join(['resources/', resource_name, '.rst']),'w')
         target.write('.. _resource-%s:' % (py_mod.get_name()))
