@@ -129,6 +129,7 @@ class MyTokenAuth(TokenAuth):
             for resource in g.resources_delete:
                 g.resources_delete[resource] = list(set(g.resources_delete[resource]))
             g.users_id = user['_id']
+            self.set_request_auth_value(user['_id'])
         return user
 
     def add_resources_realms(self, right, data, custom, resource, parents=None):
@@ -187,7 +188,7 @@ def pre_get(resource, user_request, lookup):
     if g.get('back_role_super_admin', False):
         return
     # Only in case not super-admin
-    if resource != 'user':
+    if resource not in ['user', 'uipref']:
         # get all resources we can have rights in read
         resources_get = g.get('resources_get', {})
         resources_get_parents = g.get('resources_get_parents', {})
