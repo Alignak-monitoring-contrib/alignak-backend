@@ -23,6 +23,7 @@ def get_schema():
     :rtype: dict
     """
     return {
+        'auth_field': 'u_id',
         'allow_unknown': True,
         'schema': {
             'type': {
