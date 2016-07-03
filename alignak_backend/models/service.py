@@ -105,6 +105,7 @@ def get_schema():
             'passive_checks_enabled': {
                 'type': 'boolean',
                 'default': True
+
             },
             'check_period': {
                 'type': 'objectid',
@@ -186,6 +187,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'usergroups': {
                 'type': 'list',
@@ -196,6 +198,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'stalking_options': {
                 'type': 'list',
@@ -259,6 +262,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'maintenance_period': {
                 'type': 'objectid',
@@ -312,6 +316,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'duplicate_foreach': {
                 'type': 'string',

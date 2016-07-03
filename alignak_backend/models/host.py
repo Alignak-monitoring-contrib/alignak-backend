@@ -65,6 +65,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'check_command': {
                 'type': 'objectid',
@@ -161,6 +162,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'usergroups': {
                 'type': 'list',
@@ -171,6 +173,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'notification_interval': {
                 'type': 'integer',
