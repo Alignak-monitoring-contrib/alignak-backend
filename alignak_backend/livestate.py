@@ -7,7 +7,7 @@
     This module manages the livestate
 """
 from __future__ import print_function
-from flask import current_app, g, request, abort, jsonify
+from flask import current_app
 from eve.methods.post import post_internal
 from eve.methods.patch import patch_internal
 
