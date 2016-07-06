@@ -136,6 +136,14 @@ def get_schema():
                 'type': 'float',
                 'default': 0.0
             },
+            'grafana': {
+                'type': 'boolean',
+                'default': False
+            },
+            'grafana_panelid': {
+                'type': 'integer',
+                'default': 0
+            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {

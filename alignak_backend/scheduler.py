@@ -18,3 +18,11 @@ def cron_cache():
     """
     # test communication and see if data in cache
     alignak_backend.app.cron_timeseries()
+
+def cron_grafana():
+    """
+    It's the scheduler used to update / create grafana dashboards
+
+    :return: None
+    """
+    alignak_backend.app.cron_grafana()

@@ -43,6 +43,7 @@ from alignak_backend.livesynthesis import Livesynthesis
 from alignak_backend.livestate import Livestate
 from alignak_backend.template import Template
 from alignak_backend.timeseries import Timeseries
+from alignak_backend.grafana import Grafana
 
 _subcommands = OrderedDict()
 
@@ -844,7 +845,10 @@ settings['PORT'] = 5000
 settings['SERVER_NAME'] = None
 settings['DEBUG'] = False
 
-settings['SCHEDULER_ACTIVE'] = False
+settings['SCHEDULER_TIMESERIES_ACTIVE'] = False
+settings['SCHEDULER_GRAFANA_ACTIVE'] = False
+settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
+settings['JOBS'] = []
 
 settings['GRAPHITE_HOST'] = ''
 settings['GRAPHITE_PORT'] = 2004
@@ -859,18 +863,29 @@ settings['INFLUXDB_DATABASE'] = 'alignak'
 get_settings(settings)
 
 # scheduler config
-if settings['SCHEDULER_ACTIVE']:
-    settings['JOBS'] = [
+jobs = []
+if settings['SCHEDULER_TIMESERIES_ACTIVE']:
+    jobs.append(
         {
             'id': 'cron_cache',
             'func': 'alignak_backend.scheduler:cron_cache',
             'args': (),
             'trigger': 'interval',
-            'seconds': 60
+            'seconds': 10
         }
-    ]
-    settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
-
+    )
+if settings['SCHEDULER_GRAFANA_ACTIVE'] and settings['GRAFANA_HOST'] is not None:
+    jobs.append(
+        {
+            'id': 'cron_grafana',
+            'func': 'alignak_backend.scheduler:cron_grafana',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 120
+        }
+    )
+if len(jobs) > 0:
+    settings['JOBS'] = jobs
 
 print("Application settings: %s" % settings)
 
@@ -1029,7 +1044,7 @@ with app.test_request_context():
     app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
 
 # Start scheduler (internal cron)
-if settings['SCHEDULER_ACTIVE']:
+if len(settings['JOBS']) > 0:
     with app.test_request_context():
         scheduler = APScheduler()
         scheduler.init_app(app)
@@ -1098,6 +1113,9 @@ def backend_config():
         my_config['metrics'].append('graphite')
     if settings['INFLUXDB_HOST'] is not None:
         my_config['metrics'].append('influxdb')
+    if settings['GRAFANA_HOST'] is not None:
+        my_config['GRAFANA_HOST'] = settings['GRAFANA_HOST']
+        my_config['GRAFANA_PORT'] = settings['GRAFANA_PORT']
     return jsonify(my_config)
 
 
@@ -1140,6 +1158,25 @@ def cron_timeseries():
                 elif influxdb_serv and not graphite_serv:
                     patch_internal('timeseriesretention', {"for_influxdb": False}, False, False,
                                    **lookup)
+
+
+@app.route("/cron_grafana")
+def cron_grafana():
+    """
+    Cron used to add / update grafana dashboards
+
+    :return: None
+    """
+    with app.test_request_context():
+        livestate_db = current_app.data.driver.db['livestate']
+        grafana = Grafana()
+
+        hosts_managed = []
+        livestates = livestate_db.find({'grafana': False})
+        for livestate in livestates:
+            if livestate['host'] not in hosts_managed and livestate['state'] in ['UP', 'OK']:
+                grafana.create_dashboard(livestate['host'])
+                hosts_managed.append(livestate['host'])
 
 
 @app.route('/docs')
