@@ -189,7 +189,7 @@ class Timeseries(object):
                 },
                 "time": d['timestamp'] * 1000000000,
                 "fields": {
-                    "value": int(d['value'])
+                    "value": float(d['value'])
                 }
             })
         influxdb = InfluxDBClient(host, port, login, password, database)
