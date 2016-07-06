@@ -35,7 +35,7 @@ class Grafana(object):
         else:
             self.datasource = None
 
-    def create_dashboard(self, host_id):
+    def create_dashboard(self, host_id):  # pylint: disable=too-many-locals
         """
         Create / update a dashboard in Grafana
 
@@ -90,7 +90,7 @@ class Grafana(object):
                     fields = perfdata.metrics[measurement].__dict__
                     targets.append(self.generate_target(fields['name'],
                                                         {"host": hostname,
-                                                          "service": service_name}))
+                                                         "service": service_name}))
                 if len(targets) > 0:
                     rows.append(self.generate_row(command_name, targets))
                     # update livestate
@@ -135,7 +135,8 @@ class Grafana(object):
                 "type": "influxdb",
                 "typeLogoUrl": "",
                 "access": "proxy",
-                "url": "http://" + self.influxdb + ":" + str(current_app.config.get('INFLUXDB_PORT')),
+                "url": "http://" + self.influxdb + ":" +
+                       str(current_app.config.get('INFLUXDB_PORT')),
                 "password": current_app.config.get('INFLUXDB_PASSWORD'),
                 "user": current_app.config.get('INFLUXDB_LOGIN'),
                 "database": current_app.config.get('INFLUXDB_DATABASE'),
@@ -151,7 +152,8 @@ class Grafana(object):
                 "name": "graphite",
                 "type": "graphite",
                 "access": "proxy",
-                "url": "http://" + self.graphite + ":" + str(current_app.config.get('GRAPHITE_PORT')),
+                "url": "http://" + self.graphite + ":" +
+                       str(current_app.config.get('GRAPHITE_PORT')),
                 "basicAuth": False,
                 "basicAuthUser": "",
                 "basicAuthPassword": "",
@@ -159,22 +161,20 @@ class Grafana(object):
                 "isDefault": True,
                 "jsonData": {}
             }
-        response = requests.post('http://' + self.host + ':' + self.port + '/api/datasources', json=data,
-                                 headers=headers)
+        response = requests.post('http://' + self.host + ':' + self.port + '/api/datasources',
+                                 json=data, headers=headers)
         resp = response.json()
         print(resp)
         return resp['name']
 
-    def generate_target(self, measurement, tags=[]):
+    def generate_target(self, measurement, tags):
         """
         Generate target structure for dashboard
 
         :param measurement: name of measurement
         :type measurement: str
-        :param tag_key: key of tag (host | service) in our case
-        :type tag_key: str
-        :param tag_value: name of host or service
-        :type tag_value: str
+        :param tags: list of tags
+        :type tags: list
         :return: dictionary / structure of target (cf API Grafana)
         :rtype: dict
         """
@@ -247,6 +247,3 @@ class Grafana(object):
                 }
             ]
         }
-
-
-
