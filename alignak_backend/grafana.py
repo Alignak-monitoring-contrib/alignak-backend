@@ -80,9 +80,6 @@ class Grafana(object):
         for livestate in livestates:
             if livestate['last_check'] > 0:
                 service = service_db.find_one({'_id': livestate['service']})
-                service_name = service['name']
-                command = command_db.find_one({'_id': service['check_command']})
-                command_name = command['name']
 
                 perfdata = PerfDatas(livestate['perf_data'])
                 targets = []
@@ -90,9 +87,9 @@ class Grafana(object):
                     fields = perfdata.metrics[measurement].__dict__
                     targets.append(self.generate_target(fields['name'],
                                                         {"host": hostname,
-                                                         "service": service_name}))
+                                                         "service": service['name']}))
                 if len(targets) > 0:
-                    rows.append(self.generate_row(command_name, targets))
+                    rows.append(self.generate_row(service['name'], targets))
                     # update livestate
                     data = {
                         "grafana": True,
