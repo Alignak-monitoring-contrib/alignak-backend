@@ -49,6 +49,7 @@ def get_schema():
                     'resource': 'host',
                     'embeddable': True
                 },
+                'nullable': True
             },
             'hostgroups': {
                 'type': 'string',
