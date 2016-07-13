@@ -111,7 +111,8 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         requests.delete(self.endpoint + '/livesynthesis', auth=self.auth)
         self.p.kill()
         time.sleep(3)
-        self.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000',
+        self.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+                                   '--socket', '0.0.0.0:5000',
                                    '--protocol=http', '--enable-threads', '--pidfile',
                                    '/tmp/uwsgi.pid'])
         time.sleep(3)
