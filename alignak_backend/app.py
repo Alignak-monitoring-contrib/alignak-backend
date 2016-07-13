@@ -11,39 +11,39 @@
 """
 
 from __future__ import print_function
-import sys
-import traceback
-import os
-import time
-import uuid
+
 import json
+import os
 import re
+import sys
+import time
+import traceback
+import uuid
 from collections import OrderedDict
-from datetime import datetime, timedelta
-from future.utils import iteritems
 
 from eve import Eve
 from eve.auth import TokenAuth
 from eve.io.mongo import Validator
-from eve.methods.post import post_internal
-from eve.methods.patch import patch_internal
 from eve.methods.delete import deleteitem_internal
+from eve.methods.patch import patch_internal
+from eve.methods.post import post_internal
 from eve.utils import debug_error_message
-from werkzeug.security import check_password_hash, generate_password_hash
-from flask_bootstrap import Bootstrap
-from flask_apscheduler import APScheduler
 from eve_swagger import swagger
 from flask import current_app, g, request, abort, jsonify, make_response, send_from_directory, \
     redirect
+from flask_apscheduler import APScheduler
+from flask_bootstrap import Bootstrap
+from future.utils import iteritems
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from alignak_backend.models import register_models
-from alignak_backend import manifest
 import alignak_backend.log
-from alignak_backend.livesynthesis import Livesynthesis
+from alignak_backend import manifest
+from alignak_backend.grafana import Grafana
 from alignak_backend.livestate import Livestate
+from alignak_backend.livesynthesis import Livesynthesis
+from alignak_backend.models import register_models
 from alignak_backend.template import Template
 from alignak_backend.timeseries import Timeseries
-from alignak_backend.grafana import Grafana
 
 _subcommands = OrderedDict()
 
@@ -861,6 +861,9 @@ settings['INFLUXDB_DATABASE'] = 'alignak'
 
 # Read configuration file to update/complete the configuration
 get_settings(settings)
+
+if os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME'):
+    settings['MONGO_DBNAME'] = os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME')
 
 # scheduler config
 jobs = []
