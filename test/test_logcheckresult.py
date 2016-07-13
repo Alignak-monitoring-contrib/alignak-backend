@@ -5,13 +5,14 @@ This test check the hostgroups and the tree feature of hostgroups (children)
 """
 
 from __future__ import print_function
+
 import json
-import time
-from datetime import datetime, timedelta
-from calendar import timegm
 import shlex
 import subprocess
-import copy
+import time
+from calendar import timegm
+from datetime import datetime
+
 import requests
 import unittest2
 
