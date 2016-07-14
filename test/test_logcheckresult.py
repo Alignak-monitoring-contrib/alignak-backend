@@ -5,13 +5,14 @@ This test check the hostgroups and the tree feature of hostgroups (children)
 """
 
 from __future__ import print_function
+
 import json
-import time
-from datetime import datetime, timedelta
-from calendar import timegm
 import shlex
 import subprocess
-import copy
+import time
+from calendar import timegm
+from datetime import datetime
+
 import requests
 import unittest2
 
@@ -40,7 +41,8 @@ class TestActions(unittest2.TestCase):
         )
         assert exit_code == 0
 
-        cls.p = subprocess.Popen(['uwsgi', '-w', 'alignakbackend:app', '--socket', '0.0.0.0:5000',
+        cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+                                  '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
                                   '/tmp/uwsgi.pid'])
         time.sleep(3)
