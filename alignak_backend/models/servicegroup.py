@@ -85,6 +85,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'services': {
                 'type': 'list',
@@ -95,6 +96,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             '_realm': {
                 'type': 'objectid',

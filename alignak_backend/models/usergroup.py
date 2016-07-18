@@ -55,6 +55,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             'users': {
                 'type': 'list',
@@ -65,6 +66,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
             '_realm': {
                 'type': 'objectid',
