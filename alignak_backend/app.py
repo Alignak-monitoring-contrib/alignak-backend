@@ -553,6 +553,66 @@ def pre_servicegroup_patch(updates, original):
             updates['_tree_parents'].append(updates['_parent'])
 
 
+# Users groups
+def pre_usergroup_post(items):
+    """
+    Hook before adding a new usergroup
+
+    Manage usergroup level and parents tree.
+
+    :param items: usergroup fields
+    :type items: dict
+    :return: None
+    """
+    ugs_drv = current_app.data.driver.db['usergroup']
+    for dummy, item in enumerate(items):
+        # Default parent
+        if '_parent' not in item:
+            # Use default usergroup as a parent
+            def_ug = ugs_drv.find_one({'name': 'All'})
+            if def_ug:
+                item['_parent'] = def_ug['_id']
+
+        # Compute _level
+        parent_ug = ugs_drv.find_one({'_id': item['_parent']})
+        item['_level'] = parent_ug['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_ug['_tree_parents']
+        item['_tree_parents'].append(parent_ug['_id'])
+
+
+def pre_usergroup_patch(updates, original):
+    """
+    Hook before updating existing usergroup
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if not g.updateGroup:
+        if '_tree_parents' in updates:
+            abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
+        ugs_drv = current_app.data.driver.db['usergroup']
+
+        # Find parent
+        parent = ugs_drv.find_one({'_id': updates['_parent']})
+        if not parent:
+            abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
+
+
+# Realms
 def pre_realm_post(items):
     """
     Hook before adding new realm
@@ -910,6 +970,7 @@ app.on_update_user += pre_user_patch
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
 app.on_update_realm += pre_realm_patch
+app.on_update_usergroup += pre_usergroup_patch
 app.on_update_hostgroup += pre_hostgroup_patch
 app.on_update_servicegroup += pre_servicegroup_patch
 
@@ -939,6 +1000,15 @@ with app.test_request_context():
                       True)
         default_realm = realms.find_one({'name': 'All'})
         print("Created top level realm: %s" % default_realm)
+    # Create default usergroup if not defined
+    ugs = app.data.driver.db['usergroup']
+    default_ug = ugs.find_one({'name': 'All'})
+    if not default_ug:
+        post_internal("usergroup", {
+            "name": "All", "alias": "All users", "_parent": None, "_level": 0
+        }, True)
+        default_ug = ugs.find_one({'name': 'All'})
+        print("Created top level usergroup: %s" % default_ug)
     # Create default hostgroup if not defined
     hgs = app.data.driver.db['hostgroup']
     default_hg = hgs.find_one({'name': 'All'})
@@ -1025,6 +1095,7 @@ app.on_insert_realm += pre_realm_post
 app.on_inserted_realm += after_insert_realm
 app.on_updated_realm += after_update_realm
 
+app.on_insert_usergroup += pre_usergroup_post
 app.on_insert_hostgroup += pre_hostgroup_post
 app.on_insert_servicegroup += pre_servicegroup_post
 
