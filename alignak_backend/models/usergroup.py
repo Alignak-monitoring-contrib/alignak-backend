@@ -46,6 +46,28 @@ def get_schema():
                 'type': 'string',
                 'default': '',
             },
+            '_level': {
+                'type': 'integer',
+                'default': 0,
+            },
+            '_parent': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'usergroup',
+                    'embeddable': True
+                },
+            },
+            '_tree_parents': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'usergroup',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
             'usergroups': {
                 'type': 'list',
                 'schema': {

@@ -558,3 +558,241 @@ class TestGroups(unittest2.TestCase):
         self.assertEqual(re[6]['_parent'], self.sgAll_id)
         self.assertEqual(re[6]['_level'], 1)
         self.assertEqual(re[6]['_tree_parents'], [self.sgAll_id])
+
+    def test_add_usergroup(self):
+        # pylint: disable=too-many-locals
+        """
+        Test add usergroups
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_name = {'sort': 'name'}
+        sort_level = {'sort': '_level'}
+
+        response = requests.get(self.endpoint + '/usergroup', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 1)
+        self.hgAll_id = resp['_items'][0]['_id']
+
+        # * Add sub_usergroups
+        data = {"name": "All A", "_realm": self.realmAll_id, "_parent": self.hgAll_id}
+        response = requests.post(self.endpoint + '/usergroup', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        usergroupAll_A_id = copy.copy(resp['_id'])
+
+        response = requests.get(self.endpoint + '/usergroup', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 2)
+
+        # ** usergroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** usergroup All A
+        self.assertEqual(re[1]['name'], "All A")
+        self.assertEqual(re[1]['_parent'], self.hgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.hgAll_id])
+
+        data = {"name": "All B", "_realm": self.realmAll_id, "_parent": self.hgAll_id}
+        response = requests.post(self.endpoint + '/usergroup', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        # usergroupAll_B_id = copy.copy(resp['_id'])
+
+        response = requests.get(self.endpoint + '/usergroup', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 3)
+
+        # ** usergroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** usergroup All A
+        self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_parent'], self.hgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All B
+        self.assertEqual(re[2]['name'], 'All B')
+        self.assertEqual(re[2]['_parent'], self.hgAll_id)
+        self.assertEqual(re[2]['_level'], 1)
+        self.assertEqual(re[2]['_tree_parents'], [self.hgAll_id])
+
+        # Sub usergroup without _parent
+        data = {"name": "All C", "_realm": self.realmAll_id}
+        response = requests.post(self.endpoint + '/usergroup', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        # usergroupAll_C_id = copy.copy(resp['_id'])
+
+        response = requests.get(self.endpoint + '/usergroup/' + resp['_id'], auth=self.auth)
+        re = response.json()
+        self.assertEqual(re['name'], "All C")
+        self.assertEqual(re['_parent'], self.hgAll_id)
+        self.assertEqual(re['_level'], 1)
+        self.assertEqual(re['_tree_parents'], [self.hgAll_id])
+
+        # Get all usergroups
+        response = requests.get(self.endpoint + '/usergroup', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 4)
+
+        # ** usergroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** usergroup All A
+        self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_parent'], self.hgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All B
+        self.assertEqual(re[2]['name'], 'All B')
+        self.assertEqual(re[2]['_parent'], self.hgAll_id)
+        self.assertEqual(re[2]['_level'], 1)
+        self.assertEqual(re[2]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All C
+        self.assertEqual(re[3]['name'], 'All C')
+        self.assertEqual(re[3]['_parent'], self.hgAll_id)
+        self.assertEqual(re[3]['_level'], 1)
+        self.assertEqual(re[3]['_tree_parents'], [self.hgAll_id])
+
+        # ** Add sub_sub_usergroups
+        data = {"name": "All A.1", "_realm": self.realmAll_id, "_parent": usergroupAll_A_id}
+        requests.post(self.endpoint + '/usergroup', json=data, headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/usergroup', params=sort_name, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        for item in re:
+            print("Item: %s (%s)" % (item['_id'], item['name']))
+        self.assertEqual(re[2]['name'], "All A.1")
+        self.assertEqual(re[2]['_parent'], usergroupAll_A_id)
+        self.assertEqual(re[2]['_level'], 2)
+        self.assertEqual(re[2]['_tree_parents'], [self.hgAll_id, usergroupAll_A_id])
+        usergroupAll_A1_id = copy.copy(re[2]['_id'])
+
+        # ** usergroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** usergroup All A
+        self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_parent'], self.hgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All A.1
+        self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_parent'], usergroupAll_A_id)
+        self.assertEqual(re[2]['_level'], 2)
+        self.assertEqual(re[2]['_tree_parents'], [self.hgAll_id, usergroupAll_A_id])
+        # ** usergroup All B
+        self.assertEqual(re[3]['name'], 'All B')
+        self.assertEqual(re[3]['_parent'], self.hgAll_id)
+        self.assertEqual(re[3]['_level'], 1)
+        self.assertEqual(re[3]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All C
+        self.assertEqual(re[4]['name'], 'All C')
+        self.assertEqual(re[4]['_parent'], self.hgAll_id)
+        self.assertEqual(re[4]['_level'], 1)
+        self.assertEqual(re[4]['_tree_parents'], [self.hgAll_id])
+
+        # *** Add sub_sub_sub_usergroups
+        data = {"name": "All A.1.a", "_realm": self.realmAll_id, "_parent": usergroupAll_A1_id}
+        requests.post(self.endpoint + '/usergroup', json=data, headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/usergroup', params=sort_name, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        for item in re:
+            print("Item: %s (%s)" % (item['_id'], item['name']))
+        self.assertEqual(len(re), 6)
+
+        # ** usergroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** usergroup All A
+        self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_parent'], self.hgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All A.1
+        self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_parent'], usergroupAll_A_id)
+        self.assertEqual(re[2]['_level'], 2)
+        self.assertEqual(re[2]['_tree_parents'], [self.hgAll_id, usergroupAll_A_id])
+        # ** usergroup All A.1.a
+        self.assertEqual(re[3]['name'], 'All A.1.a')
+        self.assertEqual(re[3]['_parent'], usergroupAll_A1_id)
+        self.assertEqual(re[3]['_level'], 3)
+        self.assertEqual(re[3]['_tree_parents'], [
+            self.hgAll_id, usergroupAll_A_id, usergroupAll_A1_id
+        ])
+        # ** usergroup All B
+        self.assertEqual(re[4]['name'], 'All B')
+        self.assertEqual(re[4]['_parent'], self.hgAll_id)
+        self.assertEqual(re[4]['_level'], 1)
+        self.assertEqual(re[4]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All C
+        self.assertEqual(re[5]['name'], 'All C')
+        self.assertEqual(re[5]['_parent'], self.hgAll_id)
+        self.assertEqual(re[5]['_level'], 1)
+        self.assertEqual(re[5]['_tree_parents'], [self.hgAll_id])
+
+        # *** Add sub_sub_sub_usergroups
+        data = {"name": "All A.1.b", "_realm": self.realmAll_id, "_parent": usergroupAll_A1_id}
+        requests.post(self.endpoint + '/usergroup', json=data, headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/usergroup', params=sort_name, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        for item in re:
+            print("Item: %s (%s)" % (item['_id'], item['name']))
+        self.assertEqual(len(re), 7)
+
+        # ** usergroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** usergroup All A
+        self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_parent'], self.hgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All A.1
+        self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_parent'], usergroupAll_A_id)
+        self.assertEqual(re[2]['_level'], 2)
+        self.assertEqual(re[2]['_tree_parents'], [self.hgAll_id, usergroupAll_A_id])
+        # ** usergroup All A.1.a
+        self.assertEqual(re[3]['name'], 'All A.1.a')
+        self.assertEqual(re[3]['_parent'], usergroupAll_A1_id)
+        self.assertEqual(re[3]['_level'], 3)
+        self.assertEqual(re[3]['_tree_parents'], [
+            self.hgAll_id, usergroupAll_A_id, usergroupAll_A1_id
+        ])
+        # ** usergroup All A.1.b
+        self.assertEqual(re[4]['name'], 'All A.1.b')
+        self.assertEqual(re[4]['_parent'], usergroupAll_A1_id)
+        self.assertEqual(re[4]['_level'], 3)
+        self.assertEqual(re[4]['_tree_parents'], [
+            self.hgAll_id, usergroupAll_A_id, usergroupAll_A1_id
+        ])
+        # ** usergroup All B
+        self.assertEqual(re[5]['name'], 'All B')
+        self.assertEqual(re[5]['_parent'], self.hgAll_id)
+        self.assertEqual(re[5]['_level'], 1)
+        self.assertEqual(re[5]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All C
+        self.assertEqual(re[6]['name'], 'All C')
+        self.assertEqual(re[6]['_parent'], self.hgAll_id)
+        self.assertEqual(re[6]['_level'], 1)
+        self.assertEqual(re[6]['_tree_parents'], [self.hgAll_id])
