@@ -43,6 +43,13 @@ def get_schema():
                 'type': 'string',
                 'default': '',
             },
+            'tags': {
+                'type': 'list',
+                'schema': {
+                    'type': 'string',
+                },
+                'default': []
+            },
             'notes': {
                 'type': 'string',
                 'default': '',

@@ -44,6 +44,13 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
+            'tags': {
+                'type': 'list',
+                'schema': {
+                    'type': 'string',
+                },
+                'default': []
+            },
             'customs': {
                 'type': 'dict',
                 'default': {}

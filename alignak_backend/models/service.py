@@ -59,6 +59,13 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
+            'tags': {
+                'type': 'list',
+                'schema': {
+                    'type': 'string',
+                },
+                'default': []
+            },
             'display_name': {
                 'type': 'string',
                 'default': ''
