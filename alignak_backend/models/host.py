@@ -79,7 +79,8 @@ def get_schema():
                 'data_relation': {
                     'resource': 'command',
                     'embeddable': True
-                }
+                },
+                'nullable': True
             },
             'check_command_args': {
                 'type': 'string',
