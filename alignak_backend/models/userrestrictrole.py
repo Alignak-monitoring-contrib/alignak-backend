@@ -46,12 +46,13 @@ def get_schema():
             },
             'resource': {
                 'type': 'string',
+                'default': '*',
+                'allowed': ['*', 'host', 'service', 'update', 'delete', 'custom'],
                 'required': True,
             },
             'crud': {
-                'type': 'string',
-                'default': 'read',
-                'required': True,
+                'type': 'list',
+                'default': ['read'],
                 'allowed': ['create', 'read', 'update', 'delete', 'custom']
             },
         }
