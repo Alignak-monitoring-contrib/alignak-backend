@@ -82,6 +82,7 @@ class TestRights(unittest2.TestCase):
         cls.dagobah = resp['_id']
 
         # Add users
+        # User 1
         data = {'name': 'user1', 'password': 'test', 'back_role_super_admin': False,
                 'host_notification_period': cls.user_admin['host_notification_period'],
                 'service_notification_period': cls.user_admin['service_notification_period'],
@@ -90,11 +91,12 @@ class TestRights(unittest2.TestCase):
                                  auth=cls.auth)
         resp = response.json()
         cls.user1_id = resp['_id']
-        data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': 'command', 'crud': 'read',
+        data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': 'command', 'crud': ['read'],
                 'sub_realm': True}
         requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
                       auth=cls.auth)
 
+        # User 2
         data = {'name': 'user2', 'password': 'test', 'back_role_super_admin': False,
                 'host_notification_period': cls.user_admin['host_notification_period'],
                 'service_notification_period': cls.user_admin['service_notification_period'],
@@ -103,10 +105,11 @@ class TestRights(unittest2.TestCase):
                                  auth=cls.auth)
         resp = response.json()
         cls.user2_id = resp['_id']
-        data = {'user': resp['_id'], 'realm': cls.hoth, 'resource': 'command', 'crud': 'read'}
+        data = {'user': resp['_id'], 'realm': cls.hoth, 'resource': 'command', 'crud': ['read']}
         requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
-                      auth=cls.auth)
+                          auth=cls.auth)
 
+        # User 3
         data = {'name': 'user3', 'password': 'test', 'back_role_super_admin': False,
                 'host_notification_period': cls.user_admin['host_notification_period'],
                 'service_notification_period': cls.user_admin['service_notification_period'],
@@ -116,6 +119,7 @@ class TestRights(unittest2.TestCase):
         resp = response.json()
         cls.user3_id = resp['_id']
 
+        # User 4
         data = {'name': 'user4', 'password': 'test', 'back_role_super_admin': False,
                 'host_notification_period': cls.user_admin['host_notification_period'],
                 'service_notification_period': cls.user_admin['service_notification_period'],
@@ -125,7 +129,20 @@ class TestRights(unittest2.TestCase):
         resp = response.json()
         cls.user4_id = resp['_id']
         data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': 'command',
-                'crud': 'custom'}
+                'crud': ['custom']}
+        requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
+                          auth=cls.auth)
+
+        # User 5
+        data = {'name': 'user5', 'password': 'test', 'back_role_super_admin': False,
+                'host_notification_period': cls.user_admin['host_notification_period'],
+                'service_notification_period': cls.user_admin['service_notification_period'],
+                '_realm': cls.realmAll_id}
+        response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
+                                 auth=cls.auth)
+        resp = response.json()
+        cls.user5_id = resp['_id']
+        data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': '*', 'crud': ['read']}
         requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
                       auth=cls.auth)
 
@@ -182,28 +199,34 @@ class TestRights(unittest2.TestCase):
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
 
         params = {'username': 'user1', 'password': 'test', 'action': 'generate'}
-        # get token
+        # get token user 1
         response = requests.post(self.endpoint + '/login', json=params, headers=headers)
         resp = response.json()
         user1_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
 
         params = {'username': 'user2', 'password': 'test', 'action': 'generate'}
-        # get token
+        # get token user 2
         response = requests.post(self.endpoint + '/login', json=params, headers=headers)
         resp = response.json()
         user2_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
 
         params = {'username': 'user3', 'password': 'test', 'action': 'generate'}
-        # get token
+        # get token user 3
         response = requests.post(self.endpoint + '/login', json=params, headers=headers)
         resp = response.json()
         user3_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
 
         params = {'username': 'user4', 'password': 'test', 'action': 'generate'}
-        # get token
+        # get token user 4
         response = requests.post(self.endpoint + '/login', json=params, headers=headers)
         resp = response.json()
         user4_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+
+        params = {'username': 'user5', 'password': 'test', 'action': 'generate'}
+        # get token user 5
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        user5_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
 
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user1_auth)
@@ -224,3 +247,8 @@ class TestRights(unittest2.TestCase):
                                 auth=user4_auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 1)
+
+        response = requests.get(self.endpoint + '/command', params={'sort': "name"},
+                                auth=user5_auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
