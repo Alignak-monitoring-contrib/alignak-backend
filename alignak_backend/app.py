@@ -116,13 +116,19 @@ class MyTokenAuth(TokenAuth):
             g.resources_delete_custom = {}
             for rights in userrestrictrole:
                 # print("User role: %s" % rights)
-                self.add_resources_realms('read', rights, False, g.resources_get, resource_list, get_parents)
-                self.add_resources_realms('read', rights, True, g.resources_get_custom, resource_list)
+                self.add_resources_realms('read', rights, False, g.resources_get, resource_list,
+                                          get_parents)
+                self.add_resources_realms('read', rights, True, g.resources_get_custom,
+                                          resource_list)
                 self.add_resources_realms('create', rights, False, g.resources_post, resource_list)
-                self.add_resources_realms('update', rights, False, g.resources_patch, resource_list)
-                self.add_resources_realms('update', rights, True, g.resources_patch_custom, resource_list)
-                self.add_resources_realms('delete', rights, False, g.resources_delete, resource_list)
-                self.add_resources_realms('delete', rights, True, g.resources_delete_custom, resource_list)
+                self.add_resources_realms('update', rights, False, g.resources_patch,
+                                          resource_list)
+                self.add_resources_realms('update', rights, True, g.resources_patch_custom,
+                                          resource_list)
+                self.add_resources_realms('delete', rights, False, g.resources_delete,
+                                          resource_list)
+                self.add_resources_realms('delete', rights, True, g.resources_delete_custom,
+                                          resource_list)
             # print("Read allowed: %s" % g.resources_get)
             for resource in g.resources_get:
                 g.resources_get[resource] = list(set(g.resources_get[resource]))

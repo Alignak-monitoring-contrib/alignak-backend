@@ -107,7 +107,7 @@ class TestRights(unittest2.TestCase):
         cls.user2_id = resp['_id']
         data = {'user': resp['_id'], 'realm': cls.hoth, 'resource': 'command', 'crud': ['read']}
         requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
-                          auth=cls.auth)
+                      auth=cls.auth)
 
         # User 3
         data = {'name': 'user3', 'password': 'test', 'back_role_super_admin': False,
@@ -131,7 +131,7 @@ class TestRights(unittest2.TestCase):
         data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': 'command',
                 'crud': ['custom']}
         requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
-                          auth=cls.auth)
+                      auth=cls.auth)
 
         # User 5
         data = {'name': 'user5', 'password': 'test', 'back_role_super_admin': False,
