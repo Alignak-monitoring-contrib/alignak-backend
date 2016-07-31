@@ -1023,7 +1023,8 @@ with app.test_request_context():
     default_ug = ugs.find_one({'name': 'All'})
     if not default_ug:
         post_internal("usergroup", {
-            "name": "All", "alias": "All users", "_parent": None, "_level": 0
+            "name": "All", "alias": "All users", "_parent": None, "_level": 0,
+            "_realm": default_realm['_id'], "_sub_realm": True
         }, True)
         default_ug = ugs.find_one({'name': 'All'})
         print("Created top level usergroup: %s" % default_ug)
@@ -1032,7 +1033,8 @@ with app.test_request_context():
     default_hg = hgs.find_one({'name': 'All'})
     if not default_hg:
         post_internal("hostgroup", {
-            "name": "All", "alias": "All hosts", "_parent": None, "_level": 0
+            "name": "All", "alias": "All hosts", "_parent": None, "_level": 0,
+            "_realm": default_realm['_id'], "_sub_realm": True
         }, True)
         default_hg = hgs.find_one({'name': 'All'})
         print("Created top level hostgroup: %s" % default_hg)
@@ -1041,7 +1043,8 @@ with app.test_request_context():
     default_sg = sgs.find_one({'name': 'All'})
     if not default_sg:
         post_internal("servicegroup", {
-            "name": "All", "alias": "All services", "_parent": None, "_level": 0
+            "name": "All", "alias": "All services", "_parent": None, "_level": 0,
+            "_realm": default_realm['_id'], "_sub_realm": True
         }, True)
         default_sg = sgs.find_one({'name': 'All'})
         print("Created top level servicegroup: %s" % default_sg)
@@ -1051,7 +1054,7 @@ with app.test_request_context():
     if not always:
         post_internal("timeperiod", {"name": "24x7",
                                      "alias": "All time default 24x7",
-                                     "_realm": default_realm['_id'],
+                                     "_realm": default_realm['_id'], "_sub_realm": True,
                                      "is_active": True,
                                      "dateranges": [{u'monday': u'00:00-24:00'},
                                                     {u'tuesday': u'00:00-24:00'},
@@ -1066,7 +1069,7 @@ with app.test_request_context():
     if not never:
         post_internal("timeperiod", {"name": "Never",
                                      "alias": "No time is a good time",
-                                     "_realm": default_realm['_id'],
+                                     "_realm": default_realm['_id'], "_sub_realm": True,
                                      "is_active": True}, True)
         never = timeperiods.find_one({'name': 'Never'})
         print("Created default Never timeperiod: %s" % never)
@@ -1082,7 +1085,7 @@ with app.test_request_context():
                                "back_role_super_admin": True,
                                "host_notification_period": always['_id'],
                                "service_notification_period": always['_id'],
-                               "_realm": default_realm['_id']})
+                               "_realm": default_realm['_id'], "_sub_realm": True})
         print("Created super admin user")
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
