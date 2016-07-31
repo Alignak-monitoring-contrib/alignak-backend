@@ -80,13 +80,10 @@ class MyTokenAuth(TokenAuth):
         :return: True if user exist and password is ok or if no roles defined, otherwise False
         :rtype: bool
         """
-        _users = current_app.data.driver.db['user']
-        user = _users.find_one({'token': token})
+        user = current_app.data.driver.db['user'].find_one({'token': token})
         if user:
             # We get all resources we have in the backend for the userrestrictrole with *
-            resource_list = []
-            for res in current_app.config['DOMAIN']:
-                resource_list.append(res)
+            resource_list = list(current_app.config['DOMAIN'])
 
             g.updateRealm = False
             g.updateGroup = False
