@@ -128,6 +128,10 @@ def get_schema():
                 },
                 'required': True,
             },
+            '_sub_realm': {
+                'type': 'boolean',
+                'default': False
+            },
             '_users_read': {
                 'type': 'list',
                 'schema': {
