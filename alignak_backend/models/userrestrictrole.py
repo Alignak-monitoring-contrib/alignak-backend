@@ -47,7 +47,7 @@ def get_schema():
             'resource': {
                 'type': 'string',
                 'default': '*',
-                'allowed': ['*', 'host', 'service', 'update', 'delete', 'custom'],
+                'allowed': ['*', 'host', 'service', 'command'],
                 'required': True,
             },
             'crud': {

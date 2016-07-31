@@ -80,9 +80,11 @@ class MyTokenAuth(TokenAuth):
         :return: True if user exist and password is ok or if no roles defined, otherwise False
         :rtype: bool
         """
-        _users = current_app.data.driver.db['user']
-        user = _users.find_one({'token': token})
+        user = current_app.data.driver.db['user'].find_one({'token': token})
         if user:
+            # We get all resources we have in the backend for the userrestrictrole with *
+            resource_list = list(current_app.config['DOMAIN'])
+
             g.updateRealm = False
             g.updateGroup = False
             # get children of realms for rights
@@ -110,13 +112,21 @@ class MyTokenAuth(TokenAuth):
             g.resources_delete_parents = {}
             g.resources_delete_custom = {}
             for rights in userrestrictrole:
-                self.add_resources_realms('read', rights, False, g.resources_get, get_parents)
-                self.add_resources_realms('read', rights, True, g.resources_get_custom)
-                self.add_resources_realms('create', rights, False, g.resources_post)
-                self.add_resources_realms('update', rights, False, g.resources_patch)
-                self.add_resources_realms('update', rights, True, g.resources_patch_custom)
-                self.add_resources_realms('delete', rights, False, g.resources_delete)
-                self.add_resources_realms('delete', rights, True, g.resources_delete_custom)
+                # print("User role: %s" % rights)
+                self.add_resources_realms('read', rights, False, g.resources_get, resource_list,
+                                          get_parents)
+                self.add_resources_realms('read', rights, True, g.resources_get_custom,
+                                          resource_list)
+                self.add_resources_realms('create', rights, False, g.resources_post, resource_list)
+                self.add_resources_realms('update', rights, False, g.resources_patch,
+                                          resource_list)
+                self.add_resources_realms('update', rights, True, g.resources_patch_custom,
+                                          resource_list)
+                self.add_resources_realms('delete', rights, False, g.resources_delete,
+                                          resource_list)
+                self.add_resources_realms('delete', rights, True, g.resources_delete_custom,
+                                          resource_list)
+            # print("Read allowed: %s" % g.resources_get)
             for resource in g.resources_get:
                 g.resources_get[resource] = list(set(g.resources_get[resource]))
                 if resource in g.resources_get_custom:
@@ -133,7 +143,7 @@ class MyTokenAuth(TokenAuth):
             self.set_request_auth_value(user['_id'])
         return user
 
-    def add_resources_realms(self, right, data, custom, resource, parents=None):
+    def add_resources_realms(self, right, data, custom, resource, resource_list, parents=None):
         """
         Add realms found for rights. it's used to fill rights when connect to app
 
@@ -145,6 +155,8 @@ class MyTokenAuth(TokenAuth):
         :type custom: bool
         :param resource: variable where store realm rights
         :type resource: dict
+        :param resource_list: list of all resources of the backend
+        :type resource_list: dict
         :param parents: variable where store parents realms (required only for read right)
         :type parents: dict or None
         :return: None
@@ -153,16 +165,21 @@ class MyTokenAuth(TokenAuth):
         search_field = right
         if custom:
             search_field = 'custom'
-        if data['crud'] == search_field:
-            if data['resource'] not in resource:
-                resource[data['resource']] = []
-            if right == 'read' and not custom and data['resource'] not in parents:
-                parents[data['resource']] = []
-            resource[data['resource']].append(data['realm'])
-            if right == 'read' and not custom:
-                parents[data['resource']].extend(self.parent_realms[data['realm']])
-            if data['sub_realm']:
-                resource[data['resource']].extend(self.children_realms[data['realm']])
+        if data['resource'] == '*':
+            my_resources = resource_list
+        else:
+            my_resources = [data['resource']]
+        if search_field in data['crud']:
+            for my_resource in my_resources:
+                if my_resource not in resource:
+                    resource[my_resource] = []
+                if right == 'read' and not custom and my_resource not in parents:
+                    parents[my_resource] = []
+                resource[my_resource].append(data['realm'])
+                if right == 'read' and not custom:
+                    parents[my_resource].extend(self.parent_realms[data['realm']])
+                if data['sub_realm']:
+                    resource[my_resource].extend(self.children_realms[data['realm']])
 
 
 class MyValidator(Validator):
@@ -195,6 +212,7 @@ def pre_get(resource, user_request, lookup):
         resources_get_parents = g.get('resources_get_parents', {})
         resources_get_custom = g.get('resources_get_custom', {})
         users_id = g.get('users_id', {})
+
         if resource not in resources_get and resource not in resources_get_custom:
             lookup["_id"] = 0
         else:
