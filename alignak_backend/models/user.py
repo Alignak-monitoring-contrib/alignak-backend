@@ -168,10 +168,6 @@ def get_schema():
                 'type': 'string',
                 'default': 'NOPASSWORDSET'
             },
-            'note': {
-                'type': 'string',
-                'default': ''
-            },
             'token': {
                 'type': 'string',
                 'default': ''
@@ -179,6 +175,10 @@ def get_schema():
             'back_role_super_admin': {
                 'type': 'boolean',
                 'default': False
+            },
+            'ui_preferences': {
+                'type': 'dict',
+                'default': {},
             },
             '_realm': {
                 'type': 'objectid',
