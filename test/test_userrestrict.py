@@ -118,7 +118,7 @@ class TestUserrestrict(unittest2.TestCase):
 
     def test_userrestrict_uipref(self):
         """
-        Test ave userrestrict on uipref resource
+        Test have userrestrict on uipref resource
 
         :return: None
         """
