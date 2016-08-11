@@ -128,6 +128,11 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
+            'freshness_state': {
+                'type': 'string',
+                'default': 'DOWN',
+                'allowed': ['UP', 'DOWN', 'UNREACHABLE']
+            },
             'event_handler': {
                 'type': 'objectid',
                 'data_relation': {
