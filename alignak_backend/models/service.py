@@ -113,7 +113,6 @@ def get_schema():
             'passive_checks_enabled': {
                 'type': 'boolean',
                 'default': True
-
             },
             'check_period': {
                 'type': 'objectid',

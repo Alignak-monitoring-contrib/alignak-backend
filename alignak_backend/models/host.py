@@ -465,7 +465,7 @@ def get_schema():
             },
             '_templates_with_services': {
                 'type': 'boolean',
-                'default': False
+                'default': True
             },
             '_template_fields': {
                 'type': 'list',
