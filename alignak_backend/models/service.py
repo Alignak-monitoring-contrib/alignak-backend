@@ -131,8 +131,8 @@ def get_schema():
             },
             'freshness_state': {
                 'type': 'string',
-                'default': 'WARNING',
-                'allowed': ['OK', 'WARNING', 'UNKNOWN', 'CRITICAL']
+                'default': 'o',
+                'allowed': ["o", "w", "c", "u"]
             },
             'event_handler': {
                 'type': 'objectid',

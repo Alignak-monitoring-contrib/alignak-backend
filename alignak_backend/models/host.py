@@ -130,8 +130,8 @@ def get_schema():
             },
             'freshness_state': {
                 'type': 'string',
-                'default': 'DOWN',
-                'allowed': ['UP', 'DOWN', 'UNREACHABLE']
+                'default': 'u',
+                'allowed': ["o", "d", "u"]
             },
             'event_handler': {
                 'type': 'objectid',
