@@ -52,8 +52,15 @@ def get_schema():
                 'nullable': True
             },
             'hostgroups': {
-                'type': 'string',
-                'default': ''
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
             },
             'alias': {
                 'type': 'string',
