@@ -232,23 +232,28 @@ class TestRights(unittest2.TestCase):
                                 auth=user1_auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 3)
+        self.assertEqual(resp['_meta']['total'], 3)
 
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user2_auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(resp['_meta']['total'], 2)
 
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user3_auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 0)
+        self.assertEqual(resp['_meta']['total'], 0)
 
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user4_auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 1)
+        self.assertEqual(resp['_meta']['total'], 1)
 
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user5_auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(resp['_meta']['total'], 2)
