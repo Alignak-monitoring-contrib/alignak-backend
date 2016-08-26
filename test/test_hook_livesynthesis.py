@@ -587,7 +587,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        hostRealmAllA = rh[0]
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
