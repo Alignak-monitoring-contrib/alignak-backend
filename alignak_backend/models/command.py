@@ -51,11 +51,11 @@ def get_schema():
             },
             'poller_tag': {
                 'type': 'string',
-                'default': 'None'
+                'default': ''
             },
             'reactionner_tag': {
                 'type': 'string',
-                'default': 'None'
+                'default': ''
             },
             'module_type': {
                 'type': 'string',
