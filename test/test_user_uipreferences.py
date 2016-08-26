@@ -61,14 +61,12 @@ class TestHookUserUiPreferences(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
-
     def test_add_host(self):
         """
         Test the livestate hook to create a livestate resource when create a new host
 
         :return: None
         """
-        headers = {'Content-Type': 'application/json'}
         sort_id = {'sort': '_id'}
 
         response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
