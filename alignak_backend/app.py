@@ -833,6 +833,9 @@ def pre_user_patch(updates, original):
     # pylint: disable=unused-argument
     if 'password' in updates:
         updates['password'] = generate_password_hash(updates['password'])
+    # Special case, we don't want update _updated field when update ui_preferences field
+    if len(updates) == 2 and 'ui_preferences' in updates:
+        del updates['_updated']
 
 
 def generate_token():
