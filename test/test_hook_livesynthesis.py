@@ -79,6 +79,14 @@ class TestHookLivesynthesis(unittest2.TestCase):
         for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
+        response = requests.get(cls.endpoint + '/realm', auth=cls.auth)
+        resp = response.json()
+        for realm in resp['_items']:
+            if realm['name'] in ['All A', 'All B']:
+                headers = {'If-Match': realm['_etag']}
+                response = requests.delete(cls.endpoint + '/realm/' + realm['_id'], headers=headers,
+                                           auth=cls.auth)
+
     def test_add_host(self):
         """
         Test livesynthesis when add a host
@@ -517,3 +525,203 @@ class TestHookLivesynthesis(unittest2.TestCase):
         minus, plus = Livesynthesis.livesynthesis_to_update(updated, original)
         self.assertFalse(minus)
         self.assertFalse(plus)
+
+    def test_realms(self):
+        """
+        Test livesynthesis create / update with realm management
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # * Add sub_realms A
+        data = {"name": "All A", "_parent": self.realm_all}
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        realmAll_A_id = copy.copy(resp['_id'])
+
+        # * Add sub_realms B
+        data = {"name": "All B", "_parent": self.realm_all}
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        realmAll_B_id = copy.copy(resp['_id'])
+
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        # Check if command right in backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rc = resp['_items']
+
+        # add host in realm All
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
+        data['name'] = 'srv001_realmall'
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+
+        # Add service
+        data = json.loads(open('cfg/service_srv001_ping.json').read())
+        data['host'] = rh[0]['_id']
+        data['check_command'] = rc[0]['_id']
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+
+        # add host in realm All A
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = realmAll_A_id
+        data['name'] = 'srv001_realmallA'
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        hostRealmAllA = rh[0]
+
+        # Add service
+        data = json.loads(open('cfg/service_srv001_ping.json').read())
+        data['host'] = rh[0]['_id']
+        data['check_command'] = rc[0]['_id']
+        data['_realm'] = realmAll_A_id
+        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+
+        # add host in realm All B
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = realmAll_B_id
+        data['name'] = 'srv001_realmallB'
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+
+        # Add service
+        data = json.loads(open('cfg/service_srv001_ping.json').read())
+        data['host'] = rh[0]['_id']
+        data['check_command'] = rc[0]['_id']
+        data['_realm'] = realmAll_B_id
+        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 3)
+
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 3)
+
+        # Now check the livesynthesis (will have 3 entries, one for each realm)
+        response = requests.get(self.endpoint + '/livesynthesis', params={'sort': '_realm'},
+                                auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 3)
+        self.assertEqual(r[0]['_realm'], self.realm_all)
+        self.assertEqual(r[1]['_realm'], realmAll_A_id)
+        self.assertEqual(r[2]['_realm'], realmAll_B_id)
+        for index in range(0, 3):
+            self.assertEqual(r[index]['hosts_total'], 1)
+            self.assertEqual(r[index]['hosts_up_hard'], 0)
+            self.assertEqual(r[index]['hosts_up_soft'], 0)
+            self.assertEqual(r[index]['hosts_down_hard'], 0)
+            self.assertEqual(r[index]['hosts_down_soft'], 0)
+            self.assertEqual(r[index]['hosts_unreachable_hard'], 1)
+            self.assertEqual(r[index]['hosts_unreachable_soft'], 0)
+            self.assertEqual(r[index]['hosts_acknowledged'], 0)
+            self.assertEqual(r[index]['services_total'], 1)
+            self.assertEqual(r[index]['services_ok_hard'], 1)
+            self.assertEqual(r[index]['services_ok_soft'], 0)
+            self.assertEqual(r[index]['services_warning_hard'], 0)
+            self.assertEqual(r[index]['services_warning_soft'], 0)
+            self.assertEqual(r[index]['services_critical_hard'], 0)
+            self.assertEqual(r[index]['services_critical_soft'], 0)
+            self.assertEqual(r[index]['services_unknown_hard'], 0)
+            self.assertEqual(r[index]['services_unknown_soft'], 0)
+
+        # update livestate host srv001_realmallA down
+        # => DOWN SOFT
+        response = requests.get(self.endpoint + '/livestate', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        ls_host = copy.copy(r[2])
+
+        data = {
+            'state': 'DOWN',
+            'state_id': 1,
+            'state_type': 'SOFT',
+            'last_check': 1465685852,
+            'last_state': 'UP',
+            'last_state_type': 'HARD',
+            'output': 'CRITICAL - Plugin timed out after 10 seconds',
+            'long_output': '',
+            'perf_data': '',
+            'acknowledged': False,
+            'execution_time': 10.0598139763,
+            'latency': 1.3571469784
+        }
+        headers_patch = {
+            'Content-Type': 'application/json',
+            'If-Match': ls_host['_etag']
+        }
+        requests.patch(self.endpoint + '/livestate/' + ls_host['_id'], json=data,
+                       headers=headers_patch, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/livesynthesis', params={'sort': '_realm'},
+                                auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 3)
+        self.assertEqual(r[0]['_realm'], self.realm_all)
+        self.assertEqual(r[1]['_realm'], realmAll_A_id)
+        self.assertEqual(r[2]['_realm'], realmAll_B_id)
+        for index in [0, 2]:
+            self.assertEqual(r[index]['hosts_total'], 1)
+            self.assertEqual(r[index]['hosts_up_hard'], 0)
+            self.assertEqual(r[index]['hosts_up_soft'], 0)
+            self.assertEqual(r[index]['hosts_down_hard'], 0)
+            self.assertEqual(r[index]['hosts_down_soft'], 0)
+            self.assertEqual(r[index]['hosts_unreachable_hard'], 1)
+            self.assertEqual(r[index]['hosts_unreachable_soft'], 0)
+            self.assertEqual(r[index]['hosts_acknowledged'], 0)
+            self.assertEqual(r[index]['services_total'], 1)
+            self.assertEqual(r[index]['services_ok_hard'], 1)
+            self.assertEqual(r[index]['services_ok_soft'], 0)
+            self.assertEqual(r[index]['services_warning_hard'], 0)
+            self.assertEqual(r[index]['services_warning_soft'], 0)
+            self.assertEqual(r[index]['services_critical_hard'], 0)
+            self.assertEqual(r[index]['services_critical_soft'], 0)
+            self.assertEqual(r[index]['services_unknown_hard'], 0)
+            self.assertEqual(r[index]['services_unknown_soft'], 0)
+
+        self.assertEqual(r[1]['hosts_total'], 1)
+        self.assertEqual(r[1]['hosts_up_hard'], 0)
+        self.assertEqual(r[1]['hosts_up_soft'], 0)
+        self.assertEqual(r[1]['hosts_down_hard'], 0)
+        self.assertEqual(r[1]['hosts_down_soft'], 1)
+        self.assertEqual(r[1]['hosts_unreachable_hard'], 0)
+        self.assertEqual(r[1]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[1]['hosts_acknowledged'], 0)
+        self.assertEqual(r[1]['services_total'], 1)
+        self.assertEqual(r[1]['services_ok_hard'], 1)
+        self.assertEqual(r[1]['services_ok_soft'], 0)
+        self.assertEqual(r[1]['services_warning_hard'], 0)
+        self.assertEqual(r[1]['services_warning_soft'], 0)
+        self.assertEqual(r[1]['services_critical_hard'], 0)
+        self.assertEqual(r[1]['services_critical_soft'], 0)
+        self.assertEqual(r[1]['services_unknown_hard'], 0)
+        self.assertEqual(r[1]['services_unknown_soft'], 0)
