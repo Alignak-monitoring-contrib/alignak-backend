@@ -559,8 +559,8 @@ def get_schema():
                 'default': True
             },
             '_template_fields': {
-                'type': 'list',
-                'default': []
+                'type': 'dict',
+                'default': {}
             },
         }
     }

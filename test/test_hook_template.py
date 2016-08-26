@@ -115,10 +115,10 @@ class TestHookTemplate(unittest2.TestCase):
         resp = response.json()
         rh = resp['_items']
         self.assertEqual(rh[0]['name'], "srv001")
-
+        host_template_id = rh[0]['_id'];
         data = {
             'name': 'host_001',
-            '_templates': [rh[0]['_id']],
+            '_templates': [host_template_id],
             '_realm': self.realm_all
         }
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
@@ -131,13 +131,13 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rh[1]['check_command'], rc[0]['_id'])
 
         schema = host_schema()
-        template_fields = []
+        template_fields = {}
         ignore_fields = ['name', 'realm', '_realm', '_template_fields',
                          '_templates', '_is_template',
                          '_templates_with_services']
         for key in schema['schema']:
             if key not in ignore_fields:
-                template_fields.append(key)
+                template_fields[key] = host_template_id
 
         self.assertItemsEqual(rh[1]['_template_fields'], template_fields)
 
@@ -179,6 +179,7 @@ class TestHookTemplate(unittest2.TestCase):
 
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
+        data['name'] = 'srv001_tpl'
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
@@ -188,11 +189,11 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001")
-
+        self.assertEqual(rh[0]['name'], "srv001_tpl")
+        host_template_id = rh[0]['_id']
         data = {
             'name': 'host_001',
-            '_templates': [rh[0]['_id']],
+            '_templates': [host_template_id],
             '_realm': self.realm_all
         }
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
@@ -200,7 +201,7 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001")
+        self.assertEqual(rh[0]['name'], "srv001_tpl")
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['check_command'], rc[0]['_id'])
 

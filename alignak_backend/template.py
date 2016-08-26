@@ -12,7 +12,6 @@ from flask import current_app, g, request, abort
 from eve.methods.post import post_internal
 from eve.methods.patch import patch_internal
 from eve.methods.delete import deleteitem_internal
-from eve.render import send_response
 from bson.objectid import ObjectId
 from alignak_backend.models.host import get_schema as host_schema
 from alignak_backend.models.service import get_schema as service_schema
@@ -60,11 +59,11 @@ class Template(object):
             ignore_schema_fields = ['realm', '_template_fields', '_templates',
                                     '_is_template',
                                     '_templates_with_services']
-            for (field_name, dummy) in iteritems(updates):
-                if field_name not in ignore_schema_fields:
-                    if field_name in original['_template_fields']:
-                        original['_template_fields'].remove(field_name)
             updates['_template_fields'] = original['_template_fields']
+            for (field_name, _) in iteritems(updates):
+                if field_name not in ignore_schema_fields:
+                    if field_name in updates['_template_fields']:
+                        updates['_template_fields'][field_name] = None
 
     @staticmethod
     def on_updated_host(updates, original):
@@ -117,7 +116,7 @@ class Template(object):
                             service_template_id.append(services[srv['name']]['_templates'][0])
                     services_to_add = list(set(service_template_id) - set(myservices_template_id))
                     services_to_del = list(set(myservices_template_id) - set(service_template_id))
-                    for (dummy, service) in iteritems(services):
+                    for (_, service) in iteritems(services):
                         if service['_templates'][0] in services_to_add:
                             post_internal('service', [service])
                     for template_id in services_to_del:
@@ -138,7 +137,7 @@ class Template(object):
         :return: None
         """
         service_db = current_app.data.driver.db['service']
-        for dummy, item in enumerate(items):
+        for _, item in enumerate(items):
             if item['_templates'] != [] and item['_templates_with_services']:
                 # add services
                 services = {}
@@ -167,7 +166,7 @@ class Template(object):
         """
         host_db = current_app.data.driver.db['host']
         services = []
-        for dummy, item in enumerate(items):
+        for _, item in enumerate(items):
             if item['_templates_from_host_template'] and item['_is_template']:
                 # case where this service is template host+service, so add this service on all
                 # hosts
@@ -235,10 +234,10 @@ class Template(object):
             ignore_schema_fields = ['realm', '_template_fields', '_templates',
                                     '_is_template',
                                     '_templates_from_host_template']
-            for (field_name, dummy) in iteritems(updates):
+            for (field_name, _) in iteritems(updates):
                 if field_name not in ignore_schema_fields:
                     if field_name in original['_template_fields']:
-                        original['_template_fields'].remove(field_name)
+                        del original['_template_fields'][field_name]
             updates['_template_fields'] = original['_template_fields']
 
     @staticmethod
@@ -280,7 +279,7 @@ class Template(object):
         fields_not_update = []
         for (field_name, field_value) in iteritems(item):
             fields_not_update.append(field_name)
-        item['_template_fields'] = []
+        item['_template_fields'] = {}
         if ('_is_template' not in item or not item['_is_template']) \
                 and '_templates' in item and item['_templates'] != []:
             for host_template in item['_templates']:
@@ -290,14 +289,14 @@ class Template(object):
                         if field_name not in fields_not_update \
                                 and field_name not in ignore_fields:
                             item[field_name] = field_value
-                            item['_template_fields'].append(field_name)
+                            item['_template_fields'][field_name] = host_template
             schema = host_schema()
             ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template',
                                     '_templates_with_services']
             for key in schema['schema']:
                 if key not in ignore_schema_fields:
                     if key not in item:
-                        item['_template_fields'].append(key)
+                        item['_template_fields'][key] = 0
 
     @staticmethod
     def update_host_use_template(host, fields):
@@ -340,7 +339,7 @@ class Template(object):
         fields_not_update = []
         for (field_name, field_value) in iteritems(item):
             fields_not_update.append(field_name)
-        item['_template_fields'] = []
+        item['_template_fields'] = {}
         if ('_is_template' not in item or not item['_is_template']) \
                 and '_templates' in item and item['_templates'] != []:
             for service_template in item['_templates']:
@@ -350,14 +349,14 @@ class Template(object):
                         if field_name not in fields_not_update \
                                 and field_name not in ignore_fields:
                             item[field_name] = field_value
-                            item['_template_fields'].append(field_name)
+                            item['_template_fields'][field_name] = service_template
             schema = service_schema()
             ignore_schema_fields = ['_realm', '_template_fields', '_templates', '_is_template',
                                     '_templates_from_host_template']
             for key in schema['schema']:
                 if key not in ignore_schema_fields:
                     if key not in item:
-                        item['_template_fields'].append(key)
+                        item['_template_fields'][key] = 0
 
     @staticmethod
     def update_service_use_template(service, fields):
@@ -413,8 +412,8 @@ class Template(object):
             del item['_links']
         item['_is_template'] = False
         item['_templates_from_host_template'] = True
-        item['_template_fields'] = []
+        item['_template_fields'] = {}
         for key in schema['schema']:
             if item not in ignore_schema_fields:
-                item['_template_fields'].append(key)
+                item['_template_fields'][key] = 0
         return item
