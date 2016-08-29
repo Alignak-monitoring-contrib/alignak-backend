@@ -1085,7 +1085,7 @@ with app.test_request_context():
         sys.exit("[ERROR] Impossible to connect to MongoDB (%s)" % e)
     super_admin_user = users.find_one({'back_role_super_admin': True})
     if not super_admin_user:
-        post_internal("user", {"name": "admin",
+        post_internal("user", {"name": "admin", "alias": "Big brother",
                                "password": "admin",
                                "back_role_super_admin": True,
                                "host_notification_period": always['_id'],
