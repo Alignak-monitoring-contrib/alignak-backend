@@ -249,6 +249,7 @@ def on_return_host(response):
                 if k not in ['_id', '_etag', '_created', '_updated', '_realm', 'name', 'host']:
                     item[k] = ls[k]
 
+
 def on_return_service(response):
     """
     Hook before getting some hosts
@@ -267,6 +268,7 @@ def on_return_service(response):
             for k in ls:
                 if k not in ['_id', '_etag', '_created', '_updated', '_realm', 'name', 'service']:
                     item[k] = ls[k]
+
 
 # Log checks results
 def pre_logcheckresult_post(items):
