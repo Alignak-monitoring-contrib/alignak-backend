@@ -805,6 +805,7 @@ def after_delete_realm(item):
         g.updateRealm = False
 
 
+# Users
 def pre_user_post(items):
     """
     Hook before insert.
@@ -848,6 +849,7 @@ def generate_token():
     return str(t) + '-' + str(uuid.uuid4())
 
 
+# Backend configuration
 def get_settings(prev_settings):
     """
     Get settings of application from config file to update/complete previously existing settings
