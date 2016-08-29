@@ -350,12 +350,8 @@ def get_schema():
                 'default': 2
             },
             'trigger': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'trigger',
-                    'embeddable': True
-                },
-                'nullable': True
+                'type': 'string',
+                'default': ''
             },
             'trigger_broker_raise_enabled': {
                 'type': 'boolean',
