@@ -419,7 +419,7 @@ def get_schema():
             'ls_state': {
                 'type': 'string',
                 'default': 'OK',
-                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN"]
             },
             'ls_state_type': {
                 'type': 'string',
