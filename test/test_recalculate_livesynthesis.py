@@ -129,7 +129,6 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        print(r)
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['hosts_total'], 1)
         self.assertEqual(r[0]['hosts_up_hard'], 0)
