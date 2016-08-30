@@ -245,9 +245,7 @@ def on_return_host(response):
             if not ls:
                 continue
 
-            for k in ls:
-                if k not in ['_id', '_etag', '_created', '_updated', '_realm', 'name', 'host']:
-                    item[k] = ls[k]
+            item['livestate'] = ls
 
 
 def on_return_service(response):
@@ -265,9 +263,7 @@ def on_return_service(response):
             if not ls:
                 continue
 
-            for k in ls:
-                if k not in ['_id', '_etag', '_created', '_updated', '_realm', 'name', 'service']:
-                    item[k] = ls[k]
+            item['livestate'] = ls
 
 
 # Log checks results
