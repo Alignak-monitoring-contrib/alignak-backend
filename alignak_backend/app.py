@@ -263,7 +263,6 @@ def after_insert_logcheckresult(items):
             'logcheckresult': item['_id']
         }
         post_internal("history", data, True)
-        # print("Created new history for check result: %s" % data)
 
 
 # Actions acknowledge
@@ -300,7 +299,6 @@ def after_insert_actionacknowledge(items):
             'message': item['comment']
         }
         post_internal("history", data, True)
-        # print("Created new history for acknowledge: %s" % data)
 
 
 def after_update_actionacknowledge(updated, original):
@@ -325,7 +323,6 @@ def after_update_actionacknowledge(updated, original):
             }
         }
         post_internal("history", data, True)
-        # print("Created new history for acknowledge: %s" % data)
 
 
 # Actions downtime
@@ -362,7 +359,6 @@ def after_insert_actiondowntime(items):
             'message': item['comment']
         }
         post_internal("history", data, True)
-        # print("Created new history for downtime: %s" % data)
 
 
 def after_update_actiondowntime(updated, original):
@@ -387,7 +383,6 @@ def after_update_actiondowntime(updated, original):
             }
         }
         post_internal("history", data, True)
-        # print("Created new history for downtime: %s" % data)
 
 
 # Actions forcecheck
