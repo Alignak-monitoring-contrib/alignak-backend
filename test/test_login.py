@@ -5,6 +5,7 @@ This module test login to backend
 """
 
 from __future__ import print_function
+import os
 import time
 import shlex
 import subprocess
@@ -26,12 +27,14 @@ class Test_0_LoginCreation(unittest2.TestCase):
 
         :return: None
         """
-        print("")
-        print("start backend")
+        # Set test mode for Alignak backend
+        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+
         # Delete used mongo DBs
         exit_code = subprocess.call(
             shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend')
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
 
@@ -112,12 +115,14 @@ class Test_1_Login(unittest2.TestCase):
 
         :return: None
         """
-        print("")
-        print("start backend")
+        # Set test mode for Alignak backend
+        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+
         # Delete used mongo DBs
         exit_code = subprocess.call(
             shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend')
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
 

@@ -4,6 +4,7 @@
 This test check if recalculate livesynthesis on start backend is ok
 """
 
+import os
 import json
 import time
 import shlex
@@ -28,12 +29,17 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
 
         :return: None
         """
+        # Set test mode for Alignak backend
+        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+
         # Delete used mongo DBs
         exit_code = subprocess.call(
             shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend')
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
+        time.sleep(1)
 
         cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
                                   '--socket', '0.0.0.0:5000',
@@ -75,6 +81,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         """
         headers = {'Content-Type': 'application/json'}
         sort_id = {'sort': '_id'}
+
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
@@ -85,7 +92,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         rc = resp['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
-        # add host
+        # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         if 'realm' in data:
@@ -95,6 +102,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
+        print("Host: %s", rh)
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -121,6 +129,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
+        print(r)
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0]['hosts_total'], 1)
         self.assertEqual(r[0]['hosts_up_hard'], 0)

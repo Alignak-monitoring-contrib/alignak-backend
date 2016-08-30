@@ -4,6 +4,7 @@
 This test verify the different hooks used in the backend to fill livestates
 """
 
+import os
 import json
 import time
 import shlex
@@ -28,10 +29,14 @@ class TestHookLivestate(unittest2.TestCase):
 
         :return: None
         """
+        # Set test mode for Alignak backend
+        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+
         # Delete used mongo DBs
         exit_code = subprocess.call(
             shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend')
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
 
