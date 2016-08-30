@@ -413,9 +413,8 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
-
-
-
+            # Service live state fields are prefixed with ls_
+            # Make this field consistent with the initial_state...
             'ls_state': {
                 'type': 'string',
                 'default': 'OK',

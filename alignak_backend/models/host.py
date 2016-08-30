@@ -406,12 +406,11 @@ def get_schema():
                 'type': 'point',
                 'default': {"type": "Point", "coordinates": [100.0, 10.0]}
             },
-
-
-
+            # Host live state fields are prefixed with ls_
+            # Make this field consistent with the initial_state...
             'ls_state': {
                 'type': 'string',
-                'default': 'UP',
+                'default': 'UNREACHABLE',
                 'allowed': ["UP", "DOWN", "UNREACHABLE"]
             },
             'ls_state_type': {
