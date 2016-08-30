@@ -39,7 +39,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import alignak_backend.log
 from alignak_backend import manifest
 from alignak_backend.grafana import Grafana
-from alignak_backend.livestate import Livestate
 from alignak_backend.livesynthesis import Livesynthesis
 from alignak_backend.models import register_models
 from alignak_backend.template import Template
@@ -227,43 +226,6 @@ def pre_get(resource, user_request, lookup):
                                        {'_realm': {'$in': resources_get_parents[resource]}}]},
                              {'$and': [{'_users_read': users_id},
                                        {'_realm': {'$in': resources_get_custom[resource]}}]}]
-
-
-# Hosts / services
-def on_return_host(response):
-    """
-    Hook before getting some hosts
-
-    :param items: realm fields
-    :type items: dict
-    :return: None
-    """
-    if '_items' in response:
-        ls_drv = current_app.data.driver.db['livestate']
-        for item in response['_items']:
-            ls = ls_drv.find_one({'host': item['_id']})
-            if not ls:
-                continue
-
-            item['livestate'] = ls
-
-
-def on_return_service(response):
-    """
-    Hook before getting some hosts
-
-    :param items: realm fields
-    :type items: dict
-    :return: None
-    """
-    if '_items' in response:
-        ls_drv = current_app.data.driver.db['livestate']
-        for item in response['_items']:
-            ls = ls_drv.find_one({'service': item['_id']})
-            if not ls:
-                continue
-
-            item['livestate'] = ls
 
 
 # Log checks results
@@ -1133,10 +1095,10 @@ with app.test_request_context():
     # Livestate management
     app.on_updated_livestate += Livesynthesis.on_updated_livestate
     app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
-    app.on_inserted_host += Livestate.on_inserted_host
-    app.on_inserted_service += Livestate.on_inserted_service
-    app.on_updated_host += Livestate.on_updated_host
-    app.on_updated_service += Livestate.on_updated_service
+    # app.on_inserted_host += Livestate.on_inserted_host
+    # app.on_inserted_service += Livestate.on_inserted_service
+    # app.on_updated_host += Livestate.on_updated_host
+    # app.on_updated_service += Livestate.on_updated_service
 
     # template management
     app.on_pre_POST_host += Template.pre_post_host
@@ -1152,7 +1114,8 @@ with app.test_request_context():
     app.on_updated_service += Template.on_updated_service
 
 with app.test_request_context():
-    Livestate.recalculate()
+    # Initial livesynthesis
+    # Livestate.recalculate()
     Livesynthesis.recalculate()
 
 # hooks post-init
@@ -1181,9 +1144,6 @@ app.on_inserted_logcheckresult += after_insert_logcheckresult
 
 with app.test_request_context():
     app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
-
-app.on_fetched_resource_host += on_return_host
-app.on_fetched_resource_service += on_return_service
 
 # Start scheduler (internal cron)
 if len(settings['JOBS']) > 0:

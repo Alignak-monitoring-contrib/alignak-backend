@@ -406,6 +406,98 @@ def get_schema():
                 'type': 'point',
                 'default': {"type": "Point", "coordinates": [100.0, 10.0]}
             },
+
+
+
+            'ls_state': {
+                'type': 'string',
+                'default': 'OK',
+                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+            },
+            'ls_state_type': {
+                'type': 'string',
+                'default': 'HARD',
+                'allowed': ["HARD", "SOFT"]
+            },
+            'ls_state_id': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_acknowledged': {
+                'type': 'boolean',
+                'default': False
+            },
+            'ls_downtimed': {
+                'type': 'boolean',
+                'default': False
+            },
+            'ls_impact': {
+                'type': 'boolean',
+                'default': False
+            },
+            'ls_last_check': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_last_state': {
+                'type': 'string',
+                'default': 'OK',
+                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+            },
+            'ls_last_state_type': {
+                'type': 'string',
+                'default': 'HARD',
+                'allowed': ["HARD", "SOFT"]
+            },
+            'ls_last_state_changed': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_next_check': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_output': {
+                'type': 'string',
+                'default': ''
+            },
+            'ls_long_output': {
+                'type': 'string',
+                'default': ''
+            },
+            'ls_perf_data': {
+                'type': 'string',
+                'default': ''
+            },
+            'ls_current_attempt': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_max_attempts': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_latency': {
+                'type': 'float',
+                'default': 0.0
+            },
+            'ls_execution_time': {
+                'type': 'float',
+                'default': 0.0
+            },
+            'ls_grafana': {
+                'type': 'boolean',
+                'default': False
+            },
+            'ls_grafana_panelid': {
+                'type': 'integer',
+                'default': 0
+            },
+
+
+
+
+
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {
