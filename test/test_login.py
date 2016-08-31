@@ -79,10 +79,8 @@ class Test_0_LoginCreation(unittest2.TestCase):
         self.assertEqual(resp['_status'], "ERR")
 
         # Stop and restart backend ...
-        print("")
         print("stop backend")
         self.p.kill()
-        print("")
         print("start backend")
         self.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
                                    '--socket', '0.0.0.0:5000',
@@ -96,7 +94,6 @@ class Test_0_LoginCreation(unittest2.TestCase):
         assert resp['token']
         print("Super admin is now defined in backend ...")
 
-        print("")
         print("stop backend")
         self.p.kill()
 
