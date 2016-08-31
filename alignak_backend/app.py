@@ -806,7 +806,7 @@ def pre_host_service_patch(updates, original):
     When updating an host or service, if only the live state is updated, do not change the
     _updated field.
 
-    The _updated field is used by the Alignak arbiter to relod the configuration and we need to
+    The _updated field is used by the Alignak arbiter to reload the configuration and we need to
     avoid reloading when the live state is updated.
 
     :param updates: list of host fields to update
@@ -1293,15 +1293,13 @@ def cron_grafana():
     :return: None
     """
     with app.test_request_context():
-        livestate_db = current_app.data.driver.db['livestate']
+        hosts_db = current_app.data.driver.db['host']
         grafana = Grafana()
 
-        hosts_managed = []
-        livestates = livestate_db.find({'grafana': False})
-        for livestate in livestates:
-            if livestate['host'] not in hosts_managed and livestate['state'] in ['UP', 'OK']:
-                grafana.create_dashboard(livestate['host'])
-                hosts_managed.append(livestate['host'])
+        hosts = hosts_db.find({'grafana': False})
+        for host in hosts:
+            if 'ls_perf_data' in host and host['ls_perf_data']:
+                grafana.create_dashboard(host['_id'])
 
 
 @app.route('/docs')
