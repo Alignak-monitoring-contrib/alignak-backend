@@ -115,7 +115,7 @@ class TestHookTemplate(unittest2.TestCase):
         resp = response.json()
         rh = resp['_items']
         self.assertEqual(rh[0]['name'], "srv001")
-        host_template_id = rh[0]['_id'];
+        host_template_id = rh[0]['_id']
         data = {
             'name': 'host_001',
             '_templates': [host_template_id],
