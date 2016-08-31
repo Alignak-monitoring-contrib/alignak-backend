@@ -26,3 +26,9 @@ It is used to:
 
     * send perfdata to graphite/carbon
     * send perfdata to influxdb
+
+* actions in Alignak
+
+    * Add/remove acknowledge
+    * add/remove downtime
+    * reforce a check

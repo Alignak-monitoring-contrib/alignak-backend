@@ -15,3 +15,4 @@
 
 # Ensure those won't be messed up with
 *.jpg binary
+*.png binary

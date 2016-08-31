@@ -305,6 +305,81 @@ Remember the realm id of the resource (*realm* or *_realm* according the resourc
 than realm of the *contactrestrictrole* or in a children of the realm if *sub_realm* is *True*
 
 
+How to  use templates
+---------------------
+
+Resources use template system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The resources use the template system are:
+
+* host
+* service
+
+
+Use simple template system
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To use simple system of template, create an template object (*host* or *service*) with these fields:
+
+* *_is_template*: True
+
+
+For *service* resource, you need link it to host, so link to a host template.
+
+To add a new object (*host* or *service*) with use of the template object, create this standard
+object with fields:
+
+* *_templates*: [*id_of_template*]
+
+You can add more than 1 template.
+
+
+When we add our object, if we define for example a field *notification_period*, this field will
+not be erased by the template(s) field
+
+In case you modify one field of the template, the backend will report the value to all objects use
+this template
+
+
+Complex template system
+~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a *complex* template system.
+
+You can defined, like for simple template system, host template with one or many services templates
+linked to this host.
+
+
+If you create a host with fields:
+* *_templates*: [*id_of_template*]
+* *_templates_with_services*: True
+
+
+The backend will create the host + all services related to the services templates linked to the host.
+
+With an example, it's better! We have the templates::
+
+    standard_template (host)
+            |------------------> check_cpu_template (service)
+            |------------------> check_mem_template (service)
+            |------------------> check_load_template (service)
+
+We create a host linked to *standard_template* template and with *_templates_with_services* to True.
+
+We have now::
+
+    standard_template (host)
+            |------------------> check_cpu_template (service)
+            |------------------> check_mem_template (service)
+            |------------------> check_load_template (service)
+    myhost (host)
+            |------------------> check_cpu (service)
+            |------------------> check_mem (service)
+            |------------------> check_load (service)
+
+
+
 
 List of resources
 -----------------
@@ -356,5 +431,17 @@ List of log resources:
    :glob:
 
    resources/log*
+
+Action part
+~~~~~~~~
+
+List of action resources:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   resources/action*
+
 
 

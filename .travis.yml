@@ -2,7 +2,7 @@ language: python
 sudo: true
 python:
   - "2.7"
-#  - "3.4"
+  - "3.4"
 
 services:
   - mongodb
@@ -14,25 +14,16 @@ install:
   - pip install python-dateutil==2.4.2
   - ./test/setup_test.sh
 # command to run tests
-# notice: the nose-cov is used because it is compatible with --processes, but produce a .coverage by process
-# so we must combine them in the end
 script:
   - cd test
   - pip freeze  # so to help eventual debug: know what exact versions are in use can be rather useful.
   - cd ..
   - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' alignak_backend/*
+  - rm -fr alignak_backend/__pycache__
   - pylint --rcfile=.pylintrc alignak_backend/*
   - pep257 --select=D300 alignak_backend
   - cd test
-  # - coverage erase
+  - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' test_*.py
+  - pylint --rcfile=../.pylintrc test_*.py
   - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300
-  # - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_backend
-  # - coverage combine
-  # - coverage report -m
   - cd ..
-# specific call to launch coverage data into coveralls.io
-#after_success:
-  # to get coverage data with relative paths and not absolute we have to
-  # execute coveralls from the base directory of the project,
-  # so we need to move the .coverage file here :
-  # mv test/.coverage . && coveralls --rcfile=test/.coveragerc -v

@@ -1,4 +1,4 @@
 include README.rst LICENSE AUTHORS requirements.txt
-include etc/settings.cfg
+include etc/settings.json
 recursive-include alignak_backend *.*
 global-exclude *pyc

@@ -1,0 +1,49 @@
+{
+  "DEBUG": false, /* To run underlying server in debug mode, define true */
+
+  "HOST": "",           /* Backend server listening address, empty = all */
+  "PORT": 5000,         /* Backend server listening port */
+  "SERVER_NAME": null,  /* Backend server listening server name */
+
+  "X_DOMAINS": "*", /* CORS (Cross-Origin Resource Sharing) support. Accept *, empty or a list of domains */
+
+  "PAGINATION_LIMIT": 50,   /* Pagination: maximum value for number of results */
+  "PAGINATION_DEFAULT": 25, /* Pagination: default value for number of results */
+
+  /* Limit number of requests. For example, [300, 900] limit 300 requests every 15 minutes */
+  "RATE_LIMIT_GET": null,     /* Limit number of GET requests */
+  "RATE_LIMIT_POST": null,    /* Limit number of POST requests */
+  "RATE_LIMIT_PATCH": null,   /* Limit number of PATCH requests */
+  "RATE_LIMIT_DELETE": null,  /* Limit number of DELETE requests */
+
+  "MONGO_HOST": "localhost",          /* Address of MongoDB */
+  "MONGO_PORT": 27017,                /* port of MongoDB */
+  "MONGO_DBNAME": "alignak-backend",  /* Name of database in MongoDB */
+  "MONGO_USERNAME": null,             /* Username to access to MongoDB */
+  "MONGO_PASSWORD": null,             /* Password to access to MongoDB */
+
+  "GRAPHITE_HOST": null,  /* Graphite/carbon for metrics, to disable it, use: null */
+  "GRAPHITE_PORT": 2004,  /* Port of Graphite/carbon */
+
+  "INFLUXDB_HOST": null,          /* Influxdb for metrics, to disable it, use: null */
+  "INFLUXDB_PORT": 8086,          /* Port of Influxdb */
+  "INFLUXDB_DATABASE": "alignak", /* Name of database in Influxdb */
+  "INFLUXDB_LOGIN": "admin",       /* Username to access to Influxdb */
+  "INFLUXDB_PASSWORD": "admin",    /* Username to access to Influxdb */
+
+  /* Timeseries data are stored in retention in backend. Activate the timeseries scheduler
+   will push into timeseries databases the data.
+   BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+  "SCHEDULER_TIMESERIES_ACTIVE": false,
+  /* This scheduler will create / update dashboards in grafana.
+   BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+  "SCHEDULER_GRAFANA_ACTIVE": false,
+
+  "GRAFANA_HOST": null,           /* IP or DNS of grafana, to disable it, use: null */
+  "GRAFANA_PORT": 3000,           /* Port of grafana */
+  "GRAFANA_APIKEY": "",           /* API key generated in grafana interface */
+  "GRAFANA_TEMPLATE_DASHBOARD": {
+    "timezone": "browser",
+    "refresh": "1m"
+  }
+}

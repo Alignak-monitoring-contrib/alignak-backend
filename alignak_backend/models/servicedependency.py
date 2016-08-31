@@ -38,66 +38,16 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
-            'dependent_host_name': {
-                'type': 'list',
-                'ui': {
-                    'title': 'Dependent hosts names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'hostgroup',
-                        'embeddable': True,
-                    }
-                },
+            'alias': {
+                'type': 'string',
+                'default': '',
             },
-            'dependent_hostgroup_name': {
-                'type': 'list',
-                'ui': {
-                    'title': 'Dependent hostgroups names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'hostgroup',
-                        'embeddable': True,
-                    }
-                },
+            'notes': {
+                'type': 'string',
+                'default': '',
             },
-            'dependent_service_description': {
+            'dependent_hosts': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Dependent services names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'service',
-                        'embeddable': True,
-                    }
-                },
-            },
-            'host_name': {
-                'type': 'list',
-                'ui': {
-                    'title': 'Hosts names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -106,15 +56,48 @@ def get_schema():
                     }
                 },
             },
-            'hostgroup_name': {
+            'dependent_hostgroups': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Hostgroups names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'hostgroup',
+                        'embeddable': True,
+                    }
                 },
+            },
+            'services': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
+                },
+            },
+            'dependent_services': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
+                },
+            },
+            'hosts': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'host',
+                        'embeddable': True,
+                    }
+                },
+            },
+            'hostgroups': {
+                'type': 'list',
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -136,8 +119,12 @@ def get_schema():
                 'default': ['n']
             },
             'dependency_period': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                },
+                'required': True,
             },
             'explode_hostgroup': {
                 'type': 'boolean',
@@ -151,12 +138,16 @@ def get_schema():
                 },
                 'required': True,
             },
+            '_sub_realm': {
+                'type': 'boolean',
+                'default': False
+            },
             '_users_read': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -166,7 +157,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -176,7 +167,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

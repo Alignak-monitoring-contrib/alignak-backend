@@ -5,36 +5,42 @@
     ``alignak_backend.app`` module
 
     This module manages the backend, its configuration and starts the backend
+
+    Default date format is:
+        '%a, %d %b %Y %H:%M:%S GMT'
 """
 
-import sys
-import traceback
-import os
-import time
-import uuid
+from __future__ import print_function
+
 import json
+import os
+import re
+import sys
+import time
+import traceback
+import uuid
 from collections import OrderedDict
-from datetime import timedelta
-from configparser import ConfigParser
 
 from eve import Eve
 from eve.auth import TokenAuth
 from eve.io.mongo import Validator
-from eve.methods.post import post_internal
-from eve.methods.patch import patch_internal
 from eve.methods.delete import deleteitem_internal
+from eve.methods.patch import patch_internal
+from eve.methods.post import post_internal
 from eve.utils import debug_error_message
-from werkzeug.security import check_password_hash, generate_password_hash
-from flask_bootstrap import Bootstrap
+from eve_swagger import swagger
+from flask import current_app, g, request, abort, jsonify, make_response, send_from_directory, \
+    redirect
 from flask_apscheduler import APScheduler
-from eve_docs import eve_docs
-from flask import current_app, g, request, abort, jsonify, make_response
+from flask_bootstrap import Bootstrap
+from future.utils import iteritems
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from alignak_backend.models import register_models
+import alignak_backend.log
 from alignak_backend import manifest
-from alignak_backend.log import Log
+from alignak_backend.grafana import Grafana
 from alignak_backend.livesynthesis import Livesynthesis
-from alignak_backend.livestate import Livestate
+from alignak_backend.models import register_models
 from alignak_backend.template import Template
 from alignak_backend.timeseries import Timeseries
 
@@ -54,8 +60,8 @@ class MyTokenAuth(TokenAuth):
     """
     Class to manage authentication
     """
-    realms_children = {}
-    realms_parents = {}
+    children_realms = {}
+    parent_realms = {}
 
     """Authentication token class"""
     def check_auth(self, token, allowed_roles, resource, method):
@@ -70,25 +76,28 @@ class MyTokenAuth(TokenAuth):
         :type resource: str
         :param method: method used: GET | POST | PATCH | DELETE
         :type method: str
-        :return: True if contact exist and password is ok or if no roles defined, otherwise False
+        :return: True if user exist and password is ok or if no roles defined, otherwise False
         :rtype: bool
         """
-        _contacts = current_app.data.driver.db['contact']
-        contact = _contacts.find_one({'token': token})
-        if contact:
+        user = current_app.data.driver.db['user'].find_one({'token': token})
+        if user:
+            # We get all resources we have in the backend for the userrestrictrole with *
+            resource_list = list(current_app.config['DOMAIN'])
+
             g.updateRealm = False
+            g.updateGroup = False
             # get children of realms for rights
             realmsdrv = current_app.data.driver.db['realm']
             allrealms = realmsdrv.find()
-            self.realms_children = {}
-            self.realms_parents = {}
+            self.children_realms = {}
+            self.parent_realms = {}
             for realm in allrealms:
-                self.realms_children[realm['_id']] = realm['_tree_children']
-                self.realms_parents[realm['_id']] = realm['_tree_parents']
+                self.children_realms[realm['_id']] = realm['_all_children']
+                self.parent_realms[realm['_id']] = realm['_tree_parents']
 
-            g.back_role_super_admin = contact['back_role_super_admin']
-            contactrestrictroles = current_app.data.driver.db['contactrestrictrole']
-            contactrestrictrole = contactrestrictroles.find({'contact': contact['_id']})
+            g.back_role_super_admin = user['back_role_super_admin']
+            userrestrictroles = current_app.data.driver.db['userrestrictrole']
+            userrestrictrole = userrestrictroles.find({'user': user['_id']})
             g.resources_get = {}
             g.resources_get_parents = {}
             get_parents = {}
@@ -101,14 +110,22 @@ class MyTokenAuth(TokenAuth):
             g.resources_delete = {}
             g.resources_delete_parents = {}
             g.resources_delete_custom = {}
-            for rights in contactrestrictrole:
-                self.add_resources_realms('read', rights, False, g.resources_get, get_parents)
-                self.add_resources_realms('read', rights, True, g.resources_get_custom)
-                self.add_resources_realms('create', rights, False, g.resources_post)
-                self.add_resources_realms('update', rights, False, g.resources_patch)
-                self.add_resources_realms('update', rights, True, g.resources_patch_custom)
-                self.add_resources_realms('delete', rights, False, g.resources_delete)
-                self.add_resources_realms('delete', rights, True, g.resources_delete_custom)
+            for rights in userrestrictrole:
+                # print("User role: %s" % rights)
+                self.add_resources_realms('read', rights, False, g.resources_get, resource_list,
+                                          get_parents)
+                self.add_resources_realms('read', rights, True, g.resources_get_custom,
+                                          resource_list)
+                self.add_resources_realms('create', rights, False, g.resources_post, resource_list)
+                self.add_resources_realms('update', rights, False, g.resources_patch,
+                                          resource_list)
+                self.add_resources_realms('update', rights, True, g.resources_patch_custom,
+                                          resource_list)
+                self.add_resources_realms('delete', rights, False, g.resources_delete,
+                                          resource_list)
+                self.add_resources_realms('delete', rights, True, g.resources_delete_custom,
+                                          resource_list)
+            # print("Read allowed: %s" % g.resources_get)
             for resource in g.resources_get:
                 g.resources_get[resource] = list(set(g.resources_get[resource]))
                 if resource in g.resources_get_custom:
@@ -121,21 +138,24 @@ class MyTokenAuth(TokenAuth):
                 g.resources_patch[resource] = list(set(g.resources_patch[resource]))
             for resource in g.resources_delete:
                 g.resources_delete[resource] = list(set(g.resources_delete[resource]))
-            g.users_id = contact['_id']
-        return contact
+            g.users_id = user['_id']
+            self.set_request_auth_value(user['_id'])
+        return user
 
-    def add_resources_realms(self, right, data, custom, resource, parents=None):
+    def add_resources_realms(self, right, data, custom, resource, resource_list, parents=None):
         """
         Add realms found for rights. it's used to fill rights when connect to app
 
         :param right: right in list: create, read, update, delete
         :type right: str
-        :param data: data (one record) from contactrestrictrole (from mongo)
+        :param data: data (one record) from userrestrictrole (from mongo)
         :type data: dict
         :param custom: True if it's a custom right, otherwise False
         :type custom: bool
         :param resource: variable where store realm rights
         :type resource: dict
+        :param resource_list: list of all resources of the backend
+        :type resource_list: dict
         :param parents: variable where store parents realms (required only for read right)
         :type parents: dict or None
         :return: None
@@ -144,16 +164,21 @@ class MyTokenAuth(TokenAuth):
         search_field = right
         if custom:
             search_field = 'custom'
-        if data['crud'] == search_field:
-            if data['resource'] not in resource:
-                resource[data['resource']] = []
-            if right == 'read' and not custom and data['resource'] not in parents:
-                parents[data['resource']] = []
-            resource[data['resource']].append(data['realm'])
-            if right == 'read' and not custom:
-                parents[data['resource']].extend(self.realms_parents[data['realm']])
-            if data['sub_realm']:
-                resource[data['resource']].extend(self.realms_children[data['realm']])
+        if data['resource'] == '*':
+            my_resources = resource_list
+        else:
+            my_resources = [data['resource']]
+        if search_field in data['crud']:
+            for my_resource in my_resources:
+                if my_resource not in resource:
+                    resource[my_resource] = []
+                if right == 'read' and not custom and my_resource not in parents:
+                    parents[my_resource] = []
+                resource[my_resource].append(data['realm'])
+                if right == 'read' and not custom:
+                    parents[my_resource].extend(self.parent_realms[data['realm']])
+                if data['sub_realm']:
+                    resource[my_resource].extend(self.children_realms[data['realm']])
 
 
 class MyValidator(Validator):
@@ -161,10 +186,6 @@ class MyValidator(Validator):
     # pylint: disable=unused-argument
     def _validate_title(self, title, field, value):
         """Validate 'title' field (always valid)"""
-        return
-
-    def _validate_ui(self, title, field, value):
-        """Validate 'ui' field (always valid)"""
         return
 
 
@@ -184,53 +205,105 @@ def pre_get(resource, user_request, lookup):
     if g.get('back_role_super_admin', False):
         return
     # Only in case not super-admin
-    if resource != 'contact':
+    if resource not in ['user']:
         # get all resources we can have rights in read
         resources_get = g.get('resources_get', {})
         resources_get_parents = g.get('resources_get_parents', {})
         resources_get_custom = g.get('resources_get_custom', {})
         users_id = g.get('users_id', {})
+
         if resource not in resources_get and resource not in resources_get_custom:
             lookup["_id"] = 0
         else:
-            # add search on realms
-            if 'realm' in app.settings['DOMAIN'][resource]['schema']:
-                lookup['realm'] = {'$in': resources_get[resource]}
-            else:
-                if resource not in resources_get:
-                    resources_get[resource] = []
-                if resource not in resources_get_parents:
-                    resources_get_parents[resource] = []
-                if resource not in resources_get_custom:
-                    resources_get_custom[resource] = []
-                lookup['$or'] = [{'_realm': {'$in': resources_get[resource]}},
-                                 {'$and': [{'_sub_realm': True},
-                                           {'_realm': {'$in': resources_get_parents[resource]}}]},
-                                 {'$and': [{'_users_read': users_id},
-                                           {'_realm': {'$in': resources_get_custom[resource]}}]}]
+            if resource not in resources_get:
+                resources_get[resource] = []
+            if resource not in resources_get_parents:
+                resources_get_parents[resource] = []
+            if resource not in resources_get_custom:
+                resources_get_custom[resource] = []
+            lookup['$or'] = [{'_realm': {'$in': resources_get[resource]}},
+                             {'$and': [{'_sub_realm': True},
+                                       {'_realm': {'$in': resources_get_parents[resource]}}]},
+                             {'$and': [{'_users_read': users_id},
+                                       {'_realm': {'$in': resources_get_custom[resource]}}]}]
 
 
-def pre_realm_post(items):
+# Log checks results
+def pre_logcheckresult_post(items):
     """
-    Hook before add new realm
+    Hook before adding new forcecheck
 
     :param items: realm fields
     :type items: dict
     :return: None
     """
-    realmsdrv = current_app.data.driver.db['realm']
-    for index, item in enumerate(items):
-        # generate _level
-        parent_realm = realmsdrv.find_one({'_id': item['_parent']})
-        items[index]['_level'] = parent_realm['_level'] + 1
-        # get parents (there is no children)
-        items[index]['_tree_parents'] = parent_realm['_tree_parents']
-        items[index]['_tree_parents'].append(parent_realm['_id'])
+    hosts_drv = current_app.data.driver.db['host']
+    for dummy, item in enumerate(items):
+        # Set _realm as host's _realm
+        host = hosts_drv.find_one({'_id': item['host']})
+        item['_realm'] = host['_realm']
 
 
-def pre_realm_patch(updates, original):
+def after_insert_logcheckresult(items):
     """
-    Hook before update existent realm
+    Hook after logcheckresult inserted.
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        # Create an history event for the new forcecheck
+        data = {
+            'host': item['host'],
+            'service': item['service'],
+            'user': None,
+            'type': 'check.result',
+            'message': '',
+            'logcheckresult': item['_id']
+        }
+        post_internal("history", data, True)
+
+
+# Actions acknowledge
+def pre_actionacknowledge_post(items):
+    """
+    Hook before adding new acknowledge
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    hosts_drv = current_app.data.driver.db['host']
+    for dummy, item in enumerate(items):
+        # Set _realm as host's _realm
+        host = hosts_drv.find_one({'_id': item['host']})
+        item['_realm'] = host['_realm']
+
+
+def after_insert_actionacknowledge(items):
+    """
+    Hook after action acknowledge inserted.
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        # Create an history event for the new acknowledge
+        data = {
+            'host': item['host'],
+            'service': item['service'],
+            'user': item['user'],
+            'type': 'ack.' + item['action'],
+            'message': item['comment']
+        }
+        post_internal("history", data, True)
+
+
+def after_update_actionacknowledge(updated, original):
+    """
+    Hook update on actionacknowledge
 
     :param updates: modified fields
     :type updates: dict
@@ -238,12 +311,393 @@ def pre_realm_patch(updates, original):
     :type original: dict
     :return: None
     """
-    # pylint: disable=unused-argument
+    if 'processed' in updated and updated['processed']:
+        # Create an history event for the new acknowledge
+        data = {
+            'host': original['host'],
+            'service': original['service'],
+            'user': original['user'],
+            'type': 'ack.processed',
+            'message': original['comment'],
+            'content': {
+            }
+        }
+        post_internal("history", data, True)
+
+
+# Actions downtime
+def pre_actiondowntime_post(items):
+    """
+    Hook before adding new downtime
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    hosts_drv = current_app.data.driver.db['host']
+    for dummy, item in enumerate(items):
+        # Set _realm as host's _realm
+        host = hosts_drv.find_one({'_id': item['host']})
+        item['_realm'] = host['_realm']
+
+
+def after_insert_actiondowntime(items):
+    """
+    Hook after action downtime inserted.
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        # Create an history event for the new downtime
+        data = {
+            'host': item['host'],
+            'service': item['service'],
+            'user': item['user'],
+            'type': 'downtime.' + item['action'],
+            'message': item['comment']
+        }
+        post_internal("history", data, True)
+
+
+def after_update_actiondowntime(updated, original):
+    """
+    Hook update on actiondowntime
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if 'processed' in updated and updated['processed']:
+        # Create an history event for the new downtime
+        data = {
+            'host': original['host'],
+            'service': original['service'],
+            'user': original['user'],
+            'type': 'downtime.processed',
+            'message': original['comment'],
+            'content': {
+            }
+        }
+        post_internal("history", data, True)
+
+
+# Actions forcecheck
+def pre_actionforcecheck_post(items):
+    """
+    Hook before adding new forcecheck
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    hosts_drv = current_app.data.driver.db['host']
+    for dummy, item in enumerate(items):
+        # Set _realm as host's _realm
+        host = hosts_drv.find_one({'_id': item['host']})
+        item['_realm'] = host['_realm']
+
+
+def after_insert_actionforcecheck(items):
+    """
+    Hook after action forcecheck inserted.
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        # Create an history event for the new forcecheck
+        data = {
+            'host': item['host'],
+            'service': item['service'],
+            'user': item['user'],
+            'type': 'check.request',
+            'message': item['comment']
+        }
+        post_internal("history", data, True)
+        print("Created new history for forcecheck: %s" % data)
+
+
+def after_update_actionforcecheck(updated, original):
+    """
+    Hook update on actionforcecheck
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if 'processed' in updated and updated['processed']:
+        # Create an history event for the new forcecheck
+        data = {
+            'host': original['host'],
+            'service': original['service'],
+            'user': original['user'],
+            'type': 'check.requested',
+            'message': original['comment'],
+            'content': {
+            }
+        }
+        post_internal("history", data, True)
+        print("Created new history for forcecheck: %s" % data)
+
+
+# Hosts groups
+def pre_hostgroup_post(items):
+    """
+    Hook before adding a new hostgroup
+
+    Manage hostgroup level and parents tree.
+
+    :param items: hostgroup fields
+    :type items: dict
+    :return: None
+    """
+    hgs_drv = current_app.data.driver.db['hostgroup']
+    for dummy, item in enumerate(items):
+        # Default parent
+        if '_parent' not in item:
+            # Use default hostgroup as a parent
+            def_hg = hgs_drv.find_one({'name': 'All'})
+            if def_hg:
+                item['_parent'] = def_hg['_id']
+
+        # Compute _level
+        parent_hg = hgs_drv.find_one({'_id': item['_parent']})
+        item['_level'] = parent_hg['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_hg['_tree_parents']
+        item['_tree_parents'].append(parent_hg['_id'])
+
+
+def pre_hostgroup_patch(updates, original):
+    """
+    Hook before updating existing hostgroup
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if not g.updateGroup:
+        if '_tree_parents' in updates:
+            abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
+        hgs_drv = current_app.data.driver.db['hostgroup']
+
+        # Find parent
+        parent = hgs_drv.find_one({'_id': updates['_parent']})
+        if not parent:
+            abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
+
+
+# Services groups
+def pre_servicegroup_post(items):
+    """
+    Hook before adding a new servicegroup
+
+    Manage servicegroup level and parents tree.
+
+    :param items: servicegroup fields
+    :type items: dict
+    :return: None
+    """
+    sgs_drv = current_app.data.driver.db['servicegroup']
+    for dummy, item in enumerate(items):
+        # Default parent
+        if '_parent' not in item:
+            # Use default servicegroup as a parent
+            def_sg = sgs_drv.find_one({'name': 'All'})
+            if def_sg:
+                item['_parent'] = def_sg['_id']
+
+        # Compute _level
+        parent_sg = sgs_drv.find_one({'_id': item['_parent']})
+        item['_level'] = parent_sg['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_sg['_tree_parents']
+        item['_tree_parents'].append(parent_sg['_id'])
+
+
+def pre_servicegroup_patch(updates, original):
+    """
+    Hook before updating existing servicegroup
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if not g.updateGroup:
+        if '_tree_parents' in updates:
+            abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
+        sgs_drv = current_app.data.driver.db['servicegroup']
+
+        # Find parent
+        parent = sgs_drv.find_one({'_id': updates['_parent']})
+        if not parent:
+            abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
+
+
+# Users groups
+def pre_usergroup_post(items):
+    """
+    Hook before adding a new usergroup
+
+    Manage usergroup level and parents tree.
+
+    :param items: usergroup fields
+    :type items: dict
+    :return: None
+    """
+    ugs_drv = current_app.data.driver.db['usergroup']
+    for dummy, item in enumerate(items):
+        # Default parent
+        if '_parent' not in item:
+            # Use default usergroup as a parent
+            def_ug = ugs_drv.find_one({'name': 'All'})
+            if def_ug:
+                item['_parent'] = def_ug['_id']
+
+        # Compute _level
+        parent_ug = ugs_drv.find_one({'_id': item['_parent']})
+        item['_level'] = parent_ug['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_ug['_tree_parents']
+        item['_tree_parents'].append(parent_ug['_id'])
+
+
+def pre_usergroup_patch(updates, original):
+    """
+    Hook before updating existing usergroup
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if not g.updateGroup:
+        if '_tree_parents' in updates:
+            abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
+        ugs_drv = current_app.data.driver.db['usergroup']
+
+        # Find parent
+        parent = ugs_drv.find_one({'_id': updates['_parent']})
+        if not parent:
+            abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
+
+
+# Realms
+def pre_realm_post(items):
+    """
+    Hook before adding new realm
+
+    :param items: realm fields
+    :type items: dict
+    :return: None
+    """
+    realmsdrv = current_app.data.driver.db['realm']
+    for dummy, item in enumerate(items):
+        # Default parent
+        if '_parent' not in item:
+            # Use default realm as a parent
+            dr = realmsdrv.find_one({'name': 'All'})
+            item['_parent'] = dr['_id']
+
+        # Compute _level
+        parent_realm = realmsdrv.find_one({'_id': item['_parent']})
+        item['_level'] = parent_realm['_level'] + 1
+
+        # Add parent in _tree_parents
+        item['_tree_parents'] = parent_realm['_tree_parents']
+        item['_tree_parents'].append(parent_realm['_id'])
+
+
+def pre_realm_patch(updates, original):
+    """
+    Hook before updating existing realm
+
+    :param updates: modified fields
+    :type updates: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
     if not g.updateRealm:
         if '_tree_parents' in updates:
-            abort(make_response("Update _tree_parents is forbidden", 412))
-        if '_tree_children' in updates:
-            abort(make_response("Update _tree_parents is forbidden", 412))
+            abort(make_response("Updating _tree_parents is forbidden", 412))
+        if '_children' in updates:
+            abort(make_response("Updating _children is forbidden", 412))
+        if '_all_children' in updates:
+            abort(make_response("Updating _all_children is forbidden", 412))
+
+    if '_parent' in updates and updates['_parent'] != original['_parent']:
+        realmsdrv = current_app.data.driver.db['realm']
+
+        # Add self reference in new parent children tree
+        parent = realmsdrv.find_one({'_id': updates['_parent']})
+        if original['_id'] not in parent['_children']:
+            parent['_children'].append(original['_id'])
+        lookup = {"_id": parent['_id']}
+        g.updateRealm = True
+        patch_internal('realm', {"_children": parent['_children']}, False, False,
+                       **lookup)
+        g.updateRealm = False
+
+        # Delete self reference in former parent children tree
+        if len(original['_tree_parents']) > 0:
+            parent = realmsdrv.find_one({'_id': original['_tree_parents'][-1]})
+            if original['_id'] in parent['_children']:
+                parent['_children'].remove(original['_id'])
+            lookup = {"_id": parent['_id']}
+            g.updateRealm = True
+            patch_internal('realm', {"_children": parent['_children']}, False, False,
+                           **lookup)
+            g.updateRealm = False
+
+        updates['_level'] = parent['_level'] + 1
+        updates['_tree_parents'] = original['_tree_parents']
+        if original['_parent'] in original['_tree_parents']:
+            updates['_tree_parents'].remove(original['_parent'])
+        if updates['_parent'] not in original['_tree_parents']:
+            updates['_tree_parents'].append(updates['_parent'])
 
 
 def after_insert_realm(items):
@@ -255,17 +709,19 @@ def after_insert_realm(items):
     :return: None
     """
     # pylint: disable=unused-argument
-    realmsdrv = current_app.data.driver.db['realm']
     for dummy, item in enumerate(items):
         # update _children fields on all parents
-        if len(item['_tree_parents']) > 0:
-            parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
-            parent['_tree_children'].append(item['_id'])
-            lookup = {"_id": parent['_id']}
-            g.updateRealm = True
-            patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                           **lookup)
-            g.updateRealm = False
+        realmsdrv = current_app.data.driver.db['realm']
+        parent = realmsdrv.find_one({'_id': item['_parent']})
+        parent['_children'].append(item['_id'])
+        parent['_all_children'].append(item['_id'])
+        lookup = {"_id": parent['_id']}
+        g.updateRealm = True
+        patch_internal('realm', {
+            "_children": parent['_children'],
+            "_all_children": parent['_all_children']
+        }, False, False, **lookup)
+        g.updateRealm = False
 
 
 def after_update_realm(updated, original):
@@ -279,34 +735,49 @@ def after_update_realm(updated, original):
     :return: None
     """
     if g.updateRealm:
-        if '_tree_children' in updated and updated['_tree_children'] != original['_tree_children']:
-            if len(original['_tree_parents']) > 0:
-                realmsdrv = current_app.data.driver.db['realm']
-                parent = realmsdrv.find_one({'_id': original['_tree_parents'][-1]})
-                if len(original['_tree_children']) < len(updated['_tree_children']):
-                    parent['_tree_children'].append(updated['_tree_children'][-1])
-                elif len(original['_tree_children']) > len(updated['_tree_children']):
-                    del parent['_tree_children'][-1]
-                lookup = {"_id": parent['_id']}
-                patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                               **lookup)
+        if '_all_children' in updated and updated['_all_children'] != original['_all_children']:
+            s = set(original['_all_children'])
+            diff = [x for x in updated['_all_children'] if x not in s]
+            added_children = (diff != [])
+            if not added_children:
+                s = set(updated['_all_children'])
+                diff = [x for x in original['_all_children'] if x not in s]
+
+            realmsdrv = current_app.data.driver.db['realm']
+            parent = realmsdrv.find_one({'_id': original['_parent']})
+            if not parent:
+                return
+
+            for d in diff:
+                if added_children:
+                    if d not in parent['_all_children']:
+                        parent['_all_children'].append(d)
+                else:
+                    if d in parent['_all_children']:
+                        parent['_all_children'].remove(d)
+            lookup = {"_id": parent['_id']}
+            g.updateRealm = True
+            patch_internal('realm', {
+                "_all_children": parent['_all_children']
+            }, False, False, **lookup)
+            g.updateRealm = False
 
 
 def pre_delete_realm(item):
     """
-    Hook before delete a realm. It deny delete if realm have child / children
+    Hook before deleting a realm. Denies deletion if realm has child / children
 
     :param item: fields of the item / record
     :type item: dict
     :return: None
     """
-    if len(item['_tree_children']) > 0:
+    if len(item['_children']) > 0:
         abort(409, description=debug_error_message("Item have children, so can't delete it"))
 
 
 def after_delete_realm(item):
     """
-    Hook after delete a realm. Update tree children of parent realm
+    Hook after realm deletion. Update tree children of parent realm
 
     :param item: fields of the item / record
     :type item: dict
@@ -315,34 +786,69 @@ def after_delete_realm(item):
     realmsdrv = current_app.data.driver.db['realm']
     if len(item['_tree_parents']) > 0:
         parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
-        del parent['_tree_children'][-1]
+        if item['_id'] in parent['_children']:
+            parent['_children'].remove(item['_id'])
+        if item['_id'] in parent['_all_children']:
+            parent['_all_children'].remove(item['_id'])
         lookup = {"_id": parent['_id']}
         g.updateRealm = True
-        patch_internal('realm', {"_tree_children": parent['_tree_children']}, False, False,
-                       **lookup)
+        patch_internal('realm', {
+            "_children": parent['_children'],
+            "_all_children": parent['_children']
+        }, False, False, **lookup)
         g.updateRealm = False
 
 
-def pre_contact_post(items):
+# Hosts/ services
+def pre_host_service_patch(updates, original):
+    """
+    Hook before update.
+    When updating an host or service, if only the live state is updated, do not change the
+    _updated field.
+
+    The _updated field is used by the Alignak arbiter to reload the configuration and we need to
+    avoid reloading when the live state is updated.
+
+    :param updates: list of host fields to update
+    :type updates: dict
+    :param original: list of original fields
+    :type original: dict
+    :return: None
+    """
+    # pylint: disable=unused-argument
+
+    for key in updates:
+        if key not in ['_updated'] and not key.startswith('ls_'):
+            break
+    else:
+        # Only some live state fields, do not change _updated field
+        del updates['_updated']
+
+
+# Users
+def pre_user_post(items):
     """
     Hook before insert.
-    When add contact, hash the backend password of the user
+    When add user, hash the backend password of the user
 
     :param items: list of items (list because can use bulk)
     :type items: list
     :return: None
     """
-    for index, item in enumerate(items):
+    for key, item in enumerate(items):
         if 'password' in item:
-            items[index]['password'] = generate_password_hash(item['password'])
+            items[key]['password'] = generate_password_hash(item['password'])
 
 
-def pre_contact_patch(updates, original):
+def pre_user_patch(updates, original):
     """
     Hook before update.
-    When update contact, hash the backend password of the user if try to change it
 
-    :param updates: list of fields user try to update
+    When updating user, hash the backend password of the user if one try to change it
+    If only the user preferences are updated do not change the _updated field (see comment in the
+    pre_host_patch).
+
+    :param updates: list of user fields to update
     :type updates: dict
     :param original: list of original fields
     :type original: dict
@@ -351,6 +857,9 @@ def pre_contact_patch(updates, original):
     # pylint: disable=unused-argument
     if 'password' in updates:
         updates['password'] = generate_password_hash(updates['password'])
+    # Special case, we don't want update _updated field when update ui_preferences field
+    if len(updates) == 2 and 'ui_preferences' in updates:
+        del updates['_updated']
 
 
 def generate_token():
@@ -363,70 +872,57 @@ def generate_token():
     return str(t) + '-' + str(uuid.uuid4())
 
 
+# Backend configuration
 def get_settings(prev_settings):
     """
-    Get settings of application from config file to update/complete previously existing gsettings
+    Get settings of application from config file to update/complete previously existing settings
 
     :param prev_settings: previous settings
     :type prev_settings: dict
     :return: None
     """
     settings_filenames = [
-        '/usr/local/etc/alignak_backend/settings.cfg',
-        '/etc/alignak_backend/settings.cfg',
-        os.path.abspath('./etc/settings.cfg'),
-        os.path.abspath('../etc/settings.cfg'),
-        os.path.abspath('./settings.cfg')
+        '/usr/local/etc/alignak_backend/settings.json',
+        '/etc/alignak_backend/settings.json',
+        os.path.abspath('./etc/settings.json'),
+        os.path.abspath('../etc/settings.json'),
+        os.path.abspath('./settings.json')
     ]
 
-    # Define some variables available
-    defaults = {
-        '_cwd': os.getcwd()
-    }
-    config = ConfigParser(defaults=defaults)
-    cfg_file = config.read(settings_filenames)
-    if not cfg_file:
-        print "No configuration file found, using default configuration"
-    else:
-        print "Configuration read from file(s): %s" % cfg_file
-    for key, value in config.items('DEFAULT'):
-        if key.startswith('_'):
-            continue
-        if key.upper() in prev_settings:
-            app_default = prev_settings[key.upper()]
-            if isinstance(app_default, timedelta):
-                prev_settings[key.upper()] = timedelta(value)
-            elif isinstance(app_default, bool):
-                prev_settings[key.upper()] = True if value in [
-                    'true', 'True', 'on', 'On', 'y', 'yes', '1'
-                ] else False
-            elif isinstance(app_default, float):
-                prev_settings[key.upper()] = float(value)
-            elif isinstance(app_default, int):
-                prev_settings[key.upper()] = int(value)
-            else:
-                # All the string keys need to be coerced into str()
-                # because Flask expects some of them not to be unicode
-                prev_settings[key.upper()] = str(value)
-        else:
-            if value.isdigit():
-                prev_settings[key.upper()] = int(value)
-            else:
-                prev_settings[key.upper()] = str(value)
-        if key.lower() == "server_name":
-            if prev_settings[key.upper()].lower() == 'none':
-                prev_settings[key.upper()] = None
+    # pylint: disable=anomalous-backslash-in-string
+    comment_re = re.compile(
+        '(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+        re.DOTALL | re.MULTILINE
+    )
+    for filename in settings_filenames:
+        if os.path.isfile(filename):
+            with open(filename) as stream:
+                content = ''.join(stream.readlines())
+                # Looking for comments
+                match = comment_re.search(content)
+                while match:
+                    # single line comment
+                    content = content[:match.start()] + content[match.end():]
+                    match = comment_re.search(content)
+
+                conf = json.loads(content)
+                for key, value in iteritems(conf):
+                    if key.startswith('RATE_LIMIT_') and value is not None:
+                        prev_settings[key] = tuple(value)
+                    else:
+                        prev_settings[key] = value
+                return
 
 
-print "--------------------------------------------------------------------------------"
-print "%s, version %s" % (manifest['name'], manifest['version'])
-print "Copyright %s" % manifest['copyright']
-print "License %s" % manifest['license']
-print "--------------------------------------------------------------------------------"
+print("--------------------------------------------------------------------------------")
+print("%s, version %s" % (manifest['name'], manifest['version']))
+print("Copyright %s" % manifest['copyright'])
+print("License %s" % manifest['license'])
+print("--------------------------------------------------------------------------------")
 
-print "Doc: %s" % manifest['doc']
-print "Release notes: %s" % manifest['release']
-print "--------------------------------------------------------------------------------"
+print("Doc: %s" % manifest['doc'])
+print("Release notes: %s" % manifest['release'])
+print("--------------------------------------------------------------------------------")
 
 # Application configuration
 settings = {}
@@ -455,7 +951,10 @@ settings['PORT'] = 5000
 settings['SERVER_NAME'] = None
 settings['DEBUG'] = False
 
-settings['SCHEDULER_ACTIVE'] = 0
+settings['SCHEDULER_TIMESERIES_ACTIVE'] = False
+settings['SCHEDULER_GRAFANA_ACTIVE'] = False
+settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
+settings['JOBS'] = []
 
 settings['GRAPHITE_HOST'] = ''
 settings['GRAPHITE_PORT'] = 2004
@@ -469,43 +968,77 @@ settings['INFLUXDB_DATABASE'] = 'alignak'
 # Read configuration file to update/complete the configuration
 get_settings(settings)
 
+if os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME'):
+    settings['MONGO_DBNAME'] = os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME')
+
 # scheduler config
-if settings['SCHEDULER_ACTIVE'] == 1:
-    settings['JOBS'] = [
+jobs = []
+if settings['SCHEDULER_TIMESERIES_ACTIVE']:
+    jobs.append(
         {
             'id': 'cron_cache',
             'func': 'alignak_backend.scheduler:cron_cache',
             'args': (),
             'trigger': 'interval',
-            'seconds': 60
+            'seconds': 10
         }
-    ]
-    settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
+    )
+if settings['SCHEDULER_GRAFANA_ACTIVE'] and settings['GRAFANA_HOST'] is not None:
+    jobs.append(
+        {
+            'id': 'cron_grafana',
+            'func': 'alignak_backend.scheduler:cron_grafana',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 120
+        }
+    )
+if len(jobs) > 0:
+    settings['JOBS'] = jobs
 
-
-print "Application settings: %s" % settings
+print("Application settings: %s" % settings)
 
 # Add model schema to the configuration
 settings['DOMAIN'] = register_models()
 
+base_path = os.path.dirname(os.path.abspath(alignak_backend.__file__))
+
 app = Eve(
     settings=settings,
     validator=MyValidator,
-    auth=MyTokenAuth
+    auth=MyTokenAuth,
+    static_folder=base_path
 )
 # hooks pre-init
 app.on_pre_GET += pre_get
-app.on_insert_contact += pre_contact_post
-app.on_update_contact += pre_contact_patch
+app.on_insert_user += pre_user_post
+app.on_update_user += pre_user_patch
+app.on_update_host += pre_host_service_patch
+app.on_update_service += pre_host_service_patch
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
 app.on_update_realm += pre_realm_patch
+app.on_update_usergroup += pre_usergroup_patch
+app.on_update_hostgroup += pre_hostgroup_patch
+app.on_update_servicegroup += pre_servicegroup_patch
 
 # docs api
 Bootstrap(app)
-app.register_blueprint(eve_docs, url_prefix='/docs')
+app.register_blueprint(swagger)
+app.config['SWAGGER_INFO'] = {
+    'title': manifest['name'],
+    'version': manifest['version'],
+    'description': manifest['description'],
+    'contact': {
+        'name': manifest['author']
+    },
+    'license': {
+        'name': manifest['license']
+    }
+}
 
-# Create default account when have no contact.
+
+# Create default backend elements
 with app.test_request_context():
     # Create default realm if not defined
     realms = app.data.driver.db['realm']
@@ -514,13 +1047,44 @@ with app.test_request_context():
         post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
                       True)
         default_realm = realms.find_one({'name': 'All'})
-        print "Created top level realm:", default_realm
-    # Create default timeperiod if not defined
+        print("Created top level realm: %s" % default_realm)
+    # Create default usergroup if not defined
+    ugs = app.data.driver.db['usergroup']
+    default_ug = ugs.find_one({'name': 'All'})
+    if not default_ug:
+        post_internal("usergroup", {
+            "name": "All", "alias": "All users", "_parent": None, "_level": 0,
+            "_realm": default_realm['_id'], "_sub_realm": True
+        }, True)
+        default_ug = ugs.find_one({'name': 'All'})
+        print("Created top level usergroup: %s" % default_ug)
+    # Create default hostgroup if not defined
+    hgs = app.data.driver.db['hostgroup']
+    default_hg = hgs.find_one({'name': 'All'})
+    if not default_hg:
+        post_internal("hostgroup", {
+            "name": "All", "alias": "All hosts", "_parent": None, "_level": 0,
+            "_realm": default_realm['_id'], "_sub_realm": True
+        }, True)
+        default_hg = hgs.find_one({'name': 'All'})
+        print("Created top level hostgroup: %s" % default_hg)
+    # Create default servicegroup if not defined
+    sgs = app.data.driver.db['servicegroup']
+    default_sg = sgs.find_one({'name': 'All'})
+    if not default_sg:
+        post_internal("servicegroup", {
+            "name": "All", "alias": "All services", "_parent": None, "_level": 0,
+            "_realm": default_realm['_id'], "_sub_realm": True
+        }, True)
+        default_sg = sgs.find_one({'name': 'All'})
+        print("Created top level servicegroup: %s" % default_sg)
+    # Create default timeperiods if not defined
     timeperiods = app.data.driver.db['timeperiod']
-    default_timeperiod = timeperiods.find_one({'name': 'All time default 24x7'})
-    if not default_timeperiod:
-        post_internal("timeperiod", {"name": "All time default 24x7",
-                                     "_realm": default_realm['_id'],
+    always = timeperiods.find_one({'name': '24x7'})
+    if not always:
+        post_internal("timeperiod", {"name": "24x7",
+                                     "alias": "All time default 24x7",
+                                     "_realm": default_realm['_id'], "_sub_realm": True,
                                      "is_active": True,
                                      "dateranges": [{u'monday': u'00:00-24:00'},
                                                     {u'tuesday': u'00:00-24:00'},
@@ -529,30 +1093,39 @@ with app.test_request_context():
                                                     {u'friday': u'00:00-24:00'},
                                                     {u'saturday': u'00:00-24:00'},
                                                     {u'sunday': u'00:00-24:00'}]}, True)
-        print "Created default timeperiod"
-        default_timeperiod = timeperiods.find_one({'name': 'All time default 24x7'})
-    # Create default username/contact if not defined
+        always = timeperiods.find_one({'name': '24x7'})
+        print("Created default Always timeperiod: %s" % always)
+    never = timeperiods.find_one({'name': 'Never'})
+    if not never:
+        post_internal("timeperiod", {"name": "Never",
+                                     "alias": "No time is a good time",
+                                     "_realm": default_realm['_id'], "_sub_realm": True,
+                                     "is_active": True}, True)
+        never = timeperiods.find_one({'name': 'Never'})
+        print("Created default Never timeperiod: %s" % never)
+    # Create default username/user if not defined
     try:
-        contacts = app.data.driver.db['contact']
+        users = app.data.driver.db['user']
     except Exception as e:
         sys.exit("[ERROR] Impossible to connect to MongoDB (%s)" % e)
-    super_admin_contact = contacts.find_one({'back_role_super_admin': True})
-    if not super_admin_contact:
-        post_internal("contact", {"name": "admin",
-                                  "password": "admin",
-                                  "back_role_super_admin": True,
-                                  "host_notification_period": default_timeperiod['_id'],
-                                  "service_notification_period": default_timeperiod['_id'],
-                                  "_realm": default_realm['_id']})
-        print "Created Super admin"
-    app.on_updated_livestate += Livesynthesis.on_updated_livestate
-    app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
-    app.on_inserted_host += Livestate.on_inserted_host
-    app.on_inserted_service += Livestate.on_inserted_service
-    app.on_updated_host += Livestate.on_updated_host
-    app.on_updated_service += Livestate.on_updated_service
+    super_admin_user = users.find_one({'back_role_super_admin': True})
+    if not super_admin_user:
+        post_internal("user", {"name": "admin", "alias": "Administrator",
+                               "password": "admin",
+                               "back_role_super_admin": True,
+                               "can_update_livestate": True,
+                               "host_notification_period": always['_id'],
+                               "service_notification_period": always['_id'],
+                               "_realm": default_realm['_id'], "_sub_realm": True})
+        print("Created super admin user")
 
-    # template management
+    # Live synthesis management
+    app.on_inserted_host += Livesynthesis.on_inserted_host
+    app.on_inserted_service += Livesynthesis.on_inserted_service
+    app.on_updated_host += Livesynthesis.on_updated_host
+    app.on_updated_service += Livesynthesis.on_updated_service
+
+    # Templates management
     app.on_pre_POST_host += Template.pre_post_host
     app.on_update_host += Template.on_update_host
     app.on_updated_host += Template.on_updated_host
@@ -565,8 +1138,7 @@ with app.test_request_context():
     app.on_update_service += Template.on_update_service
     app.on_updated_service += Template.on_updated_service
 
-with app.test_request_context():
-    Livestate.recalculate()
+    # Initial livesynthesis
     Livesynthesis.recalculate()
 
 # hooks post-init
@@ -574,12 +1146,30 @@ app.on_insert_realm += pre_realm_post
 app.on_inserted_realm += after_insert_realm
 app.on_updated_realm += after_update_realm
 
+app.on_insert_usergroup += pre_usergroup_post
+app.on_insert_hostgroup += pre_hostgroup_post
+app.on_insert_servicegroup += pre_servicegroup_post
+
+app.on_insert_actionacknowledge += pre_actionacknowledge_post
+app.on_inserted_actionacknowledge += after_insert_actionacknowledge
+app.on_updated_actionacknowledge += after_update_actionacknowledge
+
+app.on_insert_actiondowntime += pre_actiondowntime_post
+app.on_inserted_actiondowntime += after_insert_actiondowntime
+app.on_updated_actiondowntime += after_update_actiondowntime
+
+app.on_insert_actionforcecheck += pre_actionforcecheck_post
+app.on_inserted_actionforcecheck += after_insert_actionforcecheck
+app.on_updated_actionforcecheck += after_update_actionforcecheck
+
+app.on_insert_logcheckresult += pre_logcheckresult_post
+app.on_inserted_logcheckresult += after_insert_logcheckresult
+
 with app.test_request_context():
-    app.on_inserted_loghost += Timeseries.after_inserted_loghost
-    app.on_inserted_logservice += Timeseries.after_inserted_logservice
+    app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
 
 # Start scheduler (internal cron)
-if settings['SCHEDULER_ACTIVE'] == 1:
+if len(settings['JOBS']) > 0:
     with app.test_request_context():
         scheduler = APScheduler()
         scheduler.init_app(app)
@@ -611,20 +1201,20 @@ def login_app():
             description='Username and password must be provided as credentials for login.'
         )
     else:
-        _contacts = app.data.driver.db['contact']
-        contact = _contacts.find_one({'name': posted_data['username']})
-        if contact:
-            if check_password_hash(contact['password'], posted_data['password']):
+        _users = app.data.driver.db['user']
+        user = _users.find_one({'name': posted_data['username']})
+        if user:
+            if check_password_hash(user['password'], posted_data['password']):
                 if 'action' in posted_data:
-                    if posted_data['action'] == 'generate' or not contact['token']:
+                    if posted_data['action'] == 'generate' or not user['token']:
                         token = generate_token()
-                        _contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                        _users.update({'_id': user['_id']}, {'$set': {'token': token}})
                         return jsonify({'token': token})
-                elif not contact['token']:
+                elif not user['token']:
                     token = generate_token()
-                    _contacts.update({'_id': contact['_id']}, {'$set': {'token': token}})
+                    _users.update({'_id': user['_id']}, {'$set': {'token': token}})
                     return jsonify({'token': token})
-                return jsonify({'token': contact['token']})
+                return jsonify({'token': user['token']})
         abort(401, description='Please provide proper credentials')
 
 
@@ -634,6 +1224,24 @@ def logout_app():
     Log out from backend
     """
     return 'ok'
+
+
+@app.route("/backendconfig")
+def backend_config():
+    """
+    Offer toute to get the backend config
+    """
+    my_config = {"PAGINATION_LIMIT": settings['PAGINATION_LIMIT'],
+                 "PAGINATION_DEFAULT": settings['PAGINATION_DEFAULT'],
+                 'metrics': []}
+    if settings['GRAPHITE_HOST'] is not None:
+        my_config['metrics'].append('graphite')
+    if settings['INFLUXDB_HOST'] is not None:
+        my_config['metrics'].append('influxdb')
+    if settings['GRAFANA_HOST'] is not None:
+        my_config['GRAFANA_HOST'] = settings['GRAFANA_HOST']
+        my_config['GRAFANA_PORT'] = settings['GRAFANA_PORT']
+    return jsonify(my_config)
 
 
 @app.route("/cron_timeseries")
@@ -677,24 +1285,63 @@ def cron_timeseries():
                                    **lookup)
 
 
+@app.route("/cron_grafana")
+def cron_grafana():
+    """
+    Cron used to add / update grafana dashboards
+
+    :return: None
+    """
+    with app.test_request_context():
+        hosts_db = current_app.data.driver.db['host']
+        grafana = Grafana()
+
+        hosts = hosts_db.find({'grafana': False})
+        for host in hosts:
+            if 'ls_perf_data' in host and host['ls_perf_data']:
+                grafana.create_dashboard(host['_id'])
+
+
+@app.route('/docs')
+def redir_index():
+    """
+    Redirect /docs to /docs/index.html
+
+    :return: redirect to endpoint /docs/index.html
+    """
+    return redirect('/docs/index.html')
+
+
+@app.route('/docs/<path:path>')
+def index(path):
+    """
+    Deliver static files of swagger-ui folder
+
+    :param path: path + files of swagger-ui to load
+    :type path: string
+    :return:
+    """
+    return send_from_directory(base_path, 'swagger-ui/' + path)
+
+
 def main():
     """
         Called when this module is started from shell
     """
     try:
-        print "--------------------------------------------------------------------------------"
-        print "%s, listening on %s:%d" % (
+        print("--------------------------------------------------------------------------------")
+        print("%s, listening on %s:%d" % (
             manifest['name'], app.config.get('HOST', '127.0.0.1'), app.config.get('PORT', 8090)
-        )
-        print "--------------------------------------------------------------------------------"
+        ))
+        print("--------------------------------------------------------------------------------")
         app.run(
             host=settings.get('HOST', '127.0.0.1'),
             port=settings.get('PORT', 5000),
             debug=settings.get('DEBUG', False)
         )
     except Exception as e:
-        print "Application run failed, exception: %s / %s" % (type(e), str(e))
-        print "Back trace of this kill: %s" % traceback.format_exc()
+        print("Application run failed, exception: %s / %s" % (type(e), str(e)))
+        print("Back trace of this kill: %s" % traceback.format_exc())
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -23,41 +23,39 @@ def get_schema():
     :rtype: dict
     """
     return {
-        # 'allow_unknown': True,
         'schema': {
-            # 'uuid': {
-            # 'type': 'string',
-            # 'required': True,
-            # 'empty': False,
-            # 'unique': True
-            # },
-
-            'members': {
-                'type': 'list',
-                'ui': {
-                    'title': 'Members',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
-                'schema': {
-                    'type': 'objectid',
-                    'data_relation': {
-                        'resource': 'service',
-                        'embeddable': True,
-                    }
-                },
+            'imported_from': {
+                'type': 'string',
+                'default': 'unknown'
             },
-            'servicegroup_members': {
+            'name': {
+                'type': 'string',
+                'required': True,
+                'empty': False,
+                'unique': True,
+            },
+            'definition_order': {
+                'type': 'integer',
+                'default': 100
+            },
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes_url': {
+                'type': 'string',
+                'default': '',
+            },
+            'action_url': {
+                'type': 'string',
+                'default': '',
+            },
+            'servicegroups': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Servicegroup members',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -65,97 +63,59 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'default': []
             },
-            'name': {
-                'type': 'string',
-                'ui': {
-                    'title': 'Name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
+            'services': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'service',
+                        'embeddable': True,
+                    }
                 },
-                'required': True,
-                'empty': False,
-                'unique': True,
-                'default': ''
+                'default': []
             },
-            'definition_order': {
+            '_level': {
                 'type': 'integer',
-                'ui': {
-                    'title': 'Definition order',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
-                'default': 100
+                'default': 0,
             },
-            'alias': {
-                'type': 'string',
-                'ui': {
-                    'title': 'Alias',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
+            '_parent': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'servicegroup',
+                    'embeddable': True
                 },
-                'default': ''
             },
-            'notes': {
-                'type': 'string',
-                'ui': {
-                    'title': 'Notes',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
+            '_tree_parents': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'servicegroup',
+                        'embeddable': True,
+                    }
                 },
-                'default': ''
-            },
-            'notes_url': {
-                'type': 'string',
-                'ui': {
-                    'title': 'URL of notes',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
-                'default': ''
-            },
-            'action_url': {
-                'type': 'string',
-                'ui': {
-                    'title': 'URL of action',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
-                'default': ''
+                'default': []
             },
             '_realm': {
                 'type': 'objectid',
-                'ui': {
-                    'title': 'Realm',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'data_relation': {
                     'resource': 'realm',
                     'embeddable': True
                 },
                 'required': True,
             },
+            '_sub_realm': {
+                'type': 'boolean',
+                'default': False
+            },
             '_users_read': {
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -165,7 +125,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -175,7 +135,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },

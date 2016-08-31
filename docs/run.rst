@@ -14,12 +14,15 @@ You can use many possibilities, but we suggest you use uwsgi and start it in the
 
 With socket (+ nginx / apache in frontal)::
 
-   uwsgi -s /tmp/uwsgi.sock -w alignakbackend:app --enable-threads
+   uwsgi -s /tmp/uwsgi.sock -w alignakbackend:app --enable-threads -p 4
 
 With direct http port::
 
-   uwsgi -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads
+   uwsgi --wsgi-file alignakbackend.py -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads -p 4
 
+Maybe, you've to add plugin python on some distributions (Debian)::
+
+   uwsgi --plugin python --wsgi-file alignakbackend.py -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads -p 4
 
 Alignak-backend runs on port 80 like specified in arguments, so use::
 
@@ -43,7 +46,7 @@ On start, some useful information are printed on the console::
       Doc: https://github.com/Alignak-monitoring-contrib/alignak-backend
       Release notes: Alignak REST Backend
       --------------------------------------------------------------------------------
-      Configuration read from file(s): ['/etc/alignak_backend/settings.cfg']
+      Configuration read from file(s): ['/etc/alignak_backend/settings.json']
       Application settings: {'MONGO_PORT': '27017', 'RATE_LIMIT_POST': 'None', 'X_HEADERS': 'Authorization, If-Match, X-HTTP-Method-Override, Content-Type', 'X_DOMAINS': '*', 'MONGO_DBNAME': 'alignak-backend', 'RATE_LIMIT_GET': 'None', 'MONGO_HOST': 'localhost', 'DEBUG': 'False', 'RATE_LIMIT_PATCH': 'None', 'PAGINATION_LIMIT': '100', 'RATE_LIMIT_DELETE': 'None'}
 
 

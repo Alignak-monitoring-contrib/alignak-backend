@@ -37,10 +37,15 @@ if [ $? -ne 0 ]; then
 fi
 echo 'tests ...'
 cd test
-# coverage erase
+pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' test_*.py
+if [ $? -ne 0 ]; then
+    echo "pep8 not compliant"
+    exit
+fi
+pylint --rcfile=../.pylintrc test_*.py
+if [ $? -ne 0 ]; then
+    echo "pylint not compliant"
+    exit
+fi
 nosetests -xv --process-restartworker --processes=1 --process-timeout=300 test*.py
-# nosetests -xv --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_backend test*.py
-# echo 'coverage combine ...'
-# coverage combine
-# coverage report -m
 cd ..

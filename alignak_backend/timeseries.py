@@ -21,47 +21,23 @@ class Timeseries(object):
     """
 
     @staticmethod
-    def after_inserted_loghost(items):
+    def after_inserted_logcheckresult(items):
         """
-        Called by EVE HOOK (app.on_inserted_loghost)
+        Called by EVE HOOK (app.on_inserted_logcheckresult)
 
-        :param items: List of loghost inserted
+        :param items: List of logcheckresult inserted
         :type items: list
         :return: None
         """
         host_db = current_app.data.driver.db['host']
-        for dummy, item in enumerate(items):
-            ts = Timeseries.prepare_data(item)
-            host_info = host_db.find_one({'_id': item['host_name']})
-            send_data = []
-            for d in ts['data']:
-                send_data.append(
-                    {
-                        "name": d['value']['name'],
-                        "realm": Timeseries.get_realms_prefix(item['_realm']),
-                        "host": host_info['name'],
-                        "service": "",
-                        "value": d['value']['value'],
-                        "timestamp": item['last_check']
-                    }
-                )
-            Timeseries.send_to_timeseries_db(send_data)
-
-    @staticmethod
-    def after_inserted_logservice(items):
-        """
-        Called by EVE HOOK (app.on_inserted_logservice)
-
-        :param items: List of logservice inserted
-        :type items: list
-        :return: None
-        """
         service_db = current_app.data.driver.db['service']
-        host_db = current_app.data.driver.db['host']
         for dummy, item in enumerate(items):
             ts = Timeseries.prepare_data(item)
-            service_info = service_db.find_one({'_id': item['service_description']})
-            host_info = host_db.find_one({'_id': service_info['host_name']})
+            host_info = host_db.find_one({'_id': item['host']})
+            service = ''
+            if item['service'] is not None:
+                service_info = service_db.find_one({'_id': item['service']})
+                service = service_info['name']
             send_data = []
             for d in ts['data']:
                 send_data.append(
@@ -69,7 +45,7 @@ class Timeseries(object):
                         "name": d['value']['name'],
                         "realm": Timeseries.get_realms_prefix(item['_realm']),
                         "host": host_info['name'],
-                        "service": service_info['name'],
+                        "service": service,
                         "value": d['value']['value'],
                         "timestamp": item['last_check']
                     }
@@ -81,7 +57,7 @@ class Timeseries(object):
         """
         Split and prepare perfdata to after send to timeseries database
 
-        :param item: fields added in mongo (loghost/logservice)
+        :param item: fields added in mongo (logcheckresult)
         :type item: dict
         :return:
         """
@@ -213,7 +189,7 @@ class Timeseries(object):
                 },
                 "time": d['timestamp'] * 1000000000,
                 "fields": {
-                    "value": int(d['value'])
+                    "value": float(d['value'])
                 }
             })
         influxdb = InfluxDBClient(host, port, login, password, database)

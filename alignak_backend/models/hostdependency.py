@@ -26,7 +26,7 @@ def get_schema():
         'schema': {
             'imported_from': {
                 'type': 'string',
-                'default': ''
+                'default': 'unknown'
             },
             'name': {
                 'type': 'string',
@@ -38,15 +38,16 @@ def get_schema():
                 'type': 'integer',
                 'default': 100
             },
-            'dependent_host_name': {
+            'alias': {
+                'type': 'string',
+                'default': '',
+            },
+            'notes': {
+                'type': 'string',
+                'default': '',
+            },
+            'dependent_hosts': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Dependent hosts name',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -55,15 +56,8 @@ def get_schema():
                     }
                 },
             },
-            'dependent_hostgroup_name': {
+            'dependent_hostgroups': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Dependent hostgroups names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -72,15 +66,8 @@ def get_schema():
                     }
                 },
             },
-            'host_name': {
+            'hosts': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Hosts names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -89,15 +76,8 @@ def get_schema():
                     }
                 },
             },
-            'hostgroup_name': {
+            'hostgroups': {
                 'type': 'list',
-                'ui': {
-                    'title': 'Hostgroups names',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': "link"
-                },
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
@@ -112,15 +92,21 @@ def get_schema():
             },
             'execution_failure_criteria': {
                 'type': 'list',
-                'default': ['n']
+                'default': ['n'],
+                'allowed': ['o', 'd', 'u', 'p', 'n']
             },
             'notification_failure_criteria': {
                 'type': 'list',
-                'default': ['n']
+                'default': ['n'],
+                'allowed': ['o', 'd', 'u', 'p', 'n']
             },
             'dependency_period': {
-                'type': 'string',
-                'default': ''
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'timeperiod',
+                    'embeddable': True
+                },
+                'required': True,
             },
             '_realm': {
                 'type': 'objectid',
@@ -132,13 +118,6 @@ def get_schema():
             },
             '_sub_realm': {
                 'type': 'boolean',
-                'ui': {
-                    'title': 'Readable on sub realms',
-                    'visible': True,
-                    'orderable': True,
-                    'searchable': True,
-                    'format': None
-                },
                 'default': False
             },
             '_users_read': {
@@ -146,7 +125,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -156,7 +135,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
@@ -166,7 +145,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'contact',
+                        'resource': 'user',
                         'embeddable': True,
                     }
                 },
