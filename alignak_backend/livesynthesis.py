@@ -142,72 +142,33 @@ class Livesynthesis(object):
                     {"ls_acknowledged": True, "_realm": realm["_id"]}
                 ).count()
                 data['services_in_downtime'] = services.find(
-                    {"downtimed": True, "_realm": realm["_id"]}
+                    {"ls_downtimed": True, "_realm": realm["_id"]}
                 ).count()
                 lookup = {"_id": live_current['_id']}
                 patch_internal('livesynthesis', data, False, False, **lookup)
 
     @staticmethod
-    def on_updated_livestate(updated, original):
+    def on_inserted_host(items):
         """
-            What to do when the livestate is updated ...
+            What to do when an host is inserted in the backend ...
         """
-        minus, plus = Livesynthesis.livesynthesis_to_update(updated, original)
-        if minus:
-            livesynthesis_db = current_app.data.driver.db['livesynthesis']
-            live_current = livesynthesis_db.find_one()
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        for _, item in enumerate(items):
+            live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
             if live_current is None:
                 ls = Livesynthesis()
                 ls.recalculate()
-            data = {"$inc": {minus: -1, plus: 1}}
-            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+            else:
+                typecheck = 'hosts'
+                data = {"$inc": {"%s_%s_%s" % (typecheck, item['ls_state'].lower(),
+                                               item['ls_state_type'].lower()): 1,
+                                 "%s_total" % (typecheck): 1}}
+                current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
     @staticmethod
-    def livesynthesis_to_update(updated, original):
+    def on_inserted_service(items):
         """
-        Define fields counters to minus and plus (or nothing to do)
-
-        :param updated:
-        :param original:
-        :return: list with field name (minus, plus)
-        :rtype: list
-        """
-        type_check = 'services'
-        if original['service'] is None:
-            type_check = 'hosts'
-        if 'state' not in updated and 'state_type' not in updated:
-            return False, False
-        elif 'state' in updated and 'state_type' not in updated:
-            plus = "%s_%s_%s" % (type_check, updated['state'].lower(),
-                                 original['state_type'].lower())
-        elif 'state' not in updated and 'state_type' in updated:
-            plus = "%s_%s_%s" % (type_check, original['state'].lower(),
-                                 updated['state_type'].lower())
-        else:
-            # so have 'state' and 'state_type' in updated
-            plus = "%s_%s_%s" % (type_check, updated['state'].lower(),
-                                 updated['state_type'].lower())
-
-        minus = "%s_%s_%s" % (type_check, original['state'].lower(),
-                              original['state_type'].lower())
-
-        # check acknowledge
-        if 'acknowledged' in updated and updated['acknowledged'] and not original['acknowledged']:
-            plus = "%s_acknowledged" % (type_check)
-        elif 'acknowledged' in updated and not updated['acknowledged'] \
-                and original['acknowledged']:
-            minus = "%s_acknowledged" % (type_check)
-        elif 'acknowledged' in original and original['acknowledged']:
-            return False, False
-
-        if minus == plus:
-            return False, False
-        return minus, plus
-
-    @staticmethod
-    def on_inserted_livestate(items):
-        """
-            What to do when an element is inserted in the livestate ...
+            What to do when a service is inserted in the backend ...
         """
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         for _, item in enumerate(items):
@@ -217,9 +178,90 @@ class Livesynthesis(object):
                 ls.recalculate()
             else:
                 typecheck = 'services'
-                if item['service'] is None:
-                    typecheck = 'hosts'
-                data = {"$inc": {"%s_%s_%s" % (typecheck, item['state'].lower(),
-                                               item['state_type'].lower()): 1,
+                data = {"$inc": {"%s_%s_%s" % (typecheck, item['ls_state'].lower(),
+                                               item['ls_state_type'].lower()): 1,
                                  "%s_total" % (typecheck): 1}}
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def on_updated_host(updated, original):
+        """
+            What to do when an host live state is updated ...
+        """
+        minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
+        if minus:
+            livesynthesis_db = current_app.data.driver.db['livesynthesis']
+            live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
+            if live_current is None:
+                ls = Livesynthesis()
+                ls.recalculate()
+            data = {"$inc": {minus: -1, plus: 1}}
+            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def on_updated_service(updated, original):
+        """
+            What to do when a service live state is updated ...
+        """
+        minus, plus = Livesynthesis.livesynthesis_to_update('services', updated, original)
+        if minus:
+            livesynthesis_db = current_app.data.driver.db['livesynthesis']
+            live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
+            if live_current is None:
+                ls = Livesynthesis()
+                ls.recalculate()
+            data = {"$inc": {minus: -1, plus: 1}}
+            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def livesynthesis_to_update(type_check, updated, original):
+        """
+        Define fields counters to minus and plus (or nothing to do)
+
+        :param updated:
+        :param original:
+        :return: list with field name (minus, plus)
+        :rtype: list
+        """
+
+        # State modification
+        if 'ls_state' not in updated and 'ls_state_type' not in updated:
+            return False, False
+        elif 'ls_state' in updated and 'ls_state_type' not in updated:
+            plus = "%s_%s_%s" % (type_check, updated['ls_state'].lower(),
+                                 original['ls_state_type'].lower())
+        elif 'ls_state' not in updated and 'ls_state_type' in updated:
+            plus = "%s_%s_%s" % (type_check, original['ls_state'].lower(),
+                                 updated['ls_state_type'].lower())
+        else:
+            # so have 'state' and 'state_type' in updated
+            plus = "%s_%s_%s" % (type_check, updated['ls_state'].lower(),
+                                 updated['ls_state_type'].lower())
+
+        minus = "%s_%s_%s" % (type_check, original['ls_state'].lower(),
+                              original['ls_state_type'].lower())
+
+        # Acknowledgement modification
+        if 'ls_acknowledged' in updated and updated['ls_acknowledged'] \
+                and not original['ls_acknowledged']:
+            plus = "%s_acknowledged" % (type_check)
+        elif 'ls_acknowledged' in updated and not updated['ls_acknowledged'] \
+                and original['ls_acknowledged']:
+            minus = "%s_acknowledged" % (type_check)
+        elif 'ls_acknowledged' in original and original['ls_acknowledged']:
+            return False, False
+
+        # Downtime modification
+        if 'ls_downtimed' in updated and updated['ls_downtimed'] \
+                and not original['ls_downtimed']:
+            plus = "%s_in_downtime" % (type_check)
+        elif 'ls_downtimed' in updated and not updated['ls_downtimed'] \
+                and original['ls_downtimed']:
+            minus = "%s_in_downtime" % (type_check)
+        elif 'ls_downtimed' in original and original['ls_downtimed']:
+            return False, False
+
+        if minus == plus:
+            return False, False
+
+        return minus, plus

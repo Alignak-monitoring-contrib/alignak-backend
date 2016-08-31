@@ -1007,7 +1007,7 @@ app.config['SWAGGER_INFO'] = {
 }
 
 
-# Create default account when have no user.
+# Create default backend elements
 with app.test_request_context():
     # Create default realm if not defined
     realms = app.data.driver.db['realm']
@@ -1047,7 +1047,7 @@ with app.test_request_context():
         }, True)
         default_sg = sgs.find_one({'name': 'All'})
         print("Created top level servicegroup: %s" % default_sg)
-    # Create default timeperiod if not defined
+    # Create default timeperiods if not defined
     timeperiods = app.data.driver.db['timeperiod']
     always = timeperiods.find_one({'name': '24x7'})
     if not always:
@@ -1087,15 +1087,13 @@ with app.test_request_context():
                                "_realm": default_realm['_id'], "_sub_realm": True})
         print("Created super admin user")
 
-    # Livestate management
-    app.on_updated_livestate += Livesynthesis.on_updated_livestate
-    app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
-    # app.on_inserted_host += Livestate.on_inserted_host
-    # app.on_inserted_service += Livestate.on_inserted_service
-    # app.on_updated_host += Livestate.on_updated_host
-    # app.on_updated_service += Livestate.on_updated_service
+    # Live synthesis management
+    app.on_inserted_host += Livesynthesis.on_inserted_host
+    app.on_inserted_service += Livesynthesis.on_inserted_service
+    app.on_updated_host += Livesynthesis.on_updated_host
+    app.on_updated_service += Livesynthesis.on_updated_service
 
-    # template management
+    # Templates management
     app.on_pre_POST_host += Template.pre_post_host
     app.on_update_host += Template.on_update_host
     app.on_updated_host += Template.on_updated_host
@@ -1108,9 +1106,7 @@ with app.test_request_context():
     app.on_update_service += Template.on_update_service
     app.on_updated_service += Template.on_updated_service
 
-with app.test_request_context():
     # Initial livesynthesis
-    # Livestate.recalculate()
     Livesynthesis.recalculate()
 
 # hooks post-init
