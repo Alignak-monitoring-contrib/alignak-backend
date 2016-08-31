@@ -102,7 +102,7 @@ def get_schema():
                 'type': 'string',
                 'minlength': 1,
                 'maxlength': 1,
-                'default': 'o',
+                'default': 'u',
                 'allowed': ["o", "w", "c", "u"]
             },
             'max_check_attempts': {
@@ -417,7 +417,7 @@ def get_schema():
             # Make this field consistent with the initial_state...
             'ls_state': {
                 'type': 'string',
-                'default': 'OK',
+                'default': 'UNKNOWN',
                 'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN"]
             },
             'ls_state_type': {
