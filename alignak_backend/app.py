@@ -39,7 +39,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import alignak_backend.log
 from alignak_backend import manifest
 from alignak_backend.grafana import Grafana
-from alignak_backend.livestate import Livestate
 from alignak_backend.livesynthesis import Livesynthesis
 from alignak_backend.models import register_models
 from alignak_backend.template import Template
@@ -206,7 +205,7 @@ def pre_get(resource, user_request, lookup):
     if g.get('back_role_super_admin', False):
         return
     # Only in case not super-admin
-    if resource not in ['user', 'uipref']:
+    if resource not in ['user']:
         # get all resources we can have rights in read
         resources_get = g.get('resources_get', {})
         resources_get_parents = g.get('resources_get_parents', {})
@@ -264,7 +263,6 @@ def after_insert_logcheckresult(items):
             'logcheckresult': item['_id']
         }
         post_internal("history", data, True)
-        # print("Created new history for check result: %s" % data)
 
 
 # Actions acknowledge
@@ -301,7 +299,6 @@ def after_insert_actionacknowledge(items):
             'message': item['comment']
         }
         post_internal("history", data, True)
-        # print("Created new history for acknowledge: %s" % data)
 
 
 def after_update_actionacknowledge(updated, original):
@@ -326,7 +323,6 @@ def after_update_actionacknowledge(updated, original):
             }
         }
         post_internal("history", data, True)
-        # print("Created new history for acknowledge: %s" % data)
 
 
 # Actions downtime
@@ -363,7 +359,6 @@ def after_insert_actiondowntime(items):
             'message': item['comment']
         }
         post_internal("history", data, True)
-        # print("Created new history for downtime: %s" % data)
 
 
 def after_update_actiondowntime(updated, original):
@@ -388,7 +383,6 @@ def after_update_actiondowntime(updated, original):
             }
         }
         post_internal("history", data, True)
-        # print("Created new history for downtime: %s" % data)
 
 
 # Actions forcecheck
@@ -805,6 +799,32 @@ def after_delete_realm(item):
         g.updateRealm = False
 
 
+# Hosts/ services
+def pre_host_service_patch(updates, original):
+    """
+    Hook before update.
+    When updating an host or service, if only the live state is updated, do not change the
+    _updated field.
+
+    The _updated field is used by the Alignak arbiter to reload the configuration and we need to
+    avoid reloading when the live state is updated.
+
+    :param updates: list of host fields to update
+    :type updates: dict
+    :param original: list of original fields
+    :type original: dict
+    :return: None
+    """
+    # pylint: disable=unused-argument
+
+    for key in updates:
+        if key not in ['_updated'] and not key.startswith('ls_'):
+            break
+    else:
+        # Only some live state fields, do not change _updated field
+        del updates['_updated']
+
+
 # Users
 def pre_user_post(items):
     """
@@ -823,9 +843,12 @@ def pre_user_post(items):
 def pre_user_patch(updates, original):
     """
     Hook before update.
-    When update user, hash the backend password of the user if try to change it
 
-    :param updates: list of fields user try to update
+    When updating user, hash the backend password of the user if one try to change it
+    If only the user preferences are updated do not change the _updated field (see comment in the
+    pre_host_patch).
+
+    :param updates: list of user fields to update
     :type updates: dict
     :param original: list of original fields
     :type original: dict
@@ -990,6 +1013,8 @@ app = Eve(
 app.on_pre_GET += pre_get
 app.on_insert_user += pre_user_post
 app.on_update_user += pre_user_patch
+app.on_update_host += pre_host_service_patch
+app.on_update_service += pre_host_service_patch
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
 app.on_update_realm += pre_realm_patch
@@ -1013,7 +1038,7 @@ app.config['SWAGGER_INFO'] = {
 }
 
 
-# Create default account when have no user.
+# Create default backend elements
 with app.test_request_context():
     # Create default realm if not defined
     realms = app.data.driver.db['realm']
@@ -1053,7 +1078,7 @@ with app.test_request_context():
         }, True)
         default_sg = sgs.find_one({'name': 'All'})
         print("Created top level servicegroup: %s" % default_sg)
-    # Create default timeperiod if not defined
+    # Create default timeperiods if not defined
     timeperiods = app.data.driver.db['timeperiod']
     always = timeperiods.find_one({'name': '24x7'})
     if not always:
@@ -1085,21 +1110,22 @@ with app.test_request_context():
         sys.exit("[ERROR] Impossible to connect to MongoDB (%s)" % e)
     super_admin_user = users.find_one({'back_role_super_admin': True})
     if not super_admin_user:
-        post_internal("user", {"name": "admin", "alias": "Big brother",
+        post_internal("user", {"name": "admin", "alias": "Administrator",
                                "password": "admin",
                                "back_role_super_admin": True,
+                               "can_update_livestate": True,
                                "host_notification_period": always['_id'],
                                "service_notification_period": always['_id'],
                                "_realm": default_realm['_id'], "_sub_realm": True})
         print("Created super admin user")
-    app.on_updated_livestate += Livesynthesis.on_updated_livestate
-    app.on_inserted_livestate += Livesynthesis.on_inserted_livestate
-    app.on_inserted_host += Livestate.on_inserted_host
-    app.on_inserted_service += Livestate.on_inserted_service
-    app.on_updated_host += Livestate.on_updated_host
-    app.on_updated_service += Livestate.on_updated_service
 
-    # template management
+    # Live synthesis management
+    app.on_inserted_host += Livesynthesis.on_inserted_host
+    app.on_inserted_service += Livesynthesis.on_inserted_service
+    app.on_updated_host += Livesynthesis.on_updated_host
+    app.on_updated_service += Livesynthesis.on_updated_service
+
+    # Templates management
     app.on_pre_POST_host += Template.pre_post_host
     app.on_update_host += Template.on_update_host
     app.on_updated_host += Template.on_updated_host
@@ -1112,8 +1138,7 @@ with app.test_request_context():
     app.on_update_service += Template.on_update_service
     app.on_updated_service += Template.on_updated_service
 
-with app.test_request_context():
-    Livestate.recalculate()
+    # Initial livesynthesis
     Livesynthesis.recalculate()
 
 # hooks post-init
@@ -1268,15 +1293,13 @@ def cron_grafana():
     :return: None
     """
     with app.test_request_context():
-        livestate_db = current_app.data.driver.db['livestate']
+        hosts_db = current_app.data.driver.db['host']
         grafana = Grafana()
 
-        hosts_managed = []
-        livestates = livestate_db.find({'grafana': False})
-        for livestate in livestates:
-            if livestate['host'] not in hosts_managed and livestate['state'] in ['UP', 'OK']:
-                grafana.create_dashboard(livestate['host'])
-                hosts_managed.append(livestate['host'])
+        hosts = hosts_db.find({'grafana': False})
+        for host in hosts:
+            if 'ls_perf_data' in host and host['ls_perf_data']:
+                grafana.create_dashboard(host['_id'])
 
 
 @app.route('/docs')

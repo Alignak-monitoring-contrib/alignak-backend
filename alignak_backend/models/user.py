@@ -148,6 +148,11 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
+            # To be completed...
+            'notificationways': {
+                'type': 'list',
+                'default': []
+            },
             'can_submit_commands': {
                 'type': 'boolean',
                 'default': False
@@ -155,14 +160,6 @@ def get_schema():
             'is_admin': {
                 'type': 'boolean',
                 'default': False
-            },
-            'expert': {
-                'type': 'boolean',
-                'default': False
-            },
-            'notificationways': {
-                'type': 'list',
-                'default': []
             },
             'password': {
                 'type': 'string',
@@ -172,10 +169,17 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
+            # Is super administrator
             'back_role_super_admin': {
                 'type': 'boolean',
                 'default': False
             },
+            # Is allowed to update the elements live state
+            'can_update_livestate': {
+                'type': 'boolean',
+                'default': False
+            },
+            # User preferences
             'ui_preferences': {
                 'type': 'dict',
                 'default': {},

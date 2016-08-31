@@ -48,7 +48,6 @@ class Grafana(object):
         headers = {"Authorization": "Bearer " + self.api_key}
 
         host_db = current_app.data.driver.db['host']
-        livestate_db = current_app.data.driver.db['livestate']
         service_db = current_app.data.driver.db['service']
         command_db = current_app.data.driver.db['command']
 
@@ -57,31 +56,29 @@ class Grafana(object):
         command = command_db.find_one({'_id': host['check_command']})
         command_name = command['name']
 
-        livestate = livestate_db.find_one({'host': host_id, "type": "host"})
         rows = []
-        perfdata = PerfDatas(livestate['perf_data'])
         targets = []
+        perfdata = PerfDatas(host['ls_perf_data'])
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
             targets.append(self.generate_target(fields['name'], {"host": hostname}))
         if len(targets) > 0:
             rows.append(self.generate_row(command_name, targets))
-            if livestate['last_check'] > 0:
-                # update livestate
+            if host['ls_last_check'] > 0:
+                # Update host live state
                 data = {
-                    "grafana": True,
-                    "grafana_panelid": 1
+                    "ls_grafana": True,
+                    "ls_grafana_panelid": 1
                 }
-                lookup = {"_id": livestate['_id']}
-                patch_internal('livestate', data, False, False, **lookup)
+                lookup = {"_id": host['_id']}
+                patch_internal('host', data, False, False, **lookup)
 
         # now get services
-        livestates = livestate_db.find({'host': host_id, "type": "service"})
-        for livestate in livestates:
-            if livestate['last_check'] > 0:
-                service = service_db.find_one({'_id': livestate['service']})
+        services = service_db.find({'host': host_id})
+        for service in services:
+            if service['ls_last_check'] > 0:
 
-                perfdata = PerfDatas(livestate['perf_data'])
+                perfdata = PerfDatas(service['ls_perf_data'])
                 targets = []
                 for measurement in perfdata.metrics:
                     fields = perfdata.metrics[measurement].__dict__
@@ -90,13 +87,13 @@ class Grafana(object):
                                                          "service": service['name']}))
                 if len(targets) > 0:
                     rows.append(self.generate_row(service['name'], targets))
-                    # update livestate
+                    # Update service live state
                     data = {
-                        "grafana": True,
-                        "grafana_panelid": len(rows)
+                        "ls_grafana": True,
+                        "ls_grafana_panelid": len(rows)
                     }
-                    lookup = {"_id": livestate['_id']}
-                    patch_internal('livestate', data, False, False, **lookup)
+                    lookup = {"_id": service['_id']}
+                    patch_internal('service', data, False, False, **lookup)
 
         self.dashboard_template['id'] = None
         self.dashboard_template['title'] = "host_" + hostname

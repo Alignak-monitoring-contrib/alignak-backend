@@ -5,6 +5,7 @@ This test check the hostgroups and the tree feature of hostgroups (children)
 """
 
 from __future__ import print_function
+import os
 import json
 import time
 from calendar import timegm
@@ -32,11 +33,14 @@ class TestActions(unittest2.TestCase):
 
         :return: None
         """
+        # Set test mode for Alignak backend
+        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+
         # Delete used mongo DBs
         exit_code = subprocess.call(
             shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % 'alignak-backend'
-            )
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
         )
         assert exit_code == 0
 
