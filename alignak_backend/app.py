@@ -799,6 +799,31 @@ def after_delete_realm(item):
         g.updateRealm = False
 
 
+# Hosts/ services
+def pre_host_service_patch(updates, original):
+    """
+    Hook before update.
+    When updating an host or service, if only the live state is updated, do not change the
+    _updated field.
+
+    The _updated field is used by the Alignak arbiter to relod the configuration and we need to
+    avoid reloading when the live state is updated.
+
+    :param updates: list of host fields to update
+    :type updates: dict
+    :param original: list of original fields
+    :type original: dict
+    :return: None
+    """
+    # pylint: disable=unused-argument
+
+    for key in updates:
+        if key not in ['_updated'] and not key.startswith('ls_'):
+            break
+    else:
+        # Only some live state fields, do not change _updated field
+        del updates['_updated']
+
 # Users
 def pre_user_post(items):
     """
@@ -817,9 +842,12 @@ def pre_user_post(items):
 def pre_user_patch(updates, original):
     """
     Hook before update.
-    When update user, hash the backend password of the user if try to change it
 
-    :param updates: list of fields user try to update
+    When updating user, hash the backend password of the user if one try to change it
+    If only the user preferences are updated do not change the _updated field (see comment in the
+    pre_host_patch).
+
+    :param updates: list of user fields to update
     :type updates: dict
     :param original: list of original fields
     :type original: dict
@@ -984,6 +1012,8 @@ app = Eve(
 app.on_pre_GET += pre_get
 app.on_insert_user += pre_user_post
 app.on_update_user += pre_user_patch
+app.on_update_host += pre_host_service_patch
+app.on_update_service += pre_host_service_patch
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
 app.on_update_realm += pre_realm_patch
@@ -1079,7 +1109,7 @@ with app.test_request_context():
         sys.exit("[ERROR] Impossible to connect to MongoDB (%s)" % e)
     super_admin_user = users.find_one({'back_role_super_admin': True})
     if not super_admin_user:
-        post_internal("user", {"name": "admin", "alias": "Big brother",
+        post_internal("user", {"name": "admin", "alias": "Administrator",
                                "password": "admin",
                                "back_role_super_admin": True,
                                "host_notification_period": always['_id'],

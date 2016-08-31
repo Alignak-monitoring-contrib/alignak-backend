@@ -213,7 +213,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         rc = resp['_items']
 
-        # add host
+        # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         if 'realm' in data:
@@ -231,10 +231,12 @@ class TestHookLivesynthesis(unittest2.TestCase):
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
+        # Get host
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
         ls_host = copy.copy(r[0])
+        updated_field = ls_host['_updated']
 
         # Get initial live synthesis
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
@@ -262,8 +264,29 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_acknowledged'], 0)
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
+        # Update something else than the live state for an host
+        time.sleep(1)
+        data = {
+            'alias': 'Updated alias',
+        }
+        headers_patch = {
+            'Content-Type': 'application/json',
+            'If-Match': ls_host['_etag']
+        }
+        requests.patch(self.endpoint + '/host/' + ls_host['_id'], json=data,
+                       headers=headers_patch, auth=self.auth)
+        response = requests.get(
+            self.endpoint + '/host/' + ls_host['_id'], params=sort_id, auth=self.auth
+        )
+        resp = response.json()
+        ls_host = resp
+        # _updated field must have changed...
+        self.assertNotEqual(updated_field, ls_host['_updated'])
+        updated_field = ls_host['_updated']
+
         # Update live state for an host
         # => DOWN SOFT
+        time.sleep(1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -289,6 +312,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
         )
         resp = response.json()
         ls_host = resp
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_host['_updated'])
 
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
@@ -316,6 +341,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # => DOWN HARD
+        time.sleep(1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -340,6 +366,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_host = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_host['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -366,6 +395,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # => last_(state|state_type) are changed
+        time.sleep(1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -390,6 +420,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_host = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_host['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -416,6 +449,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # we acknowledge the host
+        time.sleep(1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -440,6 +474,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_host = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_host['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -466,6 +503,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # remove acknowledge
+        time.sleep(1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -490,6 +528,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_host = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_host['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -516,6 +557,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # we downtime the host
+        time.sleep(1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -541,6 +583,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_host = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_host['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -567,6 +612,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # remove downtime
+        time.sleep(1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -592,6 +638,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_host = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_host['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -625,6 +674,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         """
         headers = {'Content-Type': 'application/json'}
         sort_id = {'sort': '_id'}
+
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
@@ -634,7 +684,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         rc = resp['_items']
 
-        # add host
+        # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         if 'realm' in data:
@@ -652,10 +702,12 @@ class TestHookLivesynthesis(unittest2.TestCase):
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
+        # Get service
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
         ls_service = copy.copy(r[0])
+        updated_field = ls_service['_updated']
 
         # Get initial live synthesis
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
@@ -682,8 +734,29 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_acknowledged'], 0)
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
+        # Update something else than the live state for a service
+        time.sleep(1)
+        data = {
+            'alias': 'Updated alias',
+        }
+        headers_patch = {
+            'Content-Type': 'application/json',
+            'If-Match': ls_service['_etag']
+        }
+        requests.patch(self.endpoint + '/service/' + ls_service['_id'], json=data,
+                       headers=headers_patch, auth=self.auth)
+        response = requests.get(
+            self.endpoint + '/service/' + ls_service['_id'], params=sort_id, auth=self.auth
+        )
+        resp = response.json()
+        ls_service = resp
+        # _updated field did not changed...
+        self.assertNotEqual(updated_field, ls_service['_updated'])
+        updated_field = ls_service['_updated']
+
         # Update live state for a service
         # => DOWN SOFT
+        time.sleep(1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -709,6 +782,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
         )
         resp = response.json()
         ls_service = resp
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_service['_updated'])
 
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
@@ -735,6 +810,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # => DOWN HARD
+        time.sleep(1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -759,6 +835,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_service = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_service['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -784,6 +863,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # => last_(state|state_type) are changed
+        time.sleep(1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -808,6 +888,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_service = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_service['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -833,6 +916,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # we acknowledge the service
+        time.sleep(1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -857,6 +941,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_service = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_service['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -882,6 +969,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # remove acknowledge
+        time.sleep(1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -906,6 +994,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_service = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_service['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -931,6 +1022,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # we downtime the service
+        time.sleep(1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -956,6 +1048,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_service = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_service['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
@@ -982,6 +1077,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 1)
 
         # remove downtime
+        time.sleep(1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -1007,6 +1103,9 @@ class TestHookLivesynthesis(unittest2.TestCase):
         resp = response.json()
         r = resp['_items']
         ls_service = copy.copy(r[0])
+        # _updated field did not changed...
+        self.assertEqual(updated_field, ls_service['_updated'])
+
         response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
