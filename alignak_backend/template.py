@@ -7,10 +7,12 @@
     This module manages the templates (host / services)
 """
 from __future__ import print_function
+from copy import deepcopy
 from future.utils import iteritems
 from flask import current_app, g, request, abort
 from eve.methods.post import post_internal
 from eve.methods.patch import patch_internal
+from eve.methods.put import put_internal
 from eve.methods.delete import deleteitem_internal
 from bson.objectid import ObjectId
 from alignak_backend.models.host import get_schema as host_schema
@@ -59,11 +61,23 @@ class Template(object):
             ignore_schema_fields = ['realm', '_template_fields', '_templates',
                                     '_is_template',
                                     '_templates_with_services']
-            updates['_template_fields'] = original['_template_fields']
+            template_fields = original['_template_fields']
+            do_put = False
             for (field_name, _) in iteritems(updates):
                 if field_name not in ignore_schema_fields:
-                    if field_name in updates['_template_fields']:
-                        updates['_template_fields'][field_name] = None
+                    if field_name in template_fields:
+                        del template_fields[field_name]
+                        do_put = True
+            if do_put:
+                lookup = {"_id": original['_id']}
+                putdata = deepcopy(original)
+                putdata['_template_fields'] = template_fields
+                del putdata['_etag']
+                del putdata['_updated']
+                del putdata['_created']
+                response = put_internal('host', putdata, False, False, **lookup)
+                updates['_etag'] = response[0]['_etag']
+                original['_etag'] = response[0]['_etag']
 
     @staticmethod
     def on_updated_host(updates, original):
@@ -234,11 +248,23 @@ class Template(object):
             ignore_schema_fields = ['realm', '_template_fields', '_templates',
                                     '_is_template',
                                     '_templates_from_host_template']
+            template_fields = original['_template_fields']
+            do_put = False
             for (field_name, _) in iteritems(updates):
                 if field_name not in ignore_schema_fields:
-                    if field_name in original['_template_fields']:
-                        del original['_template_fields'][field_name]
-            updates['_template_fields'] = original['_template_fields']
+                    if field_name in template_fields:
+                        del template_fields[field_name]
+                        do_put = True
+            if do_put:
+                lookup = {"_id": original['_id']}
+                putdata = deepcopy(original)
+                putdata['_template_fields'] = template_fields
+                del putdata['_etag']
+                del putdata['_updated']
+                del putdata['_created']
+                response = put_internal('service', putdata, False, False, **lookup)
+                updates['_etag'] = response[0]['_etag']
+                original['_etag'] = response[0]['_etag']
 
     @staticmethod
     def on_updated_service(updates, original):

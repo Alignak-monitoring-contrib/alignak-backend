@@ -212,12 +212,27 @@ class TestHookTemplate(unittest2.TestCase):
         }
         requests.patch(self.endpoint + '/host/' + rh[1]['_id'], json=datap, headers=headers_patch,
                        auth=self.auth)
-
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
         self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['check_interval'], 1)
+
+        # With modification of host update, the PUT method (to update _template_fields modify
+        # the _etag and we must see here if patch with wrong etag is right a failure)
+        datap = {'check_interval': 50}
+        headers_patch = {
+            'Content-Type': 'application/json',
+            'If-Match': rh[0]['_etag']
+        }
+        requests.patch(self.endpoint + '/host/' + rh[1]['_id'], json=datap, headers=headers_patch,
+                       auth=self.auth)
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[1]['name'], "host_001")
+        self.assertEqual(rh[1]['check_interval'], 1)
+
         if 'check_interval' in rh[1]['_template_fields']:
             state = False
             self.assertTrue(state, 'check_interval does not be in _template_fields list')
