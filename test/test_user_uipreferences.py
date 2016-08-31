@@ -66,9 +66,9 @@ class TestHookUserUiPreferences(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
-    def test_add_host(self):
+    def test_update_user(self):
         """
-        Test the livestate hook to create a livestate resource when create a new host
+        Test the user hooks to avoid changing _updated field when only user preferences are set
 
         :return: None
         """

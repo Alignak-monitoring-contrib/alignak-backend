@@ -205,7 +205,7 @@ def pre_get(resource, user_request, lookup):
     if g.get('back_role_super_admin', False):
         return
     # Only in case not super-admin
-    if resource not in ['user', 'uipref']:
+    if resource not in ['user']:
         # get all resources we can have rights in read
         resources_get = g.get('resources_get', {})
         resources_get_parents = g.get('resources_get_parents', {})
@@ -824,6 +824,7 @@ def pre_host_service_patch(updates, original):
         # Only some live state fields, do not change _updated field
         del updates['_updated']
 
+
 # Users
 def pre_user_post(items):
     """
@@ -1112,6 +1113,7 @@ with app.test_request_context():
         post_internal("user", {"name": "admin", "alias": "Administrator",
                                "password": "admin",
                                "back_role_super_admin": True,
+                               "can_update_livestate": True,
                                "host_notification_period": always['_id'],
                                "service_notification_period": always['_id'],
                                "_realm": default_realm['_id'], "_sub_realm": True})
