@@ -154,6 +154,10 @@ class Livesynthesis(object):
         """
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         for _, item in enumerate(items):
+            if item['_is_template']:
+                print("\n\n\nHost inserted %s is a template. No LS ...\n\n\n" % (item['name']))
+                continue
+
             live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
             if live_current is None:
                 ls = Livesynthesis()
@@ -172,6 +176,10 @@ class Livesynthesis(object):
         """
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         for _, item in enumerate(items):
+            if item['_is_template']:
+                print("\n\n\nService inserted %S is a template. No LS ...\n\n\n" % (item['name']))
+                continue
+
             live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
             if live_current is None:
                 ls = Livesynthesis()
@@ -188,6 +196,10 @@ class Livesynthesis(object):
         """
             What to do when an host live state is updated ...
         """
+        if original['_is_template']:
+            print("\n\n\nHost updated is a template. No LS ...\n\n\n" % (original['name']))
+            return
+
         minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
         if minus:
             livesynthesis_db = current_app.data.driver.db['livesynthesis']
@@ -203,6 +215,10 @@ class Livesynthesis(object):
         """
             What to do when a service live state is updated ...
         """
+        if original['_is_template']:
+            print("\n\n\nService updated is a template. No LS ...\n\n\n" % (original['name']))
+            return
+
         minus, plus = Livesynthesis.livesynthesis_to_update('services', updated, original)
         if minus:
             livesynthesis_db = current_app.data.driver.db['livesynthesis']
