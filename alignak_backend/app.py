@@ -818,7 +818,7 @@ def pre_host_service_patch(updates, original):
     # pylint: disable=unused-argument
 
     for key in updates:
-        if key not in ['_updated'] and not key.startswith('ls_'):
+        if key not in ['_updated', '_realm'] and not key.startswith('ls_'):
             break
     else:
         # Only some live state fields, do not change _updated field
