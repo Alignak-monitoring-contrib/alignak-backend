@@ -99,12 +99,10 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
             del data['realm']
         data['_realm'] = self.realm_all
         # data['_is_template'] = True
-        print("Host template creation data: %s", data)
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        print("Host template: %s - %s" % (rh[0]['name'], rh[0]['_is_template']))
         self.assertTrue(rh[0]['_is_template'])
 
         # Add host
@@ -114,12 +112,10 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
             del data['realm']
         data['_realm'] = self.realm_all
         # data['_is_template'] = False
-        print("Host creation data: %s", data)
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        print("Host: %s - %s" % (rh[1]['name'], rh[1]['_is_template']))
         self.assertFalse(rh[1]['_is_template'])
 
         # Add service
