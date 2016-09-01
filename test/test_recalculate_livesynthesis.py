@@ -108,7 +108,6 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         self.assertTrue(rh[0]['_is_template'])
 
         # Add host
-        data={}
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         if 'realm' in data:
