@@ -63,37 +63,44 @@ class Livesynthesis(object):
                 data = {"hosts_total": hosts_count}
 
                 data['hosts_up_hard'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "UP", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['hosts_down_hard'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "DOWN", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['hosts_unreachable_hard'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "UNREACHABLE", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
 
                 data['hosts_up_soft'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "UP", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['hosts_down_soft'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "DOWN", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['hosts_unreachable_soft'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "UNREACHABLE", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
 
-                data['hosts_acknowledged'] = hosts.find(
-                    {'ls_acknowledged': True, "_realm": realm["_id"]}
-                ).count()
-                data['hosts_in_downtime'] = hosts.find(
-                    {'ls_downtimed': True, "_realm": realm["_id"]}
-                ).count()
+                data['hosts_acknowledged'] = hosts.find({
+                    '_is_template': False,
+                    'ls_acknowledged': True, "_realm": realm["_id"]
+                }).count()
+                data['hosts_in_downtime'] = hosts.find({
+                    '_is_template': False, 'ls_downtimed': True, "_realm": realm["_id"]
+                }).count()
 
                 lookup = {"_id": live_current['_id']}
                 patch_internal('livesynthesis', data, False, False, **lookup)
@@ -105,45 +112,55 @@ class Livesynthesis(object):
                 data = {"services_total": services_count}
 
                 data['services_ok_hard'] = services.find({
+                    '_is_template': False,
                     "ls_state": "OK", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_warning_hard'] = services.find({
+                    '_is_template': False,
                     "ls_state": "WARNING", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_critical_hard'] = services.find({
+                    '_is_template': False,
                     "ls_state": "CRITICAL", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_unknown_hard'] = services.find({
+                    '_is_template': False,
                     "ls_state": "UNKNOWN", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
 
                 data['services_ok_soft'] = services.find({
+                    '_is_template': False,
                     "ls_state": "OK", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_warning_soft'] = services.find({
+                    '_is_template': False,
                     "ls_state": "WARNING", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_critical_soft'] = services.find({
+                    '_is_template': False,
                     "ls_state": "CRITICAL", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_unknown_soft'] = services.find({
+                    '_is_template': False,
                     "ls_state": "UNKNOWN", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
 
-                data['services_acknowledged'] = services.find(
-                    {"ls_acknowledged": True, "_realm": realm["_id"]}
-                ).count()
-                data['services_in_downtime'] = services.find(
-                    {"ls_downtimed": True, "_realm": realm["_id"]}
-                ).count()
+                data['services_acknowledged'] = services.find({
+                    '_is_template': False,
+                    "ls_acknowledged": True, "_realm": realm["_id"]
+                }).count()
+                data['services_in_downtime'] = services.find({
+                    '_is_template': False,
+                    "ls_downtimed": True, "_realm": realm["_id"]
+                }).count()
                 lookup = {"_id": live_current['_id']}
                 patch_internal('livesynthesis', data, False, False, **lookup)
 
@@ -155,7 +172,6 @@ class Livesynthesis(object):
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         for _, item in enumerate(items):
             if item['_is_template']:
-                print("\n\n\nHost inserted %s is a template. No LS ...\n\n\n" % (item['name']))
                 continue
 
             live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
@@ -177,7 +193,6 @@ class Livesynthesis(object):
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         for _, item in enumerate(items):
             if item['_is_template']:
-                print("\n\n\nService inserted %S is a template. No LS ...\n\n\n" % (item['name']))
                 continue
 
             live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
@@ -197,7 +212,6 @@ class Livesynthesis(object):
             What to do when an host live state is updated ...
         """
         if original['_is_template']:
-            print("\n\n\nHost updated is a template. No LS ...\n\n\n" % (original['name']))
             return
 
         minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
@@ -216,7 +230,6 @@ class Livesynthesis(object):
             What to do when a service live state is updated ...
         """
         if original['_is_template']:
-            print("\n\n\nService updated is a template. No LS ...\n\n\n" % (original['name']))
             return
 
         minus, plus = Livesynthesis.livesynthesis_to_update('services', updated, original)
