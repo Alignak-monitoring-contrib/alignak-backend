@@ -128,6 +128,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['hosts_unreachable_hard'], 1)
         self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
         self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
         self.assertEqual(r[0]['services_total'], 0)
         self.assertEqual(r[0]['services_ok_hard'], 0)
         self.assertEqual(r[0]['services_ok_soft'], 0)
@@ -137,6 +138,57 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_critical_soft'], 0)
         self.assertEqual(r[0]['services_unknown_hard'], 0)
         self.assertEqual(r[0]['services_unknown_soft'], 0)
+        self.assertEqual(r[0]['services_acknowledged'], 0)
+        self.assertEqual(r[0]['services_in_downtime'], 0)
+
+    def test_add_host_template(self):
+        """
+        Test livesynthesis when add a host
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        # Check if command right in backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rc = resp['_items']
+
+        data = json.loads(open('cfg/host_template.json').read())
+        data['check_command'] = rc[0]['_id']
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        # Check if livesynthesis right created
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 0)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
+        self.assertEqual(r[0]['services_total'], 0)
+        self.assertEqual(r[0]['services_ok_hard'], 0)
+        self.assertEqual(r[0]['services_ok_soft'], 0)
+        self.assertEqual(r[0]['services_warning_hard'], 0)
+        self.assertEqual(r[0]['services_warning_soft'], 0)
+        self.assertEqual(r[0]['services_critical_hard'], 0)
+        self.assertEqual(r[0]['services_critical_soft'], 0)
+        self.assertEqual(r[0]['services_unknown_hard'], 0)
+        self.assertEqual(r[0]['services_unknown_soft'], 0)
+        self.assertEqual(r[0]['services_acknowledged'], 0)
+        self.assertEqual(r[0]['services_in_downtime'], 0)
 
     def test_add_service(self):
         """
@@ -186,6 +238,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['hosts_unreachable_hard'], 1)
         self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
         self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
         self.assertEqual(r[0]['services_total'], 1)
         self.assertEqual(r[0]['services_ok_hard'], 0)
         self.assertEqual(r[0]['services_ok_soft'], 0)
@@ -195,6 +248,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_critical_soft'], 0)
         self.assertEqual(r[0]['services_unknown_hard'], 1)
         self.assertEqual(r[0]['services_unknown_soft'], 0)
+        self.assertEqual(r[0]['services_acknowledged'], 0)
+        self.assertEqual(r[0]['services_in_downtime'], 0)
 
     def test_update_host(self):
         """

@@ -92,21 +92,35 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         rc = resp['_items']
         self.assertEqual(rc[0]['name'], "ping")
 
+        # Add host template
+        data = json.loads(open('cfg/host_template.json').read())
+        data['check_command'] = rc[0]['_id']
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
+        # data['_is_template'] = True
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertTrue(rh[0]['_is_template'])
+
         # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
+        # data['_is_template'] = False
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        print("Host: %s", rh)
+        self.assertFalse(rh[1]['_is_template'])
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
+        data['host'] = rh[1]['_id']
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
@@ -115,6 +129,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         resp = response.json()
         rs = resp['_items']
         self.assertEqual(rs[0]['name'], "ping")
+        self.assertFalse(rs[0]['_is_template'])
 
         requests.delete(self.endpoint + '/livesynthesis', auth=self.auth)
         self.p.kill()
@@ -138,6 +153,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['hosts_unreachable_hard'], 1)
         self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
         self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
         self.assertEqual(r[0]['services_total'], 1)
         self.assertEqual(r[0]['services_ok_hard'], 0)
         self.assertEqual(r[0]['services_ok_soft'], 0)
@@ -147,3 +163,5 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_critical_soft'], 0)
         self.assertEqual(r[0]['services_unknown_hard'], 1)
         self.assertEqual(r[0]['services_unknown_soft'], 0)
+        self.assertEqual(r[0]['services_acknowledged'], 0)
+        self.assertEqual(r[0]['services_in_downtime'], 0)
