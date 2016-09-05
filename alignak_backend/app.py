@@ -1296,7 +1296,7 @@ def cron_grafana():
         hosts_db = current_app.data.driver.db['host']
         grafana = Grafana()
 
-        hosts = hosts_db.find({'grafana': False})
+        hosts = hosts_db.find({'ls_grafana': False})
         for host in hosts:
             if 'ls_perf_data' in host and host['ls_perf_data']:
                 grafana.create_dashboard(host['_id'])
