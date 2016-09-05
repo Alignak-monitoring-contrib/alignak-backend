@@ -119,8 +119,12 @@ class Grafana(object):
         response = requests.get('http://' + self.host + ':' + self.port + '/api/datasources',
                                 headers=headers)
         resp = response.json()
+        if dtype == 'influxdb':
+            ds_url = self.influxdb
+        elif dtype == 'graphite':
+            ds_url = self.graphite
         for datasource in iter(resp):
-            if datasource['type'] == dtype and self.influxdb in datasource['url']:
+            if datasource['type'] == dtype and ds_url in datasource['url']:
                 return datasource['name']
         # no datasource, create one
         if dtype == 'influxdb':
