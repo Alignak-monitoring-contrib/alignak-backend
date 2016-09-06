@@ -116,7 +116,6 @@ class Grafana(object):
             "dashboard": self.dashboard_template,
             "overwrite": True
         }
-        print(data)
         requests.post('http://' + self.host + ':' + self.port + '/api/dashboards/db', json=data,
                       headers=headers)
 
