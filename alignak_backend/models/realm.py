@@ -33,6 +33,7 @@ def get_schema():
                 'required': True,
                 'empty': False,
                 'unique': True,
+                'regex': r"^[a-zA-Z0-9 \-_]+$",
             },
             'definition_order': {
                 'type': 'integer',
