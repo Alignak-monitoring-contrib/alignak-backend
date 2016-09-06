@@ -1046,15 +1046,8 @@ with app.test_request_context():
     realms = app.data.driver.db['realm']
     default_realm = realms.find_one({'name': 'All'})
     if not default_realm:
-        data = {}
-        for field_name in settings['DOMAIN']['realm']['schema']:
-            if 'default' in settings['DOMAIN']['realm']['schema'][field_name]:
-                data[field_name] = settings['DOMAIN']['realm']['schema'][field_name]['default']
-        data['name'] = 'All'
-        data['_parent'] = 'None'
-        data['_level'] = 0
-        data['default'] = True
-        post_internal("realm", data, True)
+        post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
+                      True)
         default_realm = realms.find_one({'name': 'All'})
         print("Created top level realm: %s" % default_realm)
     # Create default usergroup if not defined
