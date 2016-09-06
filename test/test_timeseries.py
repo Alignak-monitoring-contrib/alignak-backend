@@ -6,10 +6,10 @@ This test check preparation of timeseries
 
 import time
 import os
-import unittest2
-import requests
-import subprocess
 import shlex
+import subprocess
+import requests
+import unittest2
 from bson.objectid import ObjectId
 from alignak_backend.timeseries import Timeseries
 
@@ -205,7 +205,8 @@ class TestTimeseries(unittest2.TestCase):
             'name': 'realm A',
             '_parent': self.realm_all
         }
-        response = requests.post(self.endpoint + '/realm', json=data, headers=headers, auth=self.auth)
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers,
+                                 auth=self.auth)
         resp = response.json()
         realm_a = resp['_id']
 
@@ -213,7 +214,8 @@ class TestTimeseries(unittest2.TestCase):
             'name': 'realm B',
             '_parent': self.realm_all
         }
-        response = requests.post(self.endpoint + '/realm', json=data, headers=headers, auth=self.auth)
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers,
+                                 auth=self.auth)
         resp = response.json()
         realm_b = resp['_id']
 
@@ -221,7 +223,8 @@ class TestTimeseries(unittest2.TestCase):
             'name': 'realm A1',
             '_parent': realm_a
         }
-        response = requests.post(self.endpoint + '/realm', json=data, headers=headers, auth=self.auth)
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers,
+                                 auth=self.auth)
         resp = response.json()
         realm_a1 = resp['_id']
 

@@ -65,8 +65,8 @@ class Grafana(object):
         num = 0
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
-            mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname + '.' + \
-                       fields['name']
+            mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
+            mytarget += '.' + fields['name']
             targets.append(self.generate_target(fields['name'], {"host": hostname}, refids[num],
                                                 mytarget))
             num += 1
@@ -91,8 +91,8 @@ class Grafana(object):
                 num = 0
                 for measurement in perfdata.metrics:
                     fields = perfdata.metrics[measurement].__dict__
-                    mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname + \
-                               '.' + service['name'] + '.' + fields['name']
+                    mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
+                    mytarget += '.' + service['name'] + '.' + fields['name']
                     targets.append(self.generate_target(fields['name'],
                                                         {"host": hostname,
                                                          "service": service['name']}, refids[num],

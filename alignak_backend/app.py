@@ -889,9 +889,8 @@ def get_settings(prev_settings):
         os.path.abspath('./settings.json')
     ]
 
-    # pylint: disable=anomalous-backslash-in-string
     comment_re = re.compile(
-        '(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+        r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
         re.DOTALL | re.MULTILINE
     )
     for filename in settings_filenames:
