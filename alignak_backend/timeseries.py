@@ -90,7 +90,7 @@ class Timeseries(object):
         realm_db = current_app.data.driver.db['realm']
         realm_info = realm_db.find_one({'_id': realm_id})
         if len(realm_info['_tree_parents']) > 0:
-            realms = realm_db.find({'id': {"$in": realm_info['_tree_parents']}}).sort("_level")
+            realms = realm_db.find({'_id': {"$in": realm_info['_tree_parents']}}).sort("_level")
             for realm in realms:
                 prefix_realm += realm['name'] + "."
         prefix_realm += realm_info['name']

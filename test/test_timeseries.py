@@ -5,7 +5,12 @@ This test check preparation of timeseries
 """
 
 import time
+import os
 import unittest2
+import requests
+import subprocess
+import shlex
+from bson.objectid import ObjectId
 from alignak_backend.timeseries import Timeseries
 
 
@@ -15,6 +20,64 @@ class TestTimeseries(unittest2.TestCase):
     """
 
     maxDiff = None
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        This method:
+          * delete mongodb database
+          * start the backend with uwsgi
+          * log in the backend and get the token
+          * get the hostgroup
+
+        :return: None
+        """
+        # Set test mode for Alignak backend
+        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+
+        # Delete used mongo DBs
+        exit_code = subprocess.call(
+            shlex.split(
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+        )
+        assert exit_code == 0
+
+        cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+                                  '--socket', '0.0.0.0:5000',
+                                  '--protocol=http', '--enable-threads', '--pidfile',
+                                  '/tmp/uwsgi.pid'])
+        time.sleep(3)
+
+        cls.endpoint = 'http://127.0.0.1:5000'
+
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+        # get token
+        response = requests.post(cls.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        cls.token = resp['token']
+        cls.auth = requests.auth.HTTPBasicAuth(cls.token, '')
+
+        # Get default realm
+        response = requests.get(cls.endpoint + '/realm', auth=cls.auth)
+        resp = response.json()
+        cls.realm_all = resp['_items'][0]['_id']
+
+        # Get admin user
+        response = requests.get(cls.endpoint + '/user', {"name": "admin"}, auth=cls.auth)
+        resp = response.json()
+        cls.user_admin = resp['_items'][0]['_id']
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Kill uwsgi
+
+        :return: None
+        """
+        subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+        time.sleep(2)
 
     def test_prepare_data(self):
         """
@@ -130,3 +193,45 @@ class TestTimeseries(unittest2.TestCase):
             ]
         }
         self.assertItemsEqual(reference, ret)
+
+    def test_generate_realm_prefix(self):
+        """
+        Test generate realm prefix when have many levels
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            'name': 'realm A',
+            '_parent': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        realm_a = resp['_id']
+
+        data = {
+            'name': 'realm B',
+            '_parent': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        realm_b = resp['_id']
+
+        data = {
+            'name': 'realm A1',
+            '_parent': realm_a
+        }
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        realm_a1 = resp['_id']
+
+        from alignak_backend.app import app
+        with app.test_request_context():
+            prefix = Timeseries.get_realms_prefix(ObjectId(self.realm_all))
+            self.assertEqual(prefix, 'All')
+            prefix = Timeseries.get_realms_prefix(ObjectId(realm_a))
+            self.assertEqual(prefix, 'All.realm A')
+            prefix = Timeseries.get_realms_prefix(ObjectId(realm_b))
+            self.assertEqual(prefix, 'All.realm B')
+            prefix = Timeseries.get_realms_prefix(ObjectId(realm_a1))
+            self.assertEqual(prefix, 'All.realm A.realm A1')
