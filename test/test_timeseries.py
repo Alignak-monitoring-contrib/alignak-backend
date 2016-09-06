@@ -9,9 +9,9 @@ import unittest2
 from alignak_backend.timeseries import Timeseries
 
 
-class TestRTimeseries(unittest2.TestCase):
+class TestTimeseries(unittest2.TestCase):
     """
-    This class test timepseries preparation
+    This class test timeseries preparation
     """
 
     maxDiff = None

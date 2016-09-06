@@ -957,7 +957,9 @@ settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
 settings['JOBS'] = []
 
 settings['GRAPHITE_HOST'] = ''
-settings['GRAPHITE_PORT'] = 2004
+settings['GRAPHITE_PORT'] = 8080
+settings['CARBON_HOST'] = ''
+settings['CARBON_PORT'] = 2004
 
 settings['INFLUXDB_HOST'] = ''
 settings['INFLUXDB_PORT'] = 8086
@@ -1044,8 +1046,15 @@ with app.test_request_context():
     realms = app.data.driver.db['realm']
     default_realm = realms.find_one({'name': 'All'})
     if not default_realm:
-        post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
-                      True)
+        data = {}
+        for field_name in settings['DOMAIN']['realm']['schema']:
+            if 'default' in settings['DOMAIN']['realm']['schema'][field_name]:
+                data[field_name] = settings['DOMAIN']['realm']['schema'][field_name]['default']
+        data['name'] = 'All'
+        data['_parent'] = 'None'
+        data['_level'] = 0
+        data['default'] = True
+        post_internal("realm", data, True)
         default_realm = realms.find_one({'name': 'All'})
         print("Created top level realm: %s" % default_realm)
     # Create default usergroup if not defined
@@ -1229,7 +1238,7 @@ def logout_app():
 @app.route("/backendconfig")
 def backend_config():
     """
-    Offer toute to get the backend config
+    Offer route to get the backend config
     """
     my_config = {"PAGINATION_LIMIT": settings['PAGINATION_LIMIT'],
                  "PAGINATION_DEFAULT": settings['PAGINATION_DEFAULT'],

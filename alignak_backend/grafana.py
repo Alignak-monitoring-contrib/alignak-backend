@@ -12,6 +12,7 @@ import requests
 from flask import current_app
 from eve.methods.patch import patch_internal
 from alignak_backend.perfdata import PerfDatas
+from alignak_backend.timeseries import Timeseries
 
 
 class Grafana(object):
@@ -24,6 +25,7 @@ class Grafana(object):
         self.port = str(current_app.config.get('GRAFANA_PORT'))
         self.dashboard_template = current_app.config.get('GRAFANA_TEMPLATE_DASHBOARD')
         self.graphite = current_app.config.get('GRAPHITE_HOST')
+        self.carbon = current_app.config.get('CARBON_HOST')
         self.influxdb = current_app.config.get('INFLUXDB_HOST')
         datasource = None
         if self.influxdb:
@@ -58,10 +60,16 @@ class Grafana(object):
 
         rows = []
         targets = []
+        refids = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
         perfdata = PerfDatas(host['ls_perf_data'])
+        num = 0
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
-            targets.append(self.generate_target(fields['name'], {"host": hostname}))
+            mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname + '.' + \
+                       fields['name']
+            targets.append(self.generate_target(fields['name'], {"host": hostname}, refids[num],
+                                                mytarget))
+            num += 1
         if len(targets) > 0:
             rows.append(self.generate_row(command_name, targets))
             if host['ls_last_check'] > 0:
@@ -80,11 +88,16 @@ class Grafana(object):
 
                 perfdata = PerfDatas(service['ls_perf_data'])
                 targets = []
+                num = 0
                 for measurement in perfdata.metrics:
                     fields = perfdata.metrics[measurement].__dict__
+                    mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname + \
+                               '.' + service['name'] + '.' + fields['name']
                     targets.append(self.generate_target(fields['name'],
                                                         {"host": hostname,
-                                                         "service": service['name']}))
+                                                         "service": service['name']}, refids[num],
+                                                        mytarget))
+                    num += 1
                 if len(targets) > 0:
                     rows.append(self.generate_row(service['name'], targets))
                     # Update service live state
@@ -103,6 +116,7 @@ class Grafana(object):
             "dashboard": self.dashboard_template,
             "overwrite": True
         }
+        print(data)
         requests.post('http://' + self.host + ':' + self.port + '/api/dashboards/db', json=data,
                       headers=headers)
 
@@ -129,7 +143,7 @@ class Grafana(object):
         # no datasource, create one
         if dtype == 'influxdb':
             data = {
-                "name": "Influxdb",
+                "name": "influxdb",
                 "type": "influxdb",
                 "typeLogoUrl": "",
                 "access": "proxy",
@@ -163,9 +177,9 @@ class Grafana(object):
                                  json=data, headers=headers)
         resp = response.json()
         print(resp)
-        return resp['name']
+        return dtype
 
-    def generate_target(self, measurement, tags):
+    def generate_target(self, measurement, tags, refid, mytarget):
         """
         Generate target structure for dashboard
 
@@ -214,7 +228,9 @@ class Grafana(object):
                         "params": []
                     }
                 ]
-            ]
+            ],
+            "target": mytarget,
+            "refId": refid,
         }
 
     def generate_row(self, title, targets):
