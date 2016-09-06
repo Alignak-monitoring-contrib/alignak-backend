@@ -34,24 +34,20 @@ package = import_module('alignak_backend')
 
 # Define paths
 if 'linux' in sys.platform or 'sunos5' in sys.platform:
-    paths = {
+    installation_paths = {
         'bin':     "/usr/bin",
-        'var':     "/var/lib/alignak_backend/",
-        'share':   "/var/lib/alignak_backend/share",
-        'etc':     "/etc/alignak_backend",
-        'run':     "/var/run/alignak_backend",
-        'log':     "/var/log/alignak_backend",
-        'libexec': "/var/lib/alignak_backend/libexec",
+        'var':     "/var/lib/alignak-backend/",
+        'etc':     "/etc/alignak-backend",
+        'run':     "/var/run/alignak-backend",
+        'log':     "/var/log/alignak-backend",
     }
 elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
-    paths = {
+    installation_paths = {
         'bin':     "/usr/local/bin",
-        'var':     "/usr/local/libexec/alignak_backend",
-        'share':   "/usr/local/share/alignak_backend",
-        'etc':     "/usr/local/etc/alignak_backend",
-        'run':     "/var/run/alignak_backend",
-        'log':     "/var/log/alignak_backend",
-        'libexec': "/usr/local/libexec/alignak_backend/plugins",
+        'var':     "/usr/local/libexec/alignak-backend",
+        'etc':     "/usr/local/etc/alignak-backend",
+        'run':     "/var/run/alignak-backend",
+        'log':     "/var/log/alignak-backend",
     }
 else:
     print("Unsupported platform, sorry!")
@@ -78,7 +74,7 @@ setup(
     # package_data={
         # 'sample': ['package_data.dat'],
     # },
-    data_files = [(paths['etc'], ['etc/settings.json'])],
+    data_files = [(installation_paths['etc'], ['etc/settings.json'])],
 
     install_requires=[
         'python-dateutil==2.4.2', 'Eve>=0.5', 'flask-bootstrap', 'docopt', 'jsonschema',
