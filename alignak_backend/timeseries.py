@@ -4,7 +4,7 @@
 """
     ``alignak_backend.timeseries`` module
 
-    This module manages the timeseries graphite / influxdb
+    This module manages the timeseries carbon / influxdb
 """
 from __future__ import print_function
 from flask import current_app, g
@@ -89,9 +89,10 @@ class Timeseries(object):
         prefix_realm = ''
         realm_db = current_app.data.driver.db['realm']
         realm_info = realm_db.find_one({'_id': realm_id})
-        realms = realm_db.find({'id': {"$in": realm_info['_tree_parents']}}).sort("_level")
-        for realm in realms:
-            prefix_realm += realm['name'] + "."
+        if len(realm_info['_tree_parents']) > 0:
+            realms = realm_db.find({'_id': {"$in": realm_info['_tree_parents']}}).sort("_level")
+            for realm in realms:
+                prefix_realm += realm['name'] + "."
         prefix_realm += realm_info['name']
         return prefix_realm
 
@@ -112,7 +113,7 @@ class Timeseries(object):
             }
         ]
 
-        :param data: Information of data to send to graphite / influxdb
+        :param data: Information of data to send to carbon / influxdb
         :type data: list
         :return: None
         """
@@ -142,10 +143,10 @@ class Timeseries(object):
         :return: True if successful or not have graphite configured, otherwise False
         :rtype: bool
         """
-        host = current_app.config.get('GRAPHITE_HOST')
+        host = current_app.config.get('CARBON_HOST')
         if host == '':
             return True
-        port = current_app.config.get('GRAPHITE_PORT')
+        port = current_app.config.get('CARBON_PORT')
         send_data = []
         for d in data:
             if d['service'] == '':
@@ -153,7 +154,7 @@ class Timeseries(object):
             else:
                 prefix = '.'.join([d['realm'], d['host'], d['service']])
             send_data.append(('.'.join([prefix, d['name']]),
-                              (int(d['timestamp']), int(d['value']))))
+                              (int(d['timestamp']), d['value'])))
         carbon = CarbonIface(host, port)
         try:
             carbon.send_data(send_data)

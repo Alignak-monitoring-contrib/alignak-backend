@@ -889,9 +889,8 @@ def get_settings(prev_settings):
         os.path.abspath('./settings.json')
     ]
 
-    # pylint: disable=anomalous-backslash-in-string
     comment_re = re.compile(
-        '(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+        r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
         re.DOTALL | re.MULTILINE
     )
     for filename in settings_filenames:
@@ -957,7 +956,9 @@ settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
 settings['JOBS'] = []
 
 settings['GRAPHITE_HOST'] = ''
-settings['GRAPHITE_PORT'] = 2004
+settings['GRAPHITE_PORT'] = 8080
+settings['CARBON_HOST'] = ''
+settings['CARBON_PORT'] = 2004
 
 settings['INFLUXDB_HOST'] = ''
 settings['INFLUXDB_PORT'] = 8086
@@ -1229,7 +1230,7 @@ def logout_app():
 @app.route("/backendconfig")
 def backend_config():
     """
-    Offer toute to get the backend config
+    Offer route to get the backend config
     """
     my_config = {"PAGINATION_LIMIT": settings['PAGINATION_LIMIT'],
                  "PAGINATION_DEFAULT": settings['PAGINATION_DEFAULT'],
