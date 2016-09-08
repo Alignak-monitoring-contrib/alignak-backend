@@ -420,7 +420,7 @@ def get_schema():
             },
             'ls_state_id': {
                 'type': 'integer',
-                'default': 0
+                'default': 2
             },
             'ls_acknowledged': {
                 'type': 'boolean',
