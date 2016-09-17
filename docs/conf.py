@@ -54,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Alignak Backend'
-copyright = '2015, David Durieux'
+copyright = '2015-2016, David Durieux'
 author = 'David Durieux'
 
 # The version info for the project you're documenting, acts as replacement for
