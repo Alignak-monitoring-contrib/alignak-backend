@@ -2,7 +2,7 @@
 
 timeseriesretention
 
-.. image:: _static/configtimeseriesretention.png
+.. image:: ../_static/configtimeseriesretention.png
 
 ===================
 

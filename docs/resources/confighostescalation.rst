@@ -2,7 +2,7 @@
 
 hostescalation
 
-.. image:: _static/confighostescalation.png
+.. image:: ../_static/confighostescalation.png
 
 ===================
 

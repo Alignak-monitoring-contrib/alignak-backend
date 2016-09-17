@@ -2,7 +2,7 @@
 
 user
 
-.. image:: _static/configuser.png
+.. image:: ../_static/configuser.png
 
 ===================
 

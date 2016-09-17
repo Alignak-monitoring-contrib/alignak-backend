@@ -2,7 +2,7 @@
 
 hostgroup
 
-.. image:: _static/confighostgroup.png
+.. image:: ../_static/confighostgroup.png
 
 ===================
 

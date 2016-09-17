@@ -2,7 +2,7 @@
 
 realm
 
-.. image:: _static/configrealm.png
+.. image:: ../_static/configrealm.png
 
 ===================
 

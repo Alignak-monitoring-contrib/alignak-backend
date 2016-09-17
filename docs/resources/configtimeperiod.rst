@@ -2,7 +2,7 @@
 
 timeperiod
 
-.. image:: _static/configtimeperiod.png
+.. image:: ../_static/configtimeperiod.png
 
 ===================
 

@@ -2,7 +2,7 @@
 
 userrestrictrole
 
-.. image:: _static/configuserrestrictrole.png
+.. image:: ../_static/configuserrestrictrole.png
 
 ===================
 

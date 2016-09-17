@@ -2,7 +2,7 @@
 
 actionforcecheck
 
-.. image:: _static/actionforcecheck.png
+.. image:: ../_static/actionforcecheck.png
 
 ===================
 

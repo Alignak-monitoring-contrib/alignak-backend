@@ -2,7 +2,7 @@
 
 retentionhost
 
-.. image:: _static/retentionhost.png
+.. image:: ../_static/retentionhost.png
 
 ===================
 

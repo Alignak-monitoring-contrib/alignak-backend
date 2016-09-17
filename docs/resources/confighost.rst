@@ -2,7 +2,7 @@
 
 host
 
-.. image:: _static/confighost.png
+.. image:: ../_static/confighost.png
 
 ===================
 

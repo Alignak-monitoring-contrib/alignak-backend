@@ -2,7 +2,7 @@
 
 history
 
-.. image:: _static/confighistory.png
+.. image:: ../_static/confighistory.png
 
 ===================
 

@@ -2,7 +2,7 @@
 
 actionacknowledge
 
-.. image:: _static/actionacknowledge.png
+.. image:: ../_static/actionacknowledge.png
 
 ===================
 
