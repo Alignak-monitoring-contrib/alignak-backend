@@ -398,6 +398,17 @@ List of resources used for configuration:
 
    resources/config*
 
+Action part
+~~~~~~~~
+
+List of action resources:
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+
+   resources/action*
+
 
 Live state part
 ~~~~~~~~~~~~~~~
@@ -431,17 +442,4 @@ List of log resources:
    :glob:
 
    resources/log*
-
-Action part
-~~~~~~~~
-
-List of action resources:
-
-.. toctree::
-   :maxdepth: 2
-   :glob:
-
-   resources/action*
-
-
 

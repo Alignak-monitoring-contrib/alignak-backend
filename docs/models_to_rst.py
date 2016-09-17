@@ -90,11 +90,13 @@ for filepath in f:
             data_relation = ''
             if schema['schema'][line]['type'] == 'objectid':
                 data_relation = ":ref:`%s <resource-%s>`" % (schema['schema'][line]['data_relation']['resource'], schema['schema'][line]['data_relation']['resource'])
-                relations[schema['schema'][line]['data_relation']['resource']] = required
+                if not (schema['schema'][line]['data_relation']['resource'] in relations and required == ''):
+                    relations[schema['schema'][line]['data_relation']['resource']] = required
             if schema['schema'][line]['type'] == 'list':
                 if 'schema' in schema['schema'][line] and 'data_relation' in schema['schema'][line]['schema']:
                     data_relation = ":ref:`%s <resource-%s>`" % (schema['schema'][line]['schema']['data_relation']['resource'], schema['schema'][line]['schema']['data_relation']['resource'])
-                    relations[schema['schema'][line]['schema']['data_relation']['resource']] = required
+                    if not (schema['schema'][line]['schema']['data_relation']['resource'] in relations and required == ''):
+                        relations[schema['schema'][line]['schema']['data_relation']['resource']] = required
                     ltype += " of objectid"
 
             if required == 'True':
