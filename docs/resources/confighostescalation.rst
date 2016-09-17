@@ -10,6 +10,7 @@ hostescalation
    "usergroups", "list of objectid", "", "", ":ref:`usergroup <resource-usergroup>`"
    "**name**", "**string**", "**True**", "****", "****"
    "definition_order", "integer", "", "100", ""
+   "_sub_realm", "boolean", "", "False", ""
    "last_notification_time", "integer", "", "", ""
    "notes", "string", "", "", ""
    "hostgroup", "list of objectid", "", "", ":ref:`hostgroup <resource-hostgroup>`"

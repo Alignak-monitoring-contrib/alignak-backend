@@ -14,6 +14,7 @@ timeperiod
    "**_realm**", "**objectid**", "**True**", "****", "**:ref:`realm <resource-realm>`**"
    "_users_delete", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "**name**", "**string**", "**True**", "****", "****"
+   "_sub_realm", "boolean", "", "True", ""
    "notes", "string", "", "", ""
    "dateranges", "list", "", "[]", ""
    "alias", "string", "", "", ""

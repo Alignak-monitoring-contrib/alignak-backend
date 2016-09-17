@@ -68,7 +68,7 @@ for filepath in f:
             if schema['schema'][line]['type'] == 'objectid':
                 data_relation = ":ref:`%s <resource-%s>`" % (schema['schema'][line]['data_relation']['resource'], schema['schema'][line]['data_relation']['resource'])
             if schema['schema'][line]['type'] == 'list':
-                if 'schema' in schema['schema'][line]:
+                if 'schema' in schema['schema'][line] and 'data_relation' in schema['schema'][line]['schema']:
                     data_relation = ":ref:`%s <resource-%s>`" % (schema['schema'][line]['schema']['data_relation']['resource'], schema['schema'][line]['schema']['data_relation']['resource'])
                     type += " of objectid"
 

@@ -10,6 +10,7 @@ hostgroup
    "_users_update", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "**name**", "**string**", "**True**", "****", "****"
    "definition_order", "integer", "", "100", ""
+   "_sub_realm", "boolean", "", "False", ""
    "_users_delete", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "notes", "string", "", "", ""
    "hostgroups", "list of objectid", "", "[]", ":ref:`hostgroup <resource-hostgroup>`"
