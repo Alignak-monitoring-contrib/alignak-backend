@@ -20,6 +20,7 @@ Documentation content:
    intro
    architecture
    install
+   configuration
    run
    api
    tutorial
