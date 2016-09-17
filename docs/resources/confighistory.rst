@@ -1,6 +1,7 @@
 .. _resource-history:
 
 history
+
 .. image:: _static/confighistory.png
 
 ===================

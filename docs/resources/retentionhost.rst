@@ -1,6 +1,7 @@
 .. _resource-retentionhost:
 
 retentionhost
+
 .. image:: _static/retentionhost.png
 
 ===================

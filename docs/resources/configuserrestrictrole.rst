@@ -1,6 +1,7 @@
 .. _resource-userrestrictrole:
 
 userrestrictrole
+
 .. image:: _static/configuserrestrictrole.png
 
 ===================

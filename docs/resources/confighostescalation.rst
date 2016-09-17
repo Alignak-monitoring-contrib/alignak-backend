@@ -1,6 +1,7 @@
 .. _resource-hostescalation:
 
 hostescalation
+
 .. image:: _static/confighostescalation.png
 
 ===================

@@ -1,6 +1,7 @@
 .. _resource-realm:
 
 realm
+
 .. image:: _static/configrealm.png
 
 ===================

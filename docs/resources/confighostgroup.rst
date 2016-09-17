@@ -1,6 +1,7 @@
 .. _resource-hostgroup:
 
 hostgroup
+
 .. image:: _static/confighostgroup.png
 
 ===================

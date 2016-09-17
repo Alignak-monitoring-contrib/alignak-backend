@@ -1,6 +1,7 @@
 .. _resource-timeseriesretention:
 
 timeseriesretention
+
 .. image:: _static/configtimeseriesretention.png
 
 ===================

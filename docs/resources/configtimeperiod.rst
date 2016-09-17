@@ -1,6 +1,7 @@
 .. _resource-timeperiod:
 
 timeperiod
+
 .. image:: _static/configtimeperiod.png
 
 ===================

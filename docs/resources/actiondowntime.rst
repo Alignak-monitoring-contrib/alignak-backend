@@ -1,6 +1,7 @@
 .. _resource-actiondowntime:
 
 actiondowntime
+
 .. image:: _static/actiondowntime.png
 
 ===================

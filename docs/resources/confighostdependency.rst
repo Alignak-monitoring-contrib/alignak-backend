@@ -1,6 +1,7 @@
 .. _resource-hostdependency:
 
 hostdependency
+
 .. image:: _static/confighostdependency.png
 
 ===================

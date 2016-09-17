@@ -1,6 +1,7 @@
 .. _resource-usergroup:
 
 usergroup
+
 .. image:: _static/configusergroup.png
 
 ===================

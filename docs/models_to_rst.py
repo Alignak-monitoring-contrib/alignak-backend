@@ -67,7 +67,7 @@ for filepath in f:
         target.write('.. _resource-%s:' % (py_mod.get_name()))
         target.write("\n\n")
         target.write(py_mod.get_name())
-        target.write("\n")
+        target.write("\n\n")
         target.write(".. image:: _static/%s.png\n" % (resource_name))
         target.write("\n")
         target.write("===================\n\n")

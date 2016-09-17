@@ -1,6 +1,7 @@
 .. _resource-service:
 
 service
+
 .. image:: _static/configservice.png
 
 ===================

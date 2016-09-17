@@ -1,6 +1,7 @@
 .. _resource-user:
 
 user
+
 .. image:: _static/configuser.png
 
 ===================
