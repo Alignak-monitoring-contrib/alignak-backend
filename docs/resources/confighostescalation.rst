@@ -27,3 +27,5 @@ hostescalation
    "escalation_options", "list", "", "['d', 'u', 'r', 'w', 'c']", ""
    "imported_from", "string", "", "unknown", ""
    "users", "list of objectid", "", "", ":ref:`user <resource-user>`"
+
+.. image:: resources/confighostescalation.png

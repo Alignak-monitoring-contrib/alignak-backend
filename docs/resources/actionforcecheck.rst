@@ -14,3 +14,5 @@ actionforcecheck
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "_realm", "objectid", "", "", ":ref:`realm <resource-realm>`"
    "processed", "boolean", "", "False", ""
+
+.. image:: resources/actionforcecheck.png

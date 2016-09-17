@@ -26,3 +26,5 @@ realm
    "_tree_parents", "list of objectid", "", "[]", ":ref:`realm <resource-realm>`"
    "services_critical_threshold", "integer", "", "5", ""
    "imported_from", "string", "", "unknown", ""
+
+.. image:: resources/configrealm.png

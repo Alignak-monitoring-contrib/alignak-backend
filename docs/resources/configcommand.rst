@@ -22,3 +22,5 @@ command
    "_users_read", "list of objectid", "", "[]", ":ref:`user <resource-user>`"
    "enable_environment_macros", "boolean", "", "False", ""
    "imported_from", "string", "", "unknown", ""
+
+.. image:: resources/configcommand.png

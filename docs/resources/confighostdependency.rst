@@ -24,3 +24,5 @@ hostdependency
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "dependent_hosts", "list of objectid", "", "", ":ref:`host <resource-host>`"
    "imported_from", "string", "", "unknown", ""
+
+.. image:: resources/confighostdependency.png

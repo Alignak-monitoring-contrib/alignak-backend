@@ -32,3 +32,5 @@ livesynthesis
    "services_ok_soft", "integer", "", "0", ""
    "services_unknown_hard", "integer", "", "0", ""
    "services_in_downtime", "integer", "", "0", ""
+
+.. image:: resources/livesynthesis.png

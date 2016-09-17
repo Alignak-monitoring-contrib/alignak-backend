@@ -19,3 +19,5 @@ timeperiod
    "dateranges", "list", "", "[]", ""
    "alias", "string", "", "", ""
    "imported_from", "string", "", "unknown", ""
+
+.. image:: resources/configtimeperiod.png

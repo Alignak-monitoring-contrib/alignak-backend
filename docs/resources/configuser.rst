@@ -43,3 +43,5 @@ user
    "back_role_super_admin", "boolean", "", "False", ""
    "email", "string", "", "", ""
    "host_notification_options", "list", "", "['d', 'u', 'r', 'f', 's']", ""
+
+.. image:: resources/configuser.png

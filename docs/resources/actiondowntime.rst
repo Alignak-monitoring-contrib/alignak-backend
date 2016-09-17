@@ -19,3 +19,5 @@ actiondowntime
    "action", "string", "", "OK", ""
    "fixed", "boolean", "", "True", ""
    "end_time", "integer", "", "86400", ""
+
+.. image:: resources/actiondowntime.png

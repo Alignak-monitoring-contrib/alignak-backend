@@ -15,3 +15,5 @@ history
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "**type**", "**string**", "**True**", "**check.result**", ""
    "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
+
+.. image:: resources/confighistory.png

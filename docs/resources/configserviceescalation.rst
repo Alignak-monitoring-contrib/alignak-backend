@@ -28,3 +28,5 @@ serviceescalation
    "alias", "string", "", "", ""
    "first_notification_time", "integer", "", "", ""
    "escalation_options", "list", "", "['d', 'u', 'r', 'w', 'c']", ""
+
+.. image:: resources/configserviceescalation.png

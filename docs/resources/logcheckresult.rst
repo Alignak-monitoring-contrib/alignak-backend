@@ -25,3 +25,5 @@ logcheckresult
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "perf_data", "string", "", "", ""
    "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
+
+.. image:: resources/logcheckresult.png

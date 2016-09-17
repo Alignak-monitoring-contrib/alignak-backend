@@ -18,3 +18,5 @@ actionacknowledge
    "processed", "boolean", "", "False", ""
    "action", "string", "", "OK", ""
    "**user**", "**objectid**", "**True**", "****", ":ref:`user <resource-user>`"
+
+.. image:: resources/actionacknowledge.png

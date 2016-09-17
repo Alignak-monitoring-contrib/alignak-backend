@@ -112,3 +112,5 @@ host
    "poller_tag", "string", "", "", ""
    "ls_state_type", "string", "", "HARD", ""
    "business_rule_output_template", "string", "", "", ""
+
+.. image:: resources/confighost.png

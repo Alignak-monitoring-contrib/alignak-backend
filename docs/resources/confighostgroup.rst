@@ -23,3 +23,5 @@ hostgroup
    "hosts", "list of objectid", "", "[]", ":ref:`host <resource-host>`"
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "imported_from", "string", "", "unknown", ""
+
+.. image:: resources/confighostgroup.png

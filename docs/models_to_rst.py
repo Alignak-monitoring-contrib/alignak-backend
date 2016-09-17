@@ -22,17 +22,37 @@
 
 from os import walk, path
 import imp
+from graphviz import Digraph
+
+
+def generate_relation_graph(resource, resources, resource_filename):
+    """
+    Generate graphviz of the resource (resource + links to other objects)
+
+    :return:
+    """
+    dot = Digraph(format='png')
+    dot.graph_attr.update(size="7.29,200")
+    dot.node(resource)
+    for key, value in resources.iteritems():
+        style = 'dashed'
+        if value == 'True':
+            style = 'solid'
+        if not key.startswith("_"):
+            dot.edge(resource, key, label='', style=style)
+    dot.render('resources/' + resource_filename, view=False, cleanup=True)
+
 
 mypath = '../alignak_backend/models/'
 f = []
 for (dirpath, dirnames, filenames) in walk(mypath):
-    for file in filenames:
-        if file != '__init__.py':
-            f.append(''.join([dirpath, file]))
+    for filename in filenames:
+        if filename != '__init__.py':
+            f.append(''.join([dirpath, filename]))
 
 for filepath in f:
     expected_class = 'MyClass'
-    mod_name,file_ext = path.splitext(path.split(filepath)[-1])
+    mod_name, file_ext = path.splitext(path.split(filepath)[-1])
     if file_ext.lower() == '.py':
         py_mod = imp.load_source(mod_name, filepath)
 
@@ -43,7 +63,7 @@ for filepath in f:
                     if not resource_name.startswith('action'):
                         resource_name = ''.join(['config', resource_name])
 
-        target = open(''.join(['resources/', resource_name, '.rst']),'w')
+        target = open(''.join(['resources/', resource_name, '.rst']), 'w')
         target.write('.. _resource-%s:' % (py_mod.get_name()))
         target.write("\n\n")
         target.write(py_mod.get_name())
@@ -55,8 +75,9 @@ for filepath in f:
         target.write("\n\n")
 
         schema = py_mod.get_schema()
+        relations = {}
         for line in schema['schema']:
-            type = schema['schema'][line]['type']
+            ltype = schema['schema'][line]['type']
             required = ''
             if 'required' in schema['schema'][line]:
                 if schema['schema'][line]['required']:
@@ -64,17 +85,21 @@ for filepath in f:
             default = ''
             if 'default' in schema['schema'][line]:
                 default = schema['schema'][line]['default']
-            data_relation =''
+            data_relation = ''
             if schema['schema'][line]['type'] == 'objectid':
                 data_relation = ":ref:`%s <resource-%s>`" % (schema['schema'][line]['data_relation']['resource'], schema['schema'][line]['data_relation']['resource'])
+                relations[schema['schema'][line]['data_relation']['resource']] = required
             if schema['schema'][line]['type'] == 'list':
                 if 'schema' in schema['schema'][line] and 'data_relation' in schema['schema'][line]['schema']:
                     data_relation = ":ref:`%s <resource-%s>`" % (schema['schema'][line]['schema']['data_relation']['resource'], schema['schema'][line]['schema']['data_relation']['resource'])
-                    type += " of objectid"
+                    relations[schema['schema'][line]['schema']['data_relation']['resource']] = required
+                    ltype += " of objectid"
 
             if required == 'True':
-                target.write("   \"**%s**\", \"**%s**\", \"**%s**\", \"**%s**\", \"%s\"\n" % (line, type, required, default, data_relation))
+                target.write("   \"**%s**\", \"**%s**\", \"**%s**\", \"**%s**\", \"%s\"\n" % (line, ltype, required, default, data_relation))
             else:
-                target.write("   \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n" % (line, type, required, default, data_relation))
-
+                target.write("   \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n" % (line, ltype, required, default, data_relation))
+        generate_relation_graph(py_mod.get_name(), relations, resource_name)
+        target.write("\n")
+        target.write(".. image:: resources/%s.png\n" % (resource_name))
         target.close()
