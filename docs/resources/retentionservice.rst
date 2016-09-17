@@ -1,7 +1,7 @@
 .. _resource-retentionservice:
 
 retentionservice
-.. image:: ../_static/retentionservice.png
+.. image:: _static/retentionservice.png
 
 ===================
 

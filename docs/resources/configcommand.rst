@@ -1,7 +1,7 @@
 .. _resource-command:
 
 command
-.. image:: ../_static/configcommand.png
+.. image:: _static/configcommand.png
 
 ===================
 

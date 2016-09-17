@@ -1,7 +1,7 @@
 .. _resource-actionacknowledge:
 
 actionacknowledge
-.. image:: ../_static/actionacknowledge.png
+.. image:: _static/actionacknowledge.png
 
 ===================
 

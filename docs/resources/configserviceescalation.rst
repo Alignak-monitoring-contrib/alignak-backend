@@ -1,7 +1,7 @@
 .. _resource-serviceescalation:
 
 serviceescalation
-.. image:: ../_static/configserviceescalation.png
+.. image:: _static/configserviceescalation.png
 
 ===================
 

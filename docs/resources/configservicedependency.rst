@@ -1,7 +1,7 @@
 .. _resource-servicedependency:
 
 servicedependency
-.. image:: ../_static/configservicedependency.png
+.. image:: _static/configservicedependency.png
 
 ===================
 

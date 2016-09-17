@@ -1,7 +1,7 @@
 .. _resource-usergroup:
 
 usergroup
-.. image:: ../_static/configusergroup.png
+.. image:: _static/configusergroup.png
 
 ===================
 

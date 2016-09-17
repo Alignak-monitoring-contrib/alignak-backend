@@ -1,7 +1,7 @@
 .. _resource-logcheckresult:
 
 logcheckresult
-.. image:: ../_static/logcheckresult.png
+.. image:: _static/logcheckresult.png
 
 ===================
 

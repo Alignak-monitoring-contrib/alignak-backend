@@ -1,7 +1,7 @@
 .. _resource-livesynthesis:
 
 livesynthesis
-.. image:: ../_static/livesynthesis.png
+.. image:: _static/livesynthesis.png
 
 ===================
 

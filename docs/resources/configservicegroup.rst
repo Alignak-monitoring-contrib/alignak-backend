@@ -1,7 +1,7 @@
 .. _resource-servicegroup:
 
 servicegroup
-.. image:: ../_static/configservicegroup.png
+.. image:: _static/configservicegroup.png
 
 ===================
 
