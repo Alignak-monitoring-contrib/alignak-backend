@@ -28,4 +28,4 @@ hostescalation
    "imported_from", "string", "", "unknown", ""
    "users", "list of objectid", "", "", ":ref:`user <resource-user>`"
 
-.. image:: resources/confighostescalation.png
+.. image:: _static/confighostescalation.png

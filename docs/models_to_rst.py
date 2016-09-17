@@ -40,7 +40,7 @@ def generate_relation_graph(resource, resources, resource_filename):
             style = 'solid'
         if not key.startswith("_"):
             dot.edge(resource, key, label='', style=style)
-    dot.render('resources/' + resource_filename, view=False, cleanup=True)
+    dot.render('_static/' + resource_filename, view=False, cleanup=True)
 
 
 mypath = '../alignak_backend/models/'
@@ -101,5 +101,5 @@ for filepath in f:
                 target.write("   \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n" % (line, ltype, required, default, data_relation))
         generate_relation_graph(py_mod.get_name(), relations, resource_name)
         target.write("\n")
-        target.write(".. image:: resources/%s.png\n" % (resource_name))
+        target.write(".. image:: _static/%s.png\n" % (resource_name))
         target.close()

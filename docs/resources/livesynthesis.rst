@@ -33,4 +33,4 @@ livesynthesis
    "services_unknown_hard", "integer", "", "0", ""
    "services_in_downtime", "integer", "", "0", ""
 
-.. image:: resources/livesynthesis.png
+.. image:: _static/livesynthesis.png

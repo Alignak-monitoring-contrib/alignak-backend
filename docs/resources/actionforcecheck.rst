@@ -15,4 +15,4 @@ actionforcecheck
    "_realm", "objectid", "", "", ":ref:`realm <resource-realm>`"
    "processed", "boolean", "", "False", ""
 
-.. image:: resources/actionforcecheck.png
+.. image:: _static/actionforcecheck.png

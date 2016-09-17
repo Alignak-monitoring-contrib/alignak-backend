@@ -29,4 +29,4 @@ serviceescalation
    "first_notification_time", "integer", "", "", ""
    "escalation_options", "list", "", "['d', 'u', 'r', 'w', 'c']", ""
 
-.. image:: resources/configserviceescalation.png
+.. image:: _static/configserviceescalation.png

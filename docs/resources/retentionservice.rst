@@ -8,4 +8,4 @@ retentionservice
 
    "service", "list", "", "", ""
 
-.. image:: resources/retentionservice.png
+.. image:: _static/retentionservice.png

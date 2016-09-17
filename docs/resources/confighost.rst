@@ -113,4 +113,4 @@ host
    "ls_state_type", "string", "", "HARD", ""
    "business_rule_output_template", "string", "", "", ""
 
-.. image:: resources/confighost.png
+.. image:: _static/confighost.png

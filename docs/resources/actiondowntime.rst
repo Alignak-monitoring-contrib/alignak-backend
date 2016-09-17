@@ -20,4 +20,4 @@ actiondowntime
    "fixed", "boolean", "", "True", ""
    "end_time", "integer", "", "86400", ""
 
-.. image:: resources/actiondowntime.png
+.. image:: _static/actiondowntime.png

@@ -22,4 +22,4 @@ usergroup
    "_tree_parents", "list of objectid", "", "[]", ":ref:`usergroup <resource-usergroup>`"
    "_users_delete", "list of objectid", "", "[]", ":ref:`user <resource-user>`"
 
-.. image:: resources/configusergroup.png
+.. image:: _static/configusergroup.png

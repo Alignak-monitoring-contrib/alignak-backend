@@ -8,4 +8,4 @@ retentionhost
 
    "host", "string", "", "", ""
 
-.. image:: resources/retentionhost.png
+.. image:: _static/retentionhost.png

@@ -23,4 +23,4 @@ command
    "enable_environment_macros", "boolean", "", "False", ""
    "imported_from", "string", "", "unknown", ""
 
-.. image:: resources/configcommand.png
+.. image:: _static/configcommand.png

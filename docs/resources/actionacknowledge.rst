@@ -19,4 +19,4 @@ actionacknowledge
    "action", "string", "", "OK", ""
    "**user**", "**objectid**", "**True**", "****", ":ref:`user <resource-user>`"
 
-.. image:: resources/actionacknowledge.png
+.. image:: _static/actionacknowledge.png

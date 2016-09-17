@@ -44,4 +44,4 @@ user
    "email", "string", "", "", ""
    "host_notification_options", "list", "", "['d', 'u', 'r', 'f', 's']", ""
 
-.. image:: resources/configuser.png
+.. image:: _static/configuser.png

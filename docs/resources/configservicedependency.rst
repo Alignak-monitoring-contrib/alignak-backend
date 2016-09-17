@@ -28,4 +28,4 @@ servicedependency
    "dependent_hosts", "list of objectid", "", "", ":ref:`host <resource-host>`"
    "imported_from", "string", "", "unknown", ""
 
-.. image:: resources/configservicedependency.png
+.. image:: _static/configservicedependency.png

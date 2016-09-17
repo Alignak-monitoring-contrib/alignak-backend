@@ -20,4 +20,4 @@ timeperiod
    "alias", "string", "", "", ""
    "imported_from", "string", "", "unknown", ""
 
-.. image:: resources/configtimeperiod.png
+.. image:: _static/configtimeperiod.png

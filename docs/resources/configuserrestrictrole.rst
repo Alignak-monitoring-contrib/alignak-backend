@@ -12,4 +12,4 @@ userrestrictrole
    "**user**", "**objectid**", "**True**", "****", ":ref:`user <resource-user>`"
    "sub_realm", "boolean", "", "False", ""
 
-.. image:: resources/configuserrestrictrole.png
+.. image:: _static/configuserrestrictrole.png

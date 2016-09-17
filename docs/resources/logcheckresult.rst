@@ -26,4 +26,4 @@ logcheckresult
    "perf_data", "string", "", "", ""
    "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
 
-.. image:: resources/logcheckresult.png
+.. image:: _static/logcheckresult.png

@@ -27,4 +27,4 @@ realm
    "services_critical_threshold", "integer", "", "5", ""
    "imported_from", "string", "", "unknown", ""
 
-.. image:: resources/configrealm.png
+.. image:: _static/configrealm.png

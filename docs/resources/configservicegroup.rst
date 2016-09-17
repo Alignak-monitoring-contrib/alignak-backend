@@ -24,4 +24,4 @@ servicegroup
    "_tree_parents", "list of objectid", "", "[]", ":ref:`servicegroup <resource-servicegroup>`"
    "imported_from", "string", "", "unknown", ""
 
-.. image:: resources/configservicegroup.png
+.. image:: _static/configservicegroup.png

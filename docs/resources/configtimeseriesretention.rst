@@ -15,4 +15,4 @@ timeseriesretention
    "**for_influxdb**", "**boolean**", "**True**", "**False**", ""
    "**value**", "**integer**", "**True**", "****", ""
 
-.. image:: resources/configtimeseriesretention.png
+.. image:: _static/configtimeseriesretention.png

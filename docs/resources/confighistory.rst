@@ -16,4 +16,4 @@ history
    "**type**", "**string**", "**True**", "**check.result**", ""
    "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
 
-.. image:: resources/confighistory.png
+.. image:: _static/confighistory.png
