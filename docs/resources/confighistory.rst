@@ -1,10 +1,10 @@
 .. _resource-history:
 
 history
+===================
 
 .. image:: ../_static/confighistory.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

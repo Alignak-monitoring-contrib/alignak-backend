@@ -1,10 +1,10 @@
 .. _resource-servicegroup:
 
 servicegroup
+===================
 
 .. image:: ../_static/configservicegroup.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

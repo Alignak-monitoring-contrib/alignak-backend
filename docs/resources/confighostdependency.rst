@@ -1,10 +1,10 @@
 .. _resource-hostdependency:
 
 hostdependency
+===================
 
 .. image:: ../_static/confighostdependency.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

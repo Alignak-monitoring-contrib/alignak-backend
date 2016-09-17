@@ -1,10 +1,10 @@
 .. _resource-command:
 
 command
+===================
 
 .. image:: ../_static/configcommand.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

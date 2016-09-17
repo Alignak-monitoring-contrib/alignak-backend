@@ -1,10 +1,10 @@
 .. _resource-servicedependency:
 
 servicedependency
+===================
 
 .. image:: ../_static/configservicedependency.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

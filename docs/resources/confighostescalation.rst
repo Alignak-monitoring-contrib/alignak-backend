@@ -1,10 +1,10 @@
 .. _resource-hostescalation:
 
 hostescalation
+===================
 
 .. image:: ../_static/confighostescalation.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

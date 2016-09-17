@@ -1,10 +1,10 @@
 .. _resource-actiondowntime:
 
 actiondowntime
+===================
 
 .. image:: ../_static/actiondowntime.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

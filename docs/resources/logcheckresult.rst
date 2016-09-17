@@ -1,10 +1,10 @@
 .. _resource-logcheckresult:
 
 logcheckresult
+===================
 
 .. image:: ../_static/logcheckresult.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

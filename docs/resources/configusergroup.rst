@@ -1,10 +1,10 @@
 .. _resource-usergroup:
 
 usergroup
+===================
 
 .. image:: ../_static/configusergroup.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

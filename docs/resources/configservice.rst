@@ -1,10 +1,10 @@
 .. _resource-service:
 
 service
+===================
 
 .. image:: ../_static/configservice.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

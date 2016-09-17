@@ -1,10 +1,10 @@
 .. _resource-timeperiod:
 
 timeperiod
+===================
 
 .. image:: ../_static/configtimeperiod.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

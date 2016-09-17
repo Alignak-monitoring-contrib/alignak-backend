@@ -1,10 +1,10 @@
 .. _resource-actionacknowledge:
 
 actionacknowledge
+===================
 
 .. image:: ../_static/actionacknowledge.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

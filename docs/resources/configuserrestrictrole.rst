@@ -1,10 +1,10 @@
 .. _resource-userrestrictrole:
 
 userrestrictrole
+===================
 
 .. image:: ../_static/configuserrestrictrole.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

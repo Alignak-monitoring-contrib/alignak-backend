@@ -1,10 +1,10 @@
 .. _resource-livesynthesis:
 
 livesynthesis
+===================
 
 .. image:: ../_static/livesynthesis.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

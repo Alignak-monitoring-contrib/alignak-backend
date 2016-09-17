@@ -1,10 +1,10 @@
 .. _resource-hostgroup:
 
 hostgroup
+===================
 
 .. image:: ../_static/confighostgroup.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

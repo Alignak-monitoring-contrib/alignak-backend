@@ -1,10 +1,10 @@
 .. _resource-actionforcecheck:
 
 actionforcecheck
+===================
 
 .. image:: ../_static/actionforcecheck.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

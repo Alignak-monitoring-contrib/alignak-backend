@@ -1,10 +1,10 @@
 .. _resource-realm:
 
 realm
+===================
 
 .. image:: ../_static/configrealm.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

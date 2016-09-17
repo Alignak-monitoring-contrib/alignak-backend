@@ -1,10 +1,10 @@
 .. _resource-user:
 
 user
+===================
 
 .. image:: ../_static/configuser.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"

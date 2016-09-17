@@ -1,10 +1,10 @@
 .. _resource-timeseriesretention:
 
 timeseriesretention
+===================
 
 .. image:: ../_static/configtimeseriesretention.png
 
-===================
 
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"
