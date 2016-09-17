@@ -1,6 +1,8 @@
 .. _resource-actiondowntime:
 
 actiondowntime
+.. image:: ../_static/actiondowntime.png
+
 ===================
 
 .. csv-table::
@@ -20,4 +22,3 @@ actiondowntime
    "fixed", "boolean", "", "True", ""
    "end_time", "integer", "", "86400", ""
 
-.. image:: _static/actiondowntime.png

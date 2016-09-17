@@ -1,6 +1,8 @@
 .. _resource-timeperiod:
 
 timeperiod
+.. image:: ../_static/configtimeperiod.png
+
 ===================
 
 .. csv-table::
@@ -20,4 +22,3 @@ timeperiod
    "alias", "string", "", "", ""
    "imported_from", "string", "", "unknown", ""
 
-.. image:: _static/configtimeperiod.png

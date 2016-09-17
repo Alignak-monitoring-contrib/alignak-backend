@@ -1,6 +1,8 @@
 .. _resource-host:
 
 host
+.. image:: ../_static/confighost.png
+
 ===================
 
 .. csv-table::
@@ -113,4 +115,3 @@ host
    "ls_state_type", "string", "", "HARD", ""
    "business_rule_output_template", "string", "", "", ""
 
-.. image:: _static/confighost.png

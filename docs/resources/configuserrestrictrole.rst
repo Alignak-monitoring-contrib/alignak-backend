@@ -1,6 +1,8 @@
 .. _resource-userrestrictrole:
 
 userrestrictrole
+.. image:: ../_static/configuserrestrictrole.png
+
 ===================
 
 .. csv-table::
@@ -12,4 +14,3 @@ userrestrictrole
    "**user**", "**objectid**", "**True**", "****", ":ref:`user <resource-user>`"
    "sub_realm", "boolean", "", "False", ""
 
-.. image:: _static/configuserrestrictrole.png

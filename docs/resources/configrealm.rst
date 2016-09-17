@@ -1,6 +1,8 @@
 .. _resource-realm:
 
 realm
+.. image:: ../_static/configrealm.png
+
 ===================
 
 .. csv-table::
@@ -27,4 +29,3 @@ realm
    "services_critical_threshold", "integer", "", "5", ""
    "imported_from", "string", "", "unknown", ""
 
-.. image:: _static/configrealm.png

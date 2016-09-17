@@ -1,6 +1,8 @@
 .. _resource-servicedependency:
 
 servicedependency
+.. image:: ../_static/configservicedependency.png
+
 ===================
 
 .. csv-table::
@@ -28,4 +30,3 @@ servicedependency
    "dependent_hosts", "list of objectid", "", "", ":ref:`host <resource-host>`"
    "imported_from", "string", "", "unknown", ""
 
-.. image:: _static/configservicedependency.png

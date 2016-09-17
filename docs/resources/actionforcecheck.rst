@@ -1,6 +1,8 @@
 .. _resource-actionforcecheck:
 
 actionforcecheck
+.. image:: ../_static/actionforcecheck.png
+
 ===================
 
 .. csv-table::
@@ -15,4 +17,3 @@ actionforcecheck
    "_realm", "objectid", "", "", ":ref:`realm <resource-realm>`"
    "processed", "boolean", "", "False", ""
 
-.. image:: _static/actionforcecheck.png

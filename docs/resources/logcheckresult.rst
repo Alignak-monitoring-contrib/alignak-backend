@@ -1,6 +1,8 @@
 .. _resource-logcheckresult:
 
 logcheckresult
+.. image:: ../_static/logcheckresult.png
+
 ===================
 
 .. csv-table::
@@ -26,4 +28,3 @@ logcheckresult
    "perf_data", "string", "", "", ""
    "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
 
-.. image:: _static/logcheckresult.png

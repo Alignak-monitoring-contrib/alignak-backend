@@ -1,6 +1,8 @@
 .. _resource-serviceescalation:
 
 serviceescalation
+.. image:: ../_static/configserviceescalation.png
+
 ===================
 
 .. csv-table::
@@ -29,4 +31,3 @@ serviceescalation
    "first_notification_time", "integer", "", "", ""
    "escalation_options", "list", "", "['d', 'u', 'r', 'w', 'c']", ""
 
-.. image:: _static/configserviceescalation.png

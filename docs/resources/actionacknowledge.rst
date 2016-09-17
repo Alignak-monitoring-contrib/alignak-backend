@@ -1,6 +1,8 @@
 .. _resource-actionacknowledge:
 
 actionacknowledge
+.. image:: ../_static/actionacknowledge.png
+
 ===================
 
 .. csv-table::
@@ -19,4 +21,3 @@ actionacknowledge
    "action", "string", "", "OK", ""
    "**user**", "**objectid**", "**True**", "****", ":ref:`user <resource-user>`"
 
-.. image:: _static/actionacknowledge.png

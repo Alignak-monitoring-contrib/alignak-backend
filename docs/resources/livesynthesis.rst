@@ -1,6 +1,8 @@
 .. _resource-livesynthesis:
 
 livesynthesis
+.. image:: ../_static/livesynthesis.png
+
 ===================
 
 .. csv-table::
@@ -33,4 +35,3 @@ livesynthesis
    "services_unknown_hard", "integer", "", "0", ""
    "services_in_downtime", "integer", "", "0", ""
 
-.. image:: _static/livesynthesis.png

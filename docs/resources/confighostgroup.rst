@@ -1,6 +1,8 @@
 .. _resource-hostgroup:
 
 hostgroup
+.. image:: ../_static/confighostgroup.png
+
 ===================
 
 .. csv-table::
@@ -24,4 +26,3 @@ hostgroup
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "imported_from", "string", "", "unknown", ""
 
-.. image:: _static/confighostgroup.png

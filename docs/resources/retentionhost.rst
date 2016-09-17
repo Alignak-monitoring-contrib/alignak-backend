@@ -1,6 +1,8 @@
 .. _resource-retentionhost:
 
 retentionhost
+.. image:: ../_static/retentionhost.png
+
 ===================
 
 .. csv-table::
@@ -8,4 +10,3 @@ retentionhost
 
    "host", "string", "", "", ""
 
-.. image:: _static/retentionhost.png

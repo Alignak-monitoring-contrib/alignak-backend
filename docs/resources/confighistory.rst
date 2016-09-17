@@ -1,6 +1,8 @@
 .. _resource-history:
 
 history
+.. image:: ../_static/confighistory.png
+
 ===================
 
 .. csv-table::
@@ -16,4 +18,3 @@ history
    "**type**", "**string**", "**True**", "**check.result**", ""
    "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
 
-.. image:: _static/confighistory.png

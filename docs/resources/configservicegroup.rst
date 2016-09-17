@@ -1,6 +1,8 @@
 .. _resource-servicegroup:
 
 servicegroup
+.. image:: ../_static/configservicegroup.png
+
 ===================
 
 .. csv-table::
@@ -24,4 +26,3 @@ servicegroup
    "_tree_parents", "list of objectid", "", "[]", ":ref:`servicegroup <resource-servicegroup>`"
    "imported_from", "string", "", "unknown", ""
 
-.. image:: _static/configservicegroup.png

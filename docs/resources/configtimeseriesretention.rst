@@ -1,6 +1,8 @@
 .. _resource-timeseriesretention:
 
 timeseriesretention
+.. image:: ../_static/configtimeseriesretention.png
+
 ===================
 
 .. csv-table::
@@ -15,4 +17,3 @@ timeseriesretention
    "**for_influxdb**", "**boolean**", "**True**", "**False**", ""
    "**value**", "**integer**", "**True**", "****", ""
 
-.. image:: _static/configtimeseriesretention.png

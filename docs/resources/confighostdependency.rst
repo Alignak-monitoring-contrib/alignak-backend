@@ -1,6 +1,8 @@
 .. _resource-hostdependency:
 
 hostdependency
+.. image:: ../_static/confighostdependency.png
+
 ===================
 
 .. csv-table::
@@ -25,4 +27,3 @@ hostdependency
    "dependent_hosts", "list of objectid", "", "", ":ref:`host <resource-host>`"
    "imported_from", "string", "", "unknown", ""
 
-.. image:: _static/confighostdependency.png

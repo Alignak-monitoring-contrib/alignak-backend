@@ -1,6 +1,8 @@
 .. _resource-retentionservice:
 
 retentionservice
+.. image:: ../_static/retentionservice.png
+
 ===================
 
 .. csv-table::
@@ -8,4 +10,3 @@ retentionservice
 
    "service", "list", "", "", ""
 
-.. image:: _static/retentionservice.png

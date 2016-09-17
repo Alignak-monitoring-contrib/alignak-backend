@@ -1,6 +1,8 @@
 .. _resource-command:
 
 command
+.. image:: ../_static/configcommand.png
+
 ===================
 
 .. csv-table::
@@ -23,4 +25,3 @@ command
    "enable_environment_macros", "boolean", "", "False", ""
    "imported_from", "string", "", "unknown", ""
 
-.. image:: _static/configcommand.png

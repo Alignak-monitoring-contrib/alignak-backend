@@ -1,6 +1,8 @@
 .. _resource-usergroup:
 
 usergroup
+.. image:: ../_static/configusergroup.png
+
 ===================
 
 .. csv-table::
@@ -22,4 +24,3 @@ usergroup
    "_tree_parents", "list of objectid", "", "[]", ":ref:`usergroup <resource-usergroup>`"
    "_users_delete", "list of objectid", "", "[]", ":ref:`user <resource-user>`"
 
-.. image:: _static/configusergroup.png

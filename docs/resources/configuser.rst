@@ -1,6 +1,8 @@
 .. _resource-user:
 
 user
+.. image:: ../_static/configuser.png
+
 ===================
 
 .. csv-table::
@@ -44,4 +46,3 @@ user
    "email", "string", "", "", ""
    "host_notification_options", "list", "", "['d', 'u', 'r', 'f', 's']", ""
 
-.. image:: _static/configuser.png

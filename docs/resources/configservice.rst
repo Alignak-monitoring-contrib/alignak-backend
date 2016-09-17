@@ -1,6 +1,8 @@
 .. _resource-service:
 
 service
+.. image:: ../_static/configservice.png
+
 ===================
 
 .. csv-table::
@@ -113,4 +115,3 @@ service
    "ls_state_type", "string", "", "HARD", ""
    "business_rule_output_template", "string", "", "", ""
 
-.. image:: _static/configservice.png

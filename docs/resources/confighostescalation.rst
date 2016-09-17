@@ -1,6 +1,8 @@
 .. _resource-hostescalation:
 
 hostescalation
+.. image:: ../_static/confighostescalation.png
+
 ===================
 
 .. csv-table::
@@ -28,4 +30,3 @@ hostescalation
    "imported_from", "string", "", "unknown", ""
    "users", "list of objectid", "", "", ":ref:`user <resource-user>`"
 
-.. image:: _static/confighostescalation.png
