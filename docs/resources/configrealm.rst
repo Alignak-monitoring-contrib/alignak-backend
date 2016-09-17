@@ -11,7 +11,7 @@ realm
    "_users_update", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "global_warning_threshold", "integer", "", "3", ""
-   "**name**", "**string**", "**True**", "****", "****"
+   "**name**", "**string**", "**True**", "****", ""
    "definition_order", "integer", "", "100", ""
    "_children", "list of objectid", "", "[]", ":ref:`realm <resource-realm>`"
    "default", "boolean", "", "False", ""

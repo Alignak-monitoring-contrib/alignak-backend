@@ -73,7 +73,7 @@ for filepath in f:
                     type += " of objectid"
 
             if required == 'True':
-                target.write("   \"**%s**\", \"**%s**\", \"**%s**\", \"**%s**\", \"**%s**\"\n" % (line, type, required, default, data_relation))
+                target.write("   \"**%s**\", \"**%s**\", \"**%s**\", \"**%s**\", \"%s\"\n" % (line, type, required, default, data_relation))
             else:
                 target.write("   \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n" % (line, type, required, default, data_relation))
 

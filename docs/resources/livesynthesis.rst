@@ -10,7 +10,7 @@ livesynthesis
    "hosts_up_soft", "integer", "", "0", ""
    "services_warning_hard", "integer", "", "0", ""
    "services_flapping", "integer", "", "0", ""
-   "**_realm**", "**objectid**", "**True**", "****", "**:ref:`realm <resource-realm>`**"
+   "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "hosts_down_soft", "integer", "", "0", ""
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "services_warning_soft", "integer", "", "0", ""
