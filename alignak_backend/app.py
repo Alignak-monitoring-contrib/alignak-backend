@@ -882,8 +882,8 @@ def get_settings(prev_settings):
     :return: None
     """
     settings_filenames = [
-        '/usr/local/etc/alignak_backend/settings.json',
-        '/etc/alignak_backend/settings.json',
+        '/usr/local/etc/alignak-backend/settings.json',
+        '/etc/alignak-backend/settings.json',
         os.path.abspath('./etc/settings.json'),
         os.path.abspath('../etc/settings.json'),
         os.path.abspath('./settings.json')
