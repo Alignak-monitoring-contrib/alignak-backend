@@ -1132,8 +1132,8 @@ with app.test_request_context():
         print("Created default Echo command: %s" % echo_command)
 
     # Create dummy host if not defined
-    hosts = app.data.driver.db['host']
-    dummy_host = hosts.find_one({'name': '_dummy'})
+    hs = app.data.driver.db['host']
+    dummy_host = hs.find_one({'name': '_dummy'})
     if not dummy_host:
         post_internal("host", {
             "name": "_dummy",
@@ -1143,7 +1143,7 @@ with app.test_request_context():
             "_is_template": True,
             "_sub_realm": True
         }, True)
-        dummy_host = hosts.find_one({'name': '_dummy'})
+        dummy_host = hs.find_one({'name': '_dummy'})
         print("Created dummy host: %s" % dummy_host)
 
     # Create default username/user if not defined
