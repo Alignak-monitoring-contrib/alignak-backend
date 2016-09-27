@@ -1105,6 +1105,7 @@ with app.test_request_context():
                                      "is_active": True}, True)
         never = timeperiods.find_one({'name': 'Never'})
         print("Created default Never timeperiod: %s" % never)
+
     # Create default commands if not defined
     commands = app.data.driver.db['command']
     internal_host_up_command = commands.find_one({'name': '_internal_host_up'})
@@ -1129,6 +1130,21 @@ with app.test_request_context():
         }, True)
         echo_command = commands.find_one({'name': '_echo'})
         print("Created default Echo command: %s" % echo_command)
+
+    # Create dummy host if not defined
+    hosts = app.data.driver.db['host']
+    dummy_host = hosts.find_one({'name': '_dummy'})
+    if not dummy_host:
+        post_internal("host", {
+            "name": "_dummy",
+            "alias": "Dummy host for services templates",
+            "check_command": internal_host_up_command['_id'],
+            "_realm": default_realm['_id'],
+            "_is_template": True,
+            "_sub_realm": True
+        }, True)
+        dummy_host = hosts.find_one({'name': '_dummy'})
+        print("Created dummy host: %s" % dummy_host)
 
     # Create default username/user if not defined
     try:
