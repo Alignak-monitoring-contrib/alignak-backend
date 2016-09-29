@@ -6,18 +6,18 @@ Configuration
 Introduction
 ------------
 
-The backend use a configuration file.
+The backend uses a configuration file.
 It is located in one of these folders:
 
 * /usr/local/etc/alignak_backend/settings.json
 * /etc/alignak_backend/settings.json
 
-It's a json structure.
+It's a JSON structured file.
 
 Debug section
 -------------
 
-By default, debug mode is disabled, if you want active it, modify to have::
+By default, debug mode is disabled, if you want to activate it, modify for::
 
     "DEBUG": true,
 
@@ -25,7 +25,7 @@ By default, debug mode is disabled, if you want active it, modify to have::
 Webserver configuration
 -----------------------
 
-It's used in case you run the backend in developer mode.
+It's used in case you want to run the backend in developer mode.
 
 Define IP listening (empty value = listen on all IP)::
 
@@ -76,7 +76,7 @@ You define the values for each methods (GET, POST, PATCH, DELETE). An example::
 MongoDB access
 --------------
 
-Need fill information about the MongoDB to access it in goal to store and get data.
+You need to fill information about the MongoDB to access it in goal to store and get data.
 
 The hostname of the server where the MongoDB run::
 

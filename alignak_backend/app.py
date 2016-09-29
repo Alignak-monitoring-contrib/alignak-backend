@@ -882,8 +882,8 @@ def get_settings(prev_settings):
     :return: None
     """
     settings_filenames = [
-        '/usr/local/etc/alignak_backend/settings.json',
-        '/etc/alignak_backend/settings.json',
+        '/usr/local/etc/alignak-backend/settings.json',
+        '/etc/alignak-backend/settings.json',
         os.path.abspath('./etc/settings.json'),
         os.path.abspath('../etc/settings.json'),
         os.path.abspath('./settings.json')
@@ -910,6 +910,7 @@ def get_settings(prev_settings):
                         prev_settings[key] = tuple(value)
                     else:
                         prev_settings[key] = value
+                print("Using settings file: %s" % filename)
                 return
 
 
@@ -1104,6 +1105,47 @@ with app.test_request_context():
                                      "is_active": True}, True)
         never = timeperiods.find_one({'name': 'Never'})
         print("Created default Never timeperiod: %s" % never)
+
+    # Create default commands if not defined
+    commands = app.data.driver.db['command']
+    internal_host_up_command = commands.find_one({'name': '_internal_host_up'})
+    if not internal_host_up_command:
+        post_internal("command", {
+            "name": "_internal_host_up",
+            "alias": "Host/service is always UP/OK",
+            "command_line": "_internal_host_up",
+            "_realm": default_realm['_id'],
+            "_sub_realm": True
+        }, True)
+        internal_host_up_command = commands.find_one({'name': '_internal_host_up'})
+        print("Created default Always UP command: %s" % internal_host_up_command)
+    echo_command = commands.find_one({'name': '_echo'})
+    if not echo_command:
+        post_internal("command", {
+            "name": "_echo",
+            "alias": "Host/service is always UP/OK",
+            "command_line": "_echo",
+            "_realm": default_realm['_id'],
+            "_sub_realm": True
+        }, True)
+        echo_command = commands.find_one({'name': '_echo'})
+        print("Created default Echo command: %s" % echo_command)
+
+    # Create dummy host if not defined
+    hs = app.data.driver.db['host']
+    dummy_host = hs.find_one({'name': '_dummy'})
+    if not dummy_host:
+        post_internal("host", {
+            "name": "_dummy",
+            "alias": "Dummy host for services templates",
+            "check_command": internal_host_up_command['_id'],
+            "_realm": default_realm['_id'],
+            "_is_template": True,
+            "_sub_realm": True
+        }, True)
+        dummy_host = hs.find_one({'name': '_dummy'})
+        print("Created dummy host: %s" % dummy_host)
+
     # Create default username/user if not defined
     try:
         users = app.data.driver.db['user']

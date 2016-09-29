@@ -195,7 +195,7 @@ def get_schema():
             'notification_options': {
                 'type': 'list',
                 'default': ['w', 'u', 'c', 'r', 'f', 's'],
-                'allowed': ['w', 'u', 'c', 'r', 'f', 's']
+                'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n']
             },
             'notifications_enabled': {
                 'type': 'boolean',
