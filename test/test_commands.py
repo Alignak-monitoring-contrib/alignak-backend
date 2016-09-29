@@ -79,7 +79,7 @@ class TestGroups(unittest2.TestCase):
 
     def test_default_commands(self):
         """
-        Default cmomands exist ..
+        Default commands exist ..
         :return:
         """
 
