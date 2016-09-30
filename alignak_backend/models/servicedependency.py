@@ -112,11 +112,13 @@ def get_schema():
             },
             'execution_failure_criteria': {
                 'type': 'list',
-                'default': ['n']
+                'default': ['u', 'c', 'w'],
+                'allowed': ['o', 'w', 'u', 'c', 'p', 'n']
             },
             'notification_failure_criteria': {
                 'type': 'list',
-                'default': ['n']
+                'default': ['u', 'c', 'w'],
+                'allowed': ['o', 'w', 'u', 'c', 'p', 'n']
             },
             'dependency_period': {
                 'type': 'objectid',

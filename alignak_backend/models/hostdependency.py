@@ -97,7 +97,7 @@ def get_schema():
             },
             'notification_failure_criteria': {
                 'type': 'list',
-                'default': ['n'],
+                'default': ['d', 'u', 'p'],
                 'allowed': ['o', 'd', 'u', 'p', 'n']
             },
             'dependency_period': {
