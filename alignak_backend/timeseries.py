@@ -7,9 +7,9 @@
     This module manages the timeseries carbon / influxdb
 """
 from __future__ import print_function
+import re
 from flask import current_app, g
 from influxdb import InfluxDBClient
-import re
 
 from eve.methods.post import post_internal
 from alignak_backend.carboniface import CarbonIface
@@ -70,7 +70,7 @@ class Timeseries(object):
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
             # case we have .timestamp in the name
-            m = re.search('^(.*)\.[\d]{10}$', fields['name'])
+            m = re.search(r'^(.*)\.[\d]{10}$', fields['name'])
             if m:
                 fields['name'] = m.group(1)
 
