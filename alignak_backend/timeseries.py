@@ -68,12 +68,13 @@ class Timeseries(object):
         perfdata = PerfDatas(item['perf_data'])
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
-            data_timeseries['data'].append(
-                {
-                    'name': fields['name'],
-                    'value': fields
-                }
-            )
+            if fields['value'] is not None:
+                data_timeseries['data'].append(
+                    {
+                        'name': fields['name'],
+                        'value': fields
+                    }
+                )
         return data_timeseries
 
     @staticmethod

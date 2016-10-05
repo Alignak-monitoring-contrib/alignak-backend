@@ -192,7 +192,47 @@ class TestTimeseries(unittest2.TestCase):
                 }
             ]
         }
-        self.assertItemsEqual(reference, ret)
+        self.assertItemsEqual(reference['data'], ret['data'])
+
+    def test_prepare_data_special(self):
+        """
+        Prepare timeseries from a special perfdata, with name instead numerical value
+
+        :return: None
+        """
+        item = {
+            'host': 'srv001',
+            'service': 'check_xxx',
+            'state': 'OK',
+            'state_type': 'HARD',
+            'state_id': 0,
+            'acknowledged': False,
+            'last_check': int(time.time()),
+            'last_state': 'OK',
+            'output': 'em0:UP (0.0Mbps/0.0Mbps/0.0/0.0/0.0/0.0) (1 UP): OK',
+            'long_output': '',
+            'perf_data': 'cache_descr_names=em0 cache_descr_time=1475663830',
+            '_realm': 'All.Propieres'
+        }
+
+        ret = Timeseries.prepare_data(item)
+        reference = {
+            'data': [
+                {
+                    'name': 'cache_descr_time',
+                    'value': {
+                        'name': 'cache_descr_time',
+                        'min': None,
+                        'max': None,
+                        'value': 1475663830,
+                        'warning': None,
+                        'critical': None,
+                        'uom': ''
+                    }
+                }
+            ]
+        }
+        self.assertItemsEqual(reference['data'], ret['data'])
 
     def test_generate_realm_prefix(self):
         """
