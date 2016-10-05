@@ -9,6 +9,7 @@
 from __future__ import print_function
 from flask import current_app, g
 from influxdb import InfluxDBClient
+import re
 
 from eve.methods.post import post_internal
 from alignak_backend.carboniface import CarbonIface
@@ -68,6 +69,11 @@ class Timeseries(object):
         perfdata = PerfDatas(item['perf_data'])
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
+            # case we have .timestamp in the name
+            m = re.search('^(.*)\.[\d]{10}$', fields['name'])
+            if m:
+                fields['name'] = m.group(1)
+
             if fields['value'] is not None:
                 data_timeseries['data'].append(
                     {
