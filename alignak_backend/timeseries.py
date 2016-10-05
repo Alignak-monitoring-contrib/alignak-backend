@@ -68,12 +68,13 @@ class Timeseries(object):
         perfdata = PerfDatas(item['perf_data'])
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
-            data_timeseries['data'].append(
-                {
-                    'name': fields['name'],
-                    'value': fields
-                }
-            )
+            if fields['value'] is not None:
+                data_timeseries['data'].append(
+                    {
+                        'name': fields['name'],
+                        'value': fields
+                    }
+                )
         return data_timeseries
 
     @staticmethod
@@ -181,6 +182,7 @@ class Timeseries(object):
         database = current_app.config.get('INFLUXDB_DATABASE')
         json_body = []
         for d in data:
+            print(d)
             json_body.append({
                 "measurement": str(d['name']),
                 "tags": {
