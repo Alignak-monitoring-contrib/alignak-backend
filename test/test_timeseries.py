@@ -196,7 +196,9 @@ class TestTimeseries(unittest2.TestCase):
 
     def test_prepare_data_special(self):
         """
-        Prepare timeseries from a special perfdata, with name instead numerical value
+        Prepare timeseries from a special perfdata, with
+        * name instead numerical value
+        * name composed by: string.timestamp
 
         :return: None
         """
@@ -211,7 +213,8 @@ class TestTimeseries(unittest2.TestCase):
             'last_state': 'OK',
             'output': 'em0:UP (0.0Mbps/0.0Mbps/0.0/0.0/0.0/0.0) (1 UP): OK',
             'long_output': '',
-            'perf_data': 'cache_descr_names=em0 cache_descr_time=1475663830',
+            'perf_data': "cache_descr_names=em0 cache_descr_time=1475663830 "
+                         "em0_out_octet.1475670730'=86608341539",
             '_realm': 'All.Propieres'
         }
 
@@ -225,6 +228,18 @@ class TestTimeseries(unittest2.TestCase):
                         'min': None,
                         'max': None,
                         'value': 1475663830,
+                        'warning': None,
+                        'critical': None,
+                        'uom': ''
+                    }
+                },
+                {
+                    'name': 'em0_out_octet',
+                    'value': {
+                        'name': 'em0_out_octet',
+                        'min': None,
+                        'max': None,
+                        'value': 86608341539,
                         'warning': None,
                         'critical': None,
                         'uom': ''
