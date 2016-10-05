@@ -182,7 +182,6 @@ class Timeseries(object):
         database = current_app.config.get('INFLUXDB_DATABASE')
         json_body = []
         for d in data:
-            print(d)
             json_body.append({
                 "measurement": str(d['name']),
                 "tags": {
