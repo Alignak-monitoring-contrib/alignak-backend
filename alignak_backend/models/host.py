@@ -163,8 +163,8 @@ def get_schema():
             },
             'flap_detection_options': {
                 'type': 'list',
-                'default': ['o', 'd', 'u'],
-                'allowed': ['o', 'd', 'u']
+                'default': ['o', 'd', 'x'],
+                'allowed': ['o', 'd', 'x']
             },
             'process_perf_data': {
                 'type': 'boolean',
@@ -209,8 +209,8 @@ def get_schema():
             },
             'notification_options': {
                 'type': 'list',
-                'default': ['d', 'u', 'r', 'f', 's'],
-                'allowed': ['d', 'u', 'r', 'f', 's', 'n']
+                'default': ['d', 'x', 'r', 'f', 's'],
+                'allowed': ['d', 'x', 'r', 'f', 's', 'n']
             },
             'notifications_enabled': {
                 'type': 'boolean',
@@ -392,7 +392,7 @@ def get_schema():
             },
             'snapshot_criteria': {
                 'type': 'list',
-                'default': ['d', 'u']
+                'default': ['d', 'x']
             },
             'snapshot_interval': {
                 'type': 'integer',
