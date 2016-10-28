@@ -67,6 +67,10 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
+            'address6': {
+                'type': 'string',
+                'default': ''
+            },
             'parents': {
                 'type': 'list',
                 'schema': {
