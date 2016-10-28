@@ -38,7 +38,7 @@ same features level. As of it, take care to install the same minor version on yo
 ensure compatibility between all the packages. Use 0.4.x version of Backend import and Backend
 client with a 0.4.x version of the Backend.
 
-The current version of Alignak backend is 0.5.1.
+The current version of Alignak backend is 0.5.4.
 
 This version is published on PyPi and can be installed with ``pip install alignak_backend``.
 

@@ -98,8 +98,8 @@ def get_schema():
                 'type': 'string',
                 'minlength': 1,
                 'maxlength': 1,
-                'default': 'u',
-                'allowed': ["o", "d", "u"]
+                'default': 'x',
+                'allowed': ["o", "d", "x"]
             },
             'max_check_attempts': {
                 'type': 'integer',
@@ -138,8 +138,8 @@ def get_schema():
             },
             'freshness_state': {
                 'type': 'string',
-                'default': 'u',
-                'allowed': ["o", "d", "u"]
+                'default': 'x',
+                'allowed': ["o", "d", "x"]
             },
             'event_handler': {
                 'type': 'objectid',
@@ -223,7 +223,7 @@ def get_schema():
             'stalking_options': {
                 'type': 'list',
                 'default': [],
-                'allowed': ['o', 'd', 'u']
+                'allowed': ['o', 'd', 'x']
             },
             'notes': {
                 'type': 'string',

@@ -103,7 +103,7 @@ def get_schema():
                 'minlength': 1,
                 'maxlength': 1,
                 'default': 'u',
-                'allowed': ["o", "w", "c", "u"]
+                'allowed': ["o", "w", "c", "u", "x"]
             },
             'max_check_attempts': {
                 'type': 'integer',
@@ -226,7 +226,7 @@ def get_schema():
             'stalking_options': {
                 'type': 'list',
                 'default': [],
-                'allowed': ['o', 'w', 'u', 'c']
+                'allowed': ['o', 'w', 'u', 'c', 'x']
             },
             'notes': {
                 'type': 'string',
