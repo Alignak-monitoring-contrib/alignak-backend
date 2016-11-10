@@ -143,7 +143,7 @@ def get_schema():
             'freshness_state': {
                 'type': 'string',
                 'default': 'o',
-                'allowed': ["o", "w", "c", "u"]
+                'allowed': ["o", "w", "c", "u", "x"]
             },
             'event_handler': {
                 'type': 'objectid',
