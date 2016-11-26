@@ -64,6 +64,11 @@ def get_schema():
                 'required': True,
                 'default': False
             },
+            'type': {
+                'type': 'string',
+                'required': True,
+                'allowed': ['arbiter', 'scheduler', 'poller', 'broker', 'reactionner', 'receiver']
+            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {
