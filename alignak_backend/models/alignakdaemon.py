@@ -29,7 +29,7 @@ def get_schema():
                 'required': True,
                 'empty': False,
             },
-            'ip': {
+            'address': {
                 'type': 'string',
                 'required': True,
                 'empty': False,
