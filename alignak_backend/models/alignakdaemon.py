@@ -40,7 +40,7 @@ def get_schema():
                 'empty': False,
             },
             'last_check': {
-                'type': 'datetime',
+                'type': 'integer',
                 'required': True,
                 'empty': False,
             },
