@@ -125,7 +125,15 @@ class TestActions(unittest2.TestCase):
 
         :return: None
         """
-        for resource in ['host/srv001', 'service', 'command', 'history',
+        response = requests.get(cls.endpoint + '/host', auth=cls.auth)
+        resp = response.json()
+        for host in resp['_items']:
+            if host['name'] in ['srv001']:
+                headers = {'If-Match': host['_etag']}
+                response = requests.delete(cls.endpoint + '/host/' + host['_id'],
+                                           headers=headers, auth=cls.auth)
+
+        for resource in ['service', 'command', 'history',
                          'actionacknowledge', 'actiondowntime', 'actionforcecheck']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
