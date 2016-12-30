@@ -19,6 +19,6 @@ actionacknowledge
    "persistent", "boolean", "", "True", ""
    "_sub_realm", "boolean", "", "False", ""
    "processed", "boolean", "", "False", ""
-   "action", "string", "", "OK", ""
+   "action", "string", "", "add", ""
    "**user**", "**objectid**", "**True**", "****", ":ref:`user <resource-user>`"
 

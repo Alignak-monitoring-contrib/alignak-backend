@@ -82,6 +82,12 @@ The endpoint to get all items of a resource is::
 
 The items will be in response in section *_items*.
 
+Curl example::
+
+    curl -X GET -H "Content-Type: application/json"
+    --user "1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c:"
+    http://127.0.0.1:5000/service
+
 
 ~~~~~~~~~~~~~~~~~~~~~
 All items + filtering

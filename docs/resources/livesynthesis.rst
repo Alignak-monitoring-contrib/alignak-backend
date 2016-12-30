@@ -10,6 +10,7 @@ livesynthesis
    :header: "Parameter", "Type", "Required", "Default", "Data relation"
 
    "services_acknowledged", "integer", "", "0", ""
+   "services_unreachable_soft", "integer", "", "0", ""
    "hosts_up_soft", "integer", "", "0", ""
    "services_warning_hard", "integer", "", "0", ""
    "services_flapping", "integer", "", "0", ""
@@ -23,6 +24,7 @@ livesynthesis
    "services_total", "integer", "", "0", ""
    "hosts_in_downtime", "integer", "", "0", ""
    "hosts_business_impact", "integer", "", "0", ""
+   "services_unreachable_hard", "integer", "", "0", ""
    "services_ok_hard", "integer", "", "0", ""
    "hosts_unreachable_hard", "integer", "", "0", ""
    "services_critical_soft", "integer", "", "0", ""

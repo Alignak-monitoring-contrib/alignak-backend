@@ -9,12 +9,12 @@ timeseriesretention
 .. csv-table::
    :header: "Parameter", "Type", "Required", "Default", "Data relation"
 
-   "**for_graphite**", "**boolean**", "**True**", "**False**", ""
+   "influxdb", "objectid", "", "None", ":ref:`influxdb <resource-influxdb>`"
    "**host**", "**string**", "**True**", "****", ""
    "**realm**", "**string**", "**True**", "****", ""
    "**name**", "**string**", "**True**", "****", ""
    "**service**", "**string**", "**True**", "****", ""
    "**timestamp**", "**integer**", "**True**", "****", ""
-   "**for_influxdb**", "**boolean**", "**True**", "**False**", ""
+   "graphite", "objectid", "", "None", ":ref:`graphite <resource-graphite>`"
    "**value**", "**integer**", "**True**", "****", ""
 
