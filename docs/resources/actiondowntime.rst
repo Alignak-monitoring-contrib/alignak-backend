@@ -19,7 +19,7 @@ actiondowntime
    "**service**", "**objectid**", "**True**", "****", ":ref:`service <resource-service>`"
    "_sub_realm", "boolean", "", "False", ""
    "processed", "boolean", "", "False", ""
-   "action", "string", "", "OK", ""
+   "action", "string", "", "add", ""
    "fixed", "boolean", "", "True", ""
    "end_time", "integer", "", "86400", ""
 

@@ -82,6 +82,12 @@ The endpoint to get all items of a resource is::
 
 The items will be in response in section *_items*.
 
+Curl example::
+
+    curl -X GET -H "Content-Type: application/json"
+    --user "1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c:"
+    http://127.0.0.1:5000/service
+
 
 ~~~~~~~~~~~~~~~~~~~~~
 All items + filtering
@@ -401,7 +407,7 @@ For Carbon/Graphite, use resource _graphite_, composed with information:
 Curl example::
 
     curl -X POST -H "Content-Type: application/json"
-    -H "Authorization: Basic MTQ3NjU2NDExMDA0MS1kN2FlNDYwZi1mZWQ3LTQ5YjQtYWMwZS04NTRlNGU0ODhmOWU6"
+    --user "1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c:"
     -H "Cache-Control: no-cache" -d '[
 	{
         "name": "graphite_001",
@@ -429,7 +435,7 @@ For InfluxDB, use resource _influxdb_:
 Curl example::
 
     curl -X POST -H "Content-Type: application/json"
-    -H "Authorization: Basic MTQ3NjU2NDExMDA0MS1kN2FlNDYwZi1mZWQ3LTQ5YjQtYWMwZS04NTRlNGU0ODhmOWU6"
+    --user "1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c:"
     -H "Cache-Control: no-cache" -d '[
 	{
         "name": "influx_001",
@@ -480,7 +486,7 @@ Define the Grafana with resource _grafana_:
 Curl example::
 
     curl -X POST -H "Content-Type: application/json"
-    -H "Authorization: Basic MTQ3NjU2NDExMDA0MS1kN2FlNDYwZi1mZWQ3LTQ5YjQtYWMwZS04NTRlNGU0ODhmOWU6"
+    --user "1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c:"
     -H "Cache-Control: no-cache" -d '[
 	{
         "name": "influx_001",

@@ -11,7 +11,7 @@ hostdependency
 
    "inherits_parent", "boolean", "", "False", ""
    "_users_update", "list of objectid", "", "", ":ref:`user <resource-user>`"
-   "notification_failure_criteria", "list", "", "['n']", ""
+   "notification_failure_criteria", "list", "", "['d', 'u', 'p']", ""
    "**name**", "**string**", "**True**", "****", ""
    "definition_order", "integer", "", "100", ""
    "_sub_realm", "boolean", "", "False", ""
