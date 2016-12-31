@@ -497,10 +497,10 @@ def get_schema():
                 'default': 0.0
             },
 
-            # Check type (0: active, 1: passive)
-            'ls_check_type': {
-                'type': 'integer',
-                'default': 0
+            # Check type (True: active, False: passive)
+            'ls_passive_check': {
+                'type': 'boolean',
+                'default': False
             },
 
             # Attempt number
