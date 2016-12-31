@@ -85,6 +85,10 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
+            'last_state_changed': {
+                'type': 'integer',
+                'default': 0
+            },
             'state_changed': {
                 'type': 'boolean',
                 'default': False
