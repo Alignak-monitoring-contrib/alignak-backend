@@ -81,7 +81,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         :return: None
         """
-        for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis']:
+        for resource in ['host', 'service', 'command', 'livesynthesis']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
         response = requests.get(cls.endpoint + '/realm', auth=cls.auth)
@@ -327,7 +327,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         # Update live state for an host
         # => DOWN SOFT
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -384,7 +384,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # => DOWN HARD
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -440,7 +440,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # => last_(state|state_type) are changed
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -496,7 +496,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # we acknowledge the host
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -552,7 +552,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # remove acknowledge
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -608,7 +608,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # we downtime the host
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -665,7 +665,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # remove downtime
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'DOWN',
             'ls_state_id': 1,
@@ -813,7 +813,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         # Update live state for a service
         # => DOWN SOFT
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -869,7 +869,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # => DOWN HARD
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -924,7 +924,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # => last_(state|state_type) are changed
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -979,7 +979,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # we acknowledge the service
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -1034,7 +1034,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # remove acknowledge
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -1089,7 +1089,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
         # we downtime the service
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,
@@ -1146,7 +1146,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_in_downtime'], 1)
 
         # remove downtime
-        time.sleep(1)
+        time.sleep(.1)
         data = {
             'ls_state': 'CRITICAL',
             'ls_state_id': 1,

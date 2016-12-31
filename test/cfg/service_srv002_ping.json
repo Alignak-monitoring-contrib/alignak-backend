@@ -1,0 +1,6 @@
+{
+    "name": "ping2",
+    "host": "srv002",
+    "check_command": "ping",
+    "business_impact": 5
+}

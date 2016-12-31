@@ -504,7 +504,11 @@ def get_schema():
                 'default': 0
             },
 
-
+            # Service computed overall state identifier
+            '_overall_state_id': {
+                'type': 'integer',
+                'default': 3
+            },
 
             '_realm': {
                 'type': 'objectid',
