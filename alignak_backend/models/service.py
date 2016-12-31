@@ -437,6 +437,10 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
+            'ls_acknowledgement_type': {
+                'type': 'integer',
+                'default': 1
+            },
             'ls_downtimed': {
                 'type': 'boolean',
                 'default': False
@@ -452,7 +456,7 @@ def get_schema():
             'ls_last_state': {
                 'type': 'string',
                 'default': 'OK',
-                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UNREACHABLE"]
             },
             'ls_last_state_type': {
                 'type': 'string',
@@ -495,6 +499,47 @@ def get_schema():
                 'type': 'float',
                 'default': 0.0
             },
+
+            # Check type (0: active, 1: passive)
+            'ls_check_type': {
+                'type': 'integer',
+                'default': 0
+            },
+
+            # Attempt number
+            'ls_attempt': {
+                'type': 'integer',
+                'default': 0
+            },
+
+            # Last time hard state changed
+            'ls_last_hard_state_changed': {
+                'type': 'integer',
+                'default': 0
+            },
+
+            # Last time in the corresponding state
+            'ls_last_time_ok': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_last_time_warning': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_last_time_critical': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_last_time_unknown': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_last_time_unreachable': {
+                'type': 'integer',
+                'default': 0
+            },
+
             'ls_grafana': {
                 'type': 'boolean',
                 'default': False

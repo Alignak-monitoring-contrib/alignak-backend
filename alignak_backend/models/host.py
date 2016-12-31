@@ -434,6 +434,10 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
+            'ls_acknowledgement_type': {
+                'type': 'integer',
+                'default': 1
+            },
             'ls_downtimed': {
                 'type': 'boolean',
                 'default': False
@@ -492,6 +496,43 @@ def get_schema():
                 'type': 'float',
                 'default': 0.0
             },
+
+            # Check type (0: active, 1: passive)
+            'ls_check_type': {
+                'type': 'integer',
+                'default': 0
+            },
+
+            # Attempt number
+            'ls_attempt': {
+                'type': 'integer',
+                'default': 0
+            },
+
+            # Last time hard state changed
+            'ls_last_hard_state_changed': {
+                'type': 'integer',
+                'default': 0
+            },
+
+            # Last time in the corresponding state
+            'ls_last_time_up': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_last_time_down': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_last_time_unknown': {
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_last_time_unreachable': {
+                'type': 'integer',
+                'default': 0
+            },
+
             'ls_grafana': {
                 'type': 'boolean',
                 'default': False
