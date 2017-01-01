@@ -357,7 +357,7 @@ def get_schema():
                 'type': 'integer',
                 'default': 2
             },
-            'trigger': {
+            'trigger_name': {
                 'type': 'string',
                 'default': ''
             },
