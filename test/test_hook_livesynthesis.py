@@ -875,7 +875,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
             'ls_state_id': 1,
             'ls_state_type': 'HARD',
             'ls_last_check': 1465685913,
-            'ls_last_state': 'DOWN',
+            'ls_last_state': 'CRITICAL',
             'ls_last_state_type': 'SOFT',
             'ls_output': 'CRITICAL - Plugin timed out after 10 seconds',
             'ls_long_output': '',
