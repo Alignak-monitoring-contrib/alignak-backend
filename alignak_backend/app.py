@@ -1347,6 +1347,10 @@ with app.test_request_context():
     app.on_update_service += Template.on_update_service
     app.on_updated_service += Template.on_updated_service
 
+    app.on_pre_POST_user += Template.pre_post_user
+    app.on_update_user += Template.on_update_user
+    app.on_updated_user += Template.on_updated_user
+
     # Initial livesynthesis
     Livesynthesis.recalculate()
 
