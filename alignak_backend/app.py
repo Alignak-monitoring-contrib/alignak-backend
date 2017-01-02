@@ -1649,6 +1649,7 @@ def cron_grafana():
     :return: None
     """
     with app.test_request_context():
+        resp = {}
         hosts_db = current_app.data.driver.db['host']
         grafana_db = current_app.data.driver.db['grafana']
         realm_db = current_app.data.driver.db['realm']
@@ -1656,17 +1657,25 @@ def cron_grafana():
         grafanas = grafana_db.find()
         for grafana in grafanas:
             graf = Grafana(grafana)
-            # get the realms of the grafana
-            realm = realm_db.find_one({'_id': grafana['_realm']})
-            if grafana['_sub_realm']:
-                children = realm['_all_children']
-                children.append(realm['_id'])
-                hosts = hosts_db.find({'ls_grafana': False, '_realm': {"$in": children}})
-            else:
-                hosts = hosts_db.find({'ls_grafana': False, '_realm': realm['_id']})
-            for host in hosts:
-                if host['ls_perf_data']:
-                    graf.create_dashboard(host['_id'])
+            resp[grafana['name']] = {
+                "connection": graf.connection,
+                "create_dashboard": []
+            }
+            if graf.connection:
+                # get the realms of the grafana
+                realm = realm_db.find_one({'_id': grafana['_realm']})
+                if grafana['_sub_realm']:
+                    children = realm['_all_children']
+                    children.append(realm['_id'])
+                    hosts = hosts_db.find({'ls_grafana': False, '_realm': {"$in": children}})
+                else:
+                    hosts = hosts_db.find({'ls_grafana': False, '_realm': realm['_id']})
+                for host in hosts:
+                    if host['ls_perf_data']:
+                        created = graf.create_dashboard(host['_id'])
+                        if created:
+                            resp[grafana['name']]['create_dashboard'].append([host['name']])
+        return jsonify(resp)
 
 
 @app.route('/docs')
