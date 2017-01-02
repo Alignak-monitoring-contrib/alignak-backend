@@ -428,7 +428,7 @@ def get_schema():
             },
             'ls_state_id': {
                 'type': 'integer',
-                'default': 2
+                'default': 3
             },
             'ls_acknowledged': {
                 'type': 'boolean',
@@ -542,9 +542,11 @@ def get_schema():
                 'default': 0
             },
 
-
-
-
+            # Host computed overall state identifier
+            '_overall_state_id': {
+                'type': 'integer',
+                'default': 3
+            },
 
             '_realm': {
                 'type': 'objectid',

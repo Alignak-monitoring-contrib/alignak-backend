@@ -111,7 +111,6 @@ class MyTokenAuth(TokenAuth):
             g.resources_delete_parents = {}
             g.resources_delete_custom = {}
             for rights in userrestrictrole:
-                # print("User role: %s" % rights)
                 self.add_resources_realms('read', rights, False, g.resources_get, resource_list,
                                           get_parents)
                 self.add_resources_realms('read', rights, True, g.resources_get_custom,
@@ -125,7 +124,6 @@ class MyTokenAuth(TokenAuth):
                                           resource_list)
                 self.add_resources_realms('delete', rights, True, g.resources_delete_custom,
                                           resource_list)
-            # print("Read allowed: %s" % g.resources_get)
             for resource in g.resources_get:
                 g.resources_get[resource] = list(set(g.resources_get[resource]))
                 if resource in g.resources_get_custom:
@@ -548,7 +546,6 @@ def after_insert_actionforcecheck(items):
             'message': item['comment']
         }
         post_internal("history", data, True)
-        print("Created new history for forcecheck: %s" % data)
 
 
 def after_update_actionforcecheck(updated, original):
@@ -585,7 +582,6 @@ def after_update_actionforcecheck(updated, original):
             }
         }
         post_internal("history", data, True)
-        print("Created new history for forcecheck: %s" % data)
 
 
 # Hosts groups
@@ -975,11 +971,39 @@ def after_delete_realm(item):
 
 
 # Hosts/ services
-def pre_host_service_patch(updates, original):
+def pre_host_patch(updates, original):
     """
-    Hook before update.
-    When updating an host or service, if only the live state is updated, do not change the
-    _updated field.
+    Hook before updating an host element.
+
+    When updating an host, if only the live state is updated, do not change the
+    _updated field and compute the new host overall state..
+
+    Compute the host overall state identifier, including:
+    - the acknowledged state
+    - the downtime state
+
+    The worst state is (prioritized):
+    - an host down (4)
+    - an host unreachable (3)
+    - an host downtimed (2)
+    - an host acknowledged (1)
+    - an host up (0)
+
+    If the host overall state is <= 2, then the host overall state is the maximum value
+    of the host overall state and all the host services overall states.
+
+    The overall state of an host is:
+    - 0 if the host is UP and all its services are OK
+    - 1 if the host is DOWN or UNREACHABLE and acknowledged or
+        at least one of its services is acknowledged and
+        no other services are WARNING or CRITICAL
+    - 2 if the host is DOWN or UNREACHABLE and in a scheduled downtime or
+        at least one of its services is in a scheduled downtime and no
+        other services are WARNING or CRITICAL
+    - 3 if the host is UNREACHABLE or
+        at least one of its services is WARNING
+    - 4 if the host is DOWN or
+        at least one of its services is CRITICAL
 
     The _updated field is used by the Alignak arbiter to reload the configuration and we need to
     avoid reloading when the live state is updated.
@@ -990,14 +1014,150 @@ def pre_host_service_patch(updates, original):
     :type original: dict
     :return: None
     """
-    # pylint: disable=unused-argument
-
     for key in updates:
-        if key not in ['_updated', '_realm'] and not key.startswith('ls_'):
+        if key not in ['_overall_state_id', '_updated', '_realm'] and not key.startswith('ls_'):
             break
     else:
+        # We updated the host live state, compute the new overall state, or
+        # We updated some host services live state, compute the new overall state
+        if ('_overall_state_id' in updates and updates['_overall_state_id'] == -1) or \
+                ('ls_state_type' in updates and updates['ls_state_type'] == 'HARD'):
+
+            overall_state = 0
+
+            acknowledged = original['ls_acknowledged']
+            if 'ls_acknowledged' in updates:
+                acknowledged = updates['ls_acknowledged']
+
+            downtimed = original['ls_downtimed']
+            if 'ls_downtimed' in updates:
+                downtimed = updates['ls_downtimed']
+
+            state = original['ls_state']
+            if 'ls_state' in updates:
+                state = updates['ls_state']
+            state = state.upper()
+
+            if acknowledged:
+                overall_state = 1
+            elif downtimed:
+                overall_state = 2
+            else:
+                if state == 'UNREACHABLE':
+                    overall_state = 3
+                elif state == 'DOWN':
+                    overall_state = 4
+
+            if overall_state <= 2:
+                services_drv = current_app.data.driver.db['service']
+                services = services_drv.find({'host': original['_id']})
+                for service in services:
+                    if service['ls_state_type'] == 'HARD':
+                        overall_state = max(overall_state, service['_overall_state_id'])
+
+            # Get the host services overall states
+            updates['_overall_state_id'] = overall_state
+
         # Only some live state fields, do not change _updated field
         del updates['_updated']
+
+
+def pre_service_patch(updates, original):
+    """
+    Hook before updating a service element.
+
+    When updating a service, if only the live state is updated, do not change the
+    _updated field and compute the new service overall state..
+
+    Compute the service overall state identifier, including:
+    - the acknowledged state
+    - the downtime state
+
+    The worst state is (prioritized):
+    - a service critical or unreachable (4)
+    - a service warning or unknown (3)
+    - a service downtimed (2)
+    - a service acknowledged (1)
+    - a service ok (0)
+
+    *Note* that services in unknown state are considered as warning, and unreachable ones
+    are considered as critical!
+
+    The _updated field is used by the Alignak arbiter to reload the configuration and we need to
+    avoid reloading when the live state is updated.
+
+    :param updates: list of host fields to update
+    :type updates: dict
+    :param original: list of original fields
+    :type original: dict
+    :return: None
+    """
+
+    if '_overall_state_id' in updates:
+        abort(make_response("Updating _overall_state_id for a service is forbidden", 412))
+
+    for key in updates:
+        if key not in ['_overall_state_id', '_updated', '_realm'] and not key.startswith('ls_'):
+            break
+    else:
+        # pylint: disable=too-many-boolean-expressions
+        if 'ls_state_type' in updates and updates['ls_state_type'] == 'HARD':
+            # We updated the service live state, compute the new overall state
+            if ('ls_state' in updates and updates['ls_state'] != original['ls_state']) or \
+                    ('ls_acknowledged' in updates and
+                     updates['ls_acknowledged'] != original['ls_acknowledged']) or \
+                    ('ls_downtimed' in updates and
+                     updates['ls_downtimed'] != original['ls_downtimed']):
+                overall_state = 0
+
+                acknowledged = original['ls_acknowledged']
+                if 'ls_acknowledged' in updates:
+                    acknowledged = updates['ls_acknowledged']
+
+                downtimed = original['ls_downtimed']
+                if 'ls_downtimed' in updates:
+                    downtimed = updates['ls_downtimed']
+
+                state = original['ls_state']
+                if 'ls_state' in updates:
+                    state = updates['ls_state']
+                state = state.upper()
+
+                if acknowledged:
+                    overall_state = 1
+                elif downtimed:
+                    overall_state = 2
+                else:
+                    if state == 'WARNING':
+                        overall_state = 3
+                    elif state == 'CRITICAL':
+                        overall_state = 4
+                    elif state == 'UNKNOWN':
+                        overall_state = 3
+                    elif state == 'UNREACHABLE':
+                        overall_state = 4
+
+                updates['_overall_state_id'] = overall_state
+
+        # Only updated some live state fields, do not change _updated field
+        del updates['_updated']
+
+
+def after_updated_service(updated, original):
+    """
+    Hook called after a service got updated
+
+    :param updated: updated fields
+    :type updated: dict
+    :param original: original fields
+    :type original: dict
+    :return: None
+    """
+    if '_overall_state_id' in updated and \
+            updated['_overall_state_id'] != original['_overall_state_id']:
+        # Service overall state changed, we should update its host overall state
+        lookup = {"_id": original['host']}
+        patch_internal('host', {"_overall_state_id": -1}, False, False, **lookup)
 
 
 # Users
@@ -1179,8 +1339,9 @@ app = Eve(
 app.on_pre_GET += pre_get
 app.on_insert_user += pre_user_post
 app.on_update_user += pre_user_patch
-app.on_update_host += pre_host_service_patch
-app.on_update_service += pre_host_service_patch
+app.on_update_host += pre_host_patch
+app.on_update_service += pre_service_patch
+app.on_updated_service += after_updated_service
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
 app.on_update_realm += pre_realm_patch
