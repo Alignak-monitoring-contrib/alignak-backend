@@ -3,32 +3,48 @@ Alignak Backend
 
 *Python Eve REST Backend for Alignak monitoring framework*
 
-Build status (stable release)
------------------------------
-
-.. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend.svg?branch=master
-    :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend
-
-.. image:: https://readthedocs.org/projects/alignak-backend/badge/?version=latest
-  :target: http://alignak-backend.readthedocs.org/en/latest/?badge=latest
-  :alt: Documentation Status
-
-
-Build status (development release)
-----------------------------------
-
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend.svg?branch=develop
     :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend
+    :alt: Develop branch build status
+
+.. image:: https://readthedocs.org/projects/alignak-backend/badge/?version=latest
+    :target: http://alignak-backend.readthedocs.org/en/latest/?badge=latest
+    :alt: Latest documentation Status
 
 .. image:: https://readthedocs.org/projects/alignak-backend/badge/?version=develop
-  :target: http://alignak-backend.readthedocs.org/en/develop/?badge=develop
-  :alt: Documentation Status
+    :target: http://alignak-backend.readthedocs.org/en/develop/?badge=develop
+    :alt: Development documentation Status
+
+.. image:: https://badge.fury.io/py/alignak_backend.svg
+    :target: https://badge.fury.io/py/alignak_backend
+    :alt: Last PyPi version
+
+.. image:: https://img.shields.io/badge/License-AGPL%20v3-blue.svg
+    :target: http://www.gnu.org/licenses/agpl-3.0
+    :alt: License AGPL v3
 
 
-Documentation
--------------
+Short description
+-----------------
 
-You can find online documentation on `Read The Docs <http://alignak-backend.readthedocs.org>`_.
+This package is an Alignak Backend.
+
+It is used to:
+
+* manage configuration (hosts, services, contacts, timeperiods...)
+
+   * end user (webui, command line...) can get and add configurations elements
+   * Alignak gets this configuration when its arbiter module starts
+
+* manage retention
+
+   * Alignak load and save retention information for checks/hosts/services
+
+* manage live states
+
+   * Alignak add/update states for hosts and services
+   * end user (webui, command line...) can get these information
+
 
 Release strategy
 ----------------
@@ -57,35 +73,8 @@ Previous versions:
 
 - 0.3: version compatible with Alignak version 0.1
 
-Short description
------------------
-
-This package is an Alignak Backend.
-
-It is used to:
-
-* manage configuration (hosts, services, contacts, timeperiods...)
-
-   * end user (webui, command line...) can get and add configurations elements
-   * Alignak gets this configuration when its arbiter module starts
-
-* manage retention
-
-   * Alignak load and save retention information for checks/hosts/services
-
-* manage live states
-
-   * Alignak add/update states for hosts and services
-   * end user (webui, command line...) can get these information
-
-
 Bugs, issues and contributing
 -----------------------------
 
-Please report any issue using the project `GitHub repository: <https://github.com/Alignak-monitoring-contrib/alignak-backend/issues>`_.
-
-License
--------
-
-Alignak Backend is available under the `GPL version 3 <http://opensource.org/licenses/GPL-3.0>`_.
+Please report any issue using the project `issues page <https://github.com/Alignak-monitoring-contrib/alignak-backend/issues>`_.
 
