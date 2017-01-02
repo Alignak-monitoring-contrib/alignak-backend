@@ -12,6 +12,7 @@ import subprocess
 import requests
 import unittest2
 from alignak_backend.models.host import get_schema as host_schema
+from alignak_backend.models.user import get_schema as user_schema
 
 
 class TestHookTemplate(unittest2.TestCase):
@@ -84,6 +85,14 @@ class TestHookTemplate(unittest2.TestCase):
         """
         for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
+
+        response = requests.get(cls.endpoint + '/user', auth=cls.auth)
+        resp = response.json()
+        for user in resp['_items']:
+            if user['name'] != 'admin':
+                headers = {'If-Match': user['_etag']}
+                requests.delete(cls.endpoint + '/user/' + user['_id'], headers=headers,
+                                auth=cls.auth)
 
     def test_host_templates(self):
         """
@@ -752,3 +761,197 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertItemsEqual(['ping2', 'ssh', 'http', 'https', 'ping2', 'ssh', 'http', 'https',
                                'ping2', 'ssh', 'http', 'https'],
                               service_name)
+
+    def test_user_templates(self):
+        """
+        Test user templates
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # Add command
+        data = json.loads(open('cfg/command_notification_host.json').read())
+        data['_realm'] = self.realm_all
+        ret = requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+        host_notif = resp['_id']
+
+        data = json.loads(open('cfg/command_notification_service.json').read())
+        data['_realm'] = self.realm_all
+        ret = requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+        service_notif = resp['_id']
+
+        # get timeperiods
+        response = requests.get(self.endpoint + '/timeperiod', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rtp = resp['_items']
+
+        data = {
+            'name': 'template_user',
+            'host_notification_period': rtp[0]['_id'],
+            'service_notification_period': rtp[0]['_id'],
+            'host_notification_commands': [host_notif],
+            'service_notification_commands': [service_notif],
+            'can_submit_commands': True,
+            '_realm': self.realm_all,
+            '_is_template': True
+        }
+        ret = requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK')
+        user_template_id = resp['_id']
+
+        # add new user
+        data = {
+            'name': 'david.durieux',
+            '_templates': [user_template_id],
+            '_realm': self.realm_all
+        }
+        ret = requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+
+        response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[0]['name'], "admin")
+        self.assertEqual(rh[1]['name'], "template_user")
+        self.assertEqual(rh[2]['name'], "david.durieux")
+
+        schema = user_schema()
+        template_fields = {}
+        ignore_fields = ['name', 'realm', '_realm', '_template_fields',
+                         '_templates', '_is_template']
+        for key in schema['schema']:
+            if key not in ignore_fields:
+                template_fields[key] = user_template_id
+
+        self.assertItemsEqual(rh[2]['_template_fields'], template_fields)
+
+        datal = [{
+            'name': 'to.to',
+            '_templates': [rh[1]['_id']],
+            '_realm': self.realm_all
+        }, {
+            'name': 'ti.ti',
+            '_templates': [rh[1]['_id']],
+            '_realm': self.realm_all
+        }]
+
+        ret = requests.post(self.endpoint + '/user', json=datal, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+
+        response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[3]['name'], "to.to")
+        self.assertEqual(rh[4]['name'], "ti.ti")
+
+        # user name is unique, so if we add a user with template but with no user,
+        # it will try to use name of user template and give error
+        data = {
+            '_templates': [user_template_id],
+            '_realm': self.realm_all
+        }
+        ret = requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'ERR', resp)
+
+    def test_user_templates_updates(self):
+        """
+        Test when update a user template
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # Add command
+        data = json.loads(open('cfg/command_notification_host.json').read())
+        data['_realm'] = self.realm_all
+        ret = requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+        host_notif = resp['_id']
+
+        data = json.loads(open('cfg/command_notification_service.json').read())
+        data['_realm'] = self.realm_all
+        ret = requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+        service_notif = resp['_id']
+
+        # get timeperiods
+        response = requests.get(self.endpoint + '/timeperiod', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rtp = resp['_items']
+
+        data = {
+            'name': 'template_user',
+            'host_notification_period': rtp[0]['_id'],
+            'service_notification_period': rtp[0]['_id'],
+            'host_notification_commands': [host_notif],
+            'service_notification_commands': [service_notif],
+            'can_submit_commands': True,
+            '_realm': self.realm_all,
+            '_is_template': True
+        }
+        ret = requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+        user_template_id = resp['_id']
+
+        # add new user
+        data = {
+            'name': 'david.durieux',
+            '_templates': [user_template_id],
+            '_realm': self.realm_all
+        }
+        ret = requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+
+        response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[1]['name'], "template_user")
+        self.assertEqual(rh[2]['name'], "david.durieux")
+
+        # update the user
+        datap = {'address1': "Cocorico street"}
+        headers_patch = {
+            'Content-Type': 'application/json',
+            'If-Match': rh[2]['_etag']
+        }
+        requests.patch(self.endpoint + '/user/' + rh[2]['_id'], json=datap, headers=headers_patch,
+                       auth=self.auth)
+
+        response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[1]['address1'], "")
+        self.assertEqual(rh[2]['address1'], "Cocorico street")
+        if 'address1' in rh[2]['_template_fields']:
+            state = False
+            self.assertTrue(state, 'address1 must not be in _template_fields list')
+
+        # update the template addresses
+        datap = {'address1': "French street", 'address2': "Geronimo"}
+        headers_patch = {
+            'Content-Type': 'application/json',
+            'If-Match': rh[1]['_etag']
+        }
+        requests.patch(self.endpoint + '/user/' + rh[1]['_id'], json=datap, headers=headers_patch,
+                       auth=self.auth)
+
+        response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[1]['address1'], "French street")
+        self.assertEqual(rh[2]['address1'], "Cocorico street")
+        self.assertEqual(rh[1]['address2'], "Geronimo")
+        self.assertEqual(rh[2]['address2'], "Geronimo")

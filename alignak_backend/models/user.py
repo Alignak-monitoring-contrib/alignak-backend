@@ -229,5 +229,24 @@ def get_schema():
                 },
                 'default': [],
             },
+            '_is_template': {
+                'type': 'boolean',
+                'default': False
+            },
+            '_templates': {
+                'type': 'list',
+                'schema': {
+                    'type': 'objectid',
+                    'data_relation': {
+                        'resource': 'user',
+                        'embeddable': True,
+                    }
+                },
+                'default': []
+            },
+            '_template_fields': {
+                'type': 'dict',
+                'default': {}
+            }
         }
     }

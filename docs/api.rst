@@ -324,12 +324,13 @@ The resources using the backend template system are:
 
    * host
    * service
+   * user
 
 
 Use simple template system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To use the simple templating system, you just need to create a template object (*host* or *service*) with these fields:
+To use the simple templating system, you just need to create a template object (*host*, *service* or *user*) with these fields:
 
    * *_is_template*: True
 
@@ -337,7 +338,7 @@ It is as simple as creating an *host* and you just need to add *_is_template = T
 
 For a *service* template, you need link it to an host, so link it to an host template.
 
-To add a new object (*host* or *service*) linked to one of the template objects, create the object (host/service) with those fields:
+To add a new object (*host*, *service* or *user*) linked to one of the template objects, create the object (host/service/user) with those fields:
 
    * *_templates*: [*id_of_template*]
 
