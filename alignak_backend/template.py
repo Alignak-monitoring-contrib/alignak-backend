@@ -17,6 +17,7 @@ from eve.methods.delete import deleteitem_internal
 from bson.objectid import ObjectId
 from alignak_backend.models.host import get_schema as host_schema
 from alignak_backend.models.service import get_schema as service_schema
+from alignak_backend.models.user import get_schema as user_schema
 
 
 class Template(object):
@@ -291,6 +292,86 @@ class Template(object):
                 Template.update_service_use_template(service, updates)
 
     @staticmethod
+    def pre_post_user(user_request):
+        """
+        Called by EVE HOOK (app.on_pre_POST_user)
+
+        If we use templates, we fill fields with template values
+
+        :param user_request: request of the user
+        :type user_request: object
+        :return: None
+        """
+        if isinstance(user_request.json, dict):
+            Template.fill_template_user(user_request.json)
+        else:
+            for i in user_request.json:
+                Template.fill_template_user(i)
+
+    @staticmethod
+    def on_update_user(updates, original):
+        """
+        Called by EVE HOOK (app.on_update_user)
+
+        On update user, if not template, remove in '_template_fields' fields in updates because
+        we update these fields, so they are now not dependant of template
+
+        :param updates: modified fields
+        :type updates: dict
+        :param original: original fields
+        :type original: dict
+        :return: None
+        """
+        if g.get('ignore_hook_patch', False):
+            return
+        if not original['_is_template']:
+            ignore_schema_fields = ['realm', '_template_fields', '_templates',
+                                    '_is_template']
+            template_fields = original['_template_fields']
+            do_put = False
+            for (field_name, _) in iteritems(updates):
+                if field_name not in ignore_schema_fields:
+                    if field_name in template_fields:
+                        del template_fields[field_name]
+                        do_put = True
+            if do_put:
+                lookup = {"_id": original['_id']}
+                putdata = deepcopy(original)
+                putdata['_template_fields'] = template_fields
+                del putdata['_etag']
+                del putdata['_updated']
+                del putdata['_created']
+                response = put_internal('user', putdata, False, False, **lookup)
+                updates['_etag'] = response[0]['_etag']
+                original['_etag'] = response[0]['_etag']
+
+    @staticmethod
+    def on_updated_user(updates, original):
+        """
+        Called by EVE HOOK (app.on_updated_user)
+
+        After user updated,
+        if user is a template, report value of fields updated on user used this template
+        if user is not template, add or remove services templates if _templates changed
+
+        :param updates: modified fields
+        :type updates: dict
+        :param original: original fields
+        :type original: dict
+        :return: None
+        """
+        # pylint: disable=too-many-locals
+        if g.get('ignore_hook_patch', False):
+            g.ignore_hook_patch = False
+            return
+        if original['_is_template']:
+            # We must update all user use this template
+            user_db = current_app.data.driver.db['user']
+            users = user_db.find({'_templates': original['_id']})
+            for user in users:
+                Template.update_user_use_template(user, updates)
+
+    @staticmethod
     def fill_template_host(item):
         """
         Prepare fields of host with fields of host templates
@@ -443,3 +524,62 @@ class Template(object):
             if item not in ignore_schema_fields:
                 item['_template_fields'][key] = 0
         return item
+
+    @staticmethod
+    def fill_template_user(item):
+        """
+        Prepare fields of user with fields of user templates
+
+        :param item: field name / values of the user
+        :type item: dict
+        :return: None
+        """
+        user = current_app.data.driver.db['user']
+        ignore_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
+                         '_is_template', 'realm']
+        fields_not_update = []
+        for (field_name, field_value) in iteritems(item):
+            fields_not_update.append(field_name)
+        item['_template_fields'] = {}
+        if ('_is_template' not in item or not item['_is_template']) \
+                and '_templates' in item and item['_templates'] != []:
+            for user_template in item['_templates']:
+                users = user.find_one({'_id': ObjectId(user_template)})
+                if users is not None:
+                    for (field_name, field_value) in iteritems(users):
+                        if field_name not in fields_not_update \
+                                and field_name not in ignore_fields:
+                            item[field_name] = field_value
+                            item['_template_fields'][field_name] = user_template
+            schema = user_schema()
+            ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template']
+            for key in schema['schema']:
+                if key not in ignore_schema_fields:
+                    if key not in item:
+                        item['_template_fields'][key] = 0
+
+    @staticmethod
+    def update_user_use_template(user, fields):
+        """
+        This update (patch) user with values of template
+
+        :param user: fields / values of the user
+        :type user: dict
+        :param fields: fields updated in the template user
+        :type fields: dict
+        :return: None
+        """
+        user_db = current_app.data.driver.db['user']
+        template_fields = {}
+        for template_id in user['_templates']:
+            temp = user_db.find_one({'_id': template_id})
+            for (name, value) in iteritems(temp):
+                template_fields[name] = value
+        to_patch = {}
+        for (name, value) in iteritems(fields):
+            if name in user['_template_fields']:
+                to_patch[name] = template_fields[name]
+        if len(to_patch) > 0:
+            g.ignore_hook_patch = True
+            lookup = {"_id": user['_id']}
+            patch_internal('user', to_patch, False, False, **lookup)
