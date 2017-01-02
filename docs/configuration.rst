@@ -94,3 +94,17 @@ The username and password to access MongoDB and the database defined previously:
 
     "MONGO_USERNAME": null,
     "MONGO_PASSWORD": null,
+
+
+Timeseries databases
+--------------------
+
+To activate the timeseries database feeding from the backend, one need to activate the timeseries scheduler.
+
+Activate the scheduler to push performance data to the configured database::
+
+  "SCHEDULER_TIMESERIES_ACTIVE": false,
+
+Activate the scheduler to create Grafana panels for the host/service performance data::
+
+  "SCHEDULER_GRAFANA_ACTIVE": false
