@@ -49,7 +49,7 @@ class TestGrafana(unittest2.TestCase):
         cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
-                                  '/tmp/uwsgi.pid'])
+                                  '/tmp/uwsgi.pid', '--logto=/tmp/alignak_backend.log'])
         time.sleep(3)
 
         cls.endpoint = 'http://127.0.0.1:5000'
@@ -99,6 +99,7 @@ class TestGrafana(unittest2.TestCase):
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
+        os.unlink("/tmp/alignak_backend.log")
 
     @classmethod
     def setUp(cls):
@@ -444,3 +445,42 @@ class TestGrafana(unittest2.TestCase):
                     srv002 = service_db.find_one({'_id': ObjectId(self.host_srv002_srv)})
                     assert srv002['ls_grafana']
                     assert srv002['ls_grafana_panelid'] == 2
+
+    def test_grafana_connection_error(self):
+        """
+        This test the connection error of grafana
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        # Create grafana in realm All + subrealm
+        data = {
+            'name': 'grafana All',
+            'address': '192.168.0.101',
+            'apikey': 'xxxxxxxxxxxx1',
+            '_realm': self.realm_all,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/grafana', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        data['name'] = 'grafana 2'
+        data['address'] = '192.168.0.102'
+        response = requests.post(self.endpoint + '/grafana', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # force request of cron_grafana in the backend
+        response = requests.get(self.endpoint + '/cron_grafana')
+        resp = response.json()
+        assert len(resp) == 2
+        assert not resp['grafana All']['connection']
+        assert not resp['grafana 2']['connection']
+
+        myfile = open("/tmp/alignak_backend.log")
+        lines = myfile.readlines()
+        assert 'Connection error to grafana grafana All' in lines[-3]
+        assert 'Connection error to grafana grafana 2' in lines[-2]

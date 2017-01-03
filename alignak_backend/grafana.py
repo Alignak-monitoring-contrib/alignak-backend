@@ -6,6 +6,7 @@
 
     This module manages the grafana dashboard / graphs
 """
+from __future__ import print_function
 from future.utils import iteritems
 import requests
 from bson.objectid import ObjectId
@@ -23,6 +24,8 @@ class Grafana(object):
         self.api_key = data['apikey']
         self.host = data['address']
         self.port = str(data['port'])
+        self.name = str(data['name'])
+        self.connection = True
         self.dashboard_template = {'timezone': data['timezone'], 'refresh': data['refresh'],
                                    'schemaVersion': 13}
 
@@ -179,9 +182,14 @@ class Grafana(object):
             "dashboard": self.dashboard_template,
             "overwrite": True
         }
-        requests.post('http://' + self.host + ':' + self.port + '/api/dashboards/db', json=data,
-                      headers=headers)
-        return True
+        try:
+            requests.post('http://' + self.host + ':' + self.port + '/api/dashboards/db', json=data,
+                          headers=headers, timeout=10)
+            return True
+        except requests.exceptions.RequestException as e:
+            print("[cron_grafana] Connection error to grafana %s for dashboard creation: %s" %
+                  (self.name, e))
+            return False
 
     def get_datasource(self):
         """
@@ -191,8 +199,13 @@ class Grafana(object):
         """
         self.datasources = {}
         headers = {"Authorization": "Bearer " + self.api_key}
-        response = requests.get('http://' + self.host + ':' + self.port + '/api/datasources',
-                                headers=headers)
+        try:
+            response = requests.get('http://' + self.host + ':' + self.port + '/api/datasources',
+                                    headers=headers, timeout=10)
+        except requests.exceptions.RequestException as e:
+            print("[cron_grafana] Connection error to grafana %s: %s" % (self.name, e))
+            self.connection = False
+            return
         resp = response.json()
         # get all datasource of grafana
         for datasource in iter(resp):
