@@ -63,7 +63,19 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
+            'passive_check': {
+                'type': 'boolean',
+                'default': False
+            },
             'acknowledged': {
+                'type': 'boolean',
+                'default': False
+            },
+            'acknowledgement_type': {
+                'type': 'integer',
+                'default': 1
+            },
+            'downtimed': {
                 'type': 'boolean',
                 'default': False
             },

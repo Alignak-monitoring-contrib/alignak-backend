@@ -151,7 +151,8 @@ def get_schema():
                     'resource': 'command',
                     'embeddable': True
                 },
-                'nullable': True
+                'nullable': True,
+                'default': None
             },
             'event_handler_args': {
                 'type': 'string',
