@@ -28,5 +28,9 @@
   "SCHEDULER_TIMESERIES_ACTIVE": false,
   /* This scheduler will create / update dashboards in grafana.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
-  "SCHEDULER_GRAFANA_ACTIVE": false
+  "SCHEDULER_GRAFANA_ACTIVE": false,
+  /* if 0, disable it, otherwise define the history in minutes.
+   It will keep history each minute.
+   BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+  "SCHEDULER_LIVESYNTHESIS_HISTORY": 0
 }

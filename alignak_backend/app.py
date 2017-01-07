@@ -20,6 +20,7 @@ import time
 import traceback
 import uuid
 from collections import OrderedDict
+from datetime import datetime, timedelta
 
 from eve import Eve
 from eve.auth import TokenAuth
@@ -211,7 +212,7 @@ def pre_get(resource, user_request, lookup):
         users_id = g.get('users_id', {})
 
         if resource not in resources_get and resource not in resources_get_custom:
-            lookup["_id"] = 0
+            lookup["_id"] = ''
         else:
             if resource not in resources_get:
                 resources_get[resource] = []
@@ -1288,6 +1289,7 @@ settings['DEBUG'] = False
 
 settings['SCHEDULER_TIMESERIES_ACTIVE'] = False
 settings['SCHEDULER_GRAFANA_ACTIVE'] = False
+settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] = 0
 settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
 settings['JOBS'] = []
 
@@ -1317,6 +1319,16 @@ if settings['SCHEDULER_GRAFANA_ACTIVE']:
             'args': (),
             'trigger': 'interval',
             'seconds': 120
+        }
+    )
+if settings['SCHEDULER_LIVESYNTHESIS_HISTORY']:
+    jobs.append(
+        {
+            'id': 'cron_livesynthesis_history',
+            'func': 'alignak_backend.scheduler:cron_livesynthesis_history',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 60
         }
     )
 if len(jobs) > 0:
@@ -1494,6 +1506,7 @@ with app.test_request_context():
     app.on_inserted_service += Livesynthesis.on_inserted_service
     app.on_updated_host += Livesynthesis.on_updated_host
     app.on_updated_service += Livesynthesis.on_updated_service
+    app.on_fetched_item_livesynthesis += Livesynthesis.on_fetched_item_history
 
     # Templates management
     app.on_pre_POST_host += Template.pre_post_host
@@ -1646,7 +1659,8 @@ def cron_grafana():
     """
     Cron used to add / update grafana dashboards
 
-    :return: None
+    :return: Number of dashboard created
+    :rtype: dict
     """
     with app.test_request_context():
         resp = {}
@@ -1676,6 +1690,36 @@ def cron_grafana():
                         if created:
                             resp[grafana['name']]['create_dashboard'].append([host['name']])
         return jsonify(resp)
+
+
+@app.route('/cron_livesynthesis_history')
+def cron_livesynthesis_history():
+    """
+    Cron used to generate new history line for livesynthesis (+ delete too old entries)
+
+    :return: empty dictionary
+    :rtype: dict
+    """
+    minutes = settings['SCHEDULER_LIVESYNTHESIS_HISTORY']
+    with app.test_request_context():
+        # for each livesynthesis, add into internal livesynthesisretention endpoint
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        livesynthesisretention_db = current_app.data.driver.db['livesynthesisretention']
+        livesynthesis = livesynthesis_db.find()
+        for livesynth in livesynthesis:
+            livesynth['livesynthesis'] = livesynth['_id']
+            for prop in ['_id', '_created', '_updated', '_realm', '_users_read']:
+                if prop in livesynth:
+                    del livesynth[prop]
+            post_internal("livesynthesisretention", livesynth, True)
+            # delete older data
+            if minutes > 0:
+                items = livesynthesisretention_db.find(
+                    {"_created": {"$lt": (datetime.utcnow() - timedelta(seconds=60 * minutes))}})
+                for item in items:
+                    lookup = {"_id": item['_id']}
+                    deleteitem_internal('livesynthesisretention', False, False, **lookup)
+    return jsonify({})
 
 
 @app.route('/docs')

@@ -108,3 +108,12 @@ Activate the scheduler to push performance data to the configured database::
 Activate the scheduler to create Grafana panels for the host/service performance data::
 
   "SCHEDULER_GRAFANA_ACTIVE": false
+
+Livesynthesis history
+---------------------
+
+To have history of livesynthesis (all 1 minutes) for xx minutes, need to activate the history scheduler.
+
+To activate, define number of minutes you want history, *0* to disable, example for 30 minutes::
+
+  "SCHEDULER_LIVESYNTHESIS_HISTORY": 30
