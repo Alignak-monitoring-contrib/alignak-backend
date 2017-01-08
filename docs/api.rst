@@ -504,6 +504,15 @@ possibility can be used to give different access to grafana to different users (
 grafana server or with same grafana server but with different organizations and so different
 API KEYS).
 
+Special parameters for livesynthesis
+------------------------------------
+
+When you get a livesynthesis item, you can use 2 special parameters:
+
+* *history=1*: get the history in field *history* with all history for each last minutes
+* *concatenation=1*: get the livesynthesis data merged with livesynthesis of sub-realm. If you use with parameter with *history* parameter, the history will be merged with livesynthesis history of sub-realm.
+
+
 List of resources
 -----------------
 

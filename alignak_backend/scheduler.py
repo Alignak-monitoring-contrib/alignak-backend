@@ -27,3 +27,12 @@ def cron_grafana():
     :return: None
     """
     alignak_backend.app.cron_grafana()
+
+
+def cron_livesynthesis_history():
+    """
+    It's the scheduler used to manage retention / history of livesynthesis
+
+    :return: None
+    """
+    alignak_backend.app.cron_livesynthesis_history()

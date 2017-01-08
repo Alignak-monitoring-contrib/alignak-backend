@@ -7,6 +7,7 @@
     This module manages the livesynthesis
 """
 from __future__ import print_function
+import pymongo
 from flask import current_app, g, request, abort, jsonify
 from eve.methods.patch import patch_internal
 
@@ -306,3 +307,71 @@ class Livesynthesis(object):
             return False, False
 
         return minus, plus
+
+    @staticmethod
+    def on_fetched_item_history(response):
+        # pylint: disable=too-many-locals
+        """
+        Add to response some more information.
+        We manage the 2 special parameters:
+         * history
+        * concatenation
+
+        :param response: the response
+        :type response: dict
+        :return: None
+        """
+        realm_drv = current_app.data.driver.db['realm']
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        livesynthesisretention_db = current_app.data.driver.db['livesynthesisretention']
+
+        history = request.args.get('history')
+        concatenation = request.args.get('concatenation')
+
+        if concatenation is not None:
+            # get the realm the user have access
+            realm = realm_drv.find_one({'_id': response['_realm']})
+            livesynthesis_id = []
+            if g.get('back_role_super_admin', False):
+                # no restrictions, we are admin
+                livesynthesis = livesynthesis_db.find({'_realm': {'$in': realm['_all_children']}})
+                for lives in livesynthesis:
+                    livesynthesis_id.append(lives['_id'])
+                    for prop in [x for x in lives if not x.startswith('_')]:
+                        response[prop] += lives[prop]
+
+            else:
+                resources_get = g.get('resources_get', {})
+                livesynthesis_access = resources_get['livesynthesis']
+                custom_resources = g.get('resources_get_custom', {})
+                if 'livesynthesis' in custom_resources:
+                    livesynthesis_access.extend(custom_resources['livesynthesis'])
+                livesynthesis = livesynthesis_db.find({'_realm': {'$in': livesynthesis_access}})
+                for lives in livesynthesis:
+                    if lives['_id'] != response['_id']:
+                        livesynthesis_id.append(lives['_id'])
+                        for prop in [x for x in lives if not x.startswith('_')]:
+                            response[prop] += lives[prop]
+
+        if history is not None:
+            response['history'] = []
+            lsretentions = livesynthesisretention_db.find({'livesynthesis': response['_id']}).sort(
+                '_created', pymongo.DESCENDING)
+            for lsretention in lsretentions:
+                for prop in ['livesynthesis', '_id', '_updated', '_etag']:
+                    if prop in lsretention:
+                        del lsretention[prop]
+                for prop in lsretention:
+                    if not prop == '_created':
+                        lsretention[prop] = int(lsretention[prop])
+                response['history'].append(lsretention)
+            if concatenation is not None:
+                for ls_id in livesynthesis_id:
+                    lsretentions = livesynthesisretention_db.find({'livesynthesis': ls_id}).sort(
+                        '_created', pymongo.DESCENDING)
+                num = 0
+                for lsretention in lsretentions:
+                    for prop in lsretention:
+                        if not prop.startswith('_') and prop != 'livesynthesis':
+                            response['history'][num][prop] += lsretention[prop]
+                    num += 1
