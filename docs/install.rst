@@ -53,27 +53,3 @@ For contributors
 If you want to hack into the codebase (e.g for future contribution), just install like this::
 
     pip install -e .
-
-
-Install from source without pip
--------------------------------
-
-If you are on Debian::
-
-    sudo apt-get -y install python python-dev python-pip git
-
-
-Get the project sources::
-
-    git clone https://github.com/Alignak-monitoring/alignak-backend
-
-
-Install python prerequisites (Normally, you can install with user *alignak* )::
-
-    pip install -r alignak-backend/requirements.txt
-
-
-And install::
-
-    cd alignak-backend
-    sudo python setup.py install

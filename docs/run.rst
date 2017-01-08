@@ -79,3 +79,26 @@ On start, some useful information are printed on the console::
 
 
 Alignak-backend runs on port 5000, so you should use ``http://ip:5000/`` as a base URL for the API.
+
+Change default admin password
+-----------------------------
+
+The default login / password is *admin* / *admin*.
+
+To change the default password, do:
+
+* get the token and it will give you a token like *1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c*::
+
+    curl -H "Content-Type: application/json" -X POST -d '{"username":"admin","password":"admin"}' http://127.0.0.1:5000/login
+
+* get the *_id* and the *_etag* fields with the command::
+
+    curl -H "Content-Type: application/json" --user "1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c:"
+    'http://127.0.0.1:5000/user?projection=\{"name":1\}'
+
+* update the password::
+
+    curl -X PATCH -H "Content-Type: application/json" -H "If-Match: the_etag"
+    --user "1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c:"
+    -d '{"password": "yournewpassword"}' http://127.0.0.1:5000/user/the_id
+
