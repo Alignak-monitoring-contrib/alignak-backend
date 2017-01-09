@@ -1500,6 +1500,11 @@ with app.test_request_context():
                                "service_notification_period": always['_id'],
                                "_realm": default_realm['_id'], "_sub_realm": True})
         print("Created super admin user")
+        print("===============================================================================")
+        print(r"/!\ WARNING /!\ Change the default password according to the documentation: "
+              "http://alignak-backend.readthedocs.io/en/latest/run.html#change-default-"
+              "admin-password")
+        print("===============================================================================")
 
     # Live synthesis management
     app.on_inserted_host += Livesynthesis.on_inserted_host
