@@ -1498,7 +1498,7 @@ with app.test_request_context():
                                "can_update_livestate": True,
                                "host_notification_period": always['_id'],
                                "service_notification_period": always['_id'],
-                               "_realm": default_realm['_id'], "_sub_realm": True})
+                               "_realm": default_realm['_id'], "_sub_realm": True}, True)
         print("Created super admin user")
         print("===============================================================================")
         print(r"/!\ WARNING /!\ Change the default password according to the documentation: "
