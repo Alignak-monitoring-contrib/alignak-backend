@@ -87,7 +87,7 @@ The default login / password is *admin* / *admin*.
 
 To change the default password, do:
 
-* get the token and it will give you a token like *1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c*::
+* get the current admin token and it will give you something like *1442583814636-bed32565-2ff7-4023-87fb-34a3ac93d34c*::
 
     curl -H "Content-Type: application/json" -X POST -d '{"username":"admin","password":"admin"}' http://127.0.0.1:5000/login
 
