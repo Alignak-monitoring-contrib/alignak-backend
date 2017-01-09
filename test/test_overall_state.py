@@ -99,30 +99,32 @@ class TestOverallState(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
         rh = resp['_items']
 
         # Add service 1
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
         # Add service 2
         data = json.loads(open('cfg/service_srv002_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
@@ -157,7 +159,7 @@ class TestOverallState(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
 
         # Initial overall state
         response = requests.get(self.endpoint + '/host/' + ls_host['_id'],
@@ -306,30 +308,32 @@ class TestOverallState(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
         rh = resp['_items']
 
         # Add service 1
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
         # Add service 2
         data = json.loads(open('cfg/service_srv002_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
@@ -387,7 +391,7 @@ class TestOverallState(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
 
         # Initial overall state
         response = requests.get(self.endpoint + '/host/' + ls_host['_id'],
@@ -568,23 +572,25 @@ class TestOverallState(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
@@ -592,7 +598,7 @@ class TestOverallState(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
 
         # Update live state for the host
         # => UP HARD

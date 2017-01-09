@@ -1214,6 +1214,8 @@ def keep_default_items_resource(resource, delete_request, lookup):
             lookup['name'] = {'$nin': ['_internal_host_up', '_echo']}
         elif resource == 'host':
             lookup['name'] = {'$nin': ['_dummy']}
+        elif resource == 'user':
+            lookup['name'] = {'$nin': ['admin']}
 
 
 def keep_default_items_item(resource, item):
@@ -1238,6 +1240,9 @@ def keep_default_items_item(resource, item):
             abort(make_response("This item is a default item and is protected", 412))
     elif resource == 'host':
         if item['name'] == '_dummy':
+            abort(make_response("This item is a default item and is protected", 412))
+    elif resource == 'user':
+        if item['name'] == 'admin':
             abort(make_response("This item is a default item and is protected", 412))
 
 

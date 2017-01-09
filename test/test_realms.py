@@ -80,16 +80,8 @@ class TestRealms(unittest2.TestCase):
 
         :return: None
         """
-        for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis']:
+        for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis', 'realm']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
-
-        response = requests.get(cls.endpoint + '/realm', auth=cls.auth)
-        resp = response.json()
-        for realm in resp['_items']:
-            if realm['_level'] > 0:
-                headers = {'If-Match': realm['_etag']}
-                response = requests.delete(cls.endpoint + '/realm/' + realm['_id'], headers=headers,
-                                           auth=cls.auth)
 
     def test_add_realm(self):
         # pylint: disable=too-many-locals
