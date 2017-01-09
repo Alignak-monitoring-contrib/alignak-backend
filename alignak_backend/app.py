@@ -1198,6 +1198,54 @@ def pre_user_patch(updates, original):
         del updates['_updated']
 
 
+def keep_default_items_resource(resource, delete_request, lookup):
+    """
+    Keep default items, so do not delete them...
+
+    :return: None
+    """
+    # pylint: disable=unused-argument
+    if '_id' not in lookup:
+        if resource == 'timeperiod':
+            lookup['name'] = {'$nin': ['24x7', 'Never']}
+        elif resource in ['realm', 'usergroup', 'hostgroup', 'servicegroup', ]:
+            lookup['name'] = {'$nin': ['All']}
+        elif resource == 'command':
+            lookup['name'] = {'$nin': ['_internal_host_up', '_echo']}
+        elif resource == 'host':
+            lookup['name'] = {'$nin': ['_dummy']}
+        elif resource == 'user':
+            lookup['name'] = {'$nin': ['admin']}
+
+
+def keep_default_items_item(resource, item):
+    """
+    Before deleting an item, we check if it's a default item, if yes return 412 error, otherwise
+    Eve delete it
+
+    :param resource: name of the resource
+    :type resource: str
+    :param item: all fields / values of the item to delete
+    :type item: dict
+    :return:
+    """
+    if resource == 'timeperiod':
+        if item['name'] in ['24x7', 'Never']:
+            abort(make_response("This item is a default item and is protected", 412))
+    elif resource in ['realm', 'usergroup', 'hostgroup', 'servicegroup', ]:
+        if item['name'] == 'All':
+            abort(make_response("This item is a default item and is protected", 412))
+    elif resource == 'command':
+        if item['name'] in ['_internal_host_up', '_echo']:
+            abort(make_response("This item is a default item and is protected", 412))
+    elif resource == 'host':
+        if item['name'] == '_dummy':
+            abort(make_response("This item is a default item and is protected", 412))
+    elif resource == 'user':
+        if item['name'] == 'admin':
+            abort(make_response("This item is a default item and is protected", 412))
+
+
 def generate_token():
     """
     Generate a user token
@@ -1558,6 +1606,9 @@ app.on_insert_history += pre_history_post
 
 app.on_insert_logcheckresult += pre_logcheckresult_post
 app.on_inserted_logcheckresult += after_insert_logcheckresult
+
+app.on_pre_DELETE += keep_default_items_resource
+app.on_delete_item += keep_default_items_item
 
 with app.test_request_context():
     app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult

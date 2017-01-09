@@ -83,16 +83,8 @@ class TestHookTemplate(unittest2.TestCase):
 
         :return: None
         """
-        for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis']:
+        for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis', 'user']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
-
-        response = requests.get(cls.endpoint + '/user', auth=cls.auth)
-        resp = response.json()
-        for user in resp['_items']:
-            if user['name'] != 'admin':
-                headers = {'If-Match': user['_etag']}
-                requests.delete(cls.endpoint + '/user/' + user['_id'], headers=headers,
-                                auth=cls.auth)
 
     def test_host_templates(self):
         """
@@ -109,11 +101,12 @@ class TestHookTemplate(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
-        self.assertEqual(rc[0]['name'], "ping")
+        self.assertEqual(rc[2]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
@@ -123,8 +116,9 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001")
-        host_template_id = rh[0]['_id']
+        self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(rh[1]['name'], "srv001")
+        host_template_id = rh[1]['_id']
         data = {
             'name': 'host_001',
             '_templates': [host_template_id],
@@ -135,9 +129,9 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001")
-        self.assertEqual(rh[1]['name'], "host_001")
-        self.assertEqual(rh[1]['check_command'], rc[0]['_id'])
+        self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[2]['name'], "host_001")
+        self.assertEqual(rh[2]['check_command'], rc[2]['_id'])
 
         schema = host_schema()
         template_fields = {}
@@ -148,15 +142,15 @@ class TestHookTemplate(unittest2.TestCase):
             if key not in ignore_fields:
                 template_fields[key] = host_template_id
 
-        self.assertItemsEqual(rh[1]['_template_fields'], template_fields)
+        self.assertItemsEqual(rh[2]['_template_fields'], template_fields)
 
         datal = [{
             'name': 'host_002',
-            '_templates': [rh[0]['_id']],
+            '_templates': [rh[1]['_id']],
             '_realm': self.realm_all
         }, {
             'name': 'host_003',
-            '_templates': [rh[0]['_id']],
+            '_templates': [rh[1]['_id']],
             '_realm': self.realm_all
         }]
 
@@ -165,8 +159,8 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[2]['name'], "host_002")
-        self.assertEqual(rh[3]['name'], "host_003")
+        self.assertEqual(rh[3]['name'], "host_002")
+        self.assertEqual(rh[4]['name'], "host_003")
 
     def test_host_templates_updates(self):
         """
@@ -183,11 +177,12 @@ class TestHookTemplate(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
-        self.assertEqual(rc[0]['name'], "ping")
+        self.assertEqual(rc[2]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         data['name'] = 'srv001_tpl'
         if 'realm' in data:
             del data['realm']
@@ -198,8 +193,8 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001_tpl")
-        host_template_id = rh[0]['_id']
+        self.assertEqual(rh[1]['name'], "srv001_tpl")
+        host_template_id = rh[1]['_id']
         data = {
             'name': 'host_001',
             '_templates': [host_template_id],
@@ -210,39 +205,39 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001_tpl")
-        self.assertEqual(rh[1]['name'], "host_001")
-        self.assertEqual(rh[1]['check_command'], rc[0]['_id'])
+        self.assertEqual(rh[1]['name'], "srv001_tpl")
+        self.assertEqual(rh[2]['name'], "host_001")
+        self.assertEqual(rh[2]['check_command'], rc[2]['_id'])
 
         datap = {'check_interval': 1}
         headers_patch = {
             'Content-Type': 'application/json',
-            'If-Match': rh[1]['_etag']
+            'If-Match': rh[2]['_etag']
         }
-        requests.patch(self.endpoint + '/host/' + rh[1]['_id'], json=datap, headers=headers_patch,
+        requests.patch(self.endpoint + '/host/' + rh[2]['_id'], json=datap, headers=headers_patch,
                        auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[1]['name'], "host_001")
-        self.assertEqual(rh[1]['check_interval'], 1)
+        self.assertEqual(rh[2]['name'], "host_001")
+        self.assertEqual(rh[2]['check_interval'], 1)
 
         # With modification of host update, the PUT method (to update _template_fields modify
         # the _etag and we must see here if patch with wrong etag is right a failure)
         datap = {'check_interval': 50}
         headers_patch = {
             'Content-Type': 'application/json',
-            'If-Match': rh[0]['_etag']
+            'If-Match': rh[1]['_etag']
         }
-        requests.patch(self.endpoint + '/host/' + rh[1]['_id'], json=datap, headers=headers_patch,
+        requests.patch(self.endpoint + '/host/' + rh[2]['_id'], json=datap, headers=headers_patch,
                        auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[1]['name'], "host_001")
-        self.assertEqual(rh[1]['check_interval'], 1)
+        self.assertEqual(rh[2]['name'], "host_001")
+        self.assertEqual(rh[2]['check_interval'], 1)
 
-        if 'check_interval' in rh[1]['_template_fields']:
+        if 'check_interval' in rh[2]['_template_fields']:
             state = False
             self.assertTrue(state, 'check_interval does not be in _template_fields list')
 
@@ -250,18 +245,18 @@ class TestHookTemplate(unittest2.TestCase):
         datap = {'initial_state': 'o'}
         headers_patch = {
             'Content-Type': 'application/json',
-            'If-Match': rh[0]['_etag']
+            'If-Match': rh[1]['_etag']
         }
-        requests.patch(self.endpoint + '/host/' + rh[0]['_id'], json=datap, headers=headers_patch,
+        requests.patch(self.endpoint + '/host/' + rh[1]['_id'], json=datap, headers=headers_patch,
                        auth=self.auth)
 
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['initial_state'], "o")
-        self.assertEqual(rh[1]['name'], "host_001")
         self.assertEqual(rh[1]['initial_state'], "o")
-        if 'initial_state' not in rh[1]['_template_fields']:
+        self.assertEqual(rh[2]['name'], "host_001")
+        self.assertEqual(rh[2]['initial_state'], "o")
+        if 'initial_state' not in rh[2]['_template_fields']:
             state = False
             self.assertTrue(state, 'initial_state must be in _template_fields list')
 
@@ -269,16 +264,16 @@ class TestHookTemplate(unittest2.TestCase):
         datap = {'name': 'testhost'}
         headers_patch = {
             'Content-Type': 'application/json',
-            'If-Match': rh[0]['_etag']
+            'If-Match': rh[1]['_etag']
         }
-        requests.patch(self.endpoint + '/host/' + rh[0]['_id'], json=datap, headers=headers_patch,
+        requests.patch(self.endpoint + '/host/' + rh[1]['_id'], json=datap, headers=headers_patch,
                        auth=self.auth)
 
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "testhost")
-        self.assertEqual(rh[1]['name'], "host_001")
+        self.assertEqual(rh[1]['name'], "testhost")
+        self.assertEqual(rh[2]['name'], "host_001")
 
     def test_service_templates(self):
         """
@@ -295,11 +290,12 @@ class TestHookTemplate(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
-        self.assertEqual(rc[0]['name'], "ping")
+        self.assertEqual(rc[2]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
@@ -308,10 +304,10 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001")
+        self.assertEqual(rh[1]['name'], "srv001")
 
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         data['name'] = 'host_001'
         if 'realm' in data:
             del data['realm']
@@ -321,14 +317,14 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001")
-        self.assertEqual(rh[1]['name'], "host_001")
+        self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[2]['name'], "host_001")
 
         # add service template
         data = {
             'name': 'ping',
-            'host': rh[0]['_id'],
-            'check_command': rc[0]['_id'],
+            'host': rh[1]['_id'],
+            'check_command': rc[2]['_id'],
             'business_impact': 4,
             '_is_template': True,
             '_realm': self.realm_all
@@ -340,7 +336,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[0]['name'], "ping")
 
         data = {
-            'host': rh[1]['_id'],
+            'host': rh[2]['_id'],
             '_templates': [rs[0]['_id']],
             '_realm': self.realm_all
         }
@@ -351,7 +347,7 @@ class TestHookTemplate(unittest2.TestCase):
         rs = resp['_items']
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ping")
-        self.assertEqual(rs[1]['host'], rh[1]['_id'])
+        self.assertEqual(rs[1]['host'], rh[2]['_id'])
 
     def test_service_templates_updates(self):
         """
@@ -368,11 +364,12 @@ class TestHookTemplate(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
-        self.assertEqual(rc[0]['name'], "ping")
+        self.assertEqual(rc[2]['name'], "ping")
 
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
@@ -381,10 +378,10 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001")
+        self.assertEqual(rh[1]['name'], "srv001")
 
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         data['name'] = 'host_001'
         if 'realm' in data:
             del data['realm']
@@ -394,14 +391,14 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertEqual(rh[0]['name'], "srv001")
-        self.assertEqual(rh[1]['name'], "host_001")
+        self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[2]['name'], "host_001")
 
         # add service template
         data = {
             'name': 'ping',
-            'host': rh[0]['_id'],
-            'check_command': rc[0]['_id'],
+            'host': rh[1]['_id'],
+            'check_command': rc[2]['_id'],
             'business_impact': 4,
             '_is_template': True,
             '_realm': self.realm_all
@@ -414,7 +411,7 @@ class TestHookTemplate(unittest2.TestCase):
 
         data = {
             'name': 'ping_test',
-            'host': rh[1]['_id'],
+            'host': rh[2]['_id'],
             '_templates': [rs[0]['_id']],
             '_realm': self.realm_all
         }
@@ -425,7 +422,7 @@ class TestHookTemplate(unittest2.TestCase):
         rs = resp['_items']
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ping_test")
-        self.assertEqual(rs[1]['host'], rh[1]['_id'])
+        self.assertEqual(rs[1]['host'], rh[2]['_id'])
 
         datap = {'check_interval': 1}
         headers_patch = {

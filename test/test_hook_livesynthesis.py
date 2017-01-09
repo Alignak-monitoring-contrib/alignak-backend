@@ -81,16 +81,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         :return: None
         """
-        for resource in ['host', 'service', 'command', 'livesynthesis']:
+        for resource in ['host', 'service', 'command', 'livesynthesis', 'realm']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
-
-        response = requests.get(cls.endpoint + '/realm', auth=cls.auth)
-        resp = response.json()
-        for realm in resp['_items']:
-            if realm['name'] in ['All A', 'All B']:
-                headers = {'If-Match': realm['_etag']}
-                response = requests.delete(cls.endpoint + '/realm/' + realm['_id'], headers=headers,
-                                           auth=cls.auth)
 
     def test_add_host(self):
         """
@@ -107,10 +99,11 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
@@ -158,10 +151,11 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         data = json.loads(open('cfg/host_template.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
@@ -187,23 +181,25 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         # add host
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
@@ -250,23 +246,25 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
@@ -274,7 +272,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
         updated_field = ls_host['_updated']
 
         # Get initial live synthesis
@@ -408,7 +406,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
         # _updated field did not changed...
         self.assertEqual(updated_field, ls_host['_updated'])
 
@@ -464,7 +462,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
         # _updated field did not changed...
         self.assertEqual(updated_field, ls_host['_updated'])
 
@@ -520,7 +518,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
         # _updated field did not changed...
         self.assertEqual(updated_field, ls_host['_updated'])
 
@@ -576,7 +574,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
         # _updated field did not changed...
         self.assertEqual(updated_field, ls_host['_updated'])
 
@@ -633,7 +631,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
         # _updated field did not changed...
         self.assertEqual(updated_field, ls_host['_updated'])
 
@@ -690,7 +688,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        ls_host = copy.copy(r[0])
+        ls_host = copy.copy(r[1])
         # _updated field did not changed...
         self.assertEqual(updated_field, ls_host['_updated'])
 
@@ -737,23 +735,25 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         # Add host
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
@@ -1285,11 +1285,12 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # Check if command right in backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rc = resp['_items']
 
         # add host in realm All
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
@@ -1297,18 +1298,19 @@ class TestHookLivesynthesis(unittest2.TestCase):
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
         # add host in realm All A
         data = json.loads(open('cfg/host_srv001.json').read())
-        data['check_command'] = rc[0]['_id']
+        data['check_command'] = rc[2]['_id']
         if 'realm' in data:
             del data['realm']
         data['_realm'] = realmAll_A_id
@@ -1316,12 +1318,13 @@ class TestHookLivesynthesis(unittest2.TestCase):
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = realmAll_A_id
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
@@ -1339,15 +1342,15 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[0]['_id']
-        data['check_command'] = rc[0]['_id']
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
         data['_realm'] = realmAll_B_id
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        self.assertEqual(len(r), 3)
+        self.assertEqual(len(r), 4)
 
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
