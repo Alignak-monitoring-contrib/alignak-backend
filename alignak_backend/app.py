@@ -1200,7 +1200,7 @@ def pre_user_patch(updates, original):
 
 def keep_default_items_resource(resource, delete_request, lookup):
     """
-    Keep default items, so not delete them...
+    Keep default items, so do not delete them...
 
     :return: None
     """
@@ -1220,7 +1220,7 @@ def keep_default_items_resource(resource, delete_request, lookup):
 
 def keep_default_items_item(resource, item):
     """
-    Before delete an item, we check if it's a default item, if yes return 412 error, otherwise
+    Before deleting an item, we check if it's a default item, if yes return 412 error, otherwise
     Eve delete it
 
     :param resource: name of the resource
