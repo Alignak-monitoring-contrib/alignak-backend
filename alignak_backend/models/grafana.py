@@ -55,6 +55,10 @@ def get_schema():
                 'empty': False,
                 'default': '1m'
             },
+            'ssl': {
+                'type': 'boolean',
+                'default': False
+            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {
