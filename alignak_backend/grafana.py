@@ -25,6 +25,9 @@ class Grafana(object):
         self.host = data['address']
         self.port = str(data['port'])
         self.name = str(data['name'])
+        self.scheme = 'http'
+        if data['ssl']:
+            self.scheme = 'https'
         self.connection = True
         self.dashboard_template = {'timezone': data['timezone'], 'refresh': data['refresh'],
                                    'schemaVersion': 13}
@@ -183,9 +186,13 @@ class Grafana(object):
             "overwrite": True
         }
         try:
-            requests.post('http://' + self.host + ':' + self.port + '/api/dashboards/db', json=data,
-                          headers=headers, timeout=10)
+            requests.post(self.scheme + '://' + self.host + ':' + self.port + '/api/dashboards/db',
+                          json=data, headers=headers, timeout=10)
             return True
+        except requests.exceptions.SSLError as e:
+            print("[cron_grafana] SSL connection error to grafana %s for dashboard creation: %s" %
+                  (self.name, e))
+            return False
         except requests.exceptions.RequestException as e:
             print("[cron_grafana] Connection error to grafana %s for dashboard creation: %s" %
                   (self.name, e))
@@ -200,8 +207,11 @@ class Grafana(object):
         self.datasources = {}
         headers = {"Authorization": "Bearer " + self.api_key}
         try:
-            response = requests.get('http://' + self.host + ':' + self.port + '/api/datasources',
-                                    headers=headers, timeout=10)
+            response = requests.get(self.scheme + '://' + self.host + ':' + self.port +
+                                    '/api/datasources', headers=headers, timeout=10)
+        except requests.exceptions.SSLError as e:
+            print("[cron_grafana] SSL connection error to grafana %s: %s" % (self.name, e))
+            return False
         except requests.exceptions.RequestException as e:
             print("[cron_grafana] Connection error to grafana %s: %s" % (self.name, e))
             self.connection = False
@@ -247,7 +257,7 @@ class Grafana(object):
                         "jsonData": {}
                     }
                 response = requests.post(
-                    'http://' + self.host + ':' + self.port + '/api/datasources',
+                    self.scheme + '://' + self.host + ':' + self.port + '/api/datasources',
                     json=data, headers=headers)
                 resp = response.json()
                 self.datasources[str(timeserie['_id'])] = resp
