@@ -542,6 +542,10 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
+            'ls_last_notification': {
+                'type': 'integer',
+                'default': 0
+            },
 
             # Host computed overall state identifier
             '_overall_state_id': {
