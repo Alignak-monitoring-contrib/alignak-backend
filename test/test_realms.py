@@ -525,3 +525,44 @@ class TestRealms(unittest2.TestCase):
                                  auth=self.auth)
         resp = response.json()
         self.assertEqual('ERR', resp['_status'], resp)
+
+    def test_realm_children(self):
+        """
+        test _children and _all_children
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_level = {'sort': '_level'}
+
+        response = requests.get(self.endpoint + '/realm', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 1)
+        self.assertEqual(re[0]['_children'], [])
+        self.assertEqual(re[0]['_all_children'], [])
+
+        data = {"name": "All A", "_parent": self.realmAll_id}
+        response = requests.post(self.endpoint + '/realm', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+
+        data = {"name": "All A1", "_parent": resp['_id']}
+        requests.post(self.endpoint + '/realm', json=data, headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/realm', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 3)
+        print(re)
+        self.assertEqual(len(re[0]['_children']), 1)
+        self.assertEqual(len(re[0]['_all_children']), 2)
+
+        requests.delete(self.endpoint + '/realm', auth=self.auth)
+
+        response = requests.get(self.endpoint + '/realm', params=sort_level, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 1)
+        self.assertEqual(re[0]['_children'], [])
+        self.assertEqual(re[0]['_all_children'], [])

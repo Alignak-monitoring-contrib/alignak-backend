@@ -971,6 +971,23 @@ def after_delete_realm(item):
         g.updateRealm = False
 
 
+def after_delete_resource_realm():
+    """
+    We deleted all resource realm, so define _children and _all_children of realm All to []
+
+    :return: None
+    """
+    realmsdrv = current_app.data.driver.db['realm']
+    realmall = realmsdrv.find_one({'_level': 0})
+    lookup = {"_id": realmall['_id']}
+    g.updateRealm = True
+    patch_internal('realm', {
+        '_children': [],
+        '_all_children': []
+    }, False, False, **lookup)
+    g.updateRealm = False
+
+
 # Hosts/ services
 def pre_host_patch(updates, original):
     """
@@ -1404,6 +1421,7 @@ app.on_update_service += pre_service_patch
 app.on_updated_service += after_updated_service
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
+app.on_deleted_resource_realm += after_delete_resource_realm
 app.on_update_realm += pre_realm_patch
 app.on_update_usergroup += pre_usergroup_patch
 app.on_update_hostgroup += pre_hostgroup_patch
