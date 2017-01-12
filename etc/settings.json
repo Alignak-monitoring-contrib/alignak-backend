@@ -22,9 +22,9 @@
   "MONGO_USERNAME": null,             /* Username to access to MongoDB */
   "MONGO_PASSWORD": null,             /* Password to access to MongoDB */
 
-  /* Timeseries data are stored in retention in backend. Activate the timeseries scheduler
-   will push into timeseries databases the data.
-   BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+  /* Timeseries data are stored internally in the backend.
+  The timeseries scheduler will push them regularly to the configured databases
+   BE CAREFULL, ACTIVATE THIS ON ONE BACKEND ONLY! */
   "SCHEDULER_TIMESERIES_ACTIVE": false,
   /* This scheduler will create / update dashboards in grafana.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */

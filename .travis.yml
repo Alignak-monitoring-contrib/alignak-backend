@@ -18,12 +18,22 @@ script:
   - cd test
   - pip freeze  # so to help eventual debug: know what exact versions are in use can be rather useful.
   - cd ..
+  # Code static analysis
   - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' alignak_backend/*
   - rm -fr alignak_backend/__pycache__
   - pylint --rcfile=.pylintrc alignak_backend/*
   - pep257 --select=D300 alignak_backend
+  # Code test and dynamic analysis
   - cd test
+  - coverage erase
+  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_backend test*.py
+  - coverage report
+  # Test code static analysis
   - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' test_*.py
   - pylint --rcfile=../.pylintrc test_*.py
-  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300
   - cd ..
+after_success:
+  # to get coverage data with relative paths and not absolute we have to
+  # execute coveralls from the base directory of the project,
+  # so we need to move the .coverage file here :
+  mv test/.coverage . && coveralls --rcfile=test/.coveragerc -v
