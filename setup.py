@@ -25,6 +25,11 @@ from alignak_backend import __name__ as __pkg_name__
 
 package = import_module('alignak_backend')
 
+data_files = [('etc/alignak-backend', ['etc/settings.json', 'etc/uwsgi.ini']),
+              ('bin', ['bin/alignak-backend-uwsgi'])]
+if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
+    data_files.append(('etc/rc.d', ['bin/rc.d/alignak-backend']))
+
 setup(
     name=__pkg_name__,
     version=__version__,
@@ -46,7 +51,7 @@ setup(
     packages=find_packages(),
 
     # Where to install distributed files
-    data_files = [('etc/alignak-backend', ['etc/settings.json'])],
+    data_files = data_files,
 
     # Dependencies (if some) ...
     install_requires=[
