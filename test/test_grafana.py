@@ -484,3 +484,119 @@ class TestGrafana(unittest2.TestCase):
         lines = myfile.readlines()
         assert 'Connection error to grafana grafana All' in lines[-3]
         assert 'Connection error to grafana grafana 2' in lines[-2]
+
+    def test_cron_grafana_service(self):
+        """
+        This test the grafana cron in the cases:
+         * a host has a new service
+         * a host not have ls_perf_data
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        # Create grafana in realm All + subrealm
+        data = {
+            'name': 'grafana All',
+            'address': '192.168.0.101',
+            'apikey': 'xxxxxxxxxxxx1',
+            '_realm': self.realm_all,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/grafana', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        grafana_all = resp['_id']
+
+        # Create a graphite in All B linked to grafana
+        data = {
+            'name': 'graphite All',
+            'carbon_address': '192.168.0.101',
+            'graphite_address': '192.168.0.101',
+            'prefix': 'my_B',
+            'grafana': grafana_all,
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/graphite', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        graphite_All = resp['_id']
+
+        # add host 3, without ls_perf_data
+        response = requests.get(self.endpoint + '/command', auth=self.auth)
+        resp = response.json()
+        rc = resp['_items']
+
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[0]['_id']
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
+        data['ls_last_check'] = int(time.time())
+        data['name'] = 'srv003'
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual(resp['_status'], 'OK')
+        host_srv003 = resp['_id']
+
+        # Add a service of srv003
+        data = json.loads(open('cfg/service_srv001_ping.json').read())
+        data['host'] = host_srv003
+        data['check_command'] = rc[0]['_id']
+        data['_realm'] = self.realm_all
+        data['name'] = 'load'
+        data['ls_last_check'] = int(time.time())
+        data['ls_perf_data'] = "load1=0.360;15.000;30.000;0; load5=0.420;10.000;25.000;0; " \
+                               "load15=0.340;5.000;20.000;0;"
+        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+
+        from alignak_backend.app import app, cron_grafana
+        with app.app_context():
+            with requests_mock.mock() as mockreq:
+                ret = [{"id": 1, "orgId": 1, "name": graphite_All,
+                        "type": "grafana-simple-json-datasource",
+                        "typeLogoUrl": "public/plugins/grafana-simple-json-datasource/src/img/"
+                                       "simpleJson_logo.svg",
+                        "access": "proxy", "url": "http://127.0.0.1/glpi090/apirest.php",
+                        "password": "", "user": "", "database": "", "basicAuth": True,
+                        "basicAuthUser": "", "basicAuthPassword": "", "withCredentials": False,
+                        "isDefault": True}]
+                mockreq.get('http://192.168.0.101:3000/api/datasources', json=ret)
+                mockreq.post('http://192.168.0.101:3000/api/datasources', json='true')
+                mockreq.post('http://192.168.0.101:3000/api/dashboards/db', json='true')
+
+                dashboards = json.loads(cron_grafana('jsondumps'))
+                assert len(dashboards['grafana All']['create_dashboard']) == 2
+                assert dashboards['grafana All']['create_dashboard'][0] == 'srv001'
+                assert dashboards['grafana All']['create_dashboard'][1] == 'srv003'
+
+            # add a service in host 3
+            data = json.loads(open('cfg/service_srv001_ping.json').read())
+            data['host'] = host_srv003
+            data['name'] = 'ping2'
+            data['check_command'] = rc[0]['_id']
+            data['_realm'] = self.realm_all
+            data['name'] = 'load'
+            data['ls_last_check'] = int(time.time())
+            data['ls_perf_data'] = "load1=0.360;15.000;30.000;0; load5=0.420;10.000;25.000;0; " \
+                                   "load15=0.340;5.000;20.000;0;"
+            requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+
+            with requests_mock.mock() as mockreq:
+                ret = [{"id": 1, "orgId": 1, "name": graphite_All,
+                        "type": "grafana-simple-json-datasource",
+                        "typeLogoUrl": "public/plugins/grafana-simple-json-datasource/src/img/"
+                                       "simpleJson_logo.svg",
+                        "access": "proxy", "url": "http://127.0.0.1/glpi090/apirest.php",
+                        "password": "", "user": "", "database": "", "basicAuth": True,
+                        "basicAuthUser": "", "basicAuthPassword": "", "withCredentials": False,
+                        "isDefault": True}]
+                mockreq.get('http://192.168.0.101:3000/api/datasources', json=ret)
+                mockreq.post('http://192.168.0.101:3000/api/datasources', json='true')
+                mockreq.post('http://192.168.0.101:3000/api/dashboards/db', json='true')
+
+                dashboards = json.loads(cron_grafana('jsondumps'))
+                assert len(dashboards['grafana All']['create_dashboard']) == 1
+                assert dashboards['grafana All']['create_dashboard'][0] == 'srv003'
