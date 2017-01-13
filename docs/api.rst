@@ -390,10 +390,16 @@ We have now::
 Timeseries databases
 --------------------
 
+Introduction
+~~~~~~~~~~~~
+
 To store the metrics, we need to configure Carbon/Graphite or/and InfluxDB.
 
 These timeseries interfaces can be defined by realm + sub realm, and so you can have multiple
 timeseries database in a realm.
+
+Carbon / Graphite
+~~~~~~~~~~~~~~~~~
 
 For Carbon/Graphite, use resource _graphite_, composed with information:
 
@@ -422,6 +428,8 @@ Curl example::
 	}
     ]' "http://192.168.0.10:5000/graphite"
 
+InfluxDB
+~~~~~~~~
 
 For InfluxDB, use resource _influxdb_:
 
@@ -450,10 +458,13 @@ Curl example::
 	}
     ]' "http://192.168.0.10:5000/influxdb"
 
+Manage retention
+~~~~~~~~~~~~~~~~
 
-The timeseries information are stored in the backend (like retention) and send with a scheduled
-cron (internal in the Backend), so need to activate this cron, but only on one Backend in case you
-have a cluster of Backend (many backends).
+The timeseries information are stored in the backend (like retention) when the timeserie database
+is not available. A scheduled cron (internal in the Backend) is used to push the retention in the
+timeserie database when become available again, so need to activate this cron, but only on one
+Backend in case you have a cluster of Backend (many backends).
 
 Activate in configuration file with::
 
@@ -461,6 +472,14 @@ Activate in configuration file with::
 
 IMPORTANT: you can't have more than one timeserie database (carbon / influxdb) linked to a grafana
 on each realm!
+
+Statsd
+~~~~~~
+
+If you want use Statsd to put metrics and statsd will manage the metrics with Graphite / InfluxDB,
+you can define a statsd server in endpoint *statsd* and add this id in items of *graphite* /
+*influxdb* endpoint. It can be useful in case you manage passive checks.
+
 
 Grafana: the dashboard/graph tool
 ---------------------------------

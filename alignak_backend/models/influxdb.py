@@ -65,6 +65,15 @@ def get_schema():
                 'nullable': True,
                 'default': None
             },
+            'statsd': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'statsd',
+                    'embeddable': True
+                },
+                'nullable': True,
+                'default': None
+            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {
