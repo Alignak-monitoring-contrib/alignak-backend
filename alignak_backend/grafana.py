@@ -331,19 +331,53 @@ class Grafana(object):
         :rtype: dict
         """
         return {
+            "collapse": False,
+            "editable": True,
             "title": "Chart",
             "height": "300px",
             "panels": [
                 {
                     "title": title,
-                    "type": "graph",
+                    "error": False,
                     "span": 12,
+                    "editable": True,
+                    "type": "graph",
+
+                    "isNew": True,
+                    "id": 1,
+
+                    "targets": targets,
+                    "lines": True,
                     "fill": 1,
                     "linewidth": 2,
-                    "targets": targets,
+                    "points": False,
+                    "pointradius": 5,
+                    "bars": False,
+                    "stack": False,
+                    "percentage": False,
+                    "legend": {
+                        "show": True,
+                        "values": False,
+                        "min": False,
+                        "max": False,
+                        "current": False,
+                        "total": False,
+                        "avg": False
+                    },
+                    "nullPointMode": "connected",
+                    "steppedLine": False,
                     "tooltip": {
-                        "shared": True
-                    }
+                        "value_type": "cumulative",
+                        "shared": True,
+                        "sort": 0,
+                        "msResolution": False
+                    },
+                    "timeFrom": None,
+                    "timeShift": None,
+                    "aliasColors": {},
+                    "seriesOverrides": [],
+                    "thresholds": [],
+                    "links": []
                 }
             ]
         }
