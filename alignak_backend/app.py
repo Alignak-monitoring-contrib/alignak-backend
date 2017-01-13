@@ -1729,21 +1729,22 @@ def cron_timeseries():
 
 
 @app.route("/cron_grafana")
-def cron_grafana():
+def cron_grafana(engine='jsonify'):
     """
     Cron used to add / update grafana dashboards
 
     :return: Number of dashboard created
     :rtype: dict
     """
+    # pylint: disable=too-many-nested-blocks
     with app.test_request_context():
         resp = {}
         hosts_db = current_app.data.driver.db['host']
+        services_db = current_app.data.driver.db['service']
         grafana_db = current_app.data.driver.db['grafana']
         realm_db = current_app.data.driver.db['realm']
 
-        grafanas = grafana_db.find()
-        for grafana in grafanas:
+        for grafana in grafana_db.find():
             graf = Grafana(grafana)
             resp[grafana['name']] = {
                 "connection": graf.connection,
@@ -1755,15 +1756,37 @@ def cron_grafana():
                 if grafana['_sub_realm']:
                     children = realm['_all_children']
                     children.append(realm['_id'])
-                    hosts = hosts_db.find({'ls_grafana': False, '_realm': {"$in": children}})
+                    items = hosts_db.find({'ls_grafana': False, '_realm': {"$in": children},
+                                           'ls_perf_data': {"$ne": ""}, '_is_template': False})
                 else:
-                    hosts = hosts_db.find({'ls_grafana': False, '_realm': realm['_id']})
-                for host in hosts:
-                    if host['ls_perf_data']:
-                        created = graf.create_dashboard(host['_id'])
-                        if created:
-                            resp[grafana['name']]['create_dashboard'].append([host['name']])
-        return jsonify(resp)
+                    items = hosts_db.find({'ls_grafana': False, '_realm': realm['_id'],
+                                           'ls_perf_data': {"$ne": ""}, '_is_template': False})
+                for item in items:
+                    created = graf.create_dashboard(item['_id'])
+                    if created:
+                        resp[grafana['name']]['create_dashboard'].append(item['name'])
+                # manage the cases hosts have new services or hosts not have ls_perf_data
+                hosts_dashboards = {}
+                if grafana['_sub_realm']:
+                    children = realm['_all_children']
+                    children.append(realm['_id'])
+                    items = services_db.find({'ls_grafana': False, '_realm': {"$in": children},
+                                              'ls_perf_data': {"$ne": ""}, '_is_template': False})
+                else:
+                    items = services_db.find({'ls_grafana': False, '_realm': realm['_id'],
+                                              'ls_perf_data': {"$ne": ""}, '_is_template': False})
+                for item in items:
+                    if item['host'] not in hosts_dashboards:
+                        host = hosts_db.find_one({'_id': item['host']})
+                        if not host['_is_template']:
+                            created = graf.create_dashboard(item['host'])
+                            if created:
+                                resp[grafana['name']]['create_dashboard'].append(host['name'])
+                        hosts_dashboards[item['host']] = True
+        if engine == 'jsonify':
+            return jsonify(resp)
+        else:
+            return json.dumps(resp)
 
 
 @app.route('/cron_livesynthesis_history')
