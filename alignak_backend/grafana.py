@@ -26,6 +26,7 @@ class Grafana(object):
         self.port = str(data['port'])
         self.name = str(data['name'])
         self.scheme = 'http'
+        self.panel_id = 0
         if data['ssl']:
             self.scheme = 'https'
         self.connection = True
@@ -69,6 +70,7 @@ class Grafana(object):
         """
         if len(self.datasources) == 0:
             return
+        self.panel_id = 0
 
         headers = {"Authorization": "Bearer " + self.api_key}
 
@@ -117,12 +119,12 @@ class Grafana(object):
             num += 1
 
         if len(targets) > 0:
-            rows.append(self.generate_row(command_name, targets))
+            rows.append(self.generate_row(command_name, targets, ObjectId(host['_realm'])))
             if host['ls_last_check'] > 0:
                 # Update host live state
                 data = {
                     "ls_grafana": True,
-                    "ls_grafana_panelid": 1
+                    "ls_grafana_panelid": self.panel_id
                 }
                 lookup = {"_id": host['_id']}
                 patch_internal('host', data, False, False, **lookup)
@@ -168,11 +170,12 @@ class Grafana(object):
                     num += 1
 
                 if len(targets) > 0:
-                    rows.append(self.generate_row(service['name'], targets))
+                    rows.append(self.generate_row(service['name'], targets,
+                                                  ObjectId(host['_realm'])))
                     # Update service live state
                     data = {
                         "ls_grafana": True,
-                        "ls_grafana_panelid": len(rows)
+                        "ls_grafana_panelid": self.panel_id
                     }
                     lookup = {"_id": service['_id']}
                     patch_internal('service', data, False, False, **lookup)
@@ -288,7 +291,7 @@ class Grafana(object):
             prepare_tags.append(data)
 
         return {
-            "dsType": self.timeseries[realm]['name'],
+            "dsType": str(self.timeseries[realm]['_id']),
             "measurement": elements['measurement'],
             "resultFormat": "time_series",
             "policy": "default",
@@ -319,7 +322,7 @@ class Grafana(object):
             "refId": elements['refid'],
         }
 
-    def generate_row(self, title, targets):
+    def generate_row(self, title, targets, realm):
         """
         Generate a row in dashboard
 
@@ -327,23 +330,58 @@ class Grafana(object):
         :type title: str
         :param targets: all targets (all measurements in the row/graph)
         :type targets: dict
+        :param realm: the realm id
+        :type realm: str
         :return: the dictionary of the row
         :rtype: dict
         """
+        self.panel_id += 1
         return {
+            "collapse": False,
+            "editable": True,
             "title": "Chart",
             "height": "300px",
             "panels": [
                 {
                     "title": title,
-                    "type": "graph",
+                    "error": False,
                     "span": 12,
+                    "editable": True,
+                    "datasource": str(self.timeseries[realm]['_id']),
+                    "type": "graph",
+                    "id": self.panel_id,
+                    "targets": targets,
+                    "lines": True,
                     "fill": 1,
                     "linewidth": 2,
-                    "targets": targets,
+                    "points": False,
+                    "pointradius": 5,
+                    "bars": False,
+                    "stack": False,
+                    "percentage": False,
+                    "legend": {
+                        "show": True,
+                        "values": False,
+                        "min": False,
+                        "max": False,
+                        "current": False,
+                        "total": False,
+                        "avg": False
+                    },
+                    "nullPointMode": "connected",
+                    "steppedLine": False,
                     "tooltip": {
-                        "shared": True
-                    }
+                        "value_type": "cumulative",
+                        "shared": True,
+                        "sort": 0,
+                        "msResolution": False
+                    },
+                    "timeFrom": None,
+                    "timeShift": None,
+                    "aliasColors": {},
+                    "seriesOverrides": [],
+                    "thresholds": [],
+                    "links": []
                 }
             ]
         }
