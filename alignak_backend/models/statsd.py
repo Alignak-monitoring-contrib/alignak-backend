@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Resource information of graphite
+Resource information of statsd.
+statsd is used to send data to timeseries (graphite, influxdb) but not directly. We send to statsd
+and after it send to the timeserie database. The goal is to have data all time in timeseries
+databases when use passive checks for example (passive check = not have often the perfdata).
 """
 
 
@@ -12,7 +15,7 @@ def get_name():
     :return: name of this resource
     :rtype: str
     """
-    return 'graphite'
+    return 'statsd'
 
 
 def get_schema():
@@ -30,47 +33,15 @@ def get_schema():
                 'empty': False,
                 'unique': True,
             },
-            'carbon_address': {
+            'address': {
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
-            'carbon_port': {
+            'port': {
                 'type': 'integer',
                 'empty': False,
-                'default': 2004
-            },
-            'graphite_address': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
-            },
-            'graphite_port': {
-                'type': 'integer',
-                'empty': False,
-                'default': 8080
-            },
-            'prefix': {
-                'type': 'string',
-                'default': '',
-            },
-            'grafana': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'grafana',
-                    'embeddable': True
-                },
-                'nullable': True,
-                'default': None
-            },
-            'statsd': {
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'statsd',
-                    'embeddable': True
-                },
-                'nullable': True,
-                'default': None
+                'default': 8125
             },
             '_realm': {
                 'type': 'objectid',

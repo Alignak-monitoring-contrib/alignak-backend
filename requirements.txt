@@ -8,4 +8,5 @@ flask-bootstrap
 future
 flask-apscheduler
 influxdb
+statsd
 uwsgi

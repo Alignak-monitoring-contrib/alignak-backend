@@ -10,6 +10,7 @@ from __future__ import print_function
 import re
 from flask import current_app, g
 from influxdb import InfluxDBClient
+import statsd
 
 from eve.methods.post import post_internal
 from alignak_backend.carboniface import CarbonIface
@@ -50,7 +51,8 @@ class Timeseries(object):
                         "host": host_info['name'],
                         "service": service,
                         "value": int(round(d['value'])),
-                        "timestamp": item['last_check']
+                        "timestamp": item['last_check'],
+                        "uom": d['uom']
                     }
                 )
             Timeseries.send_to_timeseries_db(send_data, item_realm)
@@ -81,21 +83,24 @@ class Timeseries(object):
                 data_timeseries['data'].append(
                     {
                         'name': fields['name'],
-                        'value': fields['value']
+                        'value': fields['value'],
+                        'uom': fields['uom']
                     }
                 )
             if fields['warning'] is not None:
                 data_timeseries['data'].append(
                     {
                         'name': fields['name'] + '_warning',
-                        'value': fields['warning']
+                        'value': fields['warning'],
+                        'uom': fields['uom']
                     }
                 )
             if fields['critical'] is not None:
                 data_timeseries['data'].append(
                     {
                         'name': fields['name'] + '_critical',
-                        'value': fields['critical']
+                        'value': fields['critical'],
+                        'uom': fields['uom']
                     }
                 )
         return data_timeseries
@@ -134,6 +139,7 @@ class Timeseries(object):
                 "service": "",
                 "value": 000,
                 "timestamp": 000
+                "uom": ""
             }
         ]
 
@@ -159,9 +165,12 @@ class Timeseries(object):
                 if not Timeseries.send_to_timeseries_graphite(data, graphite):
                     for perf in data:
                         perf['graphite'] = graphite['_id']
+                        uom = perf['uom']
+                        del perf['uom']
                     post_internal('timeseriesretention', data)
                     for perf in data:
                         del perf['graphite']
+                        perf['uom'] = uom
 
         # get influxdb servers to send
         for search in searches:
@@ -170,9 +179,12 @@ class Timeseries(object):
                 if not Timeseries.send_to_timeseries_influxdb(data, influxdb):
                     for perf in data:
                         perf['influxdb'] = influxdb['_id']
+                        uom = perf['uom']
+                        del perf['uom']
                     post_internal('timeseriesretention', data)
                     for perf in data:
                         del perf['influxdb']
+                        perf['uom'] = uom
 
     @staticmethod
     def send_to_timeseries_graphite(data, graphite):
@@ -186,6 +198,10 @@ class Timeseries(object):
         :return: True if successful or not have graphite configured, otherwise False
         :rtype: bool
         """
+        if graphite['statsd'] is not None:
+            Timeseries.send_to_statsd(data, graphite['statsd'], graphite['prefix'])
+            return True
+
         send_data = []
         for d in data:
             if d['service'] == '':
@@ -216,6 +232,10 @@ class Timeseries(object):
         :return: True if successful or not have influxdb configured, otherwise False
         :rtype: bool
         """
+        if influxdb['statsd'] is not None:
+            Timeseries.send_to_statsd(data, influxdb['statsd'], '')
+            return True
+
         json_body = []
         for d in data:
             json_body.append({
@@ -237,3 +257,32 @@ class Timeseries(object):
             return True
         except:  # pylint: disable=W0702
             return False
+
+    @staticmethod
+    def send_to_statsd(data, statsd_id, prefix):
+        """
+        Send data to statsd
+
+        :param data: list of perfdata to send to statsd
+        :type data: list
+        :param statsd_id: id of statsd
+        :type statsd_id: str
+        :return: True (because statsd not have return error or not)
+        :rtype: bool
+        """
+        statsd_db = current_app.data.driver.db['statsd']
+        item = statsd_db.find_one({'_id': statsd_id})
+        statsd_inst = statsd.StatsClient(item['address'], item['port'], prefix=prefix)
+        for d in data:
+            if d['service'] == '':
+                prefix = '.'.join([d['realm'], d['host']])
+            else:
+                prefix = '.'.join([d['realm'], d['host'], d['service']])
+
+            if d["uom"] in ['s', 'ms']:
+                statsd_inst.timing('.'.join([prefix, d['name']]), d['value'])
+            elif d["uom"] == 'h':
+                statsd_inst.incr('.'.join([prefix, d['name']]), d['value'])
+            else:
+                statsd_inst.gauge('.'.join([prefix, d['name']]), d['value'])
+        return True

@@ -137,66 +137,82 @@ class TestTimeseries(unittest2.TestCase):
                 {
                     'name': 'ReqPerConn',
                     'value': 4.465602,
+                    'uom': ''
                 },
                 {
                     'name': 'Writing',
-                    'value': 3
+                    'value': 3,
+                    'uom': ''
                 },
                 {
                     'name': 'Waiting',
-                    'value': 22
+                    'value': 22,
+                    'uom': ''
                 },
                 {
                     'name': 'ConnPerSec',
-                    'value': 1.2
+                    'value': 1.2,
+                    'uom': ''
                 },
                 {
                     'name': 'ConnPerSec_warning',
-                    'value': 200
+                    'value': 200,
+                    'uom': ''
                 },
                 {
                     'name': 'ConnPerSec_critical',
-                    'value': 300
+                    'value': 300,
+                    'uom': ''
                 },
                 {
                     'name': 'Active',
-                    'value': 25
+                    'value': 25,
+                    'uom': ''
                 },
                 {
                     'name': 'Active_warning',
-                    'value': 1000
+                    'value': 1000,
+                    'uom': ''
                 },
                 {
                     'name': 'Active_critical',
-                    'value': 2000
+                    'value': 2000,
+                    'uom': ''
                 },
                 {
                     'name': 'ReqPerSec',
-                    'value': 58
+                    'value': 58,
+                    'uom': ''
                 },
                 {
                     'name': 'ReqPerSec_warning',
-                    'value': 100
+                    'value': 100,
+                    'uom': ''
                 },
                 {
                     'name': 'ReqPerSec_critical',
-                    'value': 200
+                    'value': 200,
+                    'uom': ''
                 },
                 {
                     'name': 'Reading',
-                    'value': 0
+                    'value': 0,
+                    'uom': ''
                 },
                 {
                     'name': 'rta',
-                    'value': 0.083
+                    'value': 0.083,
+                    'uom': 'ms'
                 },
                 {
                     'name': 'rta_warning',
-                    'value': 10
+                    'value': 10,
+                    'uom': 'ms'
                 },
                 {
                     'name': 'rta_critical',
-                    'value': 15
+                    'value': 15,
+                    'uom': 'ms'
                 }
             ]
         }
@@ -231,11 +247,13 @@ class TestTimeseries(unittest2.TestCase):
             'data': [
                 {
                     'name': 'cache_descr_time',
-                    'value': 1475663830
+                    'value': 1475663830,
+                    'uom': ''
                 },
                 {
                     'name': 'em0_out_octet',
-                    'value': 86608341539
+                    'value': 86608341539,
+                    'uom': ''
                 }
             ]
         }
