@@ -75,6 +75,7 @@ class Timeseries(object):
             m = re.search(r'^(.*)\.[\d]{10}$', fields['name'])
             if m:
                 fields['name'] = m.group(1)
+            fields['name'] = fields['name'].replace(" ", "_")
 
             if fields['value'] is not None:
                 data_timeseries['data'].append(
