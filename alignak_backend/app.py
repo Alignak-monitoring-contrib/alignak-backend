@@ -1816,7 +1816,7 @@ def cron_livesynthesis_history():
                 for item in items:
                     lookup = {"_id": item['_id']}
                     deleteitem_internal('livesynthesisretention', False, False, **lookup)
-    return jsonify({})
+        return jsonify({})
 
 
 @app.route('/docs')
