@@ -210,7 +210,7 @@ class Timeseries(object):
                 prefix = '.'.join([d['realm'], d['host'], d['service']])
             # manage prefix of graphite server
             if graphite['prefix'] != '':
-                prefix = graphite['prefix'] + prefix
+                prefix = graphite['prefix'] + '.' + prefix
             send_data.append(('.'.join([prefix, d['name']]),
                               (int(d['timestamp']), d['value'])))
         carbon = CarbonIface(graphite['carbon_address'], graphite['carbon_port'])
