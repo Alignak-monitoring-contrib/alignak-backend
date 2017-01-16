@@ -95,6 +95,7 @@ class Grafana(object):
         num = 0
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
+            fields['name'] = fields['name'].replace(" ", "_")
             mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
             mytarget += '.' + fields['name']
             elements = {'measurement': fields['name'], 'refid': refids[num], 'mytarget': mytarget}
@@ -139,6 +140,7 @@ class Grafana(object):
                 num = 0
                 for measurement in perfdata.metrics:
                     fields = perfdata.metrics[measurement].__dict__
+                    fields['name'] = fields['name'].replace(" ", "_")
                     mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
                     mytarget += '.' + service['name'] + '.' + fields['name']
                     elements = {'measurement': fields['name'], 'refid': refids[num],
