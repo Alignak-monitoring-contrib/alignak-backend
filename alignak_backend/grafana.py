@@ -222,6 +222,12 @@ class Grafana(object):
             self.connection = False
             return
         resp = response.json()
+        if 'message' in resp:
+            print("----------")
+            print("Grafana message: %s" % resp['message'])
+            print("----------")
+            return
+
         # get all datasource of grafana
         for datasource in iter(resp):
             self.datasources[datasource['name']] = datasource
