@@ -21,6 +21,7 @@ import traceback
 import uuid
 from collections import OrderedDict
 from datetime import datetime, timedelta
+from future.utils import iteritems
 
 from eve import Eve
 from eve.auth import TokenAuth
@@ -34,7 +35,6 @@ from flask import current_app, g, request, abort, jsonify, make_response, send_f
     redirect
 from flask_apscheduler import APScheduler
 from flask_bootstrap import Bootstrap
-from future.utils import iteritems
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import alignak_backend.log
@@ -1728,8 +1728,8 @@ def cron_timeseries():
                 deleteitem_internal('timeseriesretention', False, False, **lookup)
 
 
-@app.route("/cron_grafana")
-def cron_grafana(engine='jsonify'):  # pylint: disable=too-many-locals
+@app.route("/cron_grafana", methods=['GET'])
+def cron_grafana(engine='jsonify'):
     """
     Cron used to add / update grafana dashboards
 
@@ -1737,68 +1737,98 @@ def cron_grafana(engine='jsonify'):  # pylint: disable=too-many-locals
     :rtype: dict
     """
     # pylint: disable=too-many-nested-blocks
+    # pylint: disable=too-many-locals
+    try:
+        forcegenerate = request.args.get('forcegenerate')
+        if request.remote_addr != '127.0.0.1':
+            print('Access denied for %s' % request.remote_addr)
+            return make_response("Access denied from remote host", 412)
+    except Exception:
+        forcegenerate = None
+
     with app.test_request_context():
         resp = {}
         hosts_db = current_app.data.driver.db['host']
         services_db = current_app.data.driver.db['service']
         grafana_db = current_app.data.driver.db['grafana']
-        realm_db = current_app.data.driver.db['realm']
-        graphite_db = current_app.data.driver.db['graphite']
-        statsd_db = current_app.data.driver.db['statsd']
 
         for grafana in grafana_db.find():
+            # Create a grafana instance
             graf = Grafana(grafana)
             resp[grafana['name']] = {
                 "connection": graf.connection,
-                "create_dashboard": []
+                "created_dashboards": []
             }
-            if graf.connection:
-                # get the graphites of the grafana
-                graphite_prefix = ''
-                statsd_prefix = ''
-                graphite = graphite_db.find_one({'grafana': grafana['_id']})
-                if graphite and graphite['prefix'] != '':
-                    graphite_prefix = graphite['prefix']
-                if graphite and graphite['statsd']:
-                    statsd = statsd_db.find_one({'_id': graphite['statsd']})
-                    if statsd and statsd['prefix'] != '':
-                        statsd_prefix = statsd['prefix']
+            if not graf.connection:
+                print("[cron_grafana] %s has no connection" % grafana['name'])
+                continue
 
-                # get the realms of the grafana
-                realm = realm_db.find_one({'_id': grafana['_realm']})
-                if grafana['_sub_realm']:
-                    children = realm['_all_children']
-                    children.append(realm['_id'])
-                    items = hosts_db.find({'ls_grafana': False, '_realm': {"$in": children},
-                                           'ls_perf_data': {"$ne": ""}, '_is_template': False})
-                else:
-                    items = hosts_db.find({'ls_grafana': False, '_realm': realm['_id'],
-                                           'ls_perf_data': {"$ne": ""}, '_is_template': False})
-                for item in items:
-                    created = graf.create_dashboard(item['_id'],
-                                                    graphite_prefix, statsd_prefix)
-                    if created:
-                        resp[grafana['name']]['create_dashboard'].append(item['name'])
+            print("[cron_grafana] Grafana: %s" % grafana['name'])
 
-                # manage the case where hosts have new services or hosts do not have ls_perf_data
-                hosts_dashboards = {}
-                if grafana['_sub_realm']:
-                    children = realm['_all_children']
-                    children.append(realm['_id'])
-                    items = services_db.find({'ls_grafana': False, '_realm': {"$in": children},
-                                              'ls_perf_data': {"$ne": ""}, '_is_template': False})
+            search = {'_is_template': False}
+            search['_realm'] = {"$in": graf.realms}
+            if len(graf.realms) == 1:
+                search['_realm'] = graf.realms[0]
+
+            if forcegenerate is not None:
+                print("[cron_grafana] Force regeneration of '%s' dashboards" % grafana['name'])
+            else:
+                search['ls_grafana'] = False
+                search['ls_perf_data'] = {"$ne": ""}
+                search['ls_last_check'] = {"$ne": 0}
+
+            hosts = hosts_db.find(search)
+            for host in hosts:
+                print("[cron_grafana] host: %s" % host['name'])
+
+                # if this host do not have a TS datasource (influxdb, graphite) for grafana,
+                # do not try to create a dashboard (test before trying to create...)
+                if host['_realm'] not in graf.timeseries:
+                    print("[cron_grafana] Host '%s' is not in a timeseries enabled realm"
+                          % host['name'])
+                    print("[cron_grafana] - host realm: %s" % host['_realm'])
+                    print("[cron_grafana] - Grafana TS realms: %s" % graf.timeseries)
+                    continue
+
+                created = graf.create_dashboard(host)
+                if created:
+                    print("[cron_grafana] created a dashboard for '%s'..." % host['name'])
+                    resp[grafana['name']]['created_dashboards'].append(host['name'])
                 else:
-                    items = services_db.find({'ls_grafana': False, '_realm': realm['_id'],
-                                              'ls_perf_data': {"$ne": ""}, '_is_template': False})
-                for item in items:
-                    if item['host'] not in hosts_dashboards:
-                        host = hosts_db.find_one({'_id': item['host']})
-                        if not host['_is_template']:
-                            created = graf.create_dashboard(item['host'],
-                                                            graphite_prefix, statsd_prefix)
-                            if created:
-                                resp[grafana['name']]['create_dashboard'].append(host['name'])
-                        hosts_dashboards[item['host']] = True
+                    print("[cron_grafana] dashboard creation failed for '%s'..." % host['name'])
+
+            if forcegenerate is not None:
+                continue
+
+            # manage the cases hosts have new services or hosts that do not have ls_perf_data
+            hosts_dashboards = {}
+            search = {'ls_grafana': False, '_is_template': False,
+                      'ls_perf_data': {"$ne": ""}, 'ls_last_check': {"$ne": 0},
+                      '_realm': {"$in": graf.realms}}
+            if len(graf.realms) == 1:
+                search['_realm'] = graf.realms[0]
+
+            services = services_db.find(search)
+            for service in services:
+                if service['host'] in hosts_dashboards:
+                    continue
+
+                host = hosts_db.find_one({'_id': service['host']})
+                if host['_is_template']:
+                    continue
+
+                created = graf.create_dashboard(host)
+                if created:
+                    print("[cron_grafana] created a dashboard for '%s/%s'"
+                          % (host['name'], service['name']))
+                    resp[grafana['name']]['created_dashboards'].append("%s/%s"
+                                                                       % (host['name'],
+                                                                          service['name']))
+                else:
+                    print("[cron_grafana] dashboard creation failed for '%s/%s'"
+                          % (host['name'], service['name']))
+                hosts_dashboards[service['host']] = True
+
         if engine == 'jsonify':
             return jsonify(resp)
         else:

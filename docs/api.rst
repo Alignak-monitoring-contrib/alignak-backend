@@ -523,6 +523,12 @@ possibility can be used to give different access to grafana to different users (
 grafana server or with same grafana server but with different organizations and so different
 API KEYS).
 
+It's possible to force to regenerate all dashboards in grafana (works only from localhost):
+::
+
+    curl "http://127.0.0.1:5000/cron_grafana?forcegenerate=1"
+
+
 Special parameters for livesynthesis
 ------------------------------------
 
