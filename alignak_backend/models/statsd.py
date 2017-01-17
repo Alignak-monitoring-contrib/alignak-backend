@@ -43,6 +43,10 @@ def get_schema():
                 'empty': False,
                 'default': 8125
             },
+            'prefix': {
+                'type': 'string',
+                'default': '',
+            },
             '_realm': {
                 'type': 'objectid',
                 'data_relation': {

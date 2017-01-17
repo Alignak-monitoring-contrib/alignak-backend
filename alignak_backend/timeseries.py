@@ -263,6 +263,11 @@ class Timeseries(object):
         """
         Send data to statsd
 
+        Do not take care of the StatsD prefix because it is managed internally by the
+        StatsD daemon
+
+        Provide the Graphite prefix to the StatsD client
+
         :param data: list of perfdata to send to statsd
         :type data: list
         :param statsd_id: id of statsd
