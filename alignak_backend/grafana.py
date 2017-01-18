@@ -59,7 +59,8 @@ class Grafana(object):
                     self.timeseries[child_realm] = influxdb
         self.get_datasource()
 
-    def create_dashboard(self, host_id):  # pylint: disable=too-many-locals
+    def create_dashboard(self, host_id, graphite_prefix='', statsd_prefix=''):
+        # pylint: disable=too-many-locals
         """
         Create / update a dashboard in Grafana
 
@@ -96,25 +97,64 @@ class Grafana(object):
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
             fields['name'] = fields['name'].replace(" ", "_")
-            mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
+            # Add statsd, graphite and realm prefixes
+            mytarget = '.'.join([statsd_prefix, graphite_prefix])
+            mytarget += '.' + Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
             mytarget += '.' + fields['name']
-            elements = {'measurement': fields['name'], 'refid': refids[num], 'mytarget': mytarget}
+            while mytarget.startswith('.'):
+                mytarget = mytarget[1:]
+
+            try:
+                elements = {'measurement': fields['name'], 'refid': refids[num],
+                            'mytarget': mytarget}
+            except IndexError as e:
+                print("-----\nToo much metrics in the performance data for '%s'!\n-----"
+                      % (host['name']))
+                elements = {'measurement': fields['name'], 'refid': '', 'mytarget': mytarget}
+
             targets.append(self.generate_target(elements, {"host": hostname},
                                                 ObjectId(host['_realm'])))
-            num += 1
             if fields['warning'] is not None:
-                mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
+                num += 1
+                # Add statsd, graphite and realm prefixes
+                mytarget = '.'.join([statsd_prefix, graphite_prefix])
+                mytarget += '.' + Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
                 mytarget += '.' + fields['name'] + '_warning'
-                elements = {'measurement': fields['name'] + '_warning', 'refid': refids[num],
-                            'mytarget': mytarget}
+                while mytarget.startswith('.'):
+                    mytarget = mytarget[1:]
+
+                try:
+                    elements = {'measurement': fields['name'] + '_warning', 'refid': refids[num],
+                                'mytarget': mytarget}
+                except IndexError as e:
+                    print("-----\nToo much metrics (warning) in the "
+                          "performance data for '%s'!\n-----"
+                          % (host['name']))
+                    elements = {'measurement': fields['name'] + '_warning', 'refid': '',
+                                'mytarget': mytarget}
+
                 targets.append(self.generate_target(elements, {"host": hostname},
                                                     ObjectId(host['_realm'])))
-            num += 1
+
             if fields['critical'] is not None:
-                mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
+                num += 1
+                # Add statsd, graphite and realm prefixes
+                mytarget = '.'.join([statsd_prefix, graphite_prefix])
+                mytarget += '.' + Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
                 mytarget += '.' + fields['name'] + '_critical'
-                elements = {'measurement': fields['name'] + '_critical', 'refid': refids[num],
-                            'mytarget': mytarget}
+                while mytarget.startswith('.'):
+                    mytarget = mytarget[1:]
+
+                try:
+                    elements = {'measurement': fields['name'] + '_critical', 'refid': refids[num],
+                                'mytarget': mytarget}
+                except IndexError as e:
+                    print("-----\nToo much metrics (critical) in the "
+                          "performance data for '%s'!\n-----"
+                          % (host['name']))
+                    elements = {'measurement': fields['name'] + '_critical', 'refid': '',
+                                'mytarget': mytarget}
+
                 targets.append(self.generate_target(elements, {"host": hostname},
                                                     ObjectId(host['_realm'])))
             num += 1
@@ -141,30 +181,70 @@ class Grafana(object):
                 for measurement in perfdata.metrics:
                     fields = perfdata.metrics[measurement].__dict__
                     fields['name'] = fields['name'].replace(" ", "_")
-                    mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
+                    # Add statsd, graphite and realm prefixes
+                    mytarget = '.'.join([statsd_prefix, graphite_prefix])
+                    mytarget += '.' + Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
                     mytarget += '.' + service['name'] + '.' + fields['name']
-                    elements = {'measurement': fields['name'], 'refid': refids[num],
-                                'mytarget': mytarget}
+                    while mytarget.startswith('.'):
+                        mytarget = mytarget[1:]
+
+                    try:
+                        elements = {'measurement': fields['name'], 'refid': refids[num],
+                                    'mytarget': mytarget}
+                    except IndexError as e:
+                        print("-----\nToo much metrics in the performance data for '%s/%s'!\n-----"
+                              % (host['name'], service['name']))
+                        elements = {'measurement': fields['name'], 'refid': '',
+                                    'mytarget': mytarget}
+
                     targets.append(self.generate_target(elements,
                                                         {"host": hostname,
                                                          "service": service['name']},
                                                         ObjectId(service['_realm'])))
-                    num += 1
                     if fields['warning'] is not None:
-                        mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
+                        num += 1
+                        # Add statsd, graphite and realm prefixes
+                        mytarget = '.'.join([statsd_prefix, graphite_prefix])
+                        mytarget += '.' + Timeseries.get_realms_prefix(host['_realm'])
+                        mytarget += '.' + hostname
                         mytarget += '.' + service['name'] + '.' + fields['name'] + "_warning"
-                        elements = {'measurement': fields['name'] + "_warning",
-                                    'refid': refids[num], 'mytarget': mytarget}
+                        while mytarget.startswith('.'):
+                            mytarget = mytarget[1:]
+
+                        try:
+                            elements = {'measurement': fields['name'] + "_warning",
+                                        'refid': refids[num], 'mytarget': mytarget}
+                        except IndexError as e:
+                            print("-----\nToo much metrics (warning) in the "
+                                  "performance data for '%s/%s'!\n-----"
+                                  % (host['name'], service['name']))
+                            elements = {'measurement': fields['name'] + "_warning",
+                                        'refid': '', 'mytarget': mytarget}
+
                         targets.append(self.generate_target(elements,
                                                             {"host": hostname,
                                                              "service": service['name']},
                                                             ObjectId(service['_realm'])))
-                    num += 1
                     if fields['critical'] is not None:
-                        mytarget = Timeseries.get_realms_prefix(host['_realm']) + '.' + hostname
+                        num += 1
+                        # Add statsd, graphite and realm prefixes
+                        mytarget = '.'.join([statsd_prefix, graphite_prefix])
+                        mytarget += '.' + Timeseries.get_realms_prefix(host['_realm'])
+                        mytarget += '.' + hostname
                         mytarget += '.' + service['name'] + '.' + fields['name'] + "_critical"
-                        elements = {'measurement': fields['name'] + "_critical",
-                                    'refid': refids[num], 'mytarget': mytarget}
+                        while mytarget.startswith('.'):
+                            mytarget = mytarget[1:]
+
+                        try:
+                            elements = {'measurement': fields['name'] + "_critical",
+                                        'refid': refids[num], 'mytarget': mytarget}
+                        except IndexError as e:
+                            print("-----\nToo much metrics (critical) in the "
+                                  "performance data for '%s/%s'!\n-----"
+                                  % (host['name'], service['name']))
+                            elements = {'measurement': fields['name'] + "_critical",
+                                        'refid': '', 'mytarget': mytarget}
+
                         targets.append(self.generate_target(elements,
                                                             {"host": hostname,
                                                              "service": service['name']},

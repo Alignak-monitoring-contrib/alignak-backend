@@ -1729,7 +1729,7 @@ def cron_timeseries():
 
 
 @app.route("/cron_grafana")
-def cron_grafana(engine='jsonify'):
+def cron_grafana(engine='jsonify'):  # pylint: disable=too-many-locals
     """
     Cron used to add / update grafana dashboards
 
@@ -1743,6 +1743,8 @@ def cron_grafana(engine='jsonify'):
         services_db = current_app.data.driver.db['service']
         grafana_db = current_app.data.driver.db['grafana']
         realm_db = current_app.data.driver.db['realm']
+        graphite_db = current_app.data.driver.db['graphite']
+        statsd_db = current_app.data.driver.db['statsd']
 
         for grafana in grafana_db.find():
             graf = Grafana(grafana)
@@ -1751,6 +1753,17 @@ def cron_grafana(engine='jsonify'):
                 "create_dashboard": []
             }
             if graf.connection:
+                # get the graphites of the grafana
+                graphite_prefix = ''
+                statsd_prefix = ''
+                graphite = graphite_db.find_one({'grafana': grafana['_id']})
+                if graphite and graphite['prefix'] != '':
+                    graphite_prefix = graphite['prefix']
+                if graphite and graphite['statsd']:
+                    statsd = statsd_db.find_one({'_id': graphite['statsd']})
+                    if statsd and statsd['prefix'] != '':
+                        statsd_prefix = statsd['prefix']
+
                 # get the realms of the grafana
                 realm = realm_db.find_one({'_id': grafana['_realm']})
                 if grafana['_sub_realm']:
@@ -1762,10 +1775,12 @@ def cron_grafana(engine='jsonify'):
                     items = hosts_db.find({'ls_grafana': False, '_realm': realm['_id'],
                                            'ls_perf_data': {"$ne": ""}, '_is_template': False})
                 for item in items:
-                    created = graf.create_dashboard(item['_id'])
+                    created = graf.create_dashboard(item['_id'],
+                                                    graphite_prefix, statsd_prefix)
                     if created:
                         resp[grafana['name']]['create_dashboard'].append(item['name'])
-                # manage the cases hosts have new services or hosts not have ls_perf_data
+
+                # manage the case where hosts have new services or hosts do not have ls_perf_data
                 hosts_dashboards = {}
                 if grafana['_sub_realm']:
                     children = realm['_all_children']
@@ -1779,7 +1794,8 @@ def cron_grafana(engine='jsonify'):
                     if item['host'] not in hosts_dashboards:
                         host = hosts_db.find_one({'_id': item['host']})
                         if not host['_is_template']:
-                            created = graf.create_dashboard(item['host'])
+                            created = graf.create_dashboard(item['host'],
+                                                            graphite_prefix, statsd_prefix)
                             if created:
                                 resp[grafana['name']]['create_dashboard'].append(host['name'])
                         hosts_dashboards[item['host']] = True
