@@ -6,6 +6,8 @@ Run
 Production mode
 ---------------
 
+**UPDATE NEEDED** As of now an uwsgi configuration file is provided to ease running the backend with uwsgi Web server!
+
 First create a file anywhere on your system, named 'alignakbackend.py' and containing::
 
     from alignak_backend.app import app
@@ -26,6 +28,7 @@ Maybe, you will have to add the python plugin on some Linux distributions (Debia
 
 
 Alignak-backend runs on port 80 as specified in arguments, so you should use ``http://ip:80/`` or ``http://ip/`` as a base URL for the API.
+
 
 Developer mode
 --------------
