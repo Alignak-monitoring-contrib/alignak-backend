@@ -2,5 +2,6 @@ include README.rst LICENSE AUTHORS requirements.txt
 include etc/settings.json
 include etc/uwsgi.ini
 recursive-include alignak_backend *.*
-recursive-include bin *.*
+include bin/alignak-backend-uwsgi
+include bin/rc.d/alignak-backend
 global-exclude *pyc
