@@ -76,7 +76,7 @@ You define the values for each methods (GET, POST, PATCH, DELETE). An example::
 MongoDB access
 --------------
 
-You need to fill information about the MongoDB to access it in goal to store and get data.
+You need to fill information about the MongoDB used to store and retrieve data.
 
 The hostname of the server where the MongoDB run::
 
@@ -99,7 +99,7 @@ The username and password to access MongoDB and the database defined previously:
 Timeseries databases
 --------------------
 
-To activate the timeseries database feeding from the backend, one need to activate the timeseries scheduler.
+To activate the timeseries database feeding from the backend, you need to activate the timeseries scheduler.
 
 Activate the scheduler to push performance data to the configured database::
 
@@ -112,8 +112,8 @@ Activate the scheduler to create Grafana panels for the host/service performance
 Livesynthesis history
 ---------------------
 
-To have history of livesynthesis (all 1 minutes) for xx minutes, need to activate the history scheduler.
+To have history of livesynthesis (every minute) during xx minutes, you need to activate the history scheduler.
 
-To activate, define number of minutes you want history, *0* to disable, example for 30 minutes::
+To activate, define the number of minutes you want to keep history, *0* to disable, example for 30 minutes::
 
   "SCHEDULER_LIVESYNTHESIS_HISTORY": 30

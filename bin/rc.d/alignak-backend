@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# $FreeBSD$
+#
+# PROVIDE: alignak_backend
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="alignak_backend"
+rcvar="alignak_backend_enable"
+
+alignak_backend_configfile="/usr/local/etc/alignak-backend/uwsgi.ini"
+command="/usr/local/bin/uwsgi"
+command_interpreter="/usr/local/bin/python2.7"
+pidfile="/var/run/alignak_backend.pid"
+command_args="--ini ${alignak_backend_configfile} -d /dev/null --pidfile ${pidfile}"
+
+required_files="${alignak_backend_configfile}"
+
+load_rc_config "${name}"
+
+[ -z "${alignak_backend_enable}" ] && alignak_backend_enable="NO"
+
+run_rc_command "$1"
