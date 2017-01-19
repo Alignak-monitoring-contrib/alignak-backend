@@ -29,7 +29,7 @@ If you want to run with uwsgi, you need to install uwsgi and its python plugin (
 Install with pip
 ----------------
 
-**Note** that installing with pip is not the recommended way for a production server. This is more intended to small environments and development
+**Note** that the recommended way for installing on a production server is to use the packages existing for your distribution. Nevertheless, the pip installation provides a startup script using the an uwsgi server and, for FreeBSD users, rc.d scripts.
 
 With pip
 ~~~~~~~~

@@ -6,28 +6,22 @@ Run
 Production mode
 ---------------
 
-**UPDATE NEEDED** As of now an uwsgi configuration file is provided to ease running the backend with uwsgi Web server!
+The alignak backend installation script used when you install with pip:
 
-First create a file anywhere on your system, named 'alignakbackend.py' and containing::
+* creates a *alignak-backend-uwsgi* launch script located in */usr/local/bin*
 
-    from alignak_backend.app import app
+* stores the *uwsgi.ini* configuration file in */usr/local/etc/alignak-backend*
 
-You can use many possibilities, but we suggest you use uwsgi and start it in the same directory as the file created previously.
+Thanks to this, you can simply run:
+::
 
-With sockets (+ nginx / apache in frontal)::
+    alignak-backend-uwsgi
 
-   uwsgi -s /tmp/uwsgi.sock -w alignakbackend:app --enable-threads -p 4
+The Alignak backend logs its activity in two files that are located in */usr/local/var/log*:
 
-With direct http port::
+* *alignak_backend-access.log* contains all the API HTTP requests
 
-   uwsgi --wsgi-file alignakbackend.py -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads -p 4
-
-Maybe, you will have to add the python plugin on some Linux distributions (Debian)::
-
-   uwsgi --plugin python --wsgi-file alignakbackend.py -w alignakbackend:app --socket 0.0.0.0:80 --protocol=http --enable-threads -p 4
-
-
-Alignak-backend runs on port 80 as specified in arguments, so you should use ``http://ip:80/`` or ``http://ip/`` as a base URL for the API.
+* *alignak_backend-error.log* contains the other messages: start, stop, activity log, ...
 
 
 Developer mode
