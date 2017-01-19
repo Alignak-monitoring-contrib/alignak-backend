@@ -74,7 +74,15 @@ def get_schema():
                 'type': 'string',
                 'default': ''
             },
+            # The action has been set on the host/service by Alignak and it can be
+            # considered as effective if processed is True
             'processed': {
+                'type': 'boolean',
+                'default': False
+            },
+            # The action has been fetched by the Alignak arbiter if notified is True
+            # but it is not yet to be considered as an effective acknowledgement
+            'notified': {
                 'type': 'boolean',
                 'default': False
             },
