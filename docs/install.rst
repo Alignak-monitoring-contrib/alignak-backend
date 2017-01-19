@@ -6,6 +6,9 @@ Installation
 Requirements
 ------------
 
+MongoDB
+~~~~~~~
+
 To use this Alignak backend, you first need to install and run MongoDB_
 
 .. _MongoDB: http://docs.mongodb.org/manual/
@@ -22,14 +25,24 @@ As an excerpt of the MongoDB installation documentation, this script will instal
 .. warning:: Check for your specific Unix/Linux distribution in the `MongoDB_` installation documentation.
 
 
-If you want to run with uwsgi, you need to install uwsgi and its python plugin (on Debian)::
+MongoDB
+~~~~~~~
+
+We recommend to use uWSGI as an application server for the Alignak backend and we provide a python pip installer that has `uwsgi` as a requirement.
+
+If you prefer using your Unix/Linux ditribution packaging to install uWSGI and the alignak backend (not yet packaged... help needed for this), please refer to your distribution packages for installing. You will also need to install the uWSGI Python plugin.
+
+As an example on Debian::
 
     sudo apt-get install uwsgi uwsgi-plugin-python
+
+
+.. warning:: If you get some errors with the plugins, you will need to set some options in the alignak backend */usr/local/etc/alignak-backend/uwsgi.ini* configuration file. See this configuration file commented accordingly.
 
 Install with pip
 ----------------
 
-**Note** that the recommended way for installing on a production server is to use the packages existing for your distribution. Nevertheless, the pip installation provides a startup script using the an uwsgi server and, for FreeBSD users, rc.d scripts.
+**Note** that the recommended way for installing on a production server is mostly often to use the packages existing for your distribution. Nevertheless, the pip installation provides a startup script using an uwsgi server and, for FreeBSD users, rc.d scripts.
 
 With pip
 ~~~~~~~~

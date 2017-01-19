@@ -19,9 +19,11 @@ Thanks to this, you can simply run:
 
 The Alignak backend logs its activity in two files that are located in */usr/local/var/log*:
 
-* *alignak_backend-access.log* contains all the API HTTP requests
+* *alignak-backend-access.log* contains all the API HTTP requests
 
-* *alignak_backend-error.log* contains the other messages: start, stop, activity log, ...
+* *alignak-backend-error.log* contains the other messages: start, stop, activity log, ...
+
+.. warning:: If you do not have those files when the backend is started, make sure that the user account used to run the backend is allow to write in the */usr/local/var/log* directory ;)
 
 
 Developer mode
