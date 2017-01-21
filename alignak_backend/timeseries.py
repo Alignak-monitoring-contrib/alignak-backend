@@ -77,7 +77,19 @@ class Timeseries(object):
             m = re.search(r'^(.*)\.[\d]{10}$', fields['name'])
             if m:
                 fields['name'] = m.group(1)
-            fields['name'] = fields['name'].replace(" ", "_")
+
+            # Sanitize field name for TSDB (Graphite or Influx):
+            # + becomes a _
+            my_target = fields['name'].replace("+", "_")
+            # / becomes a -
+            my_target = my_target.replace("/", "-")
+            # space becomes a _
+            my_target = my_target.replace(" ", "_")
+            # % becomes _pct
+            my_target = my_target.replace("%", "_pct")
+            # all character not in [a-zA-Z_-0-9.] is removed
+            my_target = re.sub(r'[^a-zA-Z_\-0-9\.\$]', '', my_target)
+            fields['name'] = my_target
 
             if fields['value'] is not None:
                 data_timeseries['data'].append(
@@ -100,6 +112,22 @@ class Timeseries(object):
                     {
                         'name': fields['name'] + '_critical',
                         'value': fields['critical'],
+                        'uom': fields['uom']
+                    }
+                )
+            if fields['min'] is not None:
+                data_timeseries['data'].append(
+                    {
+                        'name': fields['name'] + '_min',
+                        'value': fields['min'],
+                        'uom': fields['uom']
+                    }
+                )
+            if fields['max'] is not None:
+                data_timeseries['data'].append(
+                    {
+                        'name': fields['name'] + '_max',
+                        'value': fields['max'],
                         'uom': fields['uom']
                     }
                 )
