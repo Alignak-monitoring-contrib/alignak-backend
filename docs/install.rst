@@ -25,8 +25,8 @@ As an excerpt of the MongoDB installation documentation, this script will instal
 .. warning:: Check for your specific Unix/Linux distribution in the `MongoDB_` installation documentation.
 
 
-MongoDB
-~~~~~~~
+uWSGI
+~~~~~
 
 We recommend to use uWSGI as an application server for the Alignak backend and we provide a python pip installer that has `uwsgi` as a requirement.
 
@@ -51,6 +51,8 @@ You can install with pip::
 
     pip install alignak_backend
 
+
+The required Python modules are automatically installed if not they are not yet present on your system.
 
 From source
 ~~~~~~~~~~~

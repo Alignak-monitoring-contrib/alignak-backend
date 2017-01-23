@@ -31,7 +31,7 @@ Developer mode
 
 To run in developper mode (meaning with few connections), you can start the backend with this command::
 
-    alignak_backend
+    alignak-backend
 
 On start, some useful information are printed on the console::
 
