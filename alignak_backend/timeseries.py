@@ -89,8 +89,6 @@ class Timeseries(object):
             my_target = my_target.replace("%", "_pct")
             # all character not in [a-zA-Z_-0-9.] is removed
             my_target = re.sub(r'[^a-zA-Z_\-0-9\.\$]', '', my_target)
-            if fields['name'] != my_target:
-                print("Sanitized %s to %s" % (fields['name'], my_target))
             fields['name'] = my_target
 
             if fields['value'] is not None:
@@ -114,6 +112,22 @@ class Timeseries(object):
                     {
                         'name': fields['name'] + '_critical',
                         'value': fields['critical'],
+                        'uom': fields['uom']
+                    }
+                )
+            if fields['min'] is not None:
+                data_timeseries['data'].append(
+                    {
+                        'name': fields['name'] + '_min',
+                        'value': fields['min'],
+                        'uom': fields['uom']
+                    }
+                )
+            if fields['max'] is not None:
+                data_timeseries['data'].append(
+                    {
+                        'name': fields['name'] + '_max',
+                        'value': fields['max'],
                         'uom': fields['uom']
                     }
                 )
