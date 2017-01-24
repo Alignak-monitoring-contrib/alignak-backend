@@ -135,8 +135,8 @@ class TestHookTemplate(unittest2.TestCase):
 
         schema = host_schema()
         template_fields = {}
-        ignore_fields = ['name', 'realm', '_realm', '_template_fields',
-                         '_templates', '_is_template',
+        ignore_fields = ['name', 'realm', '_realm', '_overall_state_id',
+                         '_template_fields', '_templates', '_is_template',
                          '_templates_with_services']
         for key in schema['schema']:
             if key not in ignore_fields:
@@ -743,12 +743,15 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertTrue(rs[12]['_is_template'])
 
         # Now delete a template service
+        response = requests.get(self.endpoint + '/service/' + ret_new['_id'],
+                                params=sort_id, auth=self.auth)
+        response = response.json()
         headers_delete = {
             'Content-Type': 'application/json',
-            'If-Match': ret_new['_etag']
+            'If-Match': response['_etag']
         }
-        requests.delete(self.endpoint + '/service/' + ret_new['_id'], headers=headers_delete,
-                        auth=self.auth)
+        requests.delete(self.endpoint + '/service/' + response['_id'],
+                        headers=headers_delete, auth=self.auth)
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         service_name = []

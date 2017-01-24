@@ -109,24 +109,43 @@ class TestOverallState(unittest2.TestCase):
             del data['realm']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
-        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        params = {'sort': '_id', 'where': json.dumps({'_is_template': True})}
+        response = requests.get(self.endpoint + '/host', params=params, auth=self.auth)
         resp = response.json()
-        self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(len(resp['_items']), 1)
         rh = resp['_items']
+        # On host insertion, _overall_state_id field is 3, because host is UNREACHABLE
+        self.assertEqual(3, rh[0]['_overall_state_id'])
 
         # Add service 1
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[1]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
-        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        response = requests.post(self.endpoint + '/service', json=data,
+                                 headers=headers, auth=self.auth)
+        response = response.json()
+        response = requests.get(
+            self.endpoint + '/service/' + response['_id'], params=sort_id, auth=self.auth
+        )
+        ls_service = response.json()
+        # On service insertion, _overall_state_id field is 3, because service is UNKNOWN
+        self.assertEqual(3, ls_service['_overall_state_id'])
 
         # Add service 2
         data = json.loads(open('cfg/service_srv002_ping.json').read())
-        data['host'] = rh[1]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
-        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        response = requests.post(self.endpoint + '/service', json=data,
+                                 headers=headers, auth=self.auth)
+        response = response.json()
+        response = requests.get(
+            self.endpoint + '/service/' + response['_id'], params=sort_id, auth=self.auth
+        )
+        ls_service = response.json()
+        # On service insertion, _overall_state_id field is 3, because service is UNKNOWN
+        self.assertEqual(3, ls_service['_overall_state_id'])
 
         # Get all services
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
@@ -152,7 +171,7 @@ class TestOverallState(unittest2.TestCase):
                 self.endpoint + '/service/' + service['_id'], params=sort_id, auth=self.auth
             )
             ls_service = response.json()
-            # _overall_state_id field is 0
+            # On service insertion, _overall_state_id field is 3, because service is UNKNOWN
             self.assertEqual(0, ls_service['_overall_state_id'])
 
         # Get host

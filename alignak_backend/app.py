@@ -1080,6 +1080,40 @@ def pre_host_patch(updates, original):
         del updates['_updated']
 
 
+def after_insert_host(items):
+    """
+    Hook after host inserted.
+
+    :param items: host fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        overall_state = 0
+
+        acknowledged = item['ls_acknowledged']
+        downtimed = item['ls_downtimed']
+        state = item['ls_state']
+        state = state.upper()
+
+        if acknowledged:
+            overall_state = 1
+        elif downtimed:
+            overall_state = 2
+        else:
+            if state == 'UNREACHABLE':
+                overall_state = 3
+            elif state == 'DOWN':
+                overall_state = 4
+
+        # Do not care about services... when inserting an host,
+        # services are not yet existing for this host!
+
+        # Host overall was computed, update the host overall state
+        lookup = {"_id": item['_id']}
+        patch_internal('host', {"_overall_state_id": overall_state}, False, False, **lookup)
+
+
 def pre_service_patch(updates, original):
     """
     Hook before updating a service element.
@@ -1110,9 +1144,9 @@ def pre_service_patch(updates, original):
     :type original: dict
     :return: None
     """
-
-    if '_overall_state_id' in updates:
-        abort(make_response("Updating _overall_state_id for a service is forbidden", 412))
+    # Allow update because it must be done when inserting a service
+    # if '_overall_state_id' in updates:
+    #     abort(make_response("Updating _overall_state_id for a service is forbidden", 412))
 
     for key in updates:
         if key not in ['_overall_state_id', '_updated', '_realm'] and not key.startswith('ls_'):
@@ -1121,11 +1155,7 @@ def pre_service_patch(updates, original):
         # pylint: disable=too-many-boolean-expressions
         if 'ls_state_type' in updates and updates['ls_state_type'] == 'HARD':
             # We updated the service live state, compute the new overall state
-            if ('ls_state' in updates and updates['ls_state'] != original['ls_state']) or \
-                    ('ls_acknowledged' in updates and
-                     updates['ls_acknowledged'] != original['ls_acknowledged']) or \
-                    ('ls_downtimed' in updates and
-                     updates['ls_downtimed'] != original['ls_downtimed']):
+            if 'ls_state' in updates or 'ls_acknowledged' in updates or 'ls_downtimed' in updates:
                 overall_state = 0
 
                 acknowledged = original['ls_acknowledged']
@@ -1161,6 +1191,41 @@ def pre_service_patch(updates, original):
         del updates['_updated']
 
 
+def after_insert_service(items):
+    """
+    Hook after service inserted.
+
+    :param items: host fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        overall_state = 0
+
+        acknowledged = item['ls_acknowledged']
+        downtimed = item['ls_downtimed']
+        state = item['ls_state']
+        state = state.upper()
+
+        if acknowledged:
+            overall_state = 1
+        elif downtimed:
+            overall_state = 2
+        else:
+            if state == 'WARNING':
+                overall_state = 3
+            elif state == 'CRITICAL':
+                overall_state = 4
+            elif state == 'UNKNOWN':
+                overall_state = 3
+            elif state == 'UNREACHABLE':
+                overall_state = 4
+
+        # Service overall was computed, update the service overall state
+        lookup = {"_id": item['_id']}
+        patch_internal('service', {"_overall_state_id": overall_state}, False, False, **lookup)
+
+
 def after_updated_service(updated, original):
     """
     Hook called after a service got updated
@@ -1171,9 +1236,8 @@ def after_updated_service(updated, original):
     :type original: dict
     :return: None
     """
-    if '_overall_state_id' in updated and \
-            updated['_overall_state_id'] != original['_overall_state_id']:
-        # Service overall state changed, we should update its host overall state
+    if '_overall_state_id' in updated:
+        # Service overall was updated, we should update its host overall state
         lookup = {"_id": original['host']}
         patch_internal('host', {"_overall_state_id": -1}, False, False, **lookup)
 
@@ -1416,6 +1480,8 @@ app = Eve(
 app.on_pre_GET += pre_get
 app.on_insert_user += pre_user_post
 app.on_update_user += pre_user_patch
+app.on_inserted_host += after_insert_host
+app.on_inserted_service += after_insert_service
 app.on_update_host += pre_host_patch
 app.on_update_service += pre_service_patch
 app.on_updated_service += after_updated_service
