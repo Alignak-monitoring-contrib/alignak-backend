@@ -213,6 +213,11 @@ class TestTimeseries(unittest2.TestCase):
                     'name': 'rta_critical',
                     'value': 15,
                     'uom': 'ms'
+                },
+                {
+                    'name': 'rta_min',
+                    'value': 0,
+                    'uom': 'ms'
                 }
             ]
         }
@@ -255,6 +260,113 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 86608341539,
                     'uom': ''
                 }
+            ]
+        }
+        self.assertItemsEqual(reference['data'], ret['data'])
+
+    def test_prepare_special_formatted(self):
+        """
+        Prepare timeseries from a special perfdata, with
+        * : in name
+        * % in name
+
+        :return: None
+        """
+        item = {
+            'host': 'srv001',
+            'service': 'nsca_cpu',
+            'state': 'OK',
+            'state_type': 'HARD',
+            'state_id': 0,
+            'acknowledged': False,
+            'last_check': int(time.time()),
+            'last_state': 'OK',
+            'output': 'OK All 1 drive(s) are ok',
+            'long_output': '',
+            'perf_data': "'C:'=13.19606GB;29.99853;33.99833;0;39.99804 "
+                         "'C:%'=33%;75;85;0;100 "
+                         "'C:_pct'=33%;75;85;0;100",
+            '_realm': 'All.Propieres'
+        }
+
+        ret = Timeseries.prepare_data(item)
+        reference = {
+            'data': [
+                {
+                    'name': 'C',
+                    'value': 13.19606,
+                    'uom': 'GB'
+                },
+                {
+                    'name': 'C_warning',
+                    'value': 29.99853,
+                    'uom': 'GB'
+                },
+                {
+                    'name': 'C_critical',
+                    'value': 33.99833,
+                    'uom': 'GB'
+                },
+                {
+                    'name': 'C_min',
+                    'value': 0,
+                    'uom': 'GB'
+                },
+                {
+                    'name': 'C_max',
+                    'value': 39.99804,
+                    'uom': 'GB'
+                },
+                {
+                    'name': 'C_pct',
+                    'value': 33,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct_warning',
+                    'value': 75,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct_critical',
+                    'value': 85,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct_min',
+                    'value': 0,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct_max',
+                    'value': 100,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct',
+                    'value': 33,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct_warning',
+                    'value': 75,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct_critical',
+                    'value': 85,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct_min',
+                    'value': 0,
+                    'uom': '%'
+                },
+                {
+                    'name': 'C_pct_max',
+                    'value': 100,
+                    'uom': '%'
+                },
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -460,6 +572,9 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All', 'name': u'rta_critical', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv001',
                  'value': 110},
+                {'realm': u'All', 'name': u'rta_min', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv001',
+                 'value': 0},
 
                 {'realm': u'All', 'name': u'pl', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv001',
@@ -467,6 +582,12 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All', 'name': u'pl_warning', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv001',
                  'value': 10},
+                {'realm': u'All', 'name': u'pl_min', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv001',
+                 'value': 0},
+                {'realm': u'All', 'name': u'pl_max', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv001',
+                 'value': 100},
 
                 {'realm': u'All', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv001',
@@ -477,6 +598,9 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All', 'name': u'rta_critical', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv001',
                  'value': 110},
+                {'realm': u'All', 'name': u'rta_min', 'service': u'',
+                 'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv001',
+                 'value': 0},
 
                 {'realm': u'All', 'name': u'pl', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv001',
@@ -484,6 +608,12 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All', 'name': u'pl_warning', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv001',
                  'value': 10},
+                {'realm': u'All', 'name': u'pl_min', 'service': u'',
+                 'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv001',
+                 'value': 0},
+                {'realm': u'All', 'name': u'pl_max', 'service': u'',
+                 'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv001',
+                 'value': 100},
 
                 {'realm': u'All', 'name': u'rta', 'service': u'', 'graphite': None,
                  'influxdb': ObjectId(influxdb_001), 'host': u'srv001', 'value': 75},
@@ -491,11 +621,17 @@ class TestTimeseries(unittest2.TestCase):
                  'influxdb': ObjectId(influxdb_001), 'host': u'srv001', 'value': 100},
                 {'realm': u'All', 'name': u'rta_critical', 'service': u'', 'graphite': None,
                  'influxdb': ObjectId(influxdb_001), 'host': u'srv001', 'value': 110},
+                {'realm': u'All', 'name': u'rta_min', 'service': u'', 'graphite': None,
+                 'influxdb': ObjectId(influxdb_001), 'host': u'srv001', 'value': 0},
 
                 {'realm': u'All', 'name': u'pl', 'service': u'', 'graphite': None,
                  'influxdb': ObjectId(influxdb_001), 'host': u'srv001', 'value': 0},
                 {'realm': u'All', 'name': u'pl_warning', 'service': u'', 'graphite': None,
                  'influxdb': ObjectId(influxdb_001), 'host': u'srv001', 'value': 10},
+                {'realm': u'All', 'name': u'pl_min', 'service': u'', 'graphite': None,
+                 'influxdb': ObjectId(influxdb_001), 'host': u'srv001', 'value': 0},
+                {'realm': u'All', 'name': u'pl_max', 'service': u'', 'graphite': None,
+                 'influxdb': ObjectId(influxdb_001), 'host': u'srv001', 'value': 100},
             ]
             self.assertItemsEqual(ref, retention_data)
             timeseriesretention_db.drop()
@@ -551,6 +687,9 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All.All A.All A1', 'name': u'rta_critical', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
                  'value': 110},
+                {'realm': u'All.All A.All A1', 'name': u'rta_min', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
+                 'value': 0},
 
                 {'realm': u'All.All A.All A1', 'name': u'pl', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
@@ -558,6 +697,12 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All.All A.All A1', 'name': u'pl_warning', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
                  'value': 10},
+                {'realm': u'All.All A.All A1', 'name': u'pl_min', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
+                 'value': 0},
+                {'realm': u'All.All A.All A1', 'name': u'pl_max', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
+                 'value': 100},
 
                 {'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
@@ -568,6 +713,9 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All.All A.All A1', 'name': u'rta_critical', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
                  'value': 110},
+                {'realm': u'All.All A.All A1', 'name': u'rta_min', 'service': u'',
+                 'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
+                 'value': 0},
 
                 {'realm': u'All.All A.All A1', 'name': u'pl', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
@@ -575,6 +723,12 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All.All A.All A1', 'name': u'pl_warning', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
                  'value': 10},
+                {'realm': u'All.All A.All A1', 'name': u'pl_min', 'service': u'',
+                 'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
+                 'value': 0},
+                {'realm': u'All.All A.All A1', 'name': u'pl_max', 'service': u'',
+                 'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
+                 'value': 100},
 
                 {'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'', 'graphite': None,
                  'influxdb': ObjectId(influxdb_001), 'host': u'srv003', 'value': 32},
@@ -584,12 +738,21 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All.All A.All A1', 'name': u'rta_critical', 'service': u'',
                  'graphite': None, 'influxdb': ObjectId(influxdb_001), 'host': u'srv003',
                  'value': 110},
+                {'realm': u'All.All A.All A1', 'name': u'rta_min', 'service': u'',
+                 'graphite': None, 'influxdb': ObjectId(influxdb_001), 'host': u'srv003',
+                 'value': 0},
 
                 {'realm': u'All.All A.All A1', 'name': u'pl', 'service': u'', 'graphite': None,
                  'influxdb': ObjectId(influxdb_001), 'host': u'srv003', 'value': 0},
                 {'realm': u'All.All A.All A1', 'name': u'pl_warning', 'service': u'',
                  'graphite': None, 'influxdb': ObjectId(influxdb_001), 'host': u'srv003',
                  'value': 10},
+                {'realm': u'All.All A.All A1', 'name': u'pl_min', 'service': u'',
+                 'graphite': None, 'influxdb': ObjectId(influxdb_001), 'host': u'srv003',
+                 'value': 0},
+                {'realm': u'All.All A.All A1', 'name': u'pl_max', 'service': u'',
+                 'graphite': None, 'influxdb': ObjectId(influxdb_001), 'host': u'srv003',
+                 'value': 100},
             ]
             self.assertItemsEqual(ref, retention_data)
             timeseriesretention_db.drop()
@@ -625,7 +788,7 @@ class TestTimeseries(unittest2.TestCase):
             'last_state': 'OK',
             'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
             'long_output': '',
-            'perf_data': "rta=32.02453ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+            'perf_data': "rta=32.02453ms;100.000000;110.000000 pl=0%;10;;",
             '_realm': ObjectId(self.realm_all_A1)
         }
         with app.test_request_context():
@@ -668,6 +831,12 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All.All A.All A1', 'name': u'pl_warning', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
                  'value': 10},
+                {'realm': u'All.All A.All A1', 'name': u'pl_min', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
+                 'value': 0},
+                {'realm': u'All.All A.All A1', 'name': u'pl_max', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'influxdb': None, 'host': u'srv003',
+                 'value': 100},
 
                 {'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
@@ -685,6 +854,12 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All.All A.All A1', 'name': u'pl_warning', 'service': u'',
                  'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
                  'value': 10},
+                {'realm': u'All.All A.All A1', 'name': u'pl_min', 'service': u'',
+                 'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
+                 'value': 0},
+                {'realm': u'All.All A.All A1', 'name': u'pl_max', 'service': u'',
+                 'graphite': ObjectId(graphite_002), 'influxdb': None, 'host': u'srv003',
+                 'value': 100},
 
                 {'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'', 'graphite': None,
                  'influxdb': ObjectId(influxdb_001), 'host': u'srv003', 'value': 32},
@@ -700,6 +875,12 @@ class TestTimeseries(unittest2.TestCase):
                 {'realm': u'All.All A.All A1', 'name': u'pl_warning', 'service': u'',
                  'graphite': None, 'influxdb': ObjectId(influxdb_001), 'host': u'srv003',
                  'value': 10},
+                {'realm': u'All.All A.All A1', 'name': u'pl_min', 'service': u'',
+                 'graphite': None, 'influxdb': ObjectId(influxdb_001), 'host': u'srv003',
+                 'value': 0},
+                {'realm': u'All.All A.All A1', 'name': u'pl_max', 'service': u'',
+                 'graphite': None, 'influxdb': ObjectId(influxdb_001), 'host': u'srv003',
+                 'value': 100},
             ]
             self.assertItemsEqual(ref, retention_data)
             timeseriesretention_db.drop()
@@ -719,7 +900,7 @@ class TestTimeseries(unittest2.TestCase):
                 'last_state': 'OK',
                 'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
                 'long_output': '',
-                'perf_data': "rta=32.02453ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+                'perf_data': "rta=32.02453ms;100.000000;110.000000 pl=0;10",
                 '_realm': ObjectId(self.realm_all_A)
             }
             with app.test_request_context():

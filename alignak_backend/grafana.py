@@ -152,6 +152,8 @@ class Grafana(object):
         my_target = my_target.replace("/", "-")
         # space becomes a _
         my_target = my_target.replace(" ", "_")
+        # % becomes _pct
+        my_target = my_target.replace("%", "_pct")
         # all character not in [a-zA-Z_-0-9.] is removed
         my_target = re.sub(r'[^a-zA-Z_\-0-9\.\$]', '', my_target)
 
