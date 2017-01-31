@@ -1249,6 +1249,7 @@ def update_etag(myrequest, payload):
         return
     else:
         for idx, resp in enumerate(payload.response):
+            resp = resp.decode('UTF-8')
             for old_etag, new_etag in iteritems(g.replace_etags):
                 resp = resp.replace(old_etag, new_etag)
             payload.response[idx] = resp
