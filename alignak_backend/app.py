@@ -1088,6 +1088,7 @@ def after_insert_host(items):
     :type items: dict
     :return: None
     """
+    etags = {}
     for dummy, item in enumerate(items):
         overall_state = 0
 
@@ -1111,7 +1112,11 @@ def after_insert_host(items):
 
         # Host overall was computed, update the host overall state
         lookup = {"_id": item['_id']}
-        patch_internal('host', {"_overall_state_id": overall_state}, False, False, **lookup)
+        (_, _, etag, _) = patch_internal('host', {"_overall_state_id": overall_state}, False, False,
+                                         **lookup)
+        etags[item['_etag']] = etag
+    if len(etags) > 0:
+        g.replace_etags = etags
 
 
 def pre_service_patch(updates, original):
@@ -1199,6 +1204,7 @@ def after_insert_service(items):
     :type items: dict
     :return: None
     """
+    etags = {}
     for dummy, item in enumerate(items):
         overall_state = 0
 
@@ -1223,7 +1229,30 @@ def after_insert_service(items):
 
         # Service overall was computed, update the service overall state
         lookup = {"_id": item['_id']}
-        patch_internal('service', {"_overall_state_id": overall_state}, False, False, **lookup)
+        (_, _, etag, _) = patch_internal('service', {"_overall_state_id": overall_state}, False,
+                                         False, **lookup)
+        etags[item['_etag']] = etag
+    if len(etags) > 0:
+        g.replace_etags = etags
+
+
+def update_etag(myrequest, payload):
+    """In case POST item database hook use patch_internal, we update the new _etag in the
+    response
+
+    :param myrequest:
+    :param payload:
+    :return: None
+    """
+    # pylint: disable=unused-argument
+    if not g.get('replace_etags', {}):
+        return
+    else:
+        for idx, resp in enumerate(payload.response):
+            for old_etag, new_etag in iteritems(g.replace_etags):
+                resp = resp.replace(old_etag, new_etag)
+            payload.response[idx] = resp
+        del g.replace_etags
 
 
 def after_updated_service(updated, original):
@@ -1481,7 +1510,9 @@ app.on_pre_GET += pre_get
 app.on_insert_user += pre_user_post
 app.on_update_user += pre_user_patch
 app.on_inserted_host += after_insert_host
+app.on_post_POST_host += update_etag
 app.on_inserted_service += after_insert_service
+app.on_post_POST_service += update_etag
 app.on_update_host += pre_host_patch
 app.on_update_service += pre_service_patch
 app.on_updated_service += after_updated_service

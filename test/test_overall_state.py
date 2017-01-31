@@ -139,11 +139,14 @@ class TestOverallState(unittest2.TestCase):
         data['_realm'] = self.realm_all
         response = requests.post(self.endpoint + '/service', json=data,
                                  headers=headers, auth=self.auth)
-        response = response.json()
+        responsep = response.json()
         response = requests.get(
-            self.endpoint + '/service/' + response['_id'], params=sort_id, auth=self.auth
+            self.endpoint + '/service/' + responsep['_id'], params=sort_id, auth=self.auth
         )
         ls_service = response.json()
+        # be sure the _etag return by post is same when get it
+        self.assertEqual(responsep['_etag'], ls_service['_etag'])
+
         # On service insertion, _overall_state_id field is 3, because service is UNKNOWN
         self.assertEqual(3, ls_service['_overall_state_id'])
 
