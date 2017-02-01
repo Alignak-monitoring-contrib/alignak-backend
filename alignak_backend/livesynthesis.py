@@ -267,7 +267,8 @@ class Livesynthesis(object):
         """
 
         # State modification
-        if 'ls_state' not in updated and 'ls_state_type' not in updated:
+        if 'ls_state' not in updated and 'ls_state_type' not in updated \
+                and 'ls_acknowledged' not in updated and 'ls_downtimed' not in updated:
             return False, False
         elif 'ls_state' in updated and 'ls_state_type' not in updated:
             plus = "%s_%s_%s" % (type_check, updated['ls_state'].lower(),
@@ -275,6 +276,11 @@ class Livesynthesis(object):
         elif 'ls_state' not in updated and 'ls_state_type' in updated:
             plus = "%s_%s_%s" % (type_check, original['ls_state'].lower(),
                                  updated['ls_state_type'].lower())
+        elif 'ls_state' not in updated and 'ls_state_type' not in updated:
+            if 'ls_acknowledged' in updated and not updated['ls_acknowledged'] \
+                    or 'ls_downtimed' in updated and not updated['ls_downtimed']:
+                plus = "%s_%s_%s" % (type_check, original['ls_state'].lower(),
+                                     original['ls_state_type'].lower())
         else:
             # so have 'state' and 'state_type' in updated
             plus = "%s_%s_%s" % (type_check, updated['ls_state'].lower(),
