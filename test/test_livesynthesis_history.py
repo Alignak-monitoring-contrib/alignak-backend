@@ -112,6 +112,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
                 datas['host'] = myhostsid[host['name']]
                 datas['check_command'] = rc[0]['_id']
                 datas['_realm'] = host['_realm']
+                datas['name'] = name
                 ret = requests.post(cls.endpoint + '/service', json=datas, headers=headers,
                                     auth=cls.auth)
                 resp = ret.json()
@@ -156,26 +157,37 @@ class TestHookLivesynthesis(unittest2.TestCase):
             'ls_downtimed': False
         }
         for host in ['srv003', 'srv004', 'srv005']:
+            response = requests.get(cls.endpoint + '/host',
+                                    params={'where': json.dumps({'name': host})}, auth=cls.auth)
+            resp = response.json()
+            host_etag = resp['_items'][0]['_etag']
+            myetags[host] = host_etag
+            host_id = resp['_items'][0]['_id']
             headers_patch = {
                 'Content-Type': 'application/json',
-                'If-Match': myetags[host]
+                'If-Match': host_etag
             }
-            ret = requests.patch(cls.endpoint + '/host/' + myhostsid[host], json=data,
+            ret = requests.patch(cls.endpoint + '/host/' + host_id, json=data,
                                  headers=headers_patch, auth=cls.auth)
             resp = ret.json()
             assert resp['_status'] == 'OK'
             myetags[host] = resp['_etag']
             # update services on this host to be unreachable
             for service_name in ['ping', 'ssh']:
+                response = requests.get(cls.endpoint + '/service',
+                                        params={'where': json.dumps({'host': host_id,
+                                                                     'name': service_name})},
+                                        auth=cls.auth)
+                resp = response.json()
                 datas = {
                     'ls_state': 'UNREACHABLE',
                     'ls_state_type': 'HARD'
                 }
                 headers_patch = {
                     'Content-Type': 'application/json',
-                    'If-Match': myetags[host + '.' + service_name]
+                    'If-Match': resp['_items'][0]['_etag']
                 }
-                ret = requests.patch(cls.endpoint + '/service/' + myservicesid[host][service_name],
+                ret = requests.patch(cls.endpoint + '/service/' + resp['_items'][0]['_id'],
                                      json=datas, headers=headers_patch, auth=cls.auth)
                 resp = ret.json()
                 assert resp['_status'] == 'OK'
@@ -187,9 +199,14 @@ class TestHookLivesynthesis(unittest2.TestCase):
             'ls_acknowledged': False,
             'ls_downtimed': False
         }
+        response = requests.get(cls.endpoint + '/service',
+                                params={'where': json.dumps({'host': myhostsid['srv002'],
+                                                             'name': 'ssh'})},
+                                auth=cls.auth)
+        resp = response.json()
         headers_patch = {
             'Content-Type': 'application/json',
-            'If-Match': myetags['srv002.ssh']
+            'If-Match': resp['_items'][0]['_etag']
         }
         ret = requests.patch(cls.endpoint + '/service/' + myservicesid['srv002']['ssh'],
                              json=datas, headers=headers_patch, auth=cls.auth)
@@ -197,9 +214,14 @@ class TestHookLivesynthesis(unittest2.TestCase):
         assert resp['_status'] == 'OK'
         myetags['srv002.ssh'] = resp['_etag']
 
+        response = requests.get(cls.endpoint + '/service',
+                                params={'where': json.dumps({'host': myhostsid['srv006'],
+                                                             'name': 'ping'})},
+                                auth=cls.auth)
+        resp = response.json()
         headers_patch = {
             'Content-Type': 'application/json',
-            'If-Match': myetags['srv006.ping']
+            'If-Match': resp['_items'][0]['_etag']
         }
         ret = requests.patch(cls.endpoint + '/service/' + myservicesid['srv006']['ping'],
                              json=datas, headers=headers_patch, auth=cls.auth)
@@ -213,9 +235,14 @@ class TestHookLivesynthesis(unittest2.TestCase):
             'ls_acknowledged': True,
             'ls_downtimed': False
         }
+        response = requests.get(cls.endpoint + '/service',
+                                params={'where': json.dumps({'host': myhostsid['srv002'],
+                                                             'name': 'ping'})},
+                                auth=cls.auth)
+        resp = response.json()
         headers_patch = {
             'Content-Type': 'application/json',
-            'If-Match': myetags['srv002.ping']
+            'If-Match': resp['_items'][0]['_etag']
         }
         ret = requests.patch(cls.endpoint + '/service/' + myservicesid['srv002']['ping'],
                              json=datas, headers=headers_patch, auth=cls.auth)
@@ -250,9 +277,14 @@ class TestHookLivesynthesis(unittest2.TestCase):
             'ls_acknowledged': False,
             'ls_downtimed': False
         }
+        response = requests.get(cls.endpoint + '/service',
+                                params={'where': json.dumps({'host': myhostsid['srv001'],
+                                                             'name': 'ssh'})},
+                                auth=cls.auth)
+        resp = response.json()
         headers_patch = {
             'Content-Type': 'application/json',
-            'If-Match': myetags['srv001.ssh']
+            'If-Match': resp['_items'][0]['_etag']
         }
         ret = requests.patch(cls.endpoint + '/service/' + myservicesid['srv001']['ssh'],
                              json=datas, headers=headers_patch, auth=cls.auth)
