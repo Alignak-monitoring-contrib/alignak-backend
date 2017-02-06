@@ -1460,45 +1460,38 @@ if os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME'):
 
 # scheduler config
 jobs = []
-# run only sheduler on uwsgi worker 1, because option lazy-apps in uwsgi will run the
-# scheduler on each worker and we don't want that ;)
-try:
-    import uwsgi
-    worker_id = uwsgi.worker_id()
-except ImportError:
-    worker_id = 1
 
-if worker_id == 1:
-    if settings['SCHEDULER_TIMESERIES_ACTIVE']:
-        jobs.append(
-            {
-                'id': 'cron_cache',
-                'func': 'alignak_backend.scheduler:cron_cache',
-                'args': (),
-                'trigger': 'interval',
-                'seconds': 10
-            }
-        )
-    if settings['SCHEDULER_GRAFANA_ACTIVE']:
-        jobs.append(
-            {
-                'id': 'cron_grafana',
-                'func': 'alignak_backend.scheduler:cron_grafana',
-                'args': (),
-                'trigger': 'interval',
-                'seconds': 120
-            }
-        )
-    if settings['SCHEDULER_LIVESYNTHESIS_HISTORY']:
-        jobs.append(
-            {
-                'id': 'cron_livesynthesis_history',
-                'func': 'alignak_backend.scheduler:cron_livesynthesis_history',
-                'args': (),
-                'trigger': 'interval',
-                'seconds': 60
-            }
-        )
+if settings['SCHEDULER_TIMESERIES_ACTIVE']:
+    jobs.append(
+        {
+            'id': 'cron_cache',
+            'func': 'alignak_backend.scheduler:cron_cache',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 10
+        }
+    )
+if settings['SCHEDULER_GRAFANA_ACTIVE']:
+    jobs.append(
+        {
+            'id': 'cron_grafana',
+            'func': 'alignak_backend.scheduler:cron_grafana',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 120
+        }
+    )
+if settings['SCHEDULER_LIVESYNTHESIS_HISTORY']:
+    jobs.append(
+        {
+            'id': 'cron_livesynthesis_history',
+            'func': 'alignak_backend.scheduler:cron_livesynthesis_history',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': 60
+        }
+    )
+
 if len(jobs) > 0:
     settings['JOBS'] = jobs
 
