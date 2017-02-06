@@ -15,12 +15,12 @@ Alignak Backend
     :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-backend?branch=develop
     :alt: Development code coverage
 
-.. image:: https://readthedocs.org/projects/alignak-backend/badge/?version=latest
-    :target: http://alignak-backend.readthedocs.org/en/latest/?badge=latest
+.. image:: http://readthedocs.org/projects/alignak-backend/badge/?version=latest
+    :target: http://alignak-backend.readthedocs.io/en/latest/?badge=latest
     :alt: Latest documentation Status
 
-.. image:: https://readthedocs.org/projects/alignak-backend/badge/?version=develop
-    :target: http://alignak-backend.readthedocs.org/en/develop/?badge=develop
+.. image:: http://readthedocs.org/projects/alignak-backend/badge/?version=develop
+    :target: http://alignak-backend.readthedocs.io/en/latest/?badge=develop
     :alt: Development documentation Status
 
 .. image:: https://badge.fury.io/py/alignak_backend.svg
