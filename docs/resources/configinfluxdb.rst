@@ -13,6 +13,7 @@ influxdb
    "**address**", "**string**", "**True**", "****", ""
    "**password**", "**string**", "**True**", "****", ""
    "port", "integer", "", "8086", ""
+   "prefix", "string", "", "", ""
    "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
    "**name**", "**string**", "**True**", "****", ""
