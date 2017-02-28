@@ -417,13 +417,13 @@ class TestGrafana(unittest2.TestCase):
 
                     assert graf.timeseries[ObjectId(self.realmAll_A)]['name'] == 'graphite A sub'
                     assert graf.timeseries[ObjectId(self.realmAll_A1)]['name'] == 'graphite A sub'
-                    assert graf.timeseries[ObjectId(self.realmAll_A1)]['graphite_prefix'] == \
+                    assert graf.timeseries[ObjectId(self.realmAll_A1)]['ts_prefix'] == \
                         'my_A_sub'
                     assert graf.timeseries[ObjectId(self.realmAll_A1)]['statsd_prefix'] == ''
                     assert graf.timeseries[ObjectId(self.realmAll_A1)]['type'] == 'graphite'
 
                     assert graf.timeseries[ObjectId(self.realmAll_B)]['name'] == 'graphite B'
-                    assert graf.timeseries[ObjectId(self.realmAll_B)]['graphite_prefix'] == 'my_B'
+                    assert graf.timeseries[ObjectId(self.realmAll_B)]['ts_prefix'] == 'my_B'
                     assert graf.timeseries[ObjectId(self.realmAll_B)]['statsd_prefix'] == \
                         'alignak-statsd'
                     assert graf.timeseries[ObjectId(self.realmAll_B)]['type'] == 'graphite'
@@ -446,6 +446,193 @@ class TestGrafana(unittest2.TestCase):
                                 "basicAuthUser": "", "basicAuthPassword": "",
                                 "withCredentials": False, "isDefault": True},
                                {"id": 2, "orgId": 1, "name": 'alignak-graphite-graphite A sub',
+                                "type": "grafana-simple-json-datasource",
+                                "typeLogoUrl": "public/plugins/grafana-simple-json-datasource/src/"
+                                               "img/simpleJson_logo.svg",
+                                "access": "proxy", "url": "http://127.0.0.1/glpi090/apirest.php",
+                                "password": "", "user": "", "database": "", "basicAuth": True,
+                                "basicAuthUser": "", "basicAuthPassword": "",
+                                "withCredentials": False, "isDefault": False}]
+                        mockreq.get('http://192.168.0.101:3000/api/datasources', json=ret)
+                        mockreq.post('http://192.168.0.101:3000/api/datasources',
+                                     json={'id': randint(2, 10)})
+                        mockreq.post('http://192.168.0.101:3000/api/datasources/db', json='true')
+                        mockreq.post('http://192.168.0.101:3000/api/dashboards/db', json='true')
+                        graf = Grafana(grafana)
+                        for ts in graf.timeseries:
+                            print("TS: %s - %s - %s - %s" % (ts,
+                                                             graf.timeseries[ts]['_realm'],
+                                                             graf.timeseries[ts]['name'],
+                                                             graf.timeseries[ts]['_id']))
+                        # The host is not in a managed realm
+                        assert self.host_srv001['_realm'] == self.realm_all
+                        # Must convert to ObjectId because we are not really in Eve :)
+                        self.host_srv001['_realm'] = ObjectId(self.host_srv001['_realm'])
+                        assert self.host_srv001['_realm'] not in graf.timeseries.keys()
+                        assert not graf.create_dashboard(self.host_srv001)
+
+                        assert self.host_srv002['_realm'] == self.realmAll_A1
+                        # Must convert to ObjectId because we are not really in Eve :)
+                        self.host_srv002['_realm'] = ObjectId(self.host_srv002['_realm'])
+                        assert ObjectId(self.host_srv002['_realm']) in graf.timeseries.keys()
+                        assert graf.create_dashboard(self.host_srv002)
+                        history = mockreq.request_history
+                        methods = {'POST': 0, 'GET': 0}
+                        for h in history:
+                            methods[h.method] += 1
+                            if h.method == 'POST':
+                                dash = h.json()
+                                print("Post response: %s" % dash)
+                                # assert len(dash['dashboard']['rows']) == 2
+                        assert {'POST': 1, 'GET': 1} == methods
+
+                    # check host and the service are tagged grafana and have the id
+                    host_db = current_app.data.driver.db['host']
+                    host002 = host_db.find_one({'_id': ObjectId(self.host_srv002['_id'])})
+                    assert host002['ls_grafana']
+                    assert host002['ls_grafana_panelid'] == 1
+                    service_db = current_app.data.driver.db['service']
+                    srv002 = service_db.find_one({'_id': ObjectId(self.host_srv002_srv['_id'])})
+                    print("Service: %s" % srv002)
+                    assert srv002['ls_grafana']
+                    assert srv002['ls_grafana_panelid'] == 2
+
+    def test_create_dashboard_panels_influxdb(self):
+        # pylint: disable=too-many-locals
+        """
+        Create dashboard into grafana with datasource influxdb
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        # Create grafana in realm All + subrealm
+        data = {
+            'name': 'grafana All',
+            'address': '192.168.0.101',
+            'apikey': 'xxxxxxxxxxxx1',
+            '_realm': self.realm_all,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/grafana', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        print("Grafana All: %s" % resp)
+        grafana_all = resp['_id']
+
+        # Create statsd in realm All + subrealm
+        data = {
+            'name': 'statsd influx All',
+            'address': '192.168.0.101',
+            'port': 8125,
+            'prefix': 'alignak-statsd',
+            '_realm': self.realm_all,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/statsd', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        statsd_all = resp['_id']
+
+        # Create an influxdb in All B linked to grafana
+        data = {
+            'name': 'influxdb B',
+            'address': '192.168.0.101',
+            'port': 8086,
+            'database': 'alignak',
+            'login': 'alignak',
+            'password': 'alignak',
+            'prefix': 'my_B',
+            'grafana': grafana_all,
+            'statsd': statsd_all,
+            '_realm': self.realmAll_B
+        }
+        response = requests.post(self.endpoint + '/influxdb', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Create an influxdb in All A + subrealm liked to grafana
+        data = {
+            'name': 'influxdb A sub',
+            'address': '192.168.0.102',
+            'port': 8086,
+            'database': 'alignak',
+            'login': 'alignak',
+            'password': 'alignak',
+            'prefix': 'my_A_sub',
+            'grafana': grafana_all,
+            '_realm': self.realmAll_A,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/influxdb', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # test grafana class and code to create dashboard in grafana
+        from alignak_backend.app import app, current_app
+        with app.app_context():
+            grafana_db = current_app.data.driver.db['grafana']
+            grafanas = grafana_db.find()
+            for grafana in grafanas:
+                with requests_mock.mock() as mockreq:
+                    ret = [{"id": 1, "orgId": 1, "name": 'alignak-influxdb-influxdb B',
+                            "type": "grafana-simple-json-datasource",
+                            "typeLogoUrl": "public/plugins/grafana-simple-json-datasource/src/img/"
+                                           "simpleJson_logo.svg",
+                            "access": "proxy", "url": "http://127.0.0.1/glpi090/apirest.php",
+                            "password": "", "user": "", "database": "", "basicAuth": True,
+                            "basicAuthUser": "", "basicAuthPassword": "", "withCredentials": False,
+                            "isDefault": False}]
+                    mockreq.get('http://192.168.0.101:3000/api/datasources', json=ret)
+                    mockreq.post('http://192.168.0.101:3000/api/datasources',
+                                 json={'id': randint(2, 10)})
+                    graf = Grafana(grafana)
+                    assert len(graf.datasources) == 2
+                    assert len(graf.timeseries) == 3
+                    assert sorted([ObjectId(self.realmAll_B), ObjectId(self.realmAll_A),
+                                   ObjectId(self.realmAll_A1)]) == sorted(graf.timeseries.keys())
+                    for ts in graf.timeseries:
+                        assert isinstance(ts, ObjectId)
+                        assert graf.timeseries[ts]
+                        print("TS: %s - %s - %s - %s" % (ts,
+                                                         graf.timeseries[ts]['_realm'],
+                                                         graf.timeseries[ts]['name'],
+                                                         graf.timeseries[ts]['_id']))
+
+                    assert graf.timeseries[ObjectId(self.realmAll_A)]['name'] == 'influxdb A sub'
+                    assert graf.timeseries[ObjectId(self.realmAll_A1)]['name'] == 'influxdb A sub'
+                    assert graf.timeseries[ObjectId(self.realmAll_A1)]['ts_prefix'] == \
+                        'my_A_sub'
+                    assert graf.timeseries[ObjectId(self.realmAll_A1)]['statsd_prefix'] == ''
+                    assert graf.timeseries[ObjectId(self.realmAll_A1)]['type'] == 'influxdb'
+
+                    assert graf.timeseries[ObjectId(self.realmAll_B)]['name'] == 'influxdb B'
+                    assert graf.timeseries[ObjectId(self.realmAll_B)]['ts_prefix'] == 'my_B'
+                    assert graf.timeseries[ObjectId(self.realmAll_B)]['statsd_prefix'] == \
+                        'alignak-statsd'
+                    assert graf.timeseries[ObjectId(self.realmAll_B)]['type'] == 'influxdb'
+                history = mockreq.request_history
+                methods = {'POST': 0, 'GET': 0}
+                for h in history:
+                    methods[h.method] += 1
+                # One datasources created because we simulated that on still exists
+                assert {'POST': 1, 'GET': 1} == methods
+
+                # Create a dashboard for an host!
+                with app.test_request_context():
+                    with requests_mock.mock() as mockreq:
+                        ret = [{"id": 1, "orgId": 1, "name": 'alignak-influxdb-influxdb B',
+                                "type": "grafana-simple-json-datasource",
+                                "typeLogoUrl": "public/plugins/grafana-simple-json-datasource/src/"
+                                               "img/simpleJson_logo.svg",
+                                "access": "proxy", "url": "http://127.0.0.1/glpi090/apirest.php",
+                                "password": "", "user": "", "database": "", "basicAuth": True,
+                                "basicAuthUser": "", "basicAuthPassword": "",
+                                "withCredentials": False, "isDefault": True},
+                               {"id": 2, "orgId": 1, "name": 'alignak-influxdb-influxdb A sub',
                                 "type": "grafana-simple-json-datasource",
                                 "typeLogoUrl": "public/plugins/grafana-simple-json-datasource/src/"
                                                "img/simpleJson_logo.svg",

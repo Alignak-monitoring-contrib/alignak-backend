@@ -56,6 +56,10 @@ def get_schema():
                 'required': True,
                 'empty': False,
             },
+            'prefix': {
+                'type': 'string',
+                'default': '',
+            },
             'grafana': {
                 'type': 'objectid',
                 'data_relation': {

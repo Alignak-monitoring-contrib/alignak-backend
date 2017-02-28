@@ -56,7 +56,7 @@ class Grafana(object):
                 continue
 
             # Add a statsd_prefix in the graphite if necessary
-            graphite['graphite_prefix'] = graphite['prefix']
+            graphite['ts_prefix'] = graphite['prefix']
             graphite['statsd_prefix'] = ''
             if graphite['statsd']:
                 statsd = statsd_db.find_one({'_id': graphite['statsd']})
@@ -92,6 +92,18 @@ class Grafana(object):
                 print("[grafana-%s] linked influxdb %s has no common realm"
                       % (self.name, influxdb['name']))
                 continue
+
+            # Add a statsd_prefix in the influxdb if necessary
+            influxdb['ts_prefix'] = influxdb['prefix']
+            influxdb['statsd_prefix'] = ''
+            if influxdb['statsd']:
+                statsd = statsd_db.find_one({'_id': influxdb['statsd']})
+                if statsd and statsd['_realm'] not in self.realms:
+                    print("[grafana-%s] linked statsd %s has no common realm"
+                          % (self.name, statsd['name']))
+                    continue
+                if statsd and statsd['prefix'] != '':
+                    influxdb['statsd_prefix'] = statsd['prefix']
 
             # We already have a TS for the InfluxDB realm!
             if influxdb['_realm'] in self.timeseries:
@@ -134,8 +146,8 @@ class Grafana(object):
         my_target = ''
         if TS['statsd_prefix'] != '':
             my_target = '$statsd_prefix'
-        if TS['graphite_prefix'] != '':
-            my_target += '.$graphite_prefix'
+        if TS['ts_prefix'] != '':
+            my_target += '.$ts_prefix'
         my_target += '.' + Timeseries.get_realms_prefix(item['_realm'])
         if 'host' in item:
             my_target += '.' + item['hostname'] + '.' + item['name']
@@ -390,22 +402,22 @@ class Grafana(object):
                         {
                             'allValue': None,
                             'current': {
-                                'text': TS['graphite_prefix'],
-                                'value': TS['graphite_prefix']
+                                'text': TS['ts_prefix'],
+                                'value': TS['ts_prefix']
                             },
-                            'hide': 0 if TS['graphite_prefix'] != '' else 1,
+                            'hide': 0 if TS['ts_prefix'] != '' else 1,
                             'includeAll': False,
-                            'label': 'Graphite prefix',
+                            'label': 'Time series prefix',
                             'multi': False,
-                            'name': 'graphite_prefix',
+                            'name': 'ts_prefix',
                             'options': [
                                 {
-                                    'text': TS['graphite_prefix'],
-                                    'value': TS['graphite_prefix'],
+                                    'text': TS['ts_prefix'],
+                                    'value': TS['ts_prefix'],
                                     'selected': True
                                 }
                             ],
-                            'query': TS['graphite_prefix'],
+                            'query': TS['ts_prefix'],
                             'type': 'custom',
                             'datasource': None,
                             'allFormat': 'glob'
