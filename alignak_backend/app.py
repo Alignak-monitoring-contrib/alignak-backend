@@ -1840,7 +1840,7 @@ def cron_grafana(engine='jsonify'):
     # pylint: disable=too-many-locals
     try:
         forcegenerate = request.args.get('forcegenerate')
-        if request.remote_addr != '127.0.0.1':
+        if request.remote_addr not in settings['IP_CRON']:
             print('Access denied for %s' % request.remote_addr)
             return make_response("Access denied from remote host", 412)
     except Exception:
