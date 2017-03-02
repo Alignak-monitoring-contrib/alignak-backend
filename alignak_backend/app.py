@@ -90,6 +90,7 @@ class MyTokenAuth(TokenAuth):
                 self.parent_realms[realm['_id']] = realm['_tree_parents']
 
             g.back_role_super_admin = user['back_role_super_admin']
+            g.can_submit_commands = user['can_submit_commands']
             userrestrictroles = current_app.data.driver.db['userrestrictrole']
             userrestrictrole = userrestrictroles.find({'user': user['_id']})
             g.resources_get = {}
@@ -491,6 +492,29 @@ def after_insert_logcheckresult(items):
             'logcheckresult': item['_id']
         }
         post_internal("history", data, True)
+
+
+def pre_post_action_right(actrequestp):
+    """Deny post on action* endpoint if the logged-in user do not have can_submit_commands
+
+    :param actrequestp:
+    :return:
+    """
+    # pylint: disable=unused-argument
+    if not g.get('can_submit_commands', False):
+        abort(403)
+
+
+def pre_submit_action_right(actrequest, lookup):
+    # pylint: disable=unused-argument
+    """Deny patch or delete action* endpoint if the logged-in user do not have can_submit_commands
+
+    :param actrequest:
+    :param lookup:
+    :return:
+    """
+    if not g.get('can_submit_commands', False):
+        abort(403)
 
 
 # Actions acknowledge
@@ -1774,6 +1798,16 @@ app.on_update_hostgroup += pre_hostgroup_patch
 app.on_update_servicegroup += pre_servicegroup_patch
 app.on_insert_graphite += pre_timeseries_post
 app.on_insert_influxdb += pre_timeseries_post
+# check right on submit actions
+app.on_pre_POST_actionacknowledge += pre_post_action_right
+app.on_pre_POST_actiondowntime += pre_post_action_right
+app.on_pre_POST_actionforcecheck += pre_post_action_right
+app.on_pre_PATCH_actionacknowledge += pre_submit_action_right
+app.on_pre_PATCH_actiondowntime += pre_submit_action_right
+app.on_pre_PATCH_actionforcecheck += pre_submit_action_right
+app.on_pre_DELETE_actionacknowledge += pre_submit_action_right
+app.on_pre_DELETE_actiondowntime += pre_submit_action_right
+app.on_pre_DELETE_actionforcecheck += pre_submit_action_right
 
 # docs api
 Bootstrap(app)
@@ -1908,6 +1942,7 @@ with app.test_request_context():
                                "password": "admin",
                                "back_role_super_admin": True,
                                "can_update_livestate": True,
+                               "can_submit_commands": True,
                                "host_notification_period": always['_id'],
                                "service_notification_period": always['_id'],
                                "_realm": default_realm['_id'], "_sub_realm": True}, True)

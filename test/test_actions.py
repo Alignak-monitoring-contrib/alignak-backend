@@ -65,7 +65,8 @@ class TestActions(unittest2.TestCase):
         # Get admin user
         response = requests.get(cls.endpoint + '/user', {"name": "admin"}, auth=cls.auth)
         resp = response.json()
-        cls.user_admin = resp['_items'][0]['_id']
+        cls.user_admin_id = resp['_items'][0]['_id']
+        cls.user_admin = resp['_items'][0]
 
     @classmethod
     def tearDownClass(cls):
@@ -168,7 +169,7 @@ class TestActions(unittest2.TestCase):
             "sticky": True,
             "persistent": True,
             "notify": True,
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment",
             "_realm": self.realm_all
         }
@@ -216,7 +217,7 @@ class TestActions(unittest2.TestCase):
             "action": "delete",
             "host": rh[1]['_id'],
             "service": None,
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment (delete)",
             "_realm": self.realm_all
         }
@@ -354,7 +355,7 @@ class TestActions(unittest2.TestCase):
             "sticky": True,
             "persistent": True,
             "notify": True,
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment",
             "_realm": self.realm_all
         }
@@ -402,7 +403,7 @@ class TestActions(unittest2.TestCase):
             "action": "delete",
             "host": rh[1]['_id'],
             "service": rs[0]['_id'],
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment (delete)",
             "_realm": self.realm_all
         }
@@ -539,7 +540,7 @@ class TestActions(unittest2.TestCase):
             "start_time": now,
             "end_time": later,
             "fixed": True,
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment",
             "_realm": self.realm_all
         }
@@ -588,7 +589,7 @@ class TestActions(unittest2.TestCase):
             "action": "delete",
             "host": rh[1]['_id'],
             "service": None,
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment (delete)",
             "_realm": self.realm_all
         }
@@ -735,7 +736,7 @@ class TestActions(unittest2.TestCase):
             "start_time": now,
             "end_time": later,
             "fixed": True,
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment",
             "_realm": self.realm_all
         }
@@ -784,7 +785,7 @@ class TestActions(unittest2.TestCase):
             "action": "delete",
             "host": rh[1]['_id'],
             "service": rs[0]['_id'],
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment (delete)",
             "_realm": self.realm_all
         }
@@ -919,7 +920,7 @@ class TestActions(unittest2.TestCase):
         data = {
             "host": rh[1]['_id'],
             "service": None,
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment",
             "_realm": self.realm_all
         }
@@ -1032,7 +1033,7 @@ class TestActions(unittest2.TestCase):
         data = {
             "host": rh[1]['_id'],
             "service": rs[0]['_id'],
-            "user": self.user_admin,
+            "user": self.user_admin_id,
             "comment": "User comment",
             "_realm": self.realm_all
         }
@@ -1104,5 +1105,172 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], rs[0]['name'])
         self.assertEqual(re[1]['type'], "check.requested")
         self.assertEqual(re[1]['message'], "User comment")
-        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
-        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
+
+    def test_history_comment(self):
+        """
+        Test history: add user comment
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+
+        # No existing forcechecks
+        response = requests.get(
+            self.endpoint + '/history', params=sort_id, auth=self.auth
+        )
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 0)
+
+        # Get hosts in the backend
+        response = requests.get(self.endpoint + '/host', params={'sort': 'name'}, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 2)
+        self.assertEqual(rh[0]['name'], "_dummy")
+        self.assertEqual(rh[1]['name'], "srv001")
+
+        # Get service in the backend
+        response = requests.get(self.endpoint + '/service', auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(rs[0]['name'], "ping")
+
+        # -------------------------------------------
+        # Add an history comment
+        data = {
+            "host": rh[1]['_id'],
+            "service": rs[0]['_id'],
+            "user": self.user_admin_id,
+            "type": "webui.comment",
+            "message": "User comment",
+            "_realm": self.realm_all
+        }
+        response = requests.post(
+            self.endpoint + '/history', json=data, headers=headers, auth=self.auth
+        )
+        resp = response.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        # Get history
+        response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 1)
+
+        self.assertEqual(re[0]['host'], rh[1]['_id'])
+        self.assertEqual(re[0]['host_name'], rh[1]['name'])
+        self.assertEqual(re[0]['service'], rs[0]['_id'])
+        self.assertEqual(re[0]['service_name'], rs[0]['name'])
+        self.assertEqual(re[0]['user'], self.user_admin_id)
+        self.assertEqual(re[0]['user_name'], 'admin')
+        self.assertEqual(re[0]['type'], "webui.comment")
+        self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], self.realm_all)
+
+        # -------------------------------------------
+        # Add an history comment - host_name, service_name and user_name
+        data = {
+            "host_name": rh[0]['name'],
+            "service_name": rs[0]['name'],
+            "user_name": "admin",
+            "type": "webui.comment",
+            "message": "User comment 2",
+        }
+        response = requests.post(
+            self.endpoint + '/history', json=data, headers=headers, auth=self.auth
+        )
+        resp = response.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        # Get history
+        response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 2)
+        print("History 0: %s" % re[0])
+        print("History 1: %s" % re[1])
+
+        self.assertEqual(re[1]['host'], rh[0]['_id'])
+        self.assertEqual(re[1]['host_name'], rh[0]['name'])
+        self.assertEqual(re[1]['service'], rs[0]['_id'])
+        self.assertEqual(re[1]['service_name'], rs[0]['name'])
+        self.assertEqual(re[1]['user'], self.user_admin_id)
+        self.assertEqual(re[1]['user_name'], 'admin')
+        self.assertEqual(re[1]['type'], "webui.comment")
+        self.assertEqual(re[1]['message'], "User comment 2")
+        self.assertEqual(re[1]['_realm'], self.realm_all)
+
+    def test_actions_not_allowed(self):
+        """
+        Test post/update/delete actions when not have the right 'can_submit_commands' in user
+        resource
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        # create a new user
+        data = {'name': 'user1', 'password': 'test', 'back_role_super_admin': True,
+                'host_notification_period': self.user_admin['host_notification_period'],
+                'service_notification_period': self.user_admin['service_notification_period'],
+                '_realm': self.realm_all}
+        requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+
+        params = {'username': 'user1', 'password': 'test', 'action': 'generate'}
+        # get token user 1
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        user1_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+
+        # get host
+        response = requests.get(self.endpoint + '/host', params={'sort': 'name'}, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 2)
+        self.assertEqual(rh[0]['name'], "_dummy")
+        self.assertEqual(rh[1]['name'], "srv001")
+
+        # try post a new action
+        data = {
+            "action": "add",
+            "host": rh[1]['_id'],
+            "service": None,
+            "sticky": True,
+            "persistent": True,
+            "notify": True,
+            "user": self.user_admin_id,
+            "comment": "User comment",
+            "_realm": self.realm_all
+        }
+        response = requests.post(
+            self.endpoint + '/actionacknowledge', json=data, headers=headers, auth=user1_auth
+        )
+        assert response.status_code == 403
+
+        # add a new action
+        response = requests.post(
+            self.endpoint + '/actionacknowledge', json=data, headers=headers, auth=self.auth
+        )
+        assert response.status_code == 201
+        resp = response.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        # try update action
+        data = {'persistent': False}
+        headers = {
+            'Content-Type': 'application/json',
+            'If-Match': resp['_etag']
+        }
+        response = requests.patch(self.endpoint + '/actionacknowledge/' + resp['_id'], json=data,
+                                  headers=headers, auth=user1_auth)
+        assert response.status_code == 403
+
+        # try delete action
+        headers_delete = {
+            'Content-Type': 'application/json',
+            'If-Match': resp['_etag']
+        }
+        response = requests.delete(self.endpoint + '/actionacknowledge/' + resp['_id'],
+                                   headers=headers_delete, auth=user1_auth)
+        assert response.status_code == 403
