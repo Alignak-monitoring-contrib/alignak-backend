@@ -1424,7 +1424,7 @@ settings = {}
 settings['X_DOMAINS'] = '*'
 settings['X_HEADERS'] = (
     'Authorization, If-Match,'
-    ' X-HTTP-Method-Override, Content-Type'
+    ' X-HTTP-Method-Override, Content-Type, Cache-Control, Pragma'
 )
 settings['PAGINATION_LIMIT'] = 50
 settings['PAGINATION_DEFAULT'] = 25
