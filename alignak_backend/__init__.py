@@ -8,7 +8,7 @@
     This module is an Alignak REST backend
 """
 # Application version and manifest
-VERSION = (0, 8, 11)
+VERSION = (0, 8, 12)
 
 __application__ = u"Alignak_Backend"
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
