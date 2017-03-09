@@ -264,6 +264,59 @@ class TestTimeseries(unittest2.TestCase):
         }
         self.assertItemsEqual(reference['data'], ret['data'])
 
+    def test_prepare_data_nrpe_disk(self):
+        """Prepare timeseries from an NRPE disk
+
+        :return: None
+        """
+        item = {
+            'host': 'srv001',
+            'service': 'check_xxx',
+            'state': 'OK',
+            'state_type': 'HARD',
+            'state_id': 0,
+            'acknowledged': False,
+            'last_check': int(time.time()),
+            'last_state': 'OK',
+            'output': 'DISK OK - free space: /tmp 2323 MB (33% inode=64%);',
+            'long_output': '',
+            # Note the leading space and /
+            'perf_data': " /tmp=4660MB;5904;6642;0;7381",
+            '_realm': 'All.Propieres'
+        }
+
+        ret = Timeseries.prepare_data(item)
+        reference = {
+            'data': [
+                {
+                    'name': 'tmp',
+                    'value': 4660,
+                    'uom': 'MB'
+                },
+                {
+                    'name': 'tmp_critical',
+                    'value': 6642,
+                    'uom': 'MB'
+                },
+                {
+                    'name': 'tmp_warning',
+                    'value': 5904,
+                    'uom': 'MB'
+                },
+                {
+                    'name': 'tmp_min',
+                    'value': 0,
+                    'uom': 'MB'
+                },
+                {
+                    'name': 'tmp_max',
+                    'value': 7381,
+                    'uom': 'MB'
+                },
+            ]
+        }
+        self.assertItemsEqual(reference['data'], ret['data'])
+
     def test_prepare_special_formatted(self):
         """
         Prepare timeseries from a special perfdata, with
