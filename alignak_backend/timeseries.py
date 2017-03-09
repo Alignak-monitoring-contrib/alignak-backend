@@ -81,7 +81,7 @@ class Timeseries(object):
             # Sanitize field name for TSDB (Graphite or Influx):
             my_target = fields['name'].strip()
             if my_target.startswith('/'):
-                my_target = my_target[1:]
+                my_target = '_' + my_target[1:]
             # + becomes a _
             my_target = my_target.replace("+", "_")
             # / becomes a -
