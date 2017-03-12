@@ -218,7 +218,7 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service'], None)
         self.assertEqual(re[0]['service_name'], '')
         self.assertEqual(re[0]['type'], "check.result")
-        self.assertEqual(re[0]['message'], "")
+        self.assertEqual(re[0]['message'], "UP[HARD] (False/False): Check output")
         self.assertEqual(re[0]['logcheckresult'], check_id)
 
         # -------------------------------------------
@@ -277,5 +277,5 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service'], rs[0]['_id'])
         self.assertEqual(re[1]['service_name'], rs[0]['name'])
         self.assertEqual(re[1]['type'], "check.result")
-        self.assertEqual(re[1]['message'], "")
+        self.assertEqual(re[1]['message'], "UP[HARD] (False/False): Check output")
         self.assertEqual(re[1]['logcheckresult'], check_id)

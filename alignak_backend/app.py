@@ -323,6 +323,9 @@ def after_insert_logcheckresult(items):
     """
     for dummy, item in enumerate(items):
         # Create an history event for the new forcecheck
+        message = "%s[%s] (%s/%s): %s" % (item['state'], item['state_type'],
+                                          item['acknowledged'], item['downtimed'],
+                                          item['output'])
         data = {
             'host': item['host'],
             'host_name': item['host_name'],
@@ -330,7 +333,7 @@ def after_insert_logcheckresult(items):
             'service_name': item['service_name'],
             'user': None,
             'type': 'check.result',
-            'message': '',
+            'message': message,
             'logcheckresult': item['_id']
         }
         post_internal("history", data, True)
