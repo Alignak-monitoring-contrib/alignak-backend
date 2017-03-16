@@ -17,6 +17,7 @@ Documentation content:
 .. toctree::
    :maxdepth: 2
 
+	Back to Alignak doc <http://docs.alignak.net>
    intro
    architecture
    install
