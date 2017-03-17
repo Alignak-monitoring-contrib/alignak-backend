@@ -20,10 +20,10 @@ def get_schema():
     Schema structure of this resource
 
     host/service define the concerned host/service for this history event. If the service is null
-    then the vent is an host event. When posting an history the backend will value the host_name
+    then the event is an host event. When posting an history the backend will value the host_name
     and service_name fields automatically, this to keep human readable information even when the
     host/service do not exist anymore in the backend or if host/service _id got changed (host
-    delated and re-created).
+    deleted and re-created).
 
     The type field defines the event type (see the type definition for the allowed events)
 

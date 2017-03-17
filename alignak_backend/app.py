@@ -1991,24 +1991,11 @@ def index(path):
 
 
 def main():
-    """
-        Called when this module is started from shell
-    """
-    try:
-        print("--------------------------------------------------------------------------------")
-        print("%s, listening on %s:%d" % (
-            manifest['name'], app.config.get('HOST', '127.0.0.1'), app.config.get('PORT', 8090)
-        ))
-        print("--------------------------------------------------------------------------------")
-        app.run(
-            host=settings.get('HOST', '127.0.0.1'),
-            port=settings.get('PORT', 5000),
-            debug=settings.get('DEBUG', False)
-        )
-    except Exception as e:
-        print("Application run failed, exception: %s / %s" % (type(e), str(e)))
-        print("Back trace of this kill: %s" % traceback.format_exc())
-        sys.exit(1)
+    """Called when this module is started from Python shell"""
+    print("--------------------------------------------------------------------------------")
+    print("Running `python app.py` is no more supported. Use 'alignak-backend' shell script.")
+    print("--------------------------------------------------------------------------------")
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()
