@@ -26,11 +26,14 @@ script:
   # not run on python 3.6 because wait python astroid released in 1.5.0
   - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then pylint --rcfile=.pylintrc alignak_backend/*; fi
   - pep257 --select=D300 alignak_backend
-  # Code test and dynamic analysis
+  # Code dynamic analysis
   - cd test
+  # Delete previously existing coverage results
   - coverage erase
-  - nosetests -xv --nologcapture --process-restartworker --processes=1 --process-timeout=300 --with-coverage --cover-package=alignak_backend test*.py
-  - coverage report
+  # Run test suite with py.test running its coverage plugin
+  - pytest --cov=alignak_backend --cov-config .coveragerc test_*.py
+  # Report about coverage
+  - coverage report -m
   # Test code static analysis
   - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' test_*.py
   - pylint --rcfile=../.pylintrc test_*.py

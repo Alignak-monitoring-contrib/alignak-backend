@@ -1,12 +1,22 @@
-# this is the requirements dedicated to tests.
+# Python requirements for unit tests
 -r ../requirements.txt
+
 unittest2
-mock
-coveralls
-nose-cov
+# Web test
+webtest
+# Use py.test as test-runner
+pytest
+pytest-cov
+# Let coverage use the most recent version
 coverage
-nose
+# Report coverage results to coveralls.io
+coveralls
+# Static code analysis libraries
 pylint
 pep8
 pep257
+# uWSGI server
+uwsgi
+# Mock
+mock
 requests_mock
