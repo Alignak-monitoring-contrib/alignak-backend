@@ -264,6 +264,109 @@ class TestTimeseries(unittest2.TestCase):
         }
         self.assertItemsEqual(reference['data'], ret['data'])
 
+    def test_prepare_data_nrpe_checks(self):
+        """Prepare timeseries from an NRPE disk
+
+        :return: None
+        """
+        # Nnrpe check_disk
+        item = {
+            'host': 'srv001',
+            'service': 'check_xxx',
+            'state': 'OK',
+            'state_type': 'HARD',
+            'state_id': 0,
+            'acknowledged': False,
+            'last_check': int(time.time()),
+            'last_state': 'OK',
+            'output': 'DISK OK - free space: /tmp 2323 MB (33% inode=64%);',
+            'long_output': '',
+            # Note the leading space and /
+            'perf_data': " /tmp=4660MB;5904;6642;0;7381",
+            '_realm': 'All.Propieres'
+        }
+
+        ret = Timeseries.prepare_data(item)
+        reference = {
+            'data': [
+                {
+                    'name': '_tmp',
+                    'value': 4660,
+                    'uom': 'MB'
+                },
+                {
+                    'name': '_tmp_critical',
+                    'value': 6642,
+                    'uom': 'MB'
+                },
+                {
+                    'name': '_tmp_warning',
+                    'value': 5904,
+                    'uom': 'MB'
+                },
+                {
+                    'name': '_tmp_min',
+                    'value': 0,
+                    'uom': 'MB'
+                },
+                {
+                    'name': '_tmp_max',
+                    'value': 7381,
+                    'uom': 'MB'
+                },
+            ]
+        }
+        self.assertItemsEqual(reference['data'], ret['data'])
+
+        # Nnrpe check_root
+        item = {
+            'host': 'srv001',
+            'service': 'check_root',
+            'state': 'OK',
+            'state_type': 'HARD',
+            'state_id': 0,
+            'acknowledged': False,
+            'last_check': int(time.time()),
+            'last_state': 'OK',
+            'output': 'DISK OK - free space: / 6468 MB (82% inode=89%);',
+            'long_output': '',
+            # Note the leading space and /
+            'perf_data': " /=1403MB;6653;7485;0;8317",
+            '_realm': 'All.Propieres'
+        }
+
+        ret = Timeseries.prepare_data(item)
+        reference = {
+            'data': [
+                {
+                    'name': '_',
+                    'value': 1403,
+                    'uom': 'MB'
+                },
+                {
+                    'name': '__critical',
+                    'value': 7485,
+                    'uom': 'MB'
+                },
+                {
+                    'name': '__warning',
+                    'value': 6653,
+                    'uom': 'MB'
+                },
+                {
+                    'name': '__min',
+                    'value': 0,
+                    'uom': 'MB'
+                },
+                {
+                    'name': '__max',
+                    'value': 8317,
+                    'uom': 'MB'
+                },
+            ]
+        }
+        self.assertItemsEqual(reference['data'], ret['data'])
+
     def test_prepare_special_formatted(self):
         """
         Prepare timeseries from a special perfdata, with
