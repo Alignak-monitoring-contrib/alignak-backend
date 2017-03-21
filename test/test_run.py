@@ -54,7 +54,7 @@ class TestStart(unittest2.TestCase):
             shlex.split('python ../alignak_backend/main.py')
         )
         print('PID = ', process.pid)
-        time.sleep(1)
+        time.sleep(3)
 
         headers = {'Content-Type': 'application/json'}
         params = {'username': 'admin', 'password': 'admin'}
