@@ -4,6 +4,8 @@
 This test check is backend is running without error
 """
 
+from __future__ import print_function
+
 import os
 import time
 import shlex
@@ -12,56 +14,75 @@ import requests
 import unittest2
 
 
-class TestRun(unittest2.TestCase):
-    """
-    This class test if backend is available after start it (start without errors)
-    """
+class TestStart(unittest2.TestCase):
+    """Test the different application start mode"""
+    def test_start_application_uwsgi(self):
+        """ Start alignak backend with uwsgi"""
 
-    @classmethod
-    def setUpClass(cls):
-        """
-        This method:
-          * delete mongodb database
-          * start the backend with uwsgi
-          * log in the backend and get the token
-          * get the realm
+        os.getcwd()
+        print("Launching application with UWSGI ...")
 
-        :return: None
-        """
-        # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        test_dir = os.path.dirname(os.path.realpath(__file__))
+        print("Dir: %s" % test_dir)
 
-        # Delete used mongo DBs
-        exit_code = subprocess.call(
-            shlex.split(
-                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+        print("Starting Alignak Backend...")
+        subprocess.Popen(
+            shlex.split('uwsgi --plugin python -w alignak_backend.app:app --socket 0.0.0.0:5000 '
+                        '--protocol=http --enable-threads --pidfile /tmp/uwsgi.pid')
         )
-        assert exit_code == 0
+        time.sleep(1)
 
-        cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
-                                  '--socket', '0.0.0.0:5000',
-                                  '--protocol=http', '--enable-threads', '--pidfile',
-                                  '/tmp/uwsgi.pid'])
-        time.sleep(3)
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
 
-        cls.endpoint = 'http://127.0.0.1:5000'
+        # Log onto the backend
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        assert resp['token']
 
-    @classmethod
-    def tearDownClass(cls):
-        """
-        Kill uwsgi
-
-        :return: None
-        """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
-    def test_send_to_backend_livehost(self):
-        """
-        Test if backend is up and answer
+    def test_start_application(self):
+        """ Start application stand alone"""
+        print('Launching application in dev mode')
 
-        :return: None
-        """
-        r = requests.get(self.endpoint + '/docs')
-        self.assertEqual(r.status_code, 200)
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(os.path.join(dir_path, "../alignak_backend"))
+        print("Launching application default...")
+        process = subprocess.Popen(
+            shlex.split('python ../alignak_backend/main.py')
+        )
+        print('PID = ', process.pid)
+        time.sleep(1)
+
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin'}
+
+        # Log onto the backend
+        response = requests.post('http://127.0.0.1:5000/login', json=params, headers=headers)
+        resp = response.json()
+        assert resp['token']
+
+        time.sleep(1)
+
+        print("Killing application ...")
+        process.terminate()
+
+        # Restore initial path
+        os.chdir(dir_path)
+
+    def test_start_application_old(self):
+        """ Start application old mode"""
+        print('Start application old mode')
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(os.path.join(dir_path, "../alignak_backend"))
+        print("Launching application default...")
+        exit_code = subprocess.call(
+            shlex.split('python ../alignak_backend/app.py')
+        )
+        assert exit_code == 1
+
+        # Restore initial path
+        os.chdir(dir_path)
