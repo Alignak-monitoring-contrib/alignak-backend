@@ -3,6 +3,8 @@ sudo: true
 python:
   - "2.7"
   - "3.4"
+  - "3.5"
+  - "3.6"
 
 services:
   - mongodb
@@ -21,7 +23,8 @@ script:
   # Code static analysis
   - pep8 --max-line-length=100 --exclude='*.pyc, *.cfg, *.log' --ignore='E402' alignak_backend/*
   - rm -fr alignak_backend/__pycache__
-  - pylint --rcfile=.pylintrc alignak_backend/*
+  # not run on python 3.6 because wait python astroid released in 1.5.0
+  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then pylint --rcfile=.pylintrc alignak_backend/*; fi
   - pep257 --select=D300 alignak_backend
   # Code test and dynamic analysis
   - cd test
