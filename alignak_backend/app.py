@@ -1360,6 +1360,50 @@ def keep_default_items_item(resource, item):
             abort(make_response("This item is a default item and is protected", 412))
 
 
+def on_fetched_resource_tree(resource_name, response):
+    """
+    Update _parent and _tree_parents of tree resources when have restricted rights.
+    Here we have the answer when get all items of a resource
+
+    :param resource_name: name of the resource
+    :type resource_name: string
+    :param response: response of the get
+    :type response: dict
+    :return: None
+    """
+    if resource_name not in ['realm', 'usergroup', 'hostgroup', 'servicegroup']:
+        return
+    if g.get('back_role_super_admin', False):
+        return
+    for resp in response['_items']:
+        on_fetched_item_tree(resource_name, resp)
+
+
+def on_fetched_item_tree(resource_name, itemresp):
+    """
+    Update _parent and _tree_parents of tree resources when have restricted rights.
+    Here we have the answer when get an item of a resource
+
+    :param resource_name: name of the resource
+    :type resource_name: string
+    :param response: response of the get
+    :type response: dict
+    :return: None
+    """
+    if resource_name not in ['realm', 'usergroup', 'hostgroup', 'servicegroup']:
+        return
+    if g.get('back_role_super_admin', False):
+        return
+    resources_get = g.get('resources_get', {})
+    # check _parent
+    if not itemresp['_parent'] in resources_get['realm']:
+        itemresp['_parent'] = None
+    # check _tree_parents
+    for realm_id in itemresp['_tree_parents']:
+        if realm_id not in resources_get['realm']:
+            itemresp['_tree_parents'].remove(realm_id)
+
+
 def generate_token():
     """
     Generate a user token
@@ -1730,6 +1774,10 @@ app.on_inserted_logcheckresult += after_insert_logcheckresult
 
 app.on_pre_DELETE += keep_default_items_resource
 app.on_delete_item += keep_default_items_item
+
+# hook for tree resources
+app.on_fetched_resource += on_fetched_resource_tree
+app.on_fetched_item += on_fetched_item_tree
 
 with app.test_request_context():
     app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult

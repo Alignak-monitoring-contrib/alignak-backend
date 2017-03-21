@@ -247,12 +247,6 @@ class TestRights(unittest2.TestCase):
         resp = response.json()
         user5_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
 
-        params = {'username': 'user6', 'password': 'test', 'action': 'generate'}
-        # get token user 5
-        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
-        resp = response.json()
-        user6_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
-
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user1_auth)
         resp = response.json()
@@ -291,6 +285,20 @@ class TestRights(unittest2.TestCase):
         self.assertEqual(resp['_meta']['total'], 1)
         self.assertEqual('Sluis', resp['_items'][0]['name'])
 
+    def test_restrict_right(self):
+        """
+        Test user with restriction in realms
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+
+        params = {'username': 'user6', 'password': 'test', 'action': 'generate'}
+        # get token user 5
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        user6_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+
         # Check user6 with realms, must have 2 realms : Sluis and Dagobah
         response = requests.get(self.endpoint + '/realm', params={'sort': "name"},
                                 auth=user6_auth)
@@ -299,3 +307,16 @@ class TestRights(unittest2.TestCase):
         self.assertEqual(resp['_meta']['total'], 2)
         self.assertEqual('Dagobah', resp['_items'][0]['name'])
         self.assertEqual('Sluis', resp['_items'][1]['name'])
+
+        # check _parent and _tree_parents of realms are in realms we have access
+        parent = ''
+        for realm in resp['_items']:
+            if realm['name'] == 'Sluis':
+                parent = realm['_id']
+        for realm in resp['_items']:
+            if realm['name'] == 'Sluis':
+                assert realm['_parent'] is None
+                assert realm['_tree_parents'] == []
+            elif realm['name'] == 'Dagobah':
+                assert realm['_parent'] == parent
+                assert realm['_tree_parents'] == [parent]
