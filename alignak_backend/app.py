@@ -1708,6 +1708,10 @@ def get_settings(prev_settings):
         os.path.abspath('./settings.json')
     ]
 
+    # Configuration file name in environment
+    if os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'):
+        settings_filenames = [os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE')]
+
     comment_re = re.compile(
         r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
         re.DOTALL | re.MULTILINE
@@ -1806,7 +1810,7 @@ if settings['SCHEDULER_GRAFANA_ACTIVE']:
             'seconds': 120
         }
     )
-if settings['SCHEDULER_LIVESYNTHESIS_HISTORY']:
+if settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] > 0:
     jobs.append(
         {
             'id': 'cron_livesynthesis_history',

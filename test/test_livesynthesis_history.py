@@ -37,6 +37,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # Set test mode for Alignak backend
         os.environ['TEST_ALIGNAK_BACKEND'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
+            'test_livesynthesis_history_settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -131,6 +133,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
         cls.ls_all = resp['_items'][0]['_id']
         cls.ls_all_a = resp['_items'][1]['_id']
 
+        insert = 0
+
         # add in mongo some retention elements
         for item in rl:
             for i in range(15, 20):
@@ -146,6 +150,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
                 jsondata[-1] = jsondata[-1] + json.dumps(data, separators=(',', ':')) + ")"
                 jsondata[-1] = jsondata[-1].replace('"' + item['_id'] + '"',
                                                     "ObjectId('%s')" % item['_id'])
+                insert += 1
+                # print("insert %d" % insert)
                 exit_code = subprocess.call(jsondata)
                 assert exit_code == 0
 
@@ -268,6 +274,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
                 jsondata[-1] = jsondata[-1] + json.dumps(data, separators=(',', ':')) + ")"
                 jsondata[-1] = jsondata[-1].replace('"' + item['_id'] + '"',
                                                     "ObjectId('%s')" % item['_id'])
+                insert += 1
+                # print("insert %d" % insert)
                 exit_code = subprocess.call(jsondata)
                 assert exit_code == 0
 
@@ -310,6 +318,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
                 jsondata[-1] = jsondata[-1] + json.dumps(data, separators=(',', ':')) + ")"
                 jsondata[-1] = jsondata[-1].replace('"' + item['_id'] + '"',
                                                     "ObjectId('%s')" % item['_id'])
+                insert += 1
+                # print("insert %d" % insert)
                 exit_code = subprocess.call(jsondata)
                 assert exit_code == 0
 
