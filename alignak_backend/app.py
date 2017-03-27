@@ -1288,13 +1288,18 @@ def pre_user_post(items):
     for key, item in enumerate(items):
         if 'password' in item:
             items[key]['password'] = generate_password_hash(item['password'])
+        if 'token' in item:
+            items[key]['token'] = generate_token()
 
 
 def pre_user_patch(updates, original):
     """
     Hook before update.
 
-    When updating user, hash the backend password of the user if one try to change it
+    When updating user:
+    - hash the backend password of the user if one tries to change it
+    - generate the user token if a token (even empty) is provided
+
     If only the user preferences are updated do not change the _updated field (see comment in the
     pre_host_patch).
 
@@ -1307,6 +1312,8 @@ def pre_user_patch(updates, original):
     # pylint: disable=unused-argument
     if 'password' in updates:
         updates['password'] = generate_password_hash(updates['password'])
+    if 'token' in updates:
+        updates['token'] = generate_token()
     # Special case, we don't want update _updated field when update ui_preferences field
     if len(updates) == 2 and 'ui_preferences' in updates:
         del updates['_updated']
