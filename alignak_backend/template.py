@@ -405,6 +405,18 @@ class Template(object):
                     if key not in item:
                         item['_template_fields'][key] = 0
 
+        if 'check_command' not in item:
+            # Get default host check commands
+            commands = current_app.data.driver.db['command']
+            default_host_check_command = commands.find_one({'name': '_internal_host_up'})
+            item['check_command'] = default_host_check_command['_id']
+
+        if '_realm' not in item:
+            # Get default realm
+            realms = current_app.data.driver.db['realm']
+            default_realm = realms.find_one({'name': 'All'})
+            item['_realm'] = default_realm['_id']
+
     @staticmethod
     def update_host_use_template(host, fields):
         """
@@ -464,6 +476,18 @@ class Template(object):
                 if key not in ignore_schema_fields:
                     if key not in item:
                         item['_template_fields'][key] = 0
+
+        if 'check_command' not in item:
+            # Get default service check commands
+            commands = current_app.data.driver.db['command']
+            default_service_check_command = commands.find_one({'name': '_echo'})
+            item['check_command'] = default_service_check_command['_id']
+
+        if '_realm' not in item:
+            # Get default realm
+            realms = current_app.data.driver.db['realm']
+            default_realm = realms.find_one({'name': 'All'})
+            item['_realm'] = default_realm['_id']
 
     @staticmethod
     def update_service_use_template(service, fields):
