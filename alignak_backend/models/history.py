@@ -94,7 +94,7 @@ def get_schema():
                     # Set downtime
                     "downtime.processed",
                     # Delete downtime
-                    "downtime.delete"
+                    "downtime.delete",
 
                     # timeperiod transition
                     "monitoring.timeperiod_transition",
