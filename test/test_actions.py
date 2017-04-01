@@ -105,10 +105,8 @@ class TestActions(unittest2.TestCase):
         data['_realm'] = cls.realm_all
         response = requests.post(cls.endpoint + '/host', json=data, headers=headers, auth=cls.auth)
         resp = response.json()
-        print(resp)
         response = requests.get(cls.endpoint + '/host', auth=cls.auth)
         resp = response.json()
-        print(resp)
         rh = resp['_items']
 
         # Add a service
@@ -1014,99 +1012,3 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], rs[0]['name'])
         self.assertEqual(re[1]['type'], "check.requested")
         self.assertEqual(re[1]['message'], "User comment")
-
-    def test_history_comment(self):
-        """
-        Test history: add user comment
-
-        :return: None
-        """
-        headers = {'Content-Type': 'application/json'}
-        sort_id = {'sort': '_id'}
-
-        # No existing forcechecks
-        response = requests.get(
-            self.endpoint + '/history', params=sort_id, auth=self.auth
-        )
-        resp = response.json()
-        re = resp['_items']
-        self.assertEqual(len(re), 0)
-
-        # Get hosts in the backend
-        response = requests.get(self.endpoint + '/host', params={'sort': 'name'}, auth=self.auth)
-        resp = response.json()
-        rh = resp['_items']
-        self.assertEqual(len(rh), 2)
-        self.assertEqual(rh[0]['name'], "_dummy")
-        self.assertEqual(rh[1]['name'], "srv001")
-
-        # Get service in the backend
-        response = requests.get(self.endpoint + '/service', auth=self.auth)
-        resp = response.json()
-        rs = resp['_items']
-        self.assertEqual(rs[0]['name'], "ping")
-
-        # -------------------------------------------
-        # Add an history comment
-        data = {
-            "host": rh[1]['_id'],
-            "service": rs[0]['_id'],
-            "user": self.user_admin,
-            "type": "webui.comment",
-            "message": "User comment",
-            "_realm": self.realm_all
-        }
-        response = requests.post(
-            self.endpoint + '/history', json=data, headers=headers, auth=self.auth
-        )
-        resp = response.json()
-        self.assertEqual(resp['_status'], 'OK')
-
-        # Get history
-        response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
-        resp = response.json()
-        re = resp['_items']
-        self.assertEqual(len(re), 1)
-
-        self.assertEqual(re[0]['host'], rh[1]['_id'])
-        self.assertEqual(re[0]['host_name'], rh[1]['name'])
-        self.assertEqual(re[0]['service'], rs[0]['_id'])
-        self.assertEqual(re[0]['service_name'], rs[0]['name'])
-        self.assertEqual(re[0]['user'], self.user_admin)
-        self.assertEqual(re[0]['user_name'], 'admin')
-        self.assertEqual(re[0]['type'], "webui.comment")
-        self.assertEqual(re[0]['message'], "User comment")
-        self.assertEqual(re[0]['_realm'], self.realm_all)
-
-        # -------------------------------------------
-        # Add an history comment - host_name, service_name and user_name
-        data = {
-            "host_name": rh[0]['name'],
-            "service_name": rs[0]['name'],
-            "user_name": "admin",
-            "type": "webui.comment",
-            "message": "User comment 2",
-        }
-        response = requests.post(
-            self.endpoint + '/history', json=data, headers=headers, auth=self.auth
-        )
-        resp = response.json()
-        self.assertEqual(resp['_status'], 'OK')
-
-        # Get history
-        response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
-        resp = response.json()
-        re = resp['_items']
-        self.assertEqual(len(re), 2)
-        print("History 0: %s" % re[0])
-        print("History 1: %s" % re[1])
-
-        self.assertEqual(re[1]['host'], rh[0]['_id'])
-        self.assertEqual(re[1]['host_name'], rh[0]['name'])
-        self.assertEqual(re[1]['service'], rs[0]['_id'])
-        self.assertEqual(re[1]['service_name'], rs[0]['name'])
-        self.assertEqual(re[1]['user'], self.user_admin)
-        self.assertEqual(re[1]['user_name'], 'admin')
-        self.assertEqual(re[1]['type'], "webui.comment")
-        self.assertEqual(re[1]['message'], "User comment 2")
-        self.assertEqual(re[1]['_realm'], self.realm_all)
