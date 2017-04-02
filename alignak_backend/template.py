@@ -412,10 +412,9 @@ class Template(object):
             item['check_command'] = default_host_check_command['_id']
 
         if '_realm' not in item:
-            # Get default realm
-            realms = current_app.data.driver.db['realm']
-            default_realm = realms.find_one({'name': 'All'})
-            item['_realm'] = default_realm['_id']
+            # Get default logged-in user realm
+            if g.get('user_realm', None):
+                item['_realm'] = g.get('user_realm')
 
     @staticmethod
     def update_host_use_template(host, fields):
@@ -484,10 +483,9 @@ class Template(object):
             item['check_command'] = default_service_check_command['_id']
 
         if '_realm' not in item:
-            # Get default realm
-            realms = current_app.data.driver.db['realm']
-            default_realm = realms.find_one({'name': 'All'})
-            item['_realm'] = default_realm['_id']
+            # Get default logged-in user realm
+            if g.get('user_realm', None):
+                item['_realm'] = g.get('user_realm')
 
     @staticmethod
     def update_service_use_template(service, fields):

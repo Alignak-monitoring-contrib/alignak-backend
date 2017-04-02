@@ -87,6 +87,8 @@ class MyTokenAuth(TokenAuth):
 
             g.updateRealm = False
             g.updateGroup = False
+            g.user_realm = user['_realm']
+
             # get children of realms for rights
             realmsdrv = current_app.data.driver.db['realm']
             allrealms = realmsdrv.find()

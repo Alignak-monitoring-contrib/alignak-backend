@@ -60,11 +60,32 @@ class TestHookTemplate(unittest2.TestCase):
         cls.token = resp['token']
         cls.auth = requests.auth.HTTPBasicAuth(cls.token, '')
 
+        # Get user admin
+        response = requests.get(cls.endpoint + '/user', auth=cls.auth)
+        resp = response.json()
+        cls.user_admin = resp['_items'][0]
+
         # Get default realm
         response = requests.get(cls.endpoint + '/realm', auth=cls.auth,
                                 params={'where': json.dumps({'name': 'All'})})
         resp = response.json()
         cls.realm_all = resp['_items'][0]['_id']
+
+        # Create a sub-realm
+        data = {"name": "All A", "_parent": cls.realm_all}
+        response = requests.post(cls.endpoint + '/realm', json=data, headers=headers,
+                                 auth=cls.auth)
+        resp = response.json()
+        cls.sub_realm = resp['_id']
+
+        # Add a user in the new sub-realm
+        data = {'name': 'user1', 'password': 'test', '_realm': cls.sub_realm,
+                'host_notification_period': cls.user_admin['host_notification_period'],
+                'service_notification_period': cls.user_admin['service_notification_period']}
+        response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
+                                 auth=cls.auth)
+        resp = response.json()
+        cls.user1_id = resp['_id']
 
         # Get default host
         response = requests.get(cls.endpoint + '/host', auth=cls.auth,
@@ -101,7 +122,8 @@ class TestHookTemplate(unittest2.TestCase):
 
         :return: None
         """
-        for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis', 'user']:
+        for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis', 'user',
+                         'userrestrictrole']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
     def test_host_default_check_command(self):
@@ -109,7 +131,13 @@ class TestHookTemplate(unittest2.TestCase):
 
         :return: None
         """
+        # Login as admin
         headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        self.token = resp['token']
+        self.auth = requests.auth.HTTPBasicAuth(self.token, '')
 
         # Create an host without template
         data = {'name': 'host_1'}
@@ -155,6 +183,7 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host/' + resp['_id'], auth=self.auth)
         tpl = response.json()
         self.assertEqual(tpl['name'], "tpl_1")
+        self.assertEqual(tpl['_realm'], self.realm_all)
         self.assertEqual(tpl['check_command'], cmd['_id'])
 
         # Create an host inheriting from the new template
@@ -172,20 +201,74 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host/' + resp['_id'], auth=self.auth)
         host = response.json()
         self.assertEqual(host['name'], "host_2")
+        self.assertEqual(host['_realm'], self.realm_all)
         self.assertEqual(host['_templates'], [tpl['_id']])
         self.assertEqual(host['check_command'], cmd['_id'])
+
+    def test_host_default_check_command_non_admin(self):
+        """Create a new host with default check command and realm as a non-admin user
+
+        :return: None
+        """
+        # Login as admin to set user rights
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        self.token = resp['token']
+        self.auth = requests.auth.HTTPBasicAuth(self.token, '')
+
+        # Set user rights
+        data = {'user': self.user1_id, 'realm': self.sub_realm, 'resource': '*'}
+        response = requests.post(self.endpoint + '/userrestrictrole', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+
+        # Get the user rights
+        response = requests.get(self.endpoint + '/userrestrictrole', auth=self.auth)
+        host = response.json()
+
+        # Login as non admin user: user1 is a user member of a sub-realm
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'user1', 'password': 'test', 'action': 'generate'}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        self.token = resp['token']
+        self.auth = requests.auth.HTTPBasicAuth(self.token, '')
+
+        # Create an host without template
+        data = {'name': 'host_3'}
+        resp = requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        resp = resp.json()
+        assert '_id' in resp
+        assert '_created' in resp
+        assert '_updated' in resp
+        # host was created with only a name information...
+
+        # Get the newly created host
+        response = requests.get(self.endpoint + '/host/' + resp['_id'], auth=self.auth)
+        host = response.json()
+        self.assertEqual(host['name'], "host_3")
+        self.assertEqual(host['_realm'], self.sub_realm)
+        self.assertEqual(host['check_command'], self.default_host_check_command)
 
     def test_service_default_check_command(self):
         """Create a new service with default check command and realm
 
         :return: None
         """
+        # Login as admin
         headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        self.token = resp['token']
+        self.auth = requests.auth.HTTPBasicAuth(self.token, '')
 
         # Create a service without template
         data = {
             'host': self.default_host,
-            'name': 'service_1'
+            'name': 'service_3'
         }
         resp = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
         resp = resp.json()
@@ -197,7 +280,7 @@ class TestHookTemplate(unittest2.TestCase):
         # Get the newly created service
         response = requests.get(self.endpoint + '/service/' + resp['_id'], auth=self.auth)
         service = response.json()
-        self.assertEqual(service['name'], "service_1")
+        self.assertEqual(service['name'], "service_3")
         self.assertEqual(service['_realm'], self.realm_all)
         self.assertEqual(service['check_command'], self.default_service_check_command)
 
@@ -215,7 +298,7 @@ class TestHookTemplate(unittest2.TestCase):
 
         # Create an host template
         data = {
-            'name': 'tpl_1',
+            'name': 'tpl_2',
             'check_command': cmd['_id'],
             '_is_template': True
         }
@@ -264,3 +347,48 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(service['name'], "service_2")
         self.assertEqual(service['_templates'], [tpl['_id']])
         self.assertEqual(service['check_command'], cmd['_id'])
+
+    def test_service_default_check_command_non_admin(self):
+        """Create a new service with default check command and realm
+
+        :return: None
+        """
+        # Login as admin to set user rights
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        self.token = resp['token']
+        self.auth = requests.auth.HTTPBasicAuth(self.token, '')
+
+        # Set user rights
+        data = {'user': self.user1_id, 'realm': self.sub_realm, 'resource': '*'}
+        requests.post(self.endpoint + '/userrestrictrole', json=data, headers=headers,
+                      auth=self.auth)
+
+        # Login as non admin user: user1 is a user member of a sub-realm
+        headers = {'Content-Type': 'application/json'}
+        params = {'username': 'user1', 'password': 'test', 'action': 'generate'}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        self.token = resp['token']
+        self.auth = requests.auth.HTTPBasicAuth(self.token, '')
+
+        # Create a service without template
+        data = {
+            'host': self.default_host,
+            'name': 'service_2'
+        }
+        resp = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        resp = resp.json()
+        assert '_id' in resp
+        assert '_created' in resp
+        assert '_updated' in resp
+        # service was created with only an host and a name information...
+
+        # Get the newly created service
+        response = requests.get(self.endpoint + '/service/' + resp['_id'], auth=self.auth)
+        service = response.json()
+        self.assertEqual(service['name'], "service_2")
+        self.assertEqual(service['_realm'], self.sub_realm)
+        self.assertEqual(service['check_command'], self.default_service_check_command)
