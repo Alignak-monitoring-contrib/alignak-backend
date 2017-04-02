@@ -48,7 +48,6 @@ def get_schema():
                 'type': 'string',
                 'default': '*',
                 'allowed': ['*', 'host', 'service', 'command'],
-                'required': True,
             },
             'crud': {
                 'type': 'list',
