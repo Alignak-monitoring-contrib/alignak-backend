@@ -302,11 +302,20 @@ class Template(object):
         :type user_request: object
         :return: None
         """
+        users_request = user_request.json
         if isinstance(user_request.json, dict):
-            Template.fill_template_user(user_request.json)
-        else:
-            for i in user_request.json:
-                Template.fill_template_user(i)
+            users_request = [user_request.json]
+
+        for user in users_request:
+            if 'host_notification_period' not in user:
+                tp_drv = current_app.data.driver.db['timeperiod']
+                tp = tp_drv.find_one({'name': 'Never'})
+                user['host_notification_period'] = tp['_id']
+            if 'service_notification_period' not in user:
+                tp_drv = current_app.data.driver.db['timeperiod']
+                tp = tp_drv.find_one({'name': 'Never'})
+                user['service_notification_period'] = tp['_id']
+            Template.fill_template_user(user)
 
     @staticmethod
     def on_update_user(updates, original):

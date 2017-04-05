@@ -825,7 +825,8 @@ class TestHookTemplate(unittest2.TestCase):
         schema = user_schema()
         template_fields = {}
         ignore_fields = ['name', 'realm', '_realm', '_template_fields',
-                         '_templates', '_is_template']
+                         '_templates', '_is_template',
+                         'host_notification_period', 'service_notification_period']
         for key in schema['schema']:
             if key not in ignore_fields:
                 template_fields[key] = user_template_id

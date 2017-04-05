@@ -1281,7 +1281,8 @@ def after_updated_service(updated, original):
 def pre_user_post(items):
     """
     Hook before insert.
-    When add user, hash the backend password of the user
+    When add user, hash the backend password of the user and generate a token
+    If no host/service notification periods are provided, use the default 'Never' TP
 
     :param items: list of items (list because can use bulk)
     :type items: list
