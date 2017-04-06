@@ -77,6 +77,58 @@ class TestUserManagement(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
+    def test_default_timeperiods(self):
+        """Create user with minimum data.
+        User has Never timeperiods for notifications of hosts and services
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+
+        response = requests.get(self.endpoint + '/timeperiod',
+                                params={'where': json.dumps({'name': 'Never'})}, auth=self.auth)
+        tps = response.json()
+        never = tps['_items'][0]['_id']
+
+        # Add a new user with minimum necessary data
+        data = {
+            'name': 'user0',
+            '_realm': self.realmAll_id
+        }
+        response = requests.post(self.endpoint + '/user',
+                                 json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+        assert '_id' in resp
+        user1_id = resp['_id']
+
+        # Get newly created user
+        params = {'where': json.dumps({'name': 'user0'})}
+        response = requests.get(self.endpoint + '/user', params=params, auth=self.auth)
+        user1 = response.json()
+        user1 = user1['_items'][0]
+        assert user1['_id'] == user1_id
+        assert 'token' in user1
+        assert user1['token'] != ''
+        assert user1['host_notification_period'] == never
+        assert user1['service_notification_period'] == never
+
+        # Try to login with user account
+        params = {'username': 'user1', 'password': ''}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        assert resp['_status'] == 'ERR'
+        assert resp['_error']['code'] == 401
+        assert resp['_error']['message'] == 'Username and password must be provided ' \
+                                            'as credentials for login.'
+
+        # Indeed the backend sets a defaut NOPASSWORDSET password
+        params = {'username': 'user0', 'password': 'NOPASSWORDSET'}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        assert 'token' in resp
+        assert resp['token'] != ''
+
     def test_token_on_creation_and_login(self):
         """Create user with no password.
         Login is authorized with the default password
