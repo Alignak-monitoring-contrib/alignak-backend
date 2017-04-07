@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-This test check the hostgroups and the tree feature of hostgroups (children)
+This module tests the logchekresult features
 """
 
 from __future__ import print_function
@@ -19,14 +19,11 @@ import unittest2
 
 
 class TestActions(unittest2.TestCase):
-    """
-    This class test hostgroups and tree feature
-    """
+    """This class tests the logchekresult features"""
 
     @classmethod
     def setUpClass(cls):
-        """
-        This method:
+        """This method:
           * delete mongodb database
           * start the backend with uwsgi
           * log in the backend and get the token
@@ -73,8 +70,7 @@ class TestActions(unittest2.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """
-        Kill uwsgi
+        """Kill uwsgi
 
         :return: None
         """
@@ -83,8 +79,7 @@ class TestActions(unittest2.TestCase):
 
     @classmethod
     def setUp(cls):
-        """
-        Delete resources in backend
+        """Create resources in backend
 
         :return: None
         """
@@ -121,8 +116,7 @@ class TestActions(unittest2.TestCase):
 
     @classmethod
     def tearDown(cls):
-        """
-        Delete resources in backend
+        """Delete resources in backend
 
         :return: None
         """

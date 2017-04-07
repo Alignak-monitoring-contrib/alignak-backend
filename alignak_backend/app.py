@@ -17,7 +17,6 @@ import os
 import re
 import sys
 import time
-import traceback
 import uuid
 from collections import OrderedDict
 from datetime import datetime, timedelta
@@ -37,7 +36,7 @@ from flask_apscheduler import APScheduler
 from flask_bootstrap import Bootstrap
 from werkzeug.security import check_password_hash, generate_password_hash
 
-import alignak_backend.log
+import alignak_backend
 from alignak_backend import manifest
 from alignak_backend.grafana import Grafana
 from alignak_backend.livesynthesis import Livesynthesis
