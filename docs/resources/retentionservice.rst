@@ -1,13 +1,19 @@
 .. _resource-retentionservice:
 
-retentionservice
-===================
+Service data retention (retentionservice)
+=========================================
+
+
+    The ``retentionservice`` model is used by the Alignak backend scheduler module for the
+    Alignak retention feature.
+    
 
 .. image:: ../_static/retentionservice.png
 
 
-.. csv-table::
-   :header: "Parameter", "Type", "Required", "Default", "Data relation"
+.. csv-table:: Properties
+   :header: "Property", "Type", "Required", "Default", "Relation"
 
-   "service", "list", "", "", ""
+   "| service", "list", "", "", ""
+
 

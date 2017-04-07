@@ -1,34 +1,35 @@
 .. _resource-serviceescalation:
 
 serviceescalation
-===================
+=================
 
 .. image:: ../_static/configserviceescalation.png
 
 
-.. csv-table::
-   :header: "Parameter", "Type", "Required", "Default", "Data relation"
+.. csv-table:: Properties
+   :header: "Property", "Type", "Required", "Default", "Relation"
 
-   "_users_update", "list of objectid", "", "", ":ref:`user <resource-user>`"
-   "first_notification", "integer", "", "", ""
-   "hostgroups", "list of objectid", "", "", ":ref:`hostgroup <resource-hostgroup>`"
-   "service", "objectid", "", "", ":ref:`service <resource-service>`"
-   "last_notification", "integer", "", "", ""
-   "_users_read", "list of objectid", "", "", ":ref:`user <resource-user>`"
-   "**_realm**", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
-   "usergroups", "list of objectid", "", "", ":ref:`usergroup <resource-usergroup>`"
-   "notification_interval", "integer", "", "30", ""
-   "last_notification_time", "integer", "", "", ""
-   "_users_delete", "list of objectid", "", "", ":ref:`user <resource-user>`"
-   "_sub_realm", "boolean", "", "False", ""
-   "users", "list of objectid", "", "", ":ref:`user <resource-user>`"
-   "definition_order", "integer", "", "100", ""
-   "host", "objectid", "", "", ":ref:`host <resource-host>`"
-   "**escalation_period**", "**objectid**", "**True**", "****", ":ref:`timeperiod <resource-timeperiod>`"
-   "imported_from", "string", "", "unknown", ""
-   "**name**", "**string**", "**True**", "****", ""
-   "notes", "string", "", "", ""
-   "alias", "string", "", "", ""
-   "first_notification_time", "integer", "", "", ""
-   "escalation_options", "list", "", "['d', 'u', 'r', 'w', 'c']", ""
+   "| _realm", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
+   "| _sub_realm", "boolean", "", "False", ""
+   "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"
+   "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
+   "| _users_update", "objectid list", "", "", ":ref:`user <resource-user>`"
+   "| alias", "string", "", "", ""
+   "| definition_order", "integer", "", "100", ""
+   "| escalation_options", "list", "", "['d', 'u', 'r', 'w', 'c']", ""
+   "| escalation_period", "**objectid**", "**True**", "****", ":ref:`timeperiod <resource-timeperiod>`"
+   "| first_notification", "integer", "", "", ""
+   "| first_notification_time", "integer", "", "", ""
+   "| host", "objectid", "", "", ":ref:`host <resource-host>`"
+   "| hostgroups", "objectid list", "", "", ":ref:`hostgroup <resource-hostgroup>`"
+   "| imported_from", "string", "", "unknown", ""
+   "| last_notification", "integer", "", "", ""
+   "| last_notification_time", "integer", "", "", ""
+   "| name", "**string**", "**True**", "****", ""
+   "| notes", "string", "", "", ""
+   "| notification_interval", "integer", "", "30", ""
+   "| service", "objectid", "", "", ":ref:`service <resource-service>`"
+   "| usergroups", "objectid list", "", "", ":ref:`usergroup <resource-usergroup>`"
+   "| users", "objectid list", "", "", ":ref:`user <resource-user>`"
+
 

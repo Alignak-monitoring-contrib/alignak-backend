@@ -57,52 +57,107 @@ for filepath in f:
         py_mod = imp.load_source(mod_name, filepath)
 
         resource_name = py_mod.get_name()
-        if not resource_name.startswith('live'):
-            if not resource_name.startswith('retention'):
-                if not resource_name.startswith('log'):
-                    if not resource_name.startswith('action'):
-                        resource_name = ''.join(['config', resource_name])
+        if resource_name in ['grafana', 'graphite', 'influxdb', 'statsd', 'timeseriesretention']:
+            resource_name = ''.join(['ts_', resource_name])
+        elif resource_name in ['alignakdaemon', 'livesynthesis', 'livesynthesisretention']:
+            resource_name = ''.join(['ls_', resource_name])
+        elif resource_name in ['logcheckresult', 'history']:
+            resource_name = ''.join(['log_', resource_name])
+        elif resource_name in ['userrestrictrole']:
+            pass
+        elif resource_name.startswith('retention'):
+            pass
+        elif not resource_name.startswith('action'):
+            resource_name = ''.join(['config', resource_name])
 
         target = open(''.join(['resources/', resource_name, '.rst']), 'w')
         target.write('.. _resource-%s:' % (py_mod.get_name()))
         target.write("\n\n")
-        target.write(py_mod.get_name())
+        title = '%s' % (py_mod.get_name())
+        try:
+            title = '%s (%s)' % (py_mod.get_name(True), py_mod.get_name())
+        except:
+            pass
+        target.write(title)
         target.write("\n")
-        target.write("===================\n\n")
+        target.write("=" * len(title))
+        target.write("\n\n")
+
+        try:
+            doc = py_mod.get_doc()
+            target.write(doc)
+            target.write("\n\n")
+        except:
+            pass
+
         target.write(".. image:: ../_static/%s.png\n" % (resource_name))
         target.write("\n\n")
-        target.write(".. csv-table::")
+        target.write(".. csv-table:: Properties")
         target.write("\n")
-        target.write("   :header: \"Parameter\", \"Type\", \"Required\", \"Default\", \"Data relation\"")
+        target.write('   :header: "Property", "Type", "Required", "Default", "Relation"')
         target.write("\n\n")
 
         schema = py_mod.get_schema()
         relations = {}
-        for line in schema['schema']:
-            ltype = schema['schema'][line]['type']
+        specials = {}
+        schema = schema['schema']
+        for field in sorted(schema.iterkeys()):
+            ltype = schema[field]['type']
+            title = schema[field].get('title', '')
+            comment = schema[field].get('comment', '')
+            allowed = schema[field].get('allowed', None)
+            if allowed:
+                comment = "%s \n\n Allowed values: %s" % (comment, ', '.join(allowed))
             required = ''
-            if 'required' in schema['schema'][line]:
-                if schema['schema'][line]['required']:
+            if 'required' in schema[field]:
+                if schema[field]['required']:
                     required = 'True'
             default = ''
-            if 'default' in schema['schema'][line]:
-                default = schema['schema'][line]['default']
+            if 'default' in schema[field]:
+                default = schema[field]['default']
             data_relation = ''
-            if schema['schema'][line]['type'] == 'objectid':
-                data_relation = ":ref:`%s <resource-%s>`" % (schema['schema'][line]['data_relation']['resource'], schema['schema'][line]['data_relation']['resource'])
-                if not (schema['schema'][line]['data_relation']['resource'] in relations and required == ''):
-                    relations[schema['schema'][line]['data_relation']['resource']] = required
-            if schema['schema'][line]['type'] == 'list':
-                if 'schema' in schema['schema'][line] and 'data_relation' in schema['schema'][line]['schema']:
-                    data_relation = ":ref:`%s <resource-%s>`" % (schema['schema'][line]['schema']['data_relation']['resource'], schema['schema'][line]['schema']['data_relation']['resource'])
-                    if not (schema['schema'][line]['schema']['data_relation']['resource'] in relations and required == ''):
-                        relations[schema['schema'][line]['schema']['data_relation']['resource']] = required
-                    ltype += " of objectid"
+            if schema[field]['type'] == 'objectid':
+                data_relation = ":ref:`%s <resource-%s>`" \
+                                % (schema[field]['data_relation']['resource'],
+                                   schema[field]['data_relation']['resource'])
+                if not (schema[field]['data_relation']['resource'] in relations and required == ''):
+                    relations[schema[field]['data_relation']['resource']] = required
+            if schema[field]['type'] == 'list':
+                if 'schema' in schema[field] and 'data_relation' in schema[field]['schema']:
+                    data_relation = ":ref:`%s <resource-%s>`" \
+                                    % (schema[field]['schema']['data_relation']['resource'],
+                                       schema[field]['schema']['data_relation']['resource'])
+                    if not (schema[field]['schema']['data_relation']['resource'] in relations and
+                            required == ''):
+                        relations[schema[field]['schema']['data_relation']['resource']] = required
+                    ltype = "objectid list"
 
-            if required == 'True':
-                target.write("   \"**%s**\", \"**%s**\", \"**%s**\", \"**%s**\", \"%s\"\n" % (line, ltype, required, default, data_relation))
-            else:
-                target.write("   \"%s\", \"%s\", \"%s\", \"%s\", \"%s\"\n" % (line, ltype, required, default, data_relation))
-        generate_relation_graph(py_mod.get_name(), relations, resource_name)
-        target.write("\n")
+            csv_line = '   "| %s%s", "**%s**", "**%s**", "**%s**", "%s"\n'
+            if required == '':
+                csv_line = csv_line.replace('**', '')
+            target.write(csv_line
+                         % (":ref:`%s <%s-%s>`"
+                            % (field, py_mod.get_name(), field) if comment else field,
+                            '\n   | *%s*' % title if title else '',
+                            ltype, required, default, data_relation))
+
+        for field in sorted(schema.iterkeys()):
+            comment = schema[field].get('comment', '')
+            allowed = schema[field].get('allowed', None)
+            if allowed:
+                comment = "%s\n\n   Allowed values: %s" % (comment, ', '.join(allowed))
+            if not comment:
+                continue
+
+            required = schema[field].get('required', False)
+
+            target.write('.. _%s-%s:\n\n' % (py_mod.get_name(), field))
+            csv_line = '``%s``: %s\n\n'
+            if not required:
+                csv_line = csv_line.replace('**', '')
+            target.write(csv_line % (field, comment))
+
+        target.write("\n\n")
         target.close()
+
+        generate_relation_graph(py_mod.get_name(), relations, resource_name)

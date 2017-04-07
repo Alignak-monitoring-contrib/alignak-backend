@@ -45,23 +45,23 @@ It is used to:
 
 * manage monitoring configuration (hosts, services, contacts, timeperiods...)
 
-    * end user (WebUI, python/php client, curl command line,...) can get, add, edit monitoring configurations elements
-    * inner templating system to easily create new hosts, services, users, ...
-    * Alignak gets this configuration when its arbiter module starts
+    end user (WebUI, alignak-backend-cli, python/php client, curl command line,...) can get, add, edit monitoring configurations elements
+    inner templating system to easily create new hosts, services, users, ...
+    Alignak gets this configuration when its arbiter module starts
 
 * manage retention
 
-   * Alignak saves and loads retention information for checks/hosts/services from the backend
+    Alignak saves and loads retention information for checks/hosts/services from the backend
 
 * manage the monitoring live state
 
-   * Alignak add/update states for hosts and services
-   * end user (webui, command line...) can get these information
+    Alignak add/update states for hosts and services
+    end user (webui, command line...) can get these information
 
 * manage the metrics from the checks performance data
 
-   * Alignak backend send metrics to Graphite / InfluxDB timeseries databases
-   * Alignak backend automatically creates Grafana panels for hosts / services metrics
+    Alignak backend automatically send metrics to Graphite / InfluxDB timeseries databases
+    Alignak backend automatically creates Grafana panels for hosts / services metrics
 
 
 Installation
@@ -83,6 +83,20 @@ To install the package from the source files:
    git clone https://github.com/Alignak-monitoring-contrib/alignak-backend
    cd alignak-backend
    sudo pip install .
+
+
+Documentation
+-------------
+
+The Alignak backend documentation is available on `Read the docs <http://alignak-backend.readthedocs.io/en/latest/?badge=develop>`_ or in the */docs* folder of this repository.
+
+To build the doc:
+::
+
+    cd docs
+    python models_to_rst.py
+    make clear
+    make html
 
 
 Release strategy

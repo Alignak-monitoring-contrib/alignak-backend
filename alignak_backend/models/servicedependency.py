@@ -5,19 +5,32 @@ Resource information of servicedependency
 """
 
 
-def get_name():
-    """
-    Get name of this resource
+def get_name(friendly=False):
+    """Get name of this resource
 
     :return: name of this resource
     :rtype: str
     """
+    if friendly:
+        return "Service dependency"
     return 'servicedependency'
 
 
-def get_schema():
+def get_doc():
+    """Get documentation of this resource
+
+    :return: rst string
+    :rtype: str
     """
-    Schema structure of this resource
+    return """
+    The ``servicedependency`` model is used to define dependency relations and tests conditions.
+
+    See the Alignak documentation regarding the dependency check management.
+    """
+
+
+def get_schema():
+    """Schema structure of this resource
 
     :return: schema dictionary
     :rtype: dict
