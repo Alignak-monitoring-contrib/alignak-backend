@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+External source code - note that all the methods in this class are not used by the Alignak backend!
+"""
+
+
 # pylint: skip-file
 from future.standard_library import install_aliases
 install_aliases()
@@ -51,7 +58,7 @@ class CarbonIface(object):
             return True
         return False
 
-    def add_data_dict(self, dd):
+    def add_data_dict(self, dd):  # pragma: no cover - never used...
         """
         dd must be a dictionary where keys are the metric name,
         each key contains a dictionary which at least must have 'value' key (optionally 'ts')
@@ -69,7 +76,7 @@ class CarbonIface(object):
             return True
         return False
 
-    def add_data_list(self, dl):
+    def add_data_list(self, dl):  # pragma: no cover - never used...
         """
         dl must be a list of tuples like:
         dl = [('metricname', (timestamp, value)),
@@ -117,7 +124,7 @@ class CarbonIface(object):
         finally:
             s.close()
 
-    def add_event(self, what, data=None, tags=None, when=None):
+    def add_event(self, what, data=None, tags=None, when=None):  # pragma: no cover - never used...
         """
 
 
@@ -145,7 +152,7 @@ class CarbonIface(object):
             pass
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover - never used this way...
     c_host = ''
     c_port = 2004
     c_event_url = None

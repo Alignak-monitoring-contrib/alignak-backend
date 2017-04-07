@@ -18,14 +18,11 @@ import unittest2
 
 
 class TestActions(unittest2.TestCase):
-    """
-    This class test hostgroups and tree feature
-    """
+    """This class test actions features"""
 
     @classmethod
     def setUpClass(cls):
-        """
-        This method:
+        """This method:
           * delete mongodb database
           * start the backend with uwsgi
           * log in the backend and get the token

@@ -8,7 +8,7 @@ from __future__ import print_function
 from alignak_backend.app import app, manifest
 
 
-def main():
+def main():  # pragma: no cover - tested but not covered
     """Main function to run the alignak backend
 
     This function is used by the `alignak-backend` script installed with setup.py.
