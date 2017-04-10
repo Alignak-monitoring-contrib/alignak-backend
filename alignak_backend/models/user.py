@@ -63,13 +63,6 @@ def get_schema():
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
-            'business_impact': {
-                "title": "Business impact",
-                "comment": "The business impact level indicates the level of importance of this "
-                           "element. The highest value the most important is the elemen.",
-                'type': 'integer',
-                'default': 2
-            },
             'alias': {
                 "title": "Alias",
                 "comment": "Element friendly name used by the Web User Interface.",
@@ -100,6 +93,18 @@ def get_schema():
             },
 
             # User specific
+            'skill_level': {
+                "title": "Level",
+                "comment": "This field is the user's skill level. It is used by the Web User "
+                           "Interface to display more or less advanced information. Each property "
+                           "in the backend data models may have its own skill level and it will "
+                           "be displayed it the user's skill level is greater than or equal. "
+                           "As default, the skill level is 0 and the property will be displayed.",
+                'type': 'integer',
+                'default': 0,
+                'min': 0,
+                'max': 2
+            },
             'password': {
                 "title": "Password",
                 "comment": "This field is used on user's creation as the password and it is "
@@ -140,6 +145,7 @@ def get_schema():
                            "then the logged-in user will not be allowed to update live state "
                            "information (standard Web User Interface user).",
                 'type': 'boolean',
+                'skill_level': 2,
                 'default': False
             },
             'is_admin': {
@@ -165,6 +171,7 @@ def get_schema():
                            "the minimum business impact of the user, the notification will be "
                            "filtered out.",
                 'type': 'integer',
+                'skill_level': 1,
                 'default': 0
             },
             'email': {
@@ -302,6 +309,7 @@ def get_schema():
                 "title": "Notification ways",
                 "comment": "User notification ways.",
                 'type': 'list',
+                'skill_level': 2,
                 'default': []
             },
 

@@ -56,41 +56,49 @@ def get_schema():
             'display_name': {
                 "title": "Display name",
                 "comment": "Old Nagios stuff. To be deprecated",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             'icon_image': {
                 "comment": "Old Nagios stuff. To be deprecated",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             'icon_image_alt': {
                 "comment": "Old Nagios stuff. To be deprecated",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             'icon_set': {
                 "comment": "Old Nagios stuff. To be deprecated",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             'vrml_image': {
                 "comment": "Old Nagios stuff. To be deprecated",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             'statusmap_image': {
                 "comment": "Old Nagios stuff. To be deprecated",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             '2d_coords': {
                 "comment": "Old Nagios stuff. To be deprecated",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             '3d_coords': {
                 "comment": "Old Nagios stuff. To be deprecated",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
@@ -103,18 +111,21 @@ def get_schema():
             'failure_prediction_enabled': {
                 "title": "Failure prediction",
                 "comment": "Nagios legacy property not used in Alignak",
+                'skill_level': 2,
                 'type': 'boolean',
                 'default': False
             },
             'obsess_over_host': {
                 "title": "Obsessive check",
                 "comment": "Nagios legacy property not used in Alignak",
+                'skill_level': 2,
                 'type': 'boolean',
                 'default': False
             },
             'trending_policies': {
                 "title": "Trending policies",
                 "comment": "To be explained (see #113)",
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
@@ -193,6 +204,7 @@ def get_schema():
                 "title": "Parents",
                 "comment": "Elements which this element depends of. "
                            "Used to define the network hierarchy.",
+                'skill_level': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -218,6 +230,10 @@ def get_schema():
 
             # Maintenance period
             'maintenance_period': {
+                "title": "Maintenance period",
+                "comment": "The maintenance period of an host is a time period that defines "
+                           "an equivalent of scheduled downtimes for the host.",
+                'skill_level': 2,
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -230,6 +246,7 @@ def get_schema():
             'initial_state': {
                 "title": "Initial state",
                 "comment": "Alignak sets this default state until a check happen",
+                'skill_level': 1,
                 'type': 'string',
                 'minlength': 1,
                 'maxlength': 1,
@@ -249,6 +266,7 @@ def get_schema():
             'time_to_orphanage': {
                 "title": "Time to orphanage",
                 "comment": "To be clearly understood and documented...",
+                'skill_level': 2,
                 'type': 'integer',
                 'default': 300
             },
@@ -281,12 +299,14 @@ def get_schema():
                 "comment": "Active checks only. Number of times the check command will be "
                            "executed if it returns a state other than Ok. Setting this value "
                            "to 1 will raise an alert without any retry.",
+                'skill_level': 1,
                 'type': 'integer',
                 'default': 1
             },
             'check_interval': {
                 "title": "Check interval",
                 "comment": "Active checks only. Number of minutes between the periodical checks.",
+                'skill_level': 1,
                 'type': 'integer',
                 'default': 5
             },
@@ -297,6 +317,7 @@ def get_schema():
                            "changed to a non-ok state. Once it has been retried max_check_attempts "
                            "times without a change in its status, it will revert to being "
                            "scheduled at its check_interval period.",
+                'skill_level': 1,
                 'type': 'integer',
                 'default': 0
             },
@@ -336,7 +357,7 @@ def get_schema():
             # event handlers
             'event_handler_enabled': {
                 "title": "Event handler enabled",
-                "comment": "",
+                'skill_level': 1,
                 'type': 'boolean',
                 'default': False
             },
@@ -344,6 +365,7 @@ def get_schema():
                 "title": "Event handler",
                 "comment": "Command that should run whenever a change in the element state is "
                            "detected.",
+                'skill_level': 1,
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'command',
@@ -355,6 +377,7 @@ def get_schema():
             'event_handler_args': {
                 "title": "Event handler arguments",
                 "comment": "",
+                'skill_level': 1,
                 'type': 'string',
                 'default': ''
             },
@@ -366,25 +389,27 @@ def get_schema():
                            "resulting in a storm of problem and recovery notifications. "
                            "Once an element is detected as flapping, all its notifications "
                            "are blocked.",
+                'skill_level': 2,
                 'type': 'boolean',
                 'default': True
             },
             'flap_detection_options': {
                 "title": "Flapping detection options",
                 "comment": "States involved in the flapping detection logic.",
+                'skill_level': 2,
                 'type': 'list',
                 'default': ['o', 'd', 'x'],
                 'allowed': ['o', 'd', 'x']
             },
             'low_flap_threshold': {
                 "title": "Low flapping threshold",
-                "comment": "",
+                'skill_level': 2,
                 'type': 'integer',
                 'default': 25
             },
             'high_flap_threshold': {
                 "title": "High flapping threshold",
-                "comment": "",
+                'skill_level': 2,
                 'type': 'integer',
                 'default': 50
             },
@@ -392,7 +417,7 @@ def get_schema():
             # performance data
             'process_perf_data': {
                 "title": "Performance data enabled",
-                "comment": "",
+                'skill_level': 1,
                 'type': 'boolean',
                 'default': True
             },
@@ -400,7 +425,6 @@ def get_schema():
             # Notification part
             'notifications_enabled': {
                 "title": "Notifications enabled",
-                "comment": "",
                 'type': 'boolean',
                 'default': True
             },
@@ -468,6 +492,7 @@ def get_schema():
                 "title": "Stalking options",
                 "comment": "When enabled for a specific state, Alignak will add an information "
                            "log for each element check even if the state did not changed.",
+                'skill_level': 2,
                 'type': 'list',
                 'default': [],
                 'allowed': ['o', 'd', 'x']
@@ -478,6 +503,7 @@ def get_schema():
                 "title": "Poller tag",
                 "comment": "Set a value for this element checks to be managed by a "
                            "dedicated poller.",
+                'skill_level': 1,
                 'type': 'string',
                 'default': ''
             },
@@ -485,6 +511,7 @@ def get_schema():
                 "title": "Reactionner tag",
                 "comment": "Set a value for this element notifications to be managed by a "
                            "dedicated reactionner.",
+                'skill_level': 1,
                 'type': 'string',
                 'default': ''
             },
@@ -494,24 +521,28 @@ def get_schema():
             'checkmodulations': {
                 "title": "Checks modulations",
                 "comment": "Not yet implemented (#114).",
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
             'macromodulations': {
                 "title": "Macros modulations",
                 "comment": "Not yet implemented (#115).",
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
             'resultmodulations': {
                 "title": "Results modulations",
                 "comment": "Not yet implemented (#116).",
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
             'business_impact_modulations': {
                 "title": "Business impact modulations",
                 "comment": "Not yet implemented (#116).",
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
@@ -520,6 +551,7 @@ def get_schema():
             'escalations': {
                 "title": "Escalations",
                 "comment": "List of the escalations applied to this element. Not yet implemented.",
+                'skill_level': 2,
                 'type': 'list',
                 'default': [],
                 'schema': {
@@ -532,14 +564,17 @@ def get_schema():
             },
 
             'service_overrides': {
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
             'service_excludes': {
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
             'service_includes': {
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
@@ -549,30 +584,35 @@ def get_schema():
             'labels': {
                 "title": "BR labels",
                 "comment": "Not yet implemented (#146)",
+                'skill_level': 2,
                 'type': 'list',
                 'default': []
             },
             'business_rule_output_template': {
                 "title": "BR output template",
                 "comment": "Not yet implemented (#146)",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             'business_rule_smart_notifications': {
                 "title": "BR smart notifications",
                 "comment": "Not yet implemented (#146)",
+                'skill_level': 2,
                 'type': 'boolean',
                 'default': False
             },
             'business_rule_downtime_as_ack': {
                 "title": "BR downtime as ack",
                 "comment": "Not yet implemented (#146)",
+                'skill_level': 2,
                 'type': 'boolean',
                 'default': False
             },
             'business_rule_host_notification_options': {
                 "title": "BR host notification options",
                 "comment": "Not yet implemented (#146)",
+                'skill_level': 2,
                 'type': 'list',
                 'default': ['d', 'u', 'r', 'f', 's'],
                 'allowed': ['d', 'u', 'r', 'f', 's', 'n']
@@ -580,6 +620,7 @@ def get_schema():
             'business_rule_service_notification_options': {
                 "title": "BR service notification options",
                 "comment": "Not yet implemented (#146)",
+                'skill_level': 2,
                 'type': 'list',
                 'default': ['w', 'u', 'c', 'r', 'f', 's'],
                 'allowed': ['w', 'u', 'c', 'r', 'f', 's', 'n']
@@ -589,12 +630,14 @@ def get_schema():
             'trigger_name': {
                 "title": "Trigger name",
                 "comment": "To be documented",
+                'skill_level': 2,
                 'type': 'string',
                 'default': ''
             },
             'trigger_broker_raise_enabled': {
                 "title": "Trigger broker",
                 "comment": "To be documented",
+                'skill_level': 2,
                 'type': 'boolean',
                 'default': False
             },
@@ -602,13 +645,14 @@ def get_schema():
             # Snapshot
             'snapshot_enabled': {
                 "title": "Snapshot enabled",
-                "comment": "",
+                'skill_level': 2,
                 'type': 'boolean',
                 'default': False
             },
             'snapshot_command': {
                 "title": "Snapshot command",
                 "comment": "Command executed for the snapshot",
+                'skill_level': 2,
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'command',
@@ -619,6 +663,7 @@ def get_schema():
             'snapshot_period': {
                 "title": "Snapshot period",
                 "comment": "Time period when the snapshot feature is active",
+                'skill_level': 2,
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -630,12 +675,14 @@ def get_schema():
                 "title": "Snapshot criteria",
                 "comment": "Execute the snapshot command when the state matches one "
                            "of the criteria",
+                'skill_level': 2,
                 'type': 'list',
                 'default': ['d', 'x']
             },
             'snapshot_interval': {
                 "title": "Snapshot interval",
                 "comment": "Minimum interval between two snapshots",
+                'skill_level': 2,
                 'type': 'integer',
                 'default': 5
             },
