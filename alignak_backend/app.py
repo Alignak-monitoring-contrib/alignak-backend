@@ -199,9 +199,9 @@ class MyValidator(Validator):
         return
 
 
+# Hooks used to check user's rights
 def pre_get(resource, user_request, lookup):
-    """
-    Hook before get data. Add filter depend on roles of user
+    """Hook before get data. Add filter depend on roles of user
 
     :param resource: name of the resource requested by user
     :type resource: str
@@ -214,9 +214,10 @@ def pre_get(resource, user_request, lookup):
     # pylint: disable=unused-argument
     if g.get('back_role_super_admin', False):
         return
-    # Only in case not super-admin
+
+    # Only if not super-admin
     if resource not in ['user']:
-        # get all resources we can have rights in read
+        # Get all resources we can have rights for reading
         resources_get = g.get('resources_get', {})
         resources_get_parents = g.get('resources_get_parents', {})
         resources_get_custom = g.get('resources_get_custom', {})
@@ -239,6 +240,122 @@ def pre_get(resource, user_request, lookup):
                                            {'_realm': {'$in': resources_get_parents[resource]}}]},
                                  {'$and': [{'_users_read': users_id},
                                            {'_realm': {'$in': resources_get_custom[resource]}}]}]
+
+
+def pre_post(resource, user_request):
+    """Hook before get posting data.
+
+    Check if the user restrictions match the request
+
+    :param resource: name of the resource requested by user
+    :type resource: str
+    :param user_request: request of the user
+    :type user_request: object
+    :return: None
+    """
+    # pylint: disable=unused-argument
+    if g.get('back_role_super_admin', False):
+        return
+
+    # Only if not super-admin
+    if resource not in ['user']:
+        # Get all resources we can have rights for creation
+        resources_post = g.get('resources_post', {})
+        resources_post_custom = g.get('resources_post_custom', {})
+
+        if resource not in resources_post and resource not in resources_post_custom:
+            abort(401, description='Not allowed to POST on this endpoint / resource.')
+
+
+def pre_patch(resource, user_request, lookup):
+    """Hook before updating data.
+
+    Check if the user restrictions match the request
+
+    :param resource: name of the resource requested by user
+    :type resource: str
+    :param user_request: request of the user
+    :type user_request: object
+    :param lookup: values to get (filter in the request)
+    :type lookup: dict
+    :return: None
+    """
+    # pylint: disable=unused-argument
+    if g.get('back_role_super_admin', False):
+        return
+
+    # Only if not super-admin
+    if resource not in ['user']:
+        # Get all resources we can have rights for updating
+        resources_patch = g.get('resources_patch', {})
+        resources_patch_parents = g.get('resources_patch_parents', {})
+        resources_patch_custom = g.get('resources_patch_custom', {})
+        users_id = g.get('users_id', {})
+
+        if resource not in resources_patch and resource not in resources_patch_custom:
+            abort(401, description='Not allowed to PATCH on this endpoint / resource.')
+        else:
+            if resource not in resources_patch:
+                resources_patch[resource] = []
+            if resource not in resources_patch_parents:
+                resources_patch_parents[resource] = []
+            if resource not in resources_patch_custom:
+                resources_patch_custom[resource] = []
+            if resource in ['realm']:
+                lookup['$or'] = [{'_id': {'$in': resources_patch[resource]}}]
+            else:
+                lookup['$or'] = [{'_realm': {'$in': resources_patch[resource]}},
+                                 {'$and': [{'_sub_realm': True},
+                                           {'_realm': {'$in': resources_patch_parents[resource]}}]},
+                                 {'$and': [{'_users_update': users_id},
+                                           {'_realm': {'$in': resources_patch_custom[resource]}}]}]
+
+
+def pre_delete(resource, user_request, lookup):
+    """Hook before deleting data.
+
+    Check if the user restrictions match the request
+
+    :param resource: name of the resource requested by user
+    :type resource: str
+    :param user_request: request of the user
+    :type user_request: object
+    :param lookup: values to get (filter in the request)
+    :type lookup: dict
+    :return: None
+    """
+    # pylint: disable=unused-argument
+    if g.get('back_role_super_admin', False):
+        return
+
+    # Only if not super-admin
+    if resource not in ['user']:
+        # Get all resources we can have rights for delation
+        resources_delete = g.get('resources_delete', {})
+        resources_delete_parents = g.get('resources_delete_parents', {})
+        resources_delete_custom = g.get('resources_delete_custom', {})
+        users_id = g.get('users_id', {})
+
+        print("delete: %s" % (resources_delete))
+        if resource not in resources_delete and resource not in resources_delete_custom:
+            abort(401, description='Not allowed to DELETE on this endpoint / resource.')
+        else:
+            if resource not in resources_delete:
+                resources_delete[resource] = []
+            if resource not in resources_delete_parents:
+                resources_delete_parents[resource] = []
+            if resource not in resources_delete_custom:
+                resources_delete_custom[resource] = []
+            if resource in ['realm']:
+                lookup['$or'] = [{'_id': {'$in': resources_delete[resource]}}]
+            else:
+                lookup['$or'] = [{'_realm': {'$in': resources_delete[resource]}},
+                                 {'$and': [{'_sub_realm': True},
+                                           {'_realm': {
+                                               '$in': resources_delete_parents[resource]}}]},
+                                 {'$and': [{'_users_delete': users_id},
+                                           {'_realm': {
+                                               '$in': resources_delete_custom[resource]}}]}]
 
 
 # History
@@ -662,10 +779,11 @@ def pre_hostgroup_patch(updates, original):
             updates['_tree_parents'].append(updates['_parent'])
 
 
+# Time series
 def pre_timeseries_post(items):
     """
-    We can't have more than 1 timeseries database (graphite, influx) linked to same
-    grafana in same realm
+    We can't have more than 1 timeseries database (graphite, influx) linked to the same
+    grafana in the same realm
 
     :param items:
     :type items: dict
@@ -1335,6 +1453,35 @@ def pre_user_patch(updates, original):
         del updates['_updated']
 
 
+def after_insert_user(items):
+    """
+    Hook after a user was inserted.
+
+    :param items: user fields
+    :type items: dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        if 'back_role_super_admin' in item and item['back_role_super_admin']:
+            # Allow full rights for the user on its realm
+            post_internal("userrestrictrole", {
+                "user": item['_id'],
+                "realm": item['_realm'],
+                "sub_realm": item['_sub_realm'],
+                "resource": '*',
+                "crud": ['create', 'read', 'update', 'delete']
+            }, True)
+        else:
+            # Allow read right for the user on its realm
+            post_internal("userrestrictrole", {
+                "user": item['_id'],
+                "realm": item['_realm'],
+                "sub_realm": item['_sub_realm'],
+                "resource": '*',
+                "crud": ['read']
+            }, True)
+
+
 def keep_default_items_resource(resource, delete_request, lookup):
     """
     Keep default items, so do not delete them...
@@ -1580,8 +1727,12 @@ app = Eve(
 )
 # hooks pre-init
 app.on_pre_GET += pre_get
+app.on_pre_POST += pre_post
+app.on_pre_PATCH += pre_patch
+app.on_pre_DELETE += pre_delete
 app.on_insert_user += pre_user_post
 app.on_update_user += pre_user_patch
+app.on_inserted_user += after_insert_user
 app.on_inserted_host += after_insert_host
 app.on_post_POST_host += update_etag
 app.on_inserted_service += after_insert_service

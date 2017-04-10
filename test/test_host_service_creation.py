@@ -87,6 +87,27 @@ class TestHookTemplate(unittest2.TestCase):
         resp = response.json()
         cls.user1_id = resp['_id']
 
+        # Get the user rights
+        params = {'where': json.dumps({'user': cls.user1_id})}
+        response = requests.get(cls.endpoint + '/userrestrictrole', params=params, auth=cls.auth)
+        resp = response.json()
+        assert len(resp['_items']) == 1
+        assert resp['_items'][0]['crud'] == ['read']
+
+        # Set user rights (update...)
+        headers = {'Content-Type': 'application/json', 'If-Match': resp['_items'][0]['_etag']}
+        data = {'resource': '*', 'crud': ['read', 'create']}
+        response = requests.patch(cls.endpoint + '/userrestrictrole/' + resp['_items'][0]['_id'],
+                                  json=data, headers=headers, auth=cls.auth)
+        assert response.status_code == 200
+
+        # Get the user rights to confirm update
+        params = {'where': json.dumps({'user': cls.user1_id})}
+        response = requests.get(cls.endpoint + '/userrestrictrole', params=params, auth=cls.auth)
+        resp = response.json()
+        assert len(resp['_items']) == 1
+        assert resp['_items'][0]['crud'] == ['read', 'create']
+
         # Get default host
         response = requests.get(cls.endpoint + '/host', auth=cls.auth,
                                 params={'where': json.dumps({'name': '_dummy'})})
@@ -210,24 +231,6 @@ class TestHookTemplate(unittest2.TestCase):
 
         :return: None
         """
-        # Login as admin to set user rights
-        headers = {'Content-Type': 'application/json'}
-        params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
-        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
-        resp = response.json()
-        self.token = resp['token']
-        self.auth = requests.auth.HTTPBasicAuth(self.token, '')
-
-        # Set user rights
-        data = {'user': self.user1_id, 'realm': self.sub_realm, 'resource': '*'}
-        response = requests.post(self.endpoint + '/userrestrictrole', json=data, headers=headers,
-                                 auth=self.auth)
-        resp = response.json()
-
-        # Get the user rights
-        response = requests.get(self.endpoint + '/userrestrictrole', auth=self.auth)
-        host = response.json()
-
         # Login as non admin user: user1 is a user member of a sub-realm
         headers = {'Content-Type': 'application/json'}
         params = {'username': 'user1', 'password': 'test', 'action': 'generate'}
@@ -353,19 +356,6 @@ class TestHookTemplate(unittest2.TestCase):
 
         :return: None
         """
-        # Login as admin to set user rights
-        headers = {'Content-Type': 'application/json'}
-        params = {'username': 'admin', 'password': 'admin', 'action': 'generate'}
-        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
-        resp = response.json()
-        self.token = resp['token']
-        self.auth = requests.auth.HTTPBasicAuth(self.token, '')
-
-        # Set user rights
-        data = {'user': self.user1_id, 'realm': self.sub_realm, 'resource': '*'}
-        requests.post(self.endpoint + '/userrestrictrole', json=data, headers=headers,
-                      auth=self.auth)
-
         # Login as non admin user: user1 is a user member of a sub-realm
         headers = {'Content-Type': 'application/json'}
         params = {'username': 'user1', 'password': 'test', 'action': 'generate'}

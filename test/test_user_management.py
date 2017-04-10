@@ -77,7 +77,7 @@ class TestUserManagement(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
-    def test_default_user(self):
+    def test_user_creation(self):
         """Create user with minimum data.
         User has Never timeperiods for notifications of hosts and services
 
@@ -113,6 +113,17 @@ class TestUserManagement(unittest2.TestCase):
         assert user1['host_notification_period'] == never
         assert user1['service_notification_period'] == never
         assert user1['skill_level'] == 0
+
+        # Get the default created user rights
+        params = {'where': json.dumps({'user': user1_id})}
+        response = requests.get(self.endpoint + '/userrestrictrole', params=params, auth=self.auth)
+        urr = response.json()
+        urr = urr['_items'][0]
+        assert urr['user'] == user1_id
+        assert urr['resource'] == '*'
+        assert urr['crud'] == ['read']
+        assert urr['realm'] == user1['_realm']
+        assert urr['sub_realm'] == user1['_sub_realm']
 
         # Try to login with user account
         params = {'username': 'user1', 'password': ''}
