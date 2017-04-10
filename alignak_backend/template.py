@@ -9,7 +9,7 @@
 from __future__ import print_function
 from copy import deepcopy
 from future.utils import iteritems
-from flask import current_app, g, request, abort
+from flask import current_app, g
 from eve.methods.post import post_internal
 from eve.methods.patch import patch_internal
 from eve.methods.put import put_internal

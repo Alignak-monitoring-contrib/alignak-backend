@@ -8,7 +8,7 @@
 """
 from __future__ import print_function
 import pymongo
-from flask import current_app, g, request, abort, jsonify
+from flask import current_app, g, request
 from eve.methods.patch import patch_internal
 
 
@@ -260,6 +260,7 @@ class Livesynthesis(object):
         """
         Define fields counters to minus and plus (or nothing to do)
 
+        :param type_check:
         :param updated:
         :param original:
         :return: list with field name (minus, plus)

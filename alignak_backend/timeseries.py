@@ -8,7 +8,7 @@
 """
 from __future__ import print_function
 import re
-from flask import current_app, g
+from flask import current_app
 from influxdb import InfluxDBClient
 import statsd
 
@@ -303,6 +303,8 @@ class Timeseries(object):
         :type data: list
         :param statsd_id: id of statsd
         :type statsd_id: str
+        :param prefix: prefix string used for each value name
+        :type prefix: str
         :return: True (because statsd not have return error or not)
         :rtype: bool
         """

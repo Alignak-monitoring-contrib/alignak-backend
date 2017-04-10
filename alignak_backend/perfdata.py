@@ -4,6 +4,7 @@
 This module provide classes to handle performance data from monitoring plugin output
 """
 import re
+from six import itervalues
 
 PERFDATA_SPLIT_PATTERN = re.compile(r'([^=]+=\S+)')
 METRIC_PATTERN = \
@@ -114,7 +115,7 @@ class PerfDatas(object):
                 self.metrics[metric.name] = metric
 
     def __iter__(self):  # pragma: no cover, not used internally
-        return self.metrics.itervalues()
+        return itervalues(self.metrics)
 
     def __len__(self):  # pragma: no cover, not used internally
         return len(self.metrics)
