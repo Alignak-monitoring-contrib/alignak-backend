@@ -18,7 +18,7 @@ import requests
 import unittest2
 
 
-class TestActions(unittest2.TestCase):
+class TestLogcheckresult(unittest2.TestCase):
     """This class tests the logchekresult features"""
 
     @classmethod
@@ -134,7 +134,7 @@ class TestActions(unittest2.TestCase):
         headers = {'Content-Type': 'application/json'}
         sort_id = {'sort': '_id'}
 
-        # No existing acknowledges
+        # No existing logcheckresult
         response = requests.get(
             self.endpoint + '/logcheckresult', params=sort_id, auth=self.auth
         )

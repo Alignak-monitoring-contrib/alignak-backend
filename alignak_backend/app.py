@@ -350,6 +350,39 @@ def pre_delete(resource, user_request, lookup):
                                                '$in': resources_delete_custom[resource]}}]}]
 
 
+# Escalations
+def pre_hostescalation_post(items):
+    """Hook before adding new serviceescalation element
+
+    If no escalation_period is provided then the 24x7 default TP will be used.
+
+    :param items: provided serviceescalation elements
+    :type items: list of dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        if 'escalation_period' not in item:
+            tps = app.data.driver.db['timeperiod']
+            tp_always = tps.find_one({'name': '24x7'})
+            item['escalation_period'] = tp_always['_id']
+
+
+def pre_serviceescalation_post(items):
+    """Hook before adding new serviceescalation element
+
+    If no escalation_period is provided then the 24x7 default TP will be used.
+
+    :param items: provided serviceescalation elements
+    :type items: list of dict
+    :return: None
+    """
+    for dummy, item in enumerate(items):
+        if 'escalation_period' not in item:
+            tps = app.data.driver.db['timeperiod']
+            tp_always = tps.find_one({'name': '24x7'})
+            item['escalation_period'] = tp_always['_id']
+
+
 # History
 def pre_history_post(items):
     """
@@ -771,41 +804,6 @@ def pre_hostgroup_patch(updates, original):
         updates['_tree_parents'].append(parent_hg['_id'])
 
 
-# Time series
-def pre_timeseries_post(items):
-    """
-    We can't have more than 1 timeseries database (graphite, influx) linked to the same
-    grafana in the same realm
-
-    :param items:
-    :type items: dict
-    :return: None
-    """
-    graphite_drv = current_app.data.driver.db['graphite']
-    influxdb_drv = current_app.data.driver.db['influxdb']
-    realm_drv = current_app.data.driver.db['realm']
-    for dummy, item in enumerate(items):
-        if 'grafana' in item and item['grafana'] is not None:
-            # search graphite with grafana id in this realm
-            if graphite_drv.find(
-                    {'_realm': item['_realm'], 'grafana': item['grafana']}).count() > 0:
-                abort(make_response("A timeserie is yet attached to grafana in this realm", 412))
-            # search influxdb with grafana id in this realm
-            if influxdb_drv.find(
-                    {'_realm': item['_realm'], 'grafana': item['grafana']}).count() > 0:
-                abort(make_response("A timeserie is yet attached to grafana in this realm", 412))
-            # get parent realms
-            tsrealms = realm_drv.find_one({'_id': item['_realm']})
-            if graphite_drv.find(
-                    {'_realm': {'$in': tsrealms['_tree_parents']}, 'grafana': item['grafana'],
-                     '_sub_realm': True}).count() > 0:
-                abort(make_response("A timeserie is yet attached to grafana in parent realm", 412))
-            if influxdb_drv.find(
-                    {'_realm': {'$in': tsrealms['_tree_parents']}, 'grafana': item['grafana'],
-                     '_sub_realm': True}).count() > 0:
-                abort(make_response("A timeserie is yet attached to grafana in parent realm", 412))
-
-
 # Services groups
 def pre_servicegroup_post(items):
     """
@@ -922,6 +920,41 @@ def pre_usergroup_patch(updates, original):
         # Add parent in _tree_parents
         updates['_tree_parents'] = parent_ug['_tree_parents']
         updates['_tree_parents'].append(parent_ug['_id'])
+
+
+# Time series
+def pre_timeseries_post(items):
+    """
+    We can't have more than 1 timeseries database (graphite, influx) linked to the same
+    grafana in the same realm
+
+    :param items:
+    :type items: dict
+    :return: None
+    """
+    graphite_drv = current_app.data.driver.db['graphite']
+    influxdb_drv = current_app.data.driver.db['influxdb']
+    realm_drv = current_app.data.driver.db['realm']
+    for dummy, item in enumerate(items):
+        if 'grafana' in item and item['grafana'] is not None:
+            # search graphite with grafana id in this realm
+            if graphite_drv.find(
+                    {'_realm': item['_realm'], 'grafana': item['grafana']}).count() > 0:
+                abort(make_response("A timeserie is yet attached to grafana in this realm", 412))
+            # search influxdb with grafana id in this realm
+            if influxdb_drv.find(
+                    {'_realm': item['_realm'], 'grafana': item['grafana']}).count() > 0:
+                abort(make_response("A timeserie is yet attached to grafana in this realm", 412))
+            # get parent realms
+            tsrealms = realm_drv.find_one({'_id': item['_realm']})
+            if graphite_drv.find(
+                    {'_realm': {'$in': tsrealms['_tree_parents']}, 'grafana': item['grafana'],
+                     '_sub_realm': True}).count() > 0:
+                abort(make_response("A timeserie is yet attached to grafana in parent realm", 412))
+            if influxdb_drv.find(
+                    {'_realm': {'$in': tsrealms['_tree_parents']}, 'grafana': item['grafana'],
+                     '_sub_realm': True}).count() > 0:
+                abort(make_response("A timeserie is yet attached to grafana in parent realm", 412))
 
 
 # Realms
@@ -1934,6 +1967,9 @@ app.on_inserted_actionforcecheck += after_insert_actionforcecheck
 app.on_updated_actionforcecheck += after_update_actionforcecheck
 
 app.on_insert_history += pre_history_post
+
+app.on_insert_hostescalation += pre_hostescalation_post
+app.on_insert_serviceescalation += pre_serviceescalation_post
 
 app.on_insert_logcheckresult += pre_logcheckresult_post
 app.on_inserted_logcheckresult += after_insert_logcheckresult
