@@ -5,19 +5,31 @@ Resource information of retentionservice
 """
 
 
-def get_name():
-    """
-    Get name of this resource
+def get_name(friendly=False):
+    """Get name of this resource
 
     :return: name of this resource
     :rtype: str
     """
+    if friendly:
+        return "Service data retention"
     return 'retentionservice'
 
 
-def get_schema():
+def get_doc():
+    """Get documentation of this resource
+
+    :return: rst string
+    :rtype: str
     """
-    Schema structure of this resource
+    return """
+    The ``retentionservice`` model is used by the Alignak backend scheduler module for the
+    Alignak retention feature.
+    """
+
+
+def get_schema():
+    """Schema structure of this resource
 
     :return: schema dictionary
     :rtype: dict

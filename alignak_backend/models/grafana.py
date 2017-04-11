@@ -5,19 +5,36 @@ Resource information of grafana
 """
 
 
-def get_name():
-    """
-    Get name of this resource
+def get_name(friendly=False):
+    """Get name of this resource
 
     :return: name of this resource
     :rtype: str
     """
+    if friendly:
+        return "Grafana connection"
     return 'grafana'
 
 
-def get_schema():
+def get_doc():
+    """Get documentation of this resource
+
+    :return: rst string
+    :rtype: str
     """
-    Schema structure of this resource
+    return """
+    The ``grafana`` model contains information to manage Grafana panels for the monitored
+    system performance data.
+
+    The Alignak backend will use those information to create/update Grafana panels for each
+    managed timeseries. A Grafana dashboard is created automatically for each host in the
+    monitored system. A panel is created automatically in this dashboard for each metric
+    of the concerned host.
+    """
+
+
+def get_schema():
+    """Schema structure of this resource
 
     :return: schema dictionary
     :rtype: dict
@@ -25,17 +42,23 @@ def get_schema():
     return {
         'schema': {
             'name': {
+                "title": "Grafana connection name",
+                "comment": "Unique Grafana connection name",
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'address': {
+                "title": "Server address",
+                "comment": "",
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'port': {
+                "title": "Server port",
+                "comment": "",
                 'type': 'integer',
                 'empty': False,
                 'default': 3000
@@ -46,20 +69,32 @@ def get_schema():
                 'empty': False,
             },
             'timezone': {
+                "title": "Grafana API key",
+                "comment": "This API key is defined in the Grafana administration Web "
+                           "interface and it must have administrator rights in your "
+                           "Grafana organization.",
                 'type': 'string',
                 'empty': False,
                 'default': 'browser'
             },
             'refresh': {
+                "title": "Dashboard refresh period",
+                "comment": "The default Grafana dashboard refresh time.",
                 'type': 'string',
                 'empty': False,
                 'default': '1m'
             },
             'ssl': {
+                "title": "SSL",
+                "comment": "Set this property if your Grafana requires SSL connection.",
                 'type': 'boolean',
                 'default': False
             },
+
+            # Realm
             '_realm': {
+                "title": "Realm",
+                "comment": "Realm this element belongs to.",
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -68,9 +103,13 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
+                "title": "Sub-realms",
+                "comment": "Is this element visible in the sub-realms of its realm?",
                 'type': 'boolean',
                 'default': False
             },
+
+            # Users CRUD permissions
             '_users_read': {
                 'type': 'list',
                 'schema': {
@@ -99,7 +138,7 @@ def get_schema():
                         'resource': 'user',
                         'embeddable': True,
                     }
-                }
-            }
+                },
+            },
         }
     }

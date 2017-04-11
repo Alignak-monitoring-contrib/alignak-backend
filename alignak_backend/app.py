@@ -188,6 +188,11 @@ class MyValidator(Validator):
         """Validate 'title' field (always valid)"""
         return
 
+    # pylint: disable=unused-argument
+    def _validate_comment(self, comment, field, value):
+        """Validate 'comment' field (always valid)"""
+        return
+
 
 def pre_get(resource, user_request, lookup):
     """

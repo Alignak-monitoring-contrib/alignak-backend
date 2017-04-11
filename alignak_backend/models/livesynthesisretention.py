@@ -5,19 +5,33 @@ Resource information of livestate synthesis
 """
 
 
-def get_name():
-    """
-    Get name of this resource
+def get_name(friendly=False):
+    """Get name of this resource
 
     :return: name of this resource
     :rtype: str
     """
+    if friendly:
+        return "LS history"
     return 'livesynthesisretention'
 
 
-def get_schema():
+def get_doc():
+    """Get documentation of this resource
+
+    :return: rst string
+    :rtype: str
     """
-    Schema structure of this resource
+    return """
+    The ``livesynthesisretention`` model is a cache used internally by the backend to store the
+    last computed live synthesis information. If the live synthesis history is configured,
+    a count of ``SCHEDULER_LIVESYNTHESIS_HISTORY`` live synthesis elements will be store in the
+    live synthesis retention data model.
+    """
+
+
+def get_schema():
+    """Schema structure of this resource
 
     For an element type and a state, store values computed from the hosts/services livestate:
     - a counter containing the number of element_type in the state
