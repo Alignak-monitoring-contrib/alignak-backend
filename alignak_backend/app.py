@@ -264,6 +264,7 @@ def pre_history_post(items):
         host = hosts_drv.find_one({'_id': item['host']})
         # Set _realm as host's _realm
         item['_realm'] = host['_realm']
+        item['_sub_realm'] = host['_sub_realm']
 
         # Find service and service_name
         if 'service' in item and item['service']:
@@ -354,6 +355,7 @@ def pre_actionacknowledge_post(items):
         # Set _realm as host's _realm
         host = hosts_drv.find_one({'_id': item['host']})
         item['_realm'] = host['_realm']
+        item['_sub_realm'] = host['_sub_realm']
 
 
 def after_insert_actionacknowledge(items):
@@ -437,6 +439,7 @@ def pre_actiondowntime_post(items):
         # Set _realm as host's _realm
         host = hosts_drv.find_one({'_id': item['host']})
         item['_realm'] = host['_realm']
+        item['_sub_realm'] = host['_sub_realm']
 
 
 def after_insert_actiondowntime(items):
@@ -520,6 +523,7 @@ def pre_actionforcecheck_post(items):
         # Set _realm as host's _realm
         host = hosts_drv.find_one({'_id': item['host']})
         item['_realm'] = host['_realm']
+        item['_sub_realm'] = host['_sub_realm']
 
 
 def after_insert_actionforcecheck(items):
