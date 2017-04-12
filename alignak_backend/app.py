@@ -69,7 +69,7 @@ class MyTokenAuth(TokenAuth):
         Check if account exist and get roles for this user
 
         :param token: token for auth
-        :type username: str
+        :type token: str
         :param allowed_roles:
         :type allowed_roles:
         :param resource: name of the resource requested by user
@@ -155,7 +155,7 @@ class MyTokenAuth(TokenAuth):
         :param resource: variable where store realm rights
         :type resource: dict
         :param resource_list: list of all resources of the backend
-        :type resource_list: dict
+        :type resource_list: list
         :param parents: variable where store parents realms (required only for read right)
         :type parents: dict or None
         :return: None
@@ -396,8 +396,8 @@ def after_update_actionacknowledge(updated, original):
     """
     Hook update on actionacknowledge
 
-    :param updates: modified fields
-    :type updates: dict
+    :param updated: modified fields
+    :type updated: dict
     :param original: original fields
     :type original: dict
     :return: None
@@ -479,8 +479,8 @@ def after_update_actiondowntime(updated, original):
     """
     Hook update on actiondowntime
 
-    :param updates: modified fields
-    :type updates: dict
+    :param updated: modified fields
+    :type updated: dict
     :param original: original fields
     :type original: dict
     :return: None
@@ -562,8 +562,8 @@ def after_update_actionforcecheck(updated, original):
     """
     Hook update on actionforcecheck
 
-    :param updates: modified fields
-    :type updates: dict
+    :param updated: modified fields
+    :type updated: dict
     :param original: original fields
     :type original: dict
     :return: None
@@ -909,8 +909,8 @@ def after_update_realm(updated, original):
     """
     Hook update tree children on realm parent after update tree children realm
 
-    :param updates: modified fields
-    :type updates: dict
+    :param updated: modified fields
+    :type updated: dict
     :param original: original fields
     :type original: dict
     :return: None
@@ -1400,8 +1400,8 @@ def on_fetched_item_tree(resource_name, itemresp):
 
     :param resource_name: name of the resource
     :type resource_name: string
-    :param response: response of the get
-    :type response: dict
+    :param itemresp: response of the get
+    :type itemresp: dict
     :return: None
     """
     if resource_name not in ['realm', 'usergroup', 'hostgroup', 'servicegroup']:

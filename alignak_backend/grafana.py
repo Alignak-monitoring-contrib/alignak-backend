@@ -141,12 +141,12 @@ class Grafana(object):
         :return:
         """
         # Find the TS corresponding to the host realm
-        TS = self.timeseries[item['_realm']]
+        ts = self.timeseries[item['_realm']]
         # Add statsd, graphite and realm prefixes
         my_target = ''
-        if TS['statsd_prefix'] != '':
+        if ts['statsd_prefix'] != '':
             my_target = '$statsd_prefix'
-        if TS['ts_prefix'] != '':
+        if ts['ts_prefix'] != '':
             my_target += '.$ts_prefix'
         my_target += '.' + Timeseries.get_realms_prefix(item['_realm'])
         if 'host' in item:
@@ -210,10 +210,6 @@ class Grafana(object):
 
         :param host: concerned host
         :type host: dict
-        :param graphite_prefix: graphite prefix
-        :type graphite_prefix: str
-        :param statsd_prefix: StatsD prefix
-        :type statsd_prefix: str
         :return: True if created, otherwise False
         :rtype: bool
         """
@@ -369,7 +365,7 @@ class Grafana(object):
             patch_internal('service', data, False, False, **lookup)
 
         # Find the TS corresponding to the host realm
-        TS = self.timeseries[host['_realm']]
+        ts = self.timeseries[host['_realm']]
 
         headers = {"Authorization": "Bearer " + self.api_key}
         data = {
@@ -402,22 +398,22 @@ class Grafana(object):
                         {
                             'allValue': None,
                             'current': {
-                                'text': TS['ts_prefix'],
-                                'value': TS['ts_prefix']
+                                'text': ts['ts_prefix'],
+                                'value': ts['ts_prefix']
                             },
-                            'hide': 0 if TS['ts_prefix'] != '' else 1,
+                            'hide': 0 if ts['ts_prefix'] != '' else 1,
                             'includeAll': False,
                             'label': 'Time series prefix',
                             'multi': False,
                             'name': 'ts_prefix',
                             'options': [
                                 {
-                                    'text': TS['ts_prefix'],
-                                    'value': TS['ts_prefix'],
+                                    'text': ts['ts_prefix'],
+                                    'value': ts['ts_prefix'],
                                     'selected': True
                                 }
                             ],
-                            'query': TS['ts_prefix'],
+                            'query': ts['ts_prefix'],
                             'type': 'custom',
                             'datasource': None,
                             'allFormat': 'glob'
@@ -425,22 +421,22 @@ class Grafana(object):
                         {
                             'allValue': None,
                             'current': {
-                                'text': TS['statsd_prefix'],
-                                'value': TS['statsd_prefix']
+                                'text': ts['statsd_prefix'],
+                                'value': ts['statsd_prefix']
                             },
-                            'hide': 0 if TS['statsd_prefix'] != '' else 1,
+                            'hide': 0 if ts['statsd_prefix'] != '' else 1,
                             'includeAll': False,
                             'label': 'StatsD prefix',
                             'multi': False,
                             'name': 'statsd_prefix',
                             'options': [
                                 {
-                                    'text': TS['statsd_prefix'],
-                                    'value': TS['statsd_prefix'],
+                                    'text': ts['statsd_prefix'],
+                                    'value': ts['statsd_prefix'],
                                     'selected': True
                                 }
                             ],
-                            'query': TS['statsd_prefix'],
+                            'query': ts['statsd_prefix'],
                             'type': 'custom',
                             'datasource': None,
                             'allFormat': 'glob'
@@ -552,13 +548,14 @@ class Grafana(object):
         for ds_name, datasource in iteritems(self.datasources):
             print("- %s: %s" % (ds_name, datasource))
 
-    def generate_target(self, elements, tags, datasource):
+    @staticmethod
+    def generate_target(elements, tags, datasource):
         # measurement, refid, mytarget):
         """
         Generate target structure for dashboard
 
         :param elements: dictionary with elements: measurement, refid, mytarget
-        :type measurement: dict
+        :type elements: dict
         :param tags: list of tags
         :type tags: dict
         :param datasource: datasource name
@@ -619,6 +616,8 @@ class Grafana(object):
         :type targets: list
         :param datasource: datasource name
         :type datasource: str
+        :param seriesOverrides: List of aliases for display
+        :type seriesOverrides: list
         :return: the dictionary of the row
         :rtype: dict
         """
