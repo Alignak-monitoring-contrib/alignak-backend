@@ -18,20 +18,17 @@ from alignak_backend.timeseries import Timeseries
 
 
 class TestTimeseries(unittest2.TestCase):
-    """
-    This class test timeseries preparation
-    """
+    """This class test timeseries preparation"""
 
     maxDiff = None
 
     @classmethod
     def setUpClass(cls):
-        """
-        This method:
-          * delete mongodb database
-          * start the backend with uwsgi
+        """This method:
+          * deletes mongodb database
+          * starts the backend with uwsgi
           * log in the backend and get the token
-          * get the hostgroup
+          * add test data to the backend
 
         :return: None
         """
@@ -99,8 +96,7 @@ class TestTimeseries(unittest2.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """
-        Kill uwsgi
+        """Kill uwsgi
 
         :return: None
         """
@@ -108,8 +104,7 @@ class TestTimeseries(unittest2.TestCase):
         time.sleep(2)
 
     def test_prepare_data(self):
-        """
-        Prepare timeseries from a web perfdata
+        """Prepare timeseries from a web perfdata
 
         :return: None
         """
@@ -224,8 +219,7 @@ class TestTimeseries(unittest2.TestCase):
         self.assertItemsEqual(reference['data'], ret['data'])
 
     def test_prepare_data_special(self):
-        """
-        Prepare timeseries from a special perfdata, with
+        """Prepare timeseries from a special perfdata, with
         * name instead numerical value
         * name composed by: string.timestamp
 
@@ -368,8 +362,7 @@ class TestTimeseries(unittest2.TestCase):
         self.assertItemsEqual(reference['data'], ret['data'])
 
     def test_prepare_special_formatted(self):
-        """
-        Prepare timeseries from a special perfdata, with
+        """Prepare timeseries from a special perfdata, with
         * : in name
         * % in name
 
@@ -475,8 +468,7 @@ class TestTimeseries(unittest2.TestCase):
         self.assertItemsEqual(reference['data'], ret['data'])
 
     def test_generate_realm_prefix(self):
-        """
-        Test generate realm prefix when have many levels
+        """Test generate realm prefix when have many levels
 
         :return: None
         """
@@ -521,19 +513,19 @@ class TestTimeseries(unittest2.TestCase):
 
     def test_timeseries_realm_all_sub(self):
         # pylint: disable=too-many-locals
-        """
-        Test with 2 graphites + 1 infuxdb in realm All + sub_realm true.
+        """Test with 2 graphites + 1 infuxdb in realm All + sub_realm true.
         We send data in timeseries class and catch the request to graphite and influxdb.
 
         :return: None
         """
         headers = {'Content-Type': 'application/json'}
-        # add graphite 001
+
+        # add graphite 001 with a prefix
         data = {
             'name': 'graphite 001',
             'carbon_address': '192.168.0.101',
             'graphite_address': '192.168.0.101',
-            'prefix': '',
+            'prefix': 'graphite1',
             '_realm': self.realm_all,
             '_sub_realm': True
         }
@@ -624,7 +616,7 @@ class TestTimeseries(unittest2.TestCase):
         self.assertEqual('OK', resp['_status'], resp)
         host_003 = resp['_id']
 
-        # add logcheckresult of host001
+        # add logcheckresult for host001
         item = {
             'host': ObjectId(host_001),
             'host_name': 'srv001',
@@ -740,7 +732,7 @@ class TestTimeseries(unittest2.TestCase):
             timeseriesretention_db.drop()
 
         # === Test now with a host in realm All A1 ===
-        # add logcheckresult of host003
+        # add logcheckresult for host003
         item = {
             'host': ObjectId(host_003),
             'host_name': 'srv003',
@@ -861,12 +853,29 @@ class TestTimeseries(unittest2.TestCase):
             timeseriesretention_db.drop()
 
         # === We will have too a graphite in realm all A + sub_realm false ===
+        # add statsd
+        data = {
+            'name': 'statsd 001',
+            'address': '192.168.0.1',
+            'port': '8125',
+            'prefix': 'statsd',
+            '_realm': self.realm_all_A,
+            '_sub_realm': False
+        }
+        response = requests.post(self.endpoint + '/statsd', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        statsd = resp['_id']
+
+        # This Graphite has a StatsD in front-end and a specific prefix
         # add graphite 003
         data = {
             'name': 'graphite 003',
             'carbon_address': '192.168.0.104',
             'graphite_address': '192.168.0.104',
-            'prefix': '',
+            # 'statsd': statsd,
+            'prefix': 'my-prefix',
             '_realm': self.realm_all_A,
             '_sub_realm': False
         }
