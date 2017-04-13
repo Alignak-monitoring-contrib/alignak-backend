@@ -156,6 +156,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(len(rh), 2)
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[1]['_realm'], self.realm_all)
+        self.assertEqual(rh[1]['_sub_realm'], False)
 
         # -------------------------------------------
         # Add an acknowledge
@@ -187,8 +189,11 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['host'], rh[1]['_id'])
         self.assertEqual(re[0]['service'], None)
         self.assertEqual(re[0]['action'], 'add')
+        self.assertEqual(re[0]['notified'], False)
         self.assertEqual(re[0]['processed'], False)
         self.assertEqual(re[0]['comment'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # Get history
         response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
@@ -202,6 +207,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], '')
         self.assertEqual(re[0]['type'], "ack.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Delete an acknowledge
@@ -247,6 +254,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], '')
         self.assertEqual(re[0]['type'], "ack.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -254,6 +263,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], '')
         self.assertEqual(re[1]['type'], "ack.delete")
         self.assertEqual(re[1]['message'], "User comment (delete)")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Update an acknowledge (processed)
@@ -279,6 +290,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], '')
         self.assertEqual(re[0]['type'], "ack.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -286,6 +299,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], '')
         self.assertEqual(re[1]['type'], "ack.delete")
         self.assertEqual(re[1]['message'], "User comment (delete)")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
         # One more event
         self.assertEqual(re[2]['host'], rh[1]['_id'])
@@ -294,6 +309,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[2]['service_name'], '')
         self.assertEqual(re[2]['type'], "ack.processed")
         self.assertEqual(re[2]['message'], "User comment")
+        self.assertEqual(re[2]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[2]['_sub_realm'], rh[1]['_sub_realm'])
 
     def test_action_acknowledge_service(self):
         # pylint: disable=too-many-locals
@@ -319,6 +336,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(len(rh), 2)
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[1]['_realm'], self.realm_all)
+        self.assertEqual(rh[1]['_sub_realm'], False)
 
         # Get service in the backend
         response = requests.get(self.endpoint + '/service', auth=self.auth)
@@ -356,8 +375,11 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['host'], rh[1]['_id'])
         self.assertEqual(re[0]['service'], rs[0]['_id'])
         self.assertEqual(re[0]['action'], 'add')
+        self.assertEqual(re[0]['notified'], False)
         self.assertEqual(re[0]['processed'], False)
         self.assertEqual(re[0]['comment'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # Get history
         response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
@@ -371,6 +393,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], rs[0]['name'])
         self.assertEqual(re[0]['type'], "ack.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Delete an acknowledge
@@ -416,6 +440,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], rs[0]['name'])
         self.assertEqual(re[0]['type'], "ack.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -423,6 +449,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], rs[0]['name'])
         self.assertEqual(re[1]['type'], "ack.delete")
         self.assertEqual(re[1]['message'], "User comment (delete)")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Update an acknowledge (processed)
@@ -448,6 +476,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], rs[0]['name'])
         self.assertEqual(re[0]['type'], "ack.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -455,6 +485,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], rs[0]['name'])
         self.assertEqual(re[1]['type'], "ack.delete")
         self.assertEqual(re[1]['message'], "User comment (delete)")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
         # One more event
         self.assertEqual(re[2]['host'], rh[1]['_id'])
@@ -463,6 +495,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[2]['service_name'], rs[0]['name'])
         self.assertEqual(re[2]['type'], "ack.processed")
         self.assertEqual(re[2]['message'], "User comment")
+        self.assertEqual(re[2]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[2]['_sub_realm'], rh[1]['_sub_realm'])
 
     def test_action_downtime_host(self):
         # pylint: disable=too-many-locals
@@ -488,6 +522,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(len(rh), 2)
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[1]['_realm'], self.realm_all)
+        self.assertEqual(rh[1]['_sub_realm'], False)
 
         # -------------------------------------------
         # Add a downtime
@@ -525,7 +561,11 @@ class TestActions(unittest2.TestCase):
 
         self.assertEqual(re[0]['action'], 'add')
         self.assertEqual(re[0]['processed'], False)
+        self.assertEqual(re[0]['notified'], False)
+        self.assertEqual(re[0]['processed'], False)
         self.assertEqual(re[0]['comment'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # Get history
         response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
@@ -539,6 +579,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], '')
         self.assertEqual(re[0]['type'], "downtime.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Delete a downtime
@@ -566,6 +608,7 @@ class TestActions(unittest2.TestCase):
         dwn_etag = re[0]['_etag']
         self.assertEqual(len(re), 2)
 
+        self.assertEqual(re[0]['host'], rh[1]['_id'])
         self.assertEqual(re[0]['action'], 'add')
         self.assertEqual(re[0]['processed'], False)
         self.assertEqual(re[0]['comment'], "User comment")
@@ -586,6 +629,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], '')
         self.assertEqual(re[0]['type'], "downtime.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -593,6 +638,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], '')
         self.assertEqual(re[1]['type'], "downtime.delete")
         self.assertEqual(re[1]['message'], "User comment (delete)")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Update a downtime (processed)
@@ -619,6 +666,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], '')
         self.assertEqual(re[0]['type'], "downtime.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -626,6 +675,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], '')
         self.assertEqual(re[1]['type'], "downtime.delete")
         self.assertEqual(re[1]['message'], "User comment (delete)")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
         # One more event
         self.assertEqual(re[2]['host'], rh[1]['_id'])
@@ -634,6 +685,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[2]['service_name'], '')
         self.assertEqual(re[2]['type'], "downtime.processed")
         self.assertEqual(re[2]['message'], "User comment")
+        self.assertEqual(re[2]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[2]['_sub_realm'], rh[1]['_sub_realm'])
 
     def test_action_downtime_service(self):
         # pylint: disable=too-many-locals
@@ -659,6 +712,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(len(rh), 2)
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[1]['_realm'], self.realm_all)
+        self.assertEqual(rh[1]['_sub_realm'], False)
 
         # Get service in the backend
         response = requests.get(self.endpoint + '/service', auth=self.auth)
@@ -700,9 +755,13 @@ class TestActions(unittest2.TestCase):
         re = resp['_items']
         self.assertEqual(len(re), 1)
 
+        self.assertEqual(re[0]['host'], rh[1]['_id'])
         self.assertEqual(re[0]['action'], 'add')
+        self.assertEqual(re[0]['notified'], False)
         self.assertEqual(re[0]['processed'], False)
         self.assertEqual(re[0]['comment'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # Get history
         response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
@@ -716,6 +775,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], rs[0]['name'])
         self.assertEqual(re[0]['type'], "downtime.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Delete a downtime
@@ -763,6 +824,10 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], rs[0]['name'])
         self.assertEqual(re[0]['type'], "downtime.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -770,6 +835,10 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], rs[0]['name'])
         self.assertEqual(re[1]['type'], "downtime.delete")
         self.assertEqual(re[1]['message'], "User comment (delete)")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Update a downtime (processed)
@@ -796,6 +865,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], rs[0]['name'])
         self.assertEqual(re[0]['type'], "downtime.add")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -803,6 +874,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], rs[0]['name'])
         self.assertEqual(re[1]['type'], "downtime.delete")
         self.assertEqual(re[1]['message'], "User comment (delete)")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
         # One more event
         self.assertEqual(re[2]['host'], rh[1]['_id'])
@@ -811,6 +884,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[2]['service_name'], rs[0]['name'])
         self.assertEqual(re[2]['type'], "downtime.processed")
         self.assertEqual(re[2]['message'], "User comment")
+        self.assertEqual(re[2]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[2]['_sub_realm'], rh[1]['_sub_realm'])
 
     def test_action_forcecheck_host(self):
         # pylint: disable=too-many-locals
@@ -836,6 +911,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(len(rh), 2)
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[1]['_realm'], self.realm_all)
+        self.assertEqual(rh[1]['_sub_realm'], False)
 
         # -------------------------------------------
         # Add a forcecheck
@@ -862,8 +939,11 @@ class TestActions(unittest2.TestCase):
         fck_etag = re[0]['_etag']
         self.assertEqual(len(re), 1)
 
+        self.assertEqual(re[0]['host'], rh[1]['_id'])
         self.assertEqual(re[0]['processed'], False)
         self.assertEqual(re[0]['comment'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # Get history
         response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
@@ -875,6 +955,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service'], None)
         self.assertEqual(re[0]['type'], "check.request")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Update an forcecheck (processed)
@@ -900,6 +982,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], '')
         self.assertEqual(re[0]['type'], "check.request")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -907,6 +991,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], '')
         self.assertEqual(re[1]['type'], "check.requested")
         self.assertEqual(re[1]['message'], "User comment")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
 
     def test_action_forcecheck_service(self):
         # pylint: disable=too-many-locals
@@ -932,6 +1018,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(len(rh), 2)
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
+        self.assertEqual(rh[1]['_realm'], self.realm_all)
+        self.assertEqual(rh[1]['_sub_realm'], False)
 
         # Get service in the backend
         response = requests.get(self.endpoint + '/service', auth=self.auth)
@@ -964,8 +1052,11 @@ class TestActions(unittest2.TestCase):
         fck_etag = re[0]['_etag']
         self.assertEqual(len(re), 1)
 
+        self.assertEqual(re[0]['host'], rh[1]['_id'])
         self.assertEqual(re[0]['processed'], False)
         self.assertEqual(re[0]['comment'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # Get history
         response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
@@ -977,6 +1068,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service'], rs[0]['_id'])
         self.assertEqual(re[0]['type'], "check.request")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         # -------------------------------------------
         # Update an forcecheck (processed)
@@ -1002,6 +1095,8 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[0]['service_name'], rs[0]['name'])
         self.assertEqual(re[0]['type'], "check.request")
         self.assertEqual(re[0]['message'], "User comment")
+        self.assertEqual(re[0]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[0]['_sub_realm'], rh[1]['_sub_realm'])
 
         self.assertEqual(re[1]['host'], rh[1]['_id'])
         self.assertEqual(re[1]['host_name'], rh[1]['name'])
@@ -1009,3 +1104,5 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(re[1]['service_name'], rs[0]['name'])
         self.assertEqual(re[1]['type'], "check.requested")
         self.assertEqual(re[1]['message'], "User comment")
+        self.assertEqual(re[1]['_realm'], rh[1]['_realm'])
+        self.assertEqual(re[1]['_sub_realm'], rh[1]['_sub_realm'])
