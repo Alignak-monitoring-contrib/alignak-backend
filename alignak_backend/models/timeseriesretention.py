@@ -44,7 +44,7 @@ def get_schema():
                 'required': True,
             },
             'realm': {
-                "title": "Stored metric host realm",
+                "title": "Stored metric host/service realm",
                 'type': 'string',
                 'required': True,
             },
@@ -60,7 +60,14 @@ def get_schema():
             },
             'value': {
                 "title": "Stored metric value",
-                'type': 'integer',
+                # Value store as a string to bypass the int/float real value
+                'type': 'string',
+                'required': True,
+            },
+            'uom': {
+                "title": "Stored metric unit of measure",
+                'type': 'string',
+                'default': '',
                 'required': True,
             },
             'timestamp': {

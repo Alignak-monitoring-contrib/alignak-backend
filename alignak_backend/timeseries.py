@@ -24,8 +24,7 @@ class Timeseries(object):
 
     @staticmethod
     def after_inserted_logcheckresult(items):
-        """
-        Called by EVE HOOK (app.on_inserted_logcheckresult)
+        """Called by EVE HOOK (app.on_inserted_logcheckresult)
 
         :param items: List of logcheckresult inserted
         :type items: list
@@ -41,26 +40,26 @@ class Timeseries(object):
             if item['service'] is not None:
                 service_info = service_db.find_one({'_id': item['service']})
                 service = service_info['name']
+                # todo: really? a service realm may be different from its host's realm ?
                 item_realm = service_info['_realm']
             send_data = []
             for d in ts['data']:
-                send_data.append(
-                    {
-                        "name": d['name'],
-                        "realm": Timeseries.get_realms_prefix(item['_realm']),
-                        "host": host_info['name'],
-                        "service": service,
-                        "value": int(round(d['value'])),
-                        "timestamp": item['last_check'],
-                        "uom": d['uom']
-                    }
-                )
+                send_data.append({
+                    # todo: sure not to use item_realm?
+                    "realm": Timeseries.get_realms_prefix(item['_realm']),
+                    "host": host_info['name'],
+                    "service": service,
+                    "name": d['name'],
+                    # Cast as a string to bypass int/float real value
+                    "value": str(d['value']),
+                    "timestamp": item['last_check'],
+                    "uom": d['uom']
+                })
             Timeseries.send_to_timeseries_db(send_data, item_realm)
 
     @staticmethod
     def prepare_data(item):
-        """
-        Split and prepare perfdata to after send to timeseries database
+        """Split and prepare perfdata to after send to timeseries database
 
         :param item: fields added in mongo (logcheckresult)
         :type item: dict
@@ -138,8 +137,7 @@ class Timeseries(object):
 
     @staticmethod
     def get_realms_prefix(realm_id):
-        """
-        Get realm path since first level
+        """Get realm path since first level
 
         :param realm_id: id of the realm
         :type realm_id: str
@@ -149,7 +147,7 @@ class Timeseries(object):
         prefix_realm = ''
         realm_db = current_app.data.driver.db['realm']
         realm_info = realm_db.find_one({'_id': realm_id})
-        if len(realm_info['_tree_parents']) > 0:
+        if realm_info['_tree_parents']:
             realms = realm_db.find({'_id': {"$in": realm_info['_tree_parents']}}).sort("_level")
             for realm in realms:
                 prefix_realm += realm['name'] + "."
@@ -158,10 +156,11 @@ class Timeseries(object):
 
     @staticmethod
     def send_to_timeseries_db(data, item_realm):
-        """
-        Send perfdata to timeseries databases, if not available, add temporary in mongo (retention)
+        """Send perfdata to timeseries databases.
 
-        data must have this structure:
+        If TSDB is not available, store the perf_data in the internal retention store
+
+        `data` must have this structure:
         [
             {
                 "name": "",
@@ -189,38 +188,31 @@ class Timeseries(object):
         for realm in realm_info['_tree_parents']:
             searches.append({'_realm': realm, '_sub_realm': True})
 
-        # get graphite servers to send
+        # get graphite servers to send to
         for search in searches:
             graphites = graphite_db.find(search)
             for graphite in graphites:
                 if not Timeseries.send_to_timeseries_graphite(data, graphite):
                     for perf in data:
                         perf['graphite'] = graphite['_id']
-                        uom = perf['uom']
-                        del perf['uom']
                     post_internal('timeseriesretention', data)
                     for perf in data:
                         del perf['graphite']
-                        perf['uom'] = uom
 
-        # get influxdb servers to send
+        # get influxdb servers to send to
         for search in searches:
             influxdbs = influxdb_db.find(search)
             for influxdb in influxdbs:
                 if not Timeseries.send_to_timeseries_influxdb(data, influxdb):
                     for perf in data:
                         perf['influxdb'] = influxdb['_id']
-                        uom = perf['uom']
-                        del perf['uom']
                     post_internal('timeseriesretention', data)
                     for perf in data:
                         del perf['influxdb']
-                        perf['uom'] = uom
 
     @staticmethod
     def send_to_timeseries_graphite(data, graphite):
-        """
-        Send perfdata to graphite/carbon timeseries database
+        """Send perfdata to graphite/carbon timeseries database
 
         :param data: list of perfdata to send to graphite / carbon
         :type data: list
@@ -230,8 +222,7 @@ class Timeseries(object):
         :rtype: bool
         """
         if graphite['statsd'] is not None:
-            Timeseries.send_to_statsd(data, graphite['statsd'], graphite['prefix'])
-            return True
+            return Timeseries.send_to_statsd(data, graphite['statsd'], graphite['prefix'])
 
         send_data = []
         for d in data:
@@ -253,8 +244,7 @@ class Timeseries(object):
 
     @staticmethod
     def send_to_timeseries_influxdb(data, influxdb):
-        """
-        Send perfdata to influxdb timeseries database
+        """Send perfdata to influxdb timeseries database
 
         :param data: list of perfdata to send to influxdb
         :type data: list
@@ -264,8 +254,7 @@ class Timeseries(object):
         :rtype: bool
         """
         if influxdb['statsd'] is not None:
-            Timeseries.send_to_statsd(data, influxdb['statsd'], '')
-            return True
+            return Timeseries.send_to_statsd(data, influxdb['statsd'], '')
 
         json_body = []
         for d in data:
@@ -291,8 +280,7 @@ class Timeseries(object):
 
     @staticmethod
     def send_to_statsd(data, statsd_id, prefix):
-        """
-        Send data to statsd
+        """Send data to statsd
 
         Do not take care of the StatsD prefix because it is managed internally by the
         StatsD daemon
@@ -310,7 +298,7 @@ class Timeseries(object):
         """
         statsd_db = current_app.data.driver.db['statsd']
         item = statsd_db.find_one({'_id': statsd_id})
-        statsd_inst = statsd.StatsClient(item['address'], item['port'], prefix=prefix)
+        statsd_instance = statsd.StatsClient(item['address'], item['port'], prefix=prefix)
         for d in data:
             if d['service'] == '':
                 prefix = '.'.join([d['realm'], d['host']])
@@ -318,9 +306,9 @@ class Timeseries(object):
                 prefix = '.'.join([d['realm'], d['host'], d['service']])
 
             if d["uom"] in ['s', 'ms']:
-                statsd_inst.timing('.'.join([prefix, d['name']]), d['value'])
+                statsd_instance.timing('.'.join([prefix, d['name']]), float(d['value']))
             elif d["uom"] == 'h':
-                statsd_inst.incr('.'.join([prefix, d['name']]), d['value'])
+                statsd_instance.incr('.'.join([prefix, d['name']]), int(d['value']))
             else:
-                statsd_inst.gauge('.'.join([prefix, d['name']]), d['value'])
+                statsd_instance.gauge('.'.join([prefix, d['name']]), float(d['value']))
         return True

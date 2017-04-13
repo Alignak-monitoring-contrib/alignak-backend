@@ -65,6 +65,7 @@ class MyTokenAuth(TokenAuth):
 
     """Authentication token class"""
     def check_auth(self, token, allowed_roles, resource, method):
+        # pylint: disable=too-many-locals
         """
         Check if account exist and get roles for this user
 
@@ -126,18 +127,18 @@ class MyTokenAuth(TokenAuth):
                                           resource_list)
                 self.add_resources_realms('delete', rights, True, g.resources_delete_custom,
                                           resource_list)
-            for resource in g.resources_get:
-                g.resources_get[resource] = list(set(g.resources_get[resource]))
-                if resource in g.resources_get_custom:
-                    g.resources_get_custom[resource] = list(set(g.resources_get_custom[resource]))
-                g.resources_get_parents[resource] = [item for item in get_parents[resource]
-                                                     if item not in g.resources_get[resource]]
-            for resource in g.resources_post:
-                g.resources_post[resource] = list(set(g.resources_post[resource]))
-            for resource in g.resources_patch:
-                g.resources_patch[resource] = list(set(g.resources_patch[resource]))
-            for resource in g.resources_delete:
-                g.resources_delete[resource] = list(set(g.resources_delete[resource]))
+            for res in g.resources_get:
+                g.resources_get[res] = list(set(g.resources_get[res]))
+                if res in g.resources_get_custom:
+                    g.resources_get_custom[res] = list(set(g.resources_get_custom[res]))
+                g.resources_get_parents[res] = [item for item in get_parents[res]
+                                                if item not in g.resources_get[res]]
+            for res in g.resources_post:
+                g.resources_post[res] = list(set(g.resources_post[res]))
+            for res in g.resources_patch:
+                g.resources_patch[res] = list(set(g.resources_patch[res]))
+            for res in g.resources_delete:
+                g.resources_delete[res] = list(set(g.resources_delete[res]))
             g.users_id = user['_id']
             self.set_request_auth_value(user['_id'])
         return user
@@ -872,7 +873,7 @@ def pre_realm_patch(updates, original):
         g.updateRealm = False
 
         # Delete self reference in former parent children tree
-        if len(original['_tree_parents']) > 0:
+        if original['_tree_parents']:
             parent = realmsdrv.find_one({'_id': original['_tree_parents'][-1]})
             if original['_id'] in parent['_children']:
                 parent['_children'].remove(original['_id'])
@@ -961,7 +962,7 @@ def pre_delete_realm(item):
     :type item: dict
     :return: None
     """
-    if len(item['_children']) > 0:
+    if item['_children']:
         abort(409, description=debug_error_message("Item have children, so can't delete it"))
 
 
@@ -974,7 +975,7 @@ def after_delete_realm(item):
     :return: None
     """
     realmsdrv = current_app.data.driver.db['realm']
-    if len(item['_tree_parents']) > 0:
+    if item['_tree_parents']:
         parent = realmsdrv.find_one({'_id': item['_tree_parents'][-1]})
         if item['_id'] in parent['_children']:
             parent['_children'].remove(item['_id'])
@@ -1133,7 +1134,7 @@ def after_insert_host(items):
         (_, _, etag, _) = patch_internal('host', {"_overall_state_id": overall_state}, False, False,
                                          **lookup)
         etags[item['_etag']] = etag
-    if len(etags) > 0:
+    if etags:
         g.replace_etags = etags
 
 
@@ -1250,7 +1251,7 @@ def after_insert_service(items):
         (_, _, etag, _) = patch_internal('service', {"_overall_state_id": overall_state}, False,
                                          False, **lookup)
         etags[item['_etag']] = etag
-    if len(etags) > 0:
+    if etags:
         g.replace_etags = etags
 
 
@@ -1562,7 +1563,7 @@ if settings['SCHEDULER_LIVESYNTHESIS_HISTORY']:
         }
     )
 
-if len(jobs) > 0:
+if jobs:
     settings['JOBS'] = jobs
 
 print("Application settings: %s" % settings)
@@ -1806,7 +1807,7 @@ with app.test_request_context():
     app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
 
 # Start scheduler (internal cron)
-if len(settings['JOBS']) > 0:
+if settings['JOBS']:
     with app.test_request_context():
         scheduler = APScheduler()
         scheduler.init_app(app)
@@ -2005,8 +2006,8 @@ def cron_grafana(engine='jsonify'):
 
         if engine == 'jsonify':
             return jsonify(resp)
-        else:
-            return json.dumps(resp)
+
+        return json.dumps(resp)
 
 
 @app.route('/cron_livesynthesis_history')

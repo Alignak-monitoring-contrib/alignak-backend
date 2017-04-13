@@ -446,7 +446,7 @@ class Template(object):
         for (name, value) in iteritems(fields):
             if name in host['_template_fields']:
                 to_patch[name] = template_fields[name]
-        if len(to_patch) > 0:
+        if to_patch:
             g.ignore_hook_patch = True
             lookup = {"_id": host['_id']}
             patch_internal('host', to_patch, False, False, **lookup)
@@ -517,7 +517,7 @@ class Template(object):
         for (name, value) in iteritems(fields):
             if name in service['_template_fields']:
                 to_patch[name] = template_fields[name]
-        if len(to_patch) > 0:
+        if to_patch:
             g.ignore_hook_patch = True
             lookup = {"_id": service['_id']}
             patch_internal('service', to_patch, False, False, **lookup)
@@ -610,7 +610,7 @@ class Template(object):
         for (name, value) in iteritems(fields):
             if name in user['_template_fields']:
                 to_patch[name] = template_fields[name]
-        if len(to_patch) > 0:
+        if to_patch:
             g.ignore_hook_patch = True
             lookup = {"_id": user['_id']}
             patch_internal('user', to_patch, False, False, **lookup)
