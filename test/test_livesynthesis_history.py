@@ -707,30 +707,14 @@ class TestHookLivesynthesis(unittest2.TestCase):
         user_admin = resp['_items'][0]
 
         # Add users
-        # User 1
+        # User 1 - realm All with sub-realms
         data = {'name': 'user1', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': user_admin['host_notification_period'],
-                'service_notification_period': user_admin['service_notification_period'],
-                '_realm': self.realm_all}
-        response = requests.post(self.endpoint + '/user', json=data, headers=headers,
-                                 auth=self.auth)
-        resp = response.json()
-        data = {'user': resp['_id'], 'realm': self.realm_all, 'resource': '*',
-                'crud': ['read'], 'sub_realm': True}
-        requests.post(self.endpoint + '/userrestrictrole', json=data, headers=headers,
-                      auth=self.auth)
-        # User 2
+                '_realm': self.realm_all, '_sub_realm': True}
+        requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+        # User 2 - realm All with no sub-realms
         data = {'name': 'user2', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': user_admin['host_notification_period'],
-                'service_notification_period': user_admin['service_notification_period'],
-                '_realm': self.realm_all}
-        response = requests.post(self.endpoint + '/user', json=data, headers=headers,
-                                 auth=self.auth)
-        resp = response.json()
-        data = {'user': resp['_id'], 'realm': self.realm_all, 'resource': '*',
-                'crud': ['read'], 'sub_realm': False}
-        requests.post(self.endpoint + '/userrestrictrole', json=data, headers=headers,
-                      auth=self.auth)
+                '_realm': self.realm_all, '_sub_realm': False}
+        requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
 
         params = {'username': 'user1', 'password': 'test', 'action': 'generate'}
         # get token user 1

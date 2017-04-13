@@ -63,6 +63,13 @@ def get_schema():
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
+            # 'business_impact': {
+            #     "title": "Business impact",
+            #     "comment": "The business impact level indicates the level of importance of this "
+            #                "element. The highest value the most important is the elemen.",
+            #     'type': 'integer',
+            #     'default': 2
+            # },
             'alias': {
                 "title": "Alias",
                 "comment": "Element friendly name used by the Web User Interface.",
@@ -328,7 +335,7 @@ def get_schema():
                 "title": "Sub-realms",
                 "comment": "Is this element visible in the sub-realms of its realm?",
                 'type': 'boolean',
-                'default': False
+                'default': True
             },
 
             # Users CRUD permissions

@@ -68,7 +68,19 @@ def get_schema():
                 "comment": "Resource concerned with the right",
                 'type': 'string',
                 'default': '*',
-                'allowed': ['*', 'host', 'service', 'command'],
+                'allowed': [
+                    '*',
+                    'actionacknowledge', 'actiondowntime', 'actionforcecheck',
+                    'alignak', 'alignakdaemon',
+                    'realm', 'command', 'timeperiod',
+                    'user', 'usergroup', 'userrestrictrole',
+                    'host', 'hostgroup', 'hostdependency', 'hostescalation',
+                    'service', 'servicegroup', 'servicedependency', 'serviceescalation',
+                    'grafana', 'graphite', 'influxdb', 'statsd',
+                    'timeseriesretention',
+                    'livesynthesis', 'livesynthesisretention',
+                    'logcheckresult', 'history'
+                ],
             },
             'crud': {
                 "title": "Right",
