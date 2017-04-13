@@ -588,7 +588,7 @@ def get_schema():
                 'schema': {
                     'type': 'objectid',
                     'data_relation': {
-                        'resource': 'escalation',
+                        'resource': 'serviceescalation',
                         'embeddable': True,
                     }
                 },
