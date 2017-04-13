@@ -11,12 +11,12 @@ def get_name(friendly=False):
     :return: name of this resource
     :rtype: str
     """
-    if friendly:
+    if friendly:  # pragma: no cover
         return "LS history"
     return 'livesynthesisretention'
 
 
-def get_doc():
+def get_doc():  # pragma: no cover
     """Get documentation of this resource
 
     :return: rst string
