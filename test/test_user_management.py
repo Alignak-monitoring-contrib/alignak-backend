@@ -77,7 +77,7 @@ class TestUserManagement(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
-    def test_default_timeperiods(self):
+    def test_default_user(self):
         """Create user with minimum data.
         User has Never timeperiods for notifications of hosts and services
 
@@ -112,6 +112,7 @@ class TestUserManagement(unittest2.TestCase):
         assert user1['token'] != ''
         assert user1['host_notification_period'] == never
         assert user1['service_notification_period'] == never
+        assert user1['skill_level'] == 0
 
         # Try to login with user account
         params = {'username': 'user1', 'password': ''}
@@ -263,3 +264,48 @@ class TestUserManagement(unittest2.TestCase):
         assert 'token' in user3
         # Defined token
         assert user3['token'] != ''
+
+    def test_skill_level(self):
+        """Create user with empty token.
+        User token is automatically defined on creation
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+
+        # Add a new user with minimum necessary data
+        data = {'name': 'user4', '_realm': self.realmAll_id}
+        response = requests.post(self.endpoint + '/user',
+                                 json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+        assert '_id' in resp
+        user4_id = resp['_id']
+
+        # Get newly created user
+        params = {'where': json.dumps({'name': 'user4'})}
+        response = requests.get(self.endpoint + '/user', params=params, auth=self.auth)
+        user4 = response.json()
+        user4 = user4['_items'][0]
+        assert user4['_id'] == user4_id
+        # Default user skill is set as beginner
+        assert user4['skill_level'] == 0
+
+        # ---
+        # Add a new user with a specif skill level
+        data = {'name': 'user5', '_realm': self.realmAll_id, 'skill_level': 1}
+        response = requests.post(self.endpoint + '/user',
+                                 json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+        assert '_id' in resp
+        user5_id = resp['_id']
+
+        # Get newly created user
+        params = {'where': json.dumps({'name': 'user5'})}
+        response = requests.get(self.endpoint + '/user', params=params, auth=self.auth)
+        user5 = response.json()
+        user5 = user5['_items'][0]
+        assert user5['_id'] == user5_id
+        # Default user skill is set as beginner
+        assert user5['skill_level'] == 1

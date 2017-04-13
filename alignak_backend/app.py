@@ -184,6 +184,11 @@ class MyTokenAuth(TokenAuth):
 class MyValidator(Validator):
     """Specific validator for data model fields types extension"""
     # pylint: disable=unused-argument
+    def _validate_skill_level(self, skill_level, field, value):
+        """Validate 'skill_level' field (always valid)"""
+        return
+
+    # pylint: disable=unused-argument
     def _validate_title(self, title, field, value):
         """Validate 'title' field (always valid)"""
         return
