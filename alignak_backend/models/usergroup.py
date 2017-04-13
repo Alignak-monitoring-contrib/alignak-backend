@@ -145,7 +145,7 @@ def get_schema():
                 "title": "Sub-realms",
                 "comment": "Is this element visible in the sub-realms of its realm?",
                 'type': 'boolean',
-                'default': False
+                'default': True
             },
 
             # Users CRUD permissions
