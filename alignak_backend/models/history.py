@@ -129,6 +129,9 @@ def get_schema():
                     # Delete downtime
                     "downtime.delete",
 
+                    # external command
+                    "monitoring.external_command",
+
                     # timeperiod transition
                     "monitoring.timeperiod_transition",
                     # alert

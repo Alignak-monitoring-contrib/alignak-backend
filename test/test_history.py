@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-This test check the hostgroups and the tree feature of hostgroups (children)
+This test check the features of history
 """
 
 from __future__ import print_function
@@ -18,18 +18,15 @@ import unittest2
 
 
 class TestActions(unittest2.TestCase):
-    """
-    This class test hostgroups and tree feature
-    """
+    """This class test history"""
 
     @classmethod
     def setUpClass(cls):
-        """
-        This method:
-          * delete mongodb database
-          * start the backend with uwsgi
-          * log in the backend and get the token
-          * get the hostgroup
+        """This method:
+          * deletes mongodb database
+          * starts the backend with uwsgi
+          * logs in the backend and get the token
+          * gets the default realm and admin user
 
         :return: None
         """
@@ -72,8 +69,7 @@ class TestActions(unittest2.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """
-        Kill uwsgi
+        """Kill uwsgi
 
         :return: None
         """
@@ -82,8 +78,7 @@ class TestActions(unittest2.TestCase):
 
     @classmethod
     def setUp(cls):
-        """
-        Create/update resources in backend
+        """Create/update resources in backend
 
         :return: None
         """
@@ -118,8 +113,7 @@ class TestActions(unittest2.TestCase):
 
     @classmethod
     def tearDown(cls):
-        """
-        Delete resources in backend
+        """Delete resources in backend
 
         :return: None
         """
@@ -312,6 +306,9 @@ class TestActions(unittest2.TestCase):
             "downtime.processed",
             # Delete downtime
             "downtime.delete",
+
+            # external command
+            "monitoring.external_command",
 
             # timeperiod transition
             "monitoring.timeperiod_transition",
