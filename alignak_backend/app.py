@@ -1943,6 +1943,7 @@ with app.test_request_context():
                                "back_role_super_admin": True,
                                "can_update_livestate": True,
                                "can_submit_commands": True,
+                               'skill_level': 2,
                                "host_notification_period": always['_id'],
                                "service_notification_period": always['_id'],
                                "_realm": default_realm['_id'], "_sub_realm": True}, True)
