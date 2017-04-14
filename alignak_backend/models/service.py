@@ -692,7 +692,7 @@ def get_schema():
                            "of the criteria",
                 'skill_level': 2,
                 'type': 'list',
-                'default': ['d', 'x']
+                'default': ['w', 'c', 'x']
             },
             'snapshot_interval': {
                 "title": "Snapshot interval",
