@@ -155,7 +155,7 @@ def get_schema():
             },
             '_sub_realm': {
                 'type': 'boolean',
-                'default': False
+                'default': True
             },
             '_users_read': {
                 'type': 'list',

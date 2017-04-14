@@ -157,7 +157,7 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
         self.assertEqual(rh[1]['_realm'], self.realm_all)
-        self.assertEqual(rh[1]['_sub_realm'], False)
+        self.assertEqual(rh[1]['_sub_realm'], True)
 
         # -------------------------------------------
         # Add an acknowledge
@@ -337,7 +337,7 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
         self.assertEqual(rh[1]['_realm'], self.realm_all)
-        self.assertEqual(rh[1]['_sub_realm'], False)
+        self.assertEqual(rh[1]['_sub_realm'], True)
 
         # Get service in the backend
         response = requests.get(self.endpoint + '/service', auth=self.auth)
@@ -523,7 +523,7 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
         self.assertEqual(rh[1]['_realm'], self.realm_all)
-        self.assertEqual(rh[1]['_sub_realm'], False)
+        self.assertEqual(rh[1]['_sub_realm'], True)
 
         # -------------------------------------------
         # Add a downtime
@@ -713,7 +713,7 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
         self.assertEqual(rh[1]['_realm'], self.realm_all)
-        self.assertEqual(rh[1]['_sub_realm'], False)
+        self.assertEqual(rh[1]['_sub_realm'], True)
 
         # Get service in the backend
         response = requests.get(self.endpoint + '/service', auth=self.auth)
@@ -912,7 +912,7 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
         self.assertEqual(rh[1]['_realm'], self.realm_all)
-        self.assertEqual(rh[1]['_sub_realm'], False)
+        self.assertEqual(rh[1]['_sub_realm'], True)
 
         # -------------------------------------------
         # Add a forcecheck
@@ -1019,7 +1019,7 @@ class TestActions(unittest2.TestCase):
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
         self.assertEqual(rh[1]['_realm'], self.realm_all)
-        self.assertEqual(rh[1]['_sub_realm'], False)
+        self.assertEqual(rh[1]['_sub_realm'], True)
 
         # Get service in the backend
         response = requests.get(self.endpoint + '/service', auth=self.auth)

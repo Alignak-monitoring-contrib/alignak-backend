@@ -757,7 +757,8 @@ class TestGrafana(unittest2.TestCase):
             'graphite_address': '192.168.0.101',
             'prefix': '',
             'grafana': grafana_all,
-            '_realm': self.realm_all
+            '_realm': self.realm_all,
+            '_sub_realm': False
         }
         response = requests.post(self.endpoint + '/graphite', json=data, headers=headers,
                                  auth=self.auth)
@@ -774,6 +775,7 @@ class TestGrafana(unittest2.TestCase):
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
+        data['_sub_realm'] = False
         data['ls_last_check'] = int(time.time())
         data['name'] = 'srv003'
         response = requests.post(self.endpoint + '/host', json=data, headers=headers,
@@ -788,6 +790,7 @@ class TestGrafana(unittest2.TestCase):
         data['host'] = host_srv003
         data['check_command'] = rc[0]['_id']
         data['_realm'] = self.realm_all
+        data['_sub_realm'] = False
         data['name'] = 'load'
         data['ls_last_check'] = int(time.time())
         data['ls_perf_data'] = "load1=0.360;15.000;30.000;0; load5=0.420;10.000;25.000;0; " \
