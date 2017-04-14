@@ -642,16 +642,16 @@ def pre_hostgroup_patch(updates, original):
         hgs_drv = current_app.data.driver.db['hostgroup']
 
         # Find parent
-        parent = hgs_drv.find_one({'_id': updates['_parent']})
-        if not parent:
+        parent_hg = hgs_drv.find_one({'_id': updates['_parent']})
+        if not parent_hg:
             abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
 
-        updates['_level'] = parent['_level'] + 1
-        updates['_tree_parents'] = original['_tree_parents']
-        if original['_parent'] in original['_tree_parents']:
-            updates['_tree_parents'].remove(original['_parent'])
-        if updates['_parent'] not in original['_tree_parents']:
-            updates['_tree_parents'].append(updates['_parent'])
+        # Compute _level
+        updates['_level'] = parent_hg['_level'] + 1
+
+        # Add parent in _tree_parents
+        updates['_tree_parents'] = parent_hg['_tree_parents']
+        updates['_tree_parents'].append(parent_hg['_id'])
 
 
 def pre_timeseries_post(items):
@@ -735,16 +735,16 @@ def pre_servicegroup_patch(updates, original):
         sgs_drv = current_app.data.driver.db['servicegroup']
 
         # Find parent
-        parent = sgs_drv.find_one({'_id': updates['_parent']})
-        if not parent:
+        parent_sg = sgs_drv.find_one({'_id': updates['_parent']})
+        if not parent_sg:
             abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
 
-        updates['_level'] = parent['_level'] + 1
-        updates['_tree_parents'] = original['_tree_parents']
-        if original['_parent'] in original['_tree_parents']:
-            updates['_tree_parents'].remove(original['_parent'])
-        if updates['_parent'] not in original['_tree_parents']:
-            updates['_tree_parents'].append(updates['_parent'])
+        # Compute _level
+        updates['_level'] = parent_sg['_level'] + 1
+
+        # Add parent in _tree_parents
+        updates['_tree_parents'] = parent_sg['_tree_parents']
+        updates['_tree_parents'].append(parent_sg['_id'])
 
 
 # Users groups
@@ -794,16 +794,16 @@ def pre_usergroup_patch(updates, original):
         ugs_drv = current_app.data.driver.db['usergroup']
 
         # Find parent
-        parent = ugs_drv.find_one({'_id': updates['_parent']})
-        if not parent:
+        parent_ug = ugs_drv.find_one({'_id': updates['_parent']})
+        if not parent_ug:
             abort(make_response("Error: parent not found: %s" % updates['_parent'], 412))
 
-        updates['_level'] = parent['_level'] + 1
-        updates['_tree_parents'] = original['_tree_parents']
-        if original['_parent'] in original['_tree_parents']:
-            updates['_tree_parents'].remove(original['_parent'])
-        if updates['_parent'] not in original['_tree_parents']:
-            updates['_tree_parents'].append(updates['_parent'])
+        # Compute _level
+        updates['_level'] = parent_ug['_level'] + 1
+
+        # Add parent in _tree_parents
+        updates['_tree_parents'] = parent_ug['_tree_parents']
+        updates['_tree_parents'].append(parent_ug['_id'])
 
 
 # Realms
