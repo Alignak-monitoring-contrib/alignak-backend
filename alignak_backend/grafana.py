@@ -213,7 +213,7 @@ class Grafana(object):
         :return: True if created, otherwise False
         :rtype: bool
         """
-        if len(self.datasources) == 0:
+        if not self.datasources:
             return False
         if host['_realm'] not in self.timeseries:
             return False
@@ -570,7 +570,7 @@ class Grafana(object):
                 "operator": "=",
                 "value": value
             }
-            if len(prepare_tags) > 0:
+            if prepare_tags:
                 data['condition'] = 'AND'
             prepare_tags.append(data)
 

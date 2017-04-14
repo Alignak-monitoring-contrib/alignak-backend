@@ -21,12 +21,11 @@ class TestGroups(unittest2.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """
-        This method:
-          * delete mongodb database
-          * start the backend with uwsgi
-          * log in the backend and get the token
-          * get the hostgroup
+        """This method:
+          * deletes mongodb database
+          * starts the backend with uwsgi
+          * logs in the backend and get the token
+          * gets the realm All
 
         :return: None
         """
@@ -67,28 +66,16 @@ class TestGroups(unittest2.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """
-        Kill uwsgi
+        """Kill uwsgi
 
         :return: None
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
-    @classmethod
-    def tearDown(cls):
-        """
-        Delete resources in backend
-
-        :return: None
-        """
-        for resource in ['host', 'service', 'command', 'livestate', 'livesynthesis']:
-            requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
-
     def test_add_hostgroup(self):
         # pylint: disable=too-many-locals
-        """
-        Test add hostgroups
+        """Test add hostgroups
 
         :return: None
         """
@@ -155,7 +142,7 @@ class TestGroups(unittest2.TestCase):
         response = requests.post(self.endpoint + '/hostgroup', json=data, headers=headers,
                                  auth=self.auth)
         resp = response.json()
-        # hostgroupAll_C_id = copy.copy(resp['_id'])
+        hostgroupAll_C_id = copy.copy(resp['_id'])
 
         response = requests.get(self.endpoint + '/hostgroup/' + resp['_id'], auth=self.auth)
         re = response.json()
@@ -197,8 +184,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/hostgroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(re[2]['name'], "All A.1")
         self.assertEqual(re[2]['_parent'], hostgroupAll_A_id)
         self.assertEqual(re[2]['_level'], 2)
@@ -237,8 +222,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/hostgroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(len(re), 6)
 
         # ** hostgroup All
@@ -280,8 +263,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/hostgroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(len(re), 7)
 
         # ** hostgroup All
@@ -323,10 +304,65 @@ class TestGroups(unittest2.TestCase):
         self.assertEqual(re[6]['_level'], 1)
         self.assertEqual(re[6]['_tree_parents'], [self.hgAll_id])
 
+        # Update an hostgroup to change its parent, move from A1 to C
+        headers = {
+            'Content-Type': 'application/json',
+            'If-Match': re[4]['_etag']
+        }
+        data = {'name': 'Now C1!', 'alias': 'Moved...', "_parent": re[6]['_id']}
+        response = requests.patch(self.endpoint + '/hostgroup/' + re[4]['_id'], json=data,
+                                  headers=headers, auth=self.auth)
+        self.assertEqual(response.status_code, 200)
+        resp = response.json()
+
+        response = requests.get(self.endpoint + '/hostgroup', params=sort_name, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        for item in re:
+            print("Item: %s (%s)" % (item['_id'], item['name']))
+        self.assertEqual(len(re), 7)
+
+        # ** hostgroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** hostgroup All A
+        self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_parent'], self.hgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.hgAll_id])
+        # ** hostgroup All A.1
+        self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_parent'], hostgroupAll_A_id)
+        self.assertEqual(re[2]['_level'], 2)
+        self.assertEqual(re[2]['_tree_parents'], [self.hgAll_id, hostgroupAll_A_id])
+        # ** hostgroup All A.1.a
+        self.assertEqual(re[3]['name'], 'All A.1.a')
+        self.assertEqual(re[3]['_parent'], hostgroupAll_A1_id)
+        self.assertEqual(re[3]['_level'], 3)
+        self.assertEqual(re[3]['_tree_parents'], [
+            self.hgAll_id, hostgroupAll_A_id, hostgroupAll_A1_id
+        ])
+        # ** hostgroup All B
+        self.assertEqual(re[4]['name'], 'All B')
+        self.assertEqual(re[4]['_parent'], self.hgAll_id)
+        self.assertEqual(re[4]['_level'], 1)
+        self.assertEqual(re[4]['_tree_parents'], [self.hgAll_id])
+        # ** hostgroup All C
+        self.assertEqual(re[5]['name'], 'All C')
+        self.assertEqual(re[5]['_parent'], self.hgAll_id)
+        self.assertEqual(re[5]['_level'], 1)
+        self.assertEqual(re[5]['_tree_parents'], [self.hgAll_id])
+
+        # ** former hostgroup All A.1.b
+        self.assertEqual(re[6]['name'], 'Now C1!')
+        self.assertEqual(re[6]['_parent'], hostgroupAll_C_id)
+        self.assertEqual(re[6]['_level'], 2)
+        self.assertEqual(re[6]['_tree_parents'], [self.hgAll_id, hostgroupAll_C_id])
+
     def test_add_servicegroup(self):
         # pylint: disable=too-many-locals
-        """
-        Test add servicegroups
+        """Test add servicegroups
 
         :return: None
         """
@@ -344,9 +380,7 @@ class TestGroups(unittest2.TestCase):
         data = {"name": "All A", "_realm": self.realmAll_id, "_parent": self.sgAll_id}
         response = requests.post(self.endpoint + '/servicegroup', json=data, headers=headers,
                                  auth=self.auth)
-        print(response)
         resp = response.json()
-        print(resp)
         servicegroupAll_A_id = copy.copy(resp['_id'])
 
         response = requests.get(self.endpoint + '/servicegroup', params=sort_level, auth=self.auth)
@@ -395,7 +429,7 @@ class TestGroups(unittest2.TestCase):
         response = requests.post(self.endpoint + '/servicegroup', json=data, headers=headers,
                                  auth=self.auth)
         resp = response.json()
-        # servicegroupAll_C_id = copy.copy(resp['_id'])
+        servicegroupAll_C_id = copy.copy(resp['_id'])
 
         response = requests.get(self.endpoint + '/servicegroup/' + resp['_id'], auth=self.auth)
         re = response.json()
@@ -437,8 +471,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/servicegroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(re[2]['name'], "All A.1")
         self.assertEqual(re[2]['_parent'], servicegroupAll_A_id)
         self.assertEqual(re[2]['_level'], 2)
@@ -477,8 +509,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/servicegroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(len(re), 6)
 
         # ** servicegroup All
@@ -520,8 +550,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/servicegroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(len(re), 7)
 
         # ** servicegroup All
@@ -563,10 +591,65 @@ class TestGroups(unittest2.TestCase):
         self.assertEqual(re[6]['_level'], 1)
         self.assertEqual(re[6]['_tree_parents'], [self.sgAll_id])
 
+        # Update a servicegroup to change its parent, move from A1 to C
+        headers = {
+            'Content-Type': 'application/json',
+            'If-Match': re[4]['_etag']
+        }
+        data = {'name': 'Now C1!', 'alias': 'Moved...', "_parent": re[6]['_id']}
+        response = requests.patch(self.endpoint + '/servicegroup/' + re[4]['_id'], json=data,
+                                  headers=headers, auth=self.auth)
+        self.assertEqual(response.status_code, 200)
+        resp = response.json()
+
+        response = requests.get(self.endpoint + '/servicegroup', params=sort_name, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 7)
+
+        # ** servicegroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** servicegroup All A
+        self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_parent'], self.sgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.sgAll_id])
+        # ** servicegroup All A.1
+        self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_parent'], servicegroupAll_A_id)
+        self.assertEqual(re[2]['_level'], 2)
+        self.assertEqual(re[2]['_tree_parents'], [self.sgAll_id, servicegroupAll_A_id])
+        # ** servicegroup All A.1.a
+        self.assertEqual(re[3]['name'], 'All A.1.a')
+        self.assertEqual(re[3]['_parent'], servicegroupAll_A1_id)
+        self.assertEqual(re[3]['_level'], 3)
+        self.assertEqual(re[3]['_tree_parents'], [
+            self.sgAll_id, servicegroupAll_A_id, servicegroupAll_A1_id
+        ])
+        # ** servicegroup All B
+        self.assertEqual(re[4]['name'], 'All B')
+        self.assertEqual(re[4]['_parent'], self.sgAll_id)
+        self.assertEqual(re[4]['_level'], 1)
+        self.assertEqual(re[4]['_tree_parents'], [self.sgAll_id])
+        # ** servicegroup All C
+        self.assertEqual(re[5]['name'], 'All C')
+        self.assertEqual(re[5]['_parent'], self.sgAll_id)
+        self.assertEqual(re[5]['_level'], 1)
+        self.assertEqual(re[5]['_tree_parents'], [self.sgAll_id])
+
+        # ** former servicegroup All A.1.b
+        self.assertEqual(re[6]['name'], 'Now C1!')
+        self.assertEqual(re[6]['_parent'], servicegroupAll_C_id)
+        self.assertEqual(re[6]['_level'], 2)
+        self.assertEqual(re[6]['_tree_parents'], [
+            self.sgAll_id, servicegroupAll_C_id
+        ])
+
     def test_add_usergroup(self):
         # pylint: disable=too-many-locals
-        """
-        Test add usergroups
+        """Test add usergroups
 
         :return: None
         """
@@ -633,7 +716,7 @@ class TestGroups(unittest2.TestCase):
         response = requests.post(self.endpoint + '/usergroup', json=data, headers=headers,
                                  auth=self.auth)
         resp = response.json()
-        # usergroupAll_C_id = copy.copy(resp['_id'])
+        usergroupAll_C_id = copy.copy(resp['_id'])
 
         response = requests.get(self.endpoint + '/usergroup/' + resp['_id'], auth=self.auth)
         re = response.json()
@@ -675,8 +758,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/usergroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(re[2]['name'], "All A.1")
         self.assertEqual(re[2]['_parent'], usergroupAll_A_id)
         self.assertEqual(re[2]['_level'], 2)
@@ -715,8 +796,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/usergroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(len(re), 6)
 
         # ** usergroup All
@@ -758,8 +837,6 @@ class TestGroups(unittest2.TestCase):
         response = requests.get(self.endpoint + '/usergroup', params=sort_name, auth=self.auth)
         resp = response.json()
         re = resp['_items']
-        for item in re:
-            print("Item: %s (%s)" % (item['_id'], item['name']))
         self.assertEqual(len(re), 7)
 
         # ** usergroup All
@@ -800,3 +877,59 @@ class TestGroups(unittest2.TestCase):
         self.assertEqual(re[6]['_parent'], self.hgAll_id)
         self.assertEqual(re[6]['_level'], 1)
         self.assertEqual(re[6]['_tree_parents'], [self.hgAll_id])
+
+        # Update a usergroup to change its parent, move from A1 to C
+        headers = {
+            'Content-Type': 'application/json',
+            'If-Match': re[4]['_etag']
+        }
+        data = {'name': 'Now C1!', 'alias': 'Moved...', "_parent": re[6]['_id']}
+        response = requests.patch(self.endpoint + '/usergroup/' + re[4]['_id'], json=data,
+                                  headers=headers, auth=self.auth)
+        self.assertEqual(response.status_code, 200)
+        resp = response.json()
+
+        response = requests.get(self.endpoint + '/usergroup', params=sort_name, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 7)
+
+        # ** usergroup All
+        self.assertEqual(re[0]['name'], 'All')
+        self.assertEqual(re[0]['_tree_parents'], [])
+        self.assertEqual(re[0]['_level'], 0)
+        # ** usergroup All A
+        self.assertEqual(re[1]['name'], 'All A')
+        self.assertEqual(re[1]['_parent'], self.hgAll_id)
+        self.assertEqual(re[1]['_level'], 1)
+        self.assertEqual(re[1]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All A.1
+        self.assertEqual(re[2]['name'], 'All A.1')
+        self.assertEqual(re[2]['_parent'], usergroupAll_A_id)
+        self.assertEqual(re[2]['_level'], 2)
+        self.assertEqual(re[2]['_tree_parents'], [self.hgAll_id, usergroupAll_A_id])
+        # ** usergroup All A.1.a
+        self.assertEqual(re[3]['name'], 'All A.1.a')
+        self.assertEqual(re[3]['_parent'], usergroupAll_A1_id)
+        self.assertEqual(re[3]['_level'], 3)
+        self.assertEqual(re[3]['_tree_parents'], [
+            self.hgAll_id, usergroupAll_A_id, usergroupAll_A1_id
+        ])
+        # ** usergroup All B
+        self.assertEqual(re[4]['name'], 'All B')
+        self.assertEqual(re[4]['_parent'], self.hgAll_id)
+        self.assertEqual(re[4]['_level'], 1)
+        self.assertEqual(re[4]['_tree_parents'], [self.hgAll_id])
+        # ** usergroup All C
+        self.assertEqual(re[5]['name'], 'All C')
+        self.assertEqual(re[5]['_parent'], self.hgAll_id)
+        self.assertEqual(re[5]['_level'], 1)
+        self.assertEqual(re[5]['_tree_parents'], [self.hgAll_id])
+
+        # ** former usergroup All A.1.b
+        self.assertEqual(re[6]['name'], 'Now C1!')
+        self.assertEqual(re[6]['_parent'], usergroupAll_C_id)
+        self.assertEqual(re[6]['_level'], 2)
+        self.assertEqual(re[6]['_tree_parents'], [
+            self.hgAll_id, usergroupAll_C_id
+        ])
