@@ -47,15 +47,6 @@ from alignak_backend.timeseries import Timeseries
 _subcommands = OrderedDict()
 
 
-def register_command(description):
-    """Register commands usable from command line"""
-    def decorate(f):
-        """Create decorator to be used for functions"""
-        _subcommands[f.__name__] = (description, f)
-        return f
-    return decorate
-
-
 class MyTokenAuth(TokenAuth):
     """
     Class to manage authentication
