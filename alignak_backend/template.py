@@ -4,7 +4,7 @@
 """
     ``alignak_backend.template`` module
 
-    This module manages the templates (host / services)
+    This module manages the templates (host / services / users)
 """
 from __future__ import print_function
 from copy import deepcopy
@@ -21,14 +21,11 @@ from alignak_backend.models.user import get_schema as user_schema
 
 
 class Template(object):
-    """
-        Template class
-    """
+    """Template class    """
 
     @staticmethod
     def pre_post_host(user_request):
-        """
-        Called by EVE HOOK (app.on_pre_POST_host)
+        """Called by EVE HOOK (app.on_pre_POST_host)
 
         If we use templates, we fill fields with template values
 
@@ -44,8 +41,7 @@ class Template(object):
 
     @staticmethod
     def on_update_host(updates, original):
-        """
-        Called by EVE HOOK (app.on_update_host)
+        """Called by EVE HOOK (app.on_update_host)
 
         On update host, if not template, remove in '_template_fields' fields in updates because
         we update these fields, so they are now not dependant of template
@@ -82,8 +78,7 @@ class Template(object):
 
     @staticmethod
     def on_updated_host(updates, original):
-        """
-        Called by EVE HOOK (app.on_updated_host)
+        """Called by EVE HOOK (app.on_updated_host)
 
         After host updated,
         if host is a template, report value of fields updated on host used this template
@@ -141,8 +136,7 @@ class Template(object):
 
     @staticmethod
     def on_inserted_host(items):
-        """
-        Called by EVE HOOK (app.on_inserted_host)
+        """Called by EVE HOOK (app.on_inserted_host)
 
         After host inserted, if it use a template (or templates) and the the host use template
         with services, we add templates services to this host
@@ -169,8 +163,7 @@ class Template(object):
 
     @staticmethod
     def on_inserted_service(items):
-        """
-        Called by EVE HOOK (app.on_inserted_service)
+        """Called by EVE HOOK (app.on_inserted_service)
 
         After service inserted, if it is a template and the host linked is a template with services
         we add the service in all hosts have this host in template
@@ -196,8 +189,7 @@ class Template(object):
 
     @staticmethod
     def on_deleted_item_service(item):
-        """
-        Called by EVE HOOK (app.on_deleted_item_service)
+        """Called by EVE HOOK (app.on_deleted_item_service)
 
         After deleted a template service, we delete all services are linked to this template
 
@@ -214,8 +206,7 @@ class Template(object):
 
     @staticmethod
     def pre_post_service(user_request):
-        """
-        Called by EVE HOOK (app.on_pre_POST_service)
+        """Called by EVE HOOK (app.on_pre_POST_service)
 
         If we use templates, we fill fields with template values
 
@@ -231,8 +222,7 @@ class Template(object):
 
     @staticmethod
     def on_update_service(updates, original):
-        """
-        Called by EVE HOOK (app.on_update_service)
+        """Called by EVE HOOK (app.on_update_service)
 
         On update service, if not template, remove in '_template_fields' fields in updates because
         we update these fields, so they are now not dependant of template
@@ -269,8 +259,7 @@ class Template(object):
 
     @staticmethod
     def on_updated_service(updates, original):
-        """
-        Called by EVE HOOK (app.on_updated_service)
+        """Called by EVE HOOK (app.on_updated_service)
 
         After service updated, if service is a template, report value of fields updated on
         service used this template
@@ -293,8 +282,7 @@ class Template(object):
 
     @staticmethod
     def pre_post_user(user_request):
-        """
-        Called by EVE HOOK (app.on_pre_POST_user)
+        """Called by EVE HOOK (app.on_pre_POST_user)
 
         If we use templates, we fill fields with template values
 
@@ -319,8 +307,7 @@ class Template(object):
 
     @staticmethod
     def on_update_user(updates, original):
-        """
-        Called by EVE HOOK (app.on_update_user)
+        """Called by EVE HOOK (app.on_update_user)
 
         On update user, if not template, remove in '_template_fields' fields in updates because
         we update these fields, so they are now not dependant of template
@@ -356,8 +343,7 @@ class Template(object):
 
     @staticmethod
     def on_updated_user(updates, original):
-        """
-        Called by EVE HOOK (app.on_updated_user)
+        """Called by EVE HOOK (app.on_updated_user)
 
         After user updated,
         if user is a template, report value of fields updated on user used this template
@@ -382,8 +368,7 @@ class Template(object):
 
     @staticmethod
     def fill_template_host(item):
-        """
-        Prepare fields of host with fields of host templates
+        """Prepare fields of host with fields of host templates
 
         :param item: field name / values of the host
         :type item: dict
@@ -427,8 +412,7 @@ class Template(object):
 
     @staticmethod
     def update_host_use_template(host, fields):
-        """
-        This update (patch) host with values of template
+        """This update (patch) host with values of template
 
         :param host: fields / values of the host
         :type host: dict
@@ -453,8 +437,7 @@ class Template(object):
 
     @staticmethod
     def fill_template_service(item):
-        """
-        Prepare fields of service with fields of service templates
+        """Prepare fields of service with fields of service templates
 
         :param item: field name / values of the service
         :type item: dict
@@ -498,8 +481,7 @@ class Template(object):
 
     @staticmethod
     def update_service_use_template(service, fields):
-        """
-        This update (patch) service with values of template
+        """This update (patch) service with values of template
 
         :param service: fields / values of the service
         :type service: dict
@@ -524,8 +506,7 @@ class Template(object):
 
     @staticmethod
     def prepare_service_to_post(item, hostid):
-        """
-        Prepare a service linked with a service template in case the host is in template host +
+        """Prepare a service linked with a service template in case the host is in template host +
         services
 
         :param item: the service template source
@@ -558,8 +539,7 @@ class Template(object):
 
     @staticmethod
     def fill_template_user(item):
-        """
-        Prepare fields of user with fields of user templates
+        """Prepare fields of user with fields of user templates
 
         :param item: field name / values of the user
         :type item: dict
@@ -591,8 +571,7 @@ class Template(object):
 
     @staticmethod
     def update_user_use_template(user, fields):
-        """
-        This update (patch) user with values of template
+        """This update (patch) user with values of template
 
         :param user: fields / values of the user
         :type user: dict

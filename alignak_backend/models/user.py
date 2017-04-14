@@ -84,8 +84,7 @@ def get_schema():
             },
             'tags': {
                 "title": "Tags",
-                "comment": "List of tags for this element. Currently, only the used templates "
-                           "appear in the tags list. Will be improved feature...",
+                "comment": "List of tags for this element. Intended to set tags by the Web UI",
                 'type': 'list',
                 'schema': {
                     'type': 'string',
