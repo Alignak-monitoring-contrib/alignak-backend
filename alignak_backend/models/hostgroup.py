@@ -88,7 +88,7 @@ def get_schema():
                 'default': ''
             },
 
-            # Usergroup specific
+            # Hostgroup specific
             'hostgroups': {
                 "title": "Groups",
                 "comment": "List of the groups of this group",
