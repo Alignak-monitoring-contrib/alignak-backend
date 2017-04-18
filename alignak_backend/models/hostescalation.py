@@ -71,16 +71,22 @@ def get_schema():
 
             # Identity
             'name': {
+                "title": "Host escalation name",
+                "comment": "Unique host escalation name",
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'alias': {
+                "title": "Alias",
+                "comment": "Element friendly name used by the Web User Interface.",
                 'type': 'string',
                 'default': '',
             },
             'notes': {
+                "title": "Notes",
+                "comment": "Element notes. Free text to store element information.",
                 'type': 'string',
                 'default': '',
             },
