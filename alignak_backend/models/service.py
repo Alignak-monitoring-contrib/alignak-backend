@@ -723,7 +723,8 @@ def get_schema():
                 "comment": "Current state identifier. "
                            "O: OK, 1: WARNING, 2: CRITICAL, 3: UNKNOWN, 4: UNREACHABLE",
                 'type': 'integer',
-                'default': 3
+                'default': 3,
+                'allowed': [0, 1, 2, 3, 4]
             },
             'ls_acknowledged': {
                 "title": "Acknowledged",
