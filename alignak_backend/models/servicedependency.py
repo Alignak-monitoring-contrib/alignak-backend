@@ -37,29 +37,43 @@ def get_schema():
     """
     return {
         'schema': {
+            # Importation source
             'imported_from': {
+                "title": "Imported from",
+                "comment": "Item importation source (alignak-backend-import, ...)",
                 'type': 'string',
                 'default': 'unknown'
             },
-            'name': {
-                'type': 'string',
-                'required': True,
-                'empty': False,
-                'unique': True,
-            },
             'definition_order': {
+                "title": "Definition order",
+                "comment": "Priority level if several elements have the same name",
                 'type': 'integer',
                 'default': 100
             },
-            'alias': {
+
+            # Identity
+            'name': {
+                "title": "Service dependency name",
                 'type': 'string',
-                'default': '',
+                'empty': False,
+                'unique': True
+            },
+            'alias': {
+                "title": "Alias",
+                "comment": "Element friendly name used by the Web User Interface.",
+                'type': 'string',
+                'default': ''
             },
             'notes': {
+                "title": "Notes",
+                "comment": "Element notes. Free text to store element information.",
                 'type': 'string',
-                'default': '',
+                'default': ''
             },
+
             'dependent_hosts': {
+                "title": "Dependent hosts",
+                "comment": "List of the hosts that are depending.",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -70,6 +84,8 @@ def get_schema():
                 },
             },
             'dependent_hostgroups': {
+                "title": "Dependent hosts groups",
+                "comment": "List of the hosts groups that are depending.",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -80,6 +96,8 @@ def get_schema():
                 },
             },
             'services': {
+                "title": "Services",
+                "comment": "List of the services involved in the dependency.",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -90,6 +108,8 @@ def get_schema():
                 },
             },
             'dependent_services': {
+                "title": "Dependent services",
+                "comment": "List of the services that are depending.",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -100,6 +120,8 @@ def get_schema():
                 },
             },
             'hosts': {
+                "title": "Hosts",
+                "comment": "List of the hosts involved in the dependency.",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -110,6 +132,8 @@ def get_schema():
                 },
             },
             'hostgroups': {
+                "title": "Hosts groups",
+                "comment": "List of the hosts groups involved in the dependency.",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -119,21 +143,30 @@ def get_schema():
                     }
                 },
             },
+
             'inherits_parent': {
+                "title": "Parent inheritance",
+                "comment": "See Alginak doc about dependency checks.",
                 'type': 'boolean',
                 'default': False
             },
             'execution_failure_criteria': {
+                "title": "Execution criteria",
+                "comment": "See Alginak doc about dependency checks.",
                 'type': 'list',
                 'default': ['u', 'c', 'w'],
                 'allowed': ['o', 'w', 'u', 'c', 'p', 'n']
             },
             'notification_failure_criteria': {
+                "title": "Notification criteria",
+                "comment": "See Alginak doc about dependency checks.",
                 'type': 'list',
                 'default': ['u', 'c', 'w'],
                 'allowed': ['o', 'w', 'u', 'c', 'p', 'n']
             },
             'dependency_period': {
+                "title": "Dependency period",
+                "comment": "Time period during which the dependency checks are done.",
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -145,7 +178,11 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
+
+            # Realm
             '_realm': {
+                "title": "Realm",
+                "comment": "Realm this element belongs to.",
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -154,9 +191,13 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
+                "title": "Sub-realms",
+                "comment": "Is this element visible in the sub-realms of its realm?",
                 'type': 'boolean',
                 'default': True
             },
+
+            # Users CRUD permissions
             '_users_read': {
                 'type': 'list',
                 'schema': {

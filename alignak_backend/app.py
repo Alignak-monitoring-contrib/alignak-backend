@@ -1926,6 +1926,7 @@ with app.test_request_context():
             "check_command": internal_host_up_command['_id'],
             "_realm": default_realm['_id'],
             "_is_template": True,
+            '_templates_with_services': False,
             "_sub_realm": True
         }, True)
         dummy_host = hs.find_one({'name': '_dummy'})

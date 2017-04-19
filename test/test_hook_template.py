@@ -87,8 +87,7 @@ class TestHookTemplate(unittest2.TestCase):
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
     def test_host_templates(self):
-        """
-        Test host templates
+        """Test host templates
 
         :return: None
         """
@@ -163,8 +162,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rh[4]['name'], "host_003")
 
     def test_host_templates_updates(self):
-        """
-        Test when update a host template
+        """Test when update a host template
 
         :return: None
         """
@@ -276,8 +274,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rh[2]['name'], "host_001")
 
     def test_service_templates(self):
-        """
-        Test service templates
+        """Test service templates
 
         :return: None
         """
@@ -350,8 +347,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[1]['host'], rh[2]['_id'])
 
     def test_service_templates_updates(self):
-        """
-        Test when update service template
+        """Test when update service template
 
         :return: None
         """
@@ -475,10 +471,128 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[0]['name'], "ping2")
         self.assertEqual(rs[1]['name'], "ping_test")
 
+    def test_dummy_host_template(self):
+        """Test when using the default _dummy host template
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+
+        # Add some commands
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+
+        data = json.loads(open('cfg/command_http.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+
+        # Check command are in the backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rc = resp['_items']
+        self.assertEqual(len(rc), 4)
+        self.assertEqual(rc[2]['name'], "ping")
+        self.assertEqual(rc[3]['name'], "http")
+
+        # Check _dummy host exists in the backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 1)
+        self.assertEqual(rh[0]['name'], "_dummy")
+        self.assertEqual(rh[0]['_is_template'], True)
+        self.assertEqual(rh[0]['_templates_with_services'], False)
+
+        # Check that no services exist in the backend
+        params = {'where': json.dumps({'_is_template': False})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 0)
+
+        # Add services templates, linked to the _dummy host template
+        data = {
+            'name': 'Ping',
+            'host': rh[0]['_id'],
+            'check_command': rc[2]['_id'],
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        data = {
+            'name': 'Http',
+            'host': rh[0]['_id'],
+            'check_command': rc[3]['_id'],
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 2)
+        self.assertEqual(rs[0]['name'], "Ping")
+        self.assertEqual(rs[0]['_is_template'], True)
+        self.assertEqual(rs[1]['name'], "Http")
+        self.assertEqual(rs[1]['_is_template'], True)
+
+        # Add an host with host template but with no service templates
+        data = {
+            'name': 'host_001',
+            '_templates': [rh[0]['_id']],
+            # No service templating!
+            '_templates_with_services': False,
+            '_realm': self.realm_all
+        }
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 2)
+        self.assertEqual(rh[0]['name'], "_dummy")
+        self.assertEqual(rh[1]['name'], "host_001")
+        self.assertEqual(rh[1]['_is_template'], False)
+
+        # Check that no services exist in the backend
+        params = {'where': json.dumps({'_is_template': False})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 0)
+
+        # Add an host with host template + allow service templates
+        data = {
+            'name': 'host_002',
+            '_templates': [rh[0]['_id']],
+            '_templates_with_services': True,
+            '_realm': self.realm_all
+        }
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 3)
+        self.assertEqual(rh[0]['name'], "_dummy")
+        self.assertEqual(rh[1]['name'], "host_001")
+        self.assertEqual(rh[1]['_is_template'], False)
+        self.assertEqual(rh[2]['name'], "host_002")
+        self.assertEqual(rh[2]['_is_template'], False)
+
+        # Check that some services now exist in the backend
+        params = {'where': json.dumps({'_is_template': False})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 2)
+
     # pylint: disable=too-many-locals
     def test_host_services_template(self):
-        """
-        Test when use and add / modify / delete (host + service) template
+        """Test when use and add / modify / delete (host + service) template
 
         :return: None
         """
@@ -529,7 +643,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(len(rh), 3)
         self.assertEqual(rh[1]['name'], "template_standard_linux")
         self.assertEqual(rh[2]['name'], "template_web")
-        # ~~~ Now we have hosts ~~~
+        # ~~~ Now we have 3 hosts templates ~~~
         # * 0: _dummy
         # * 1: template_standard_linux
         # * 2: template_web
@@ -562,7 +676,8 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[1]['name'], "ssh")
         self.assertEqual(rs[2]['name'], "http")
         self.assertEqual(rs[3]['name'], "https")
-        # ~~~ Now we have services ~~~
+        # ~~~ Now we have 4 services templates all
+        # linked to the template_standard_linux host template ~~~
         # * 0: ping
         # * 1: ssh
         # * 2: http
@@ -590,7 +705,7 @@ class TestHookTemplate(unittest2.TestCase):
         rh = resp['_items']
         self.assertEqual(rh[3]['name'], "host_001")
         self.assertEqual(rh[4]['name'], "host_002")
-        # ~~~ Now we have hosts ~~~
+        # ~~~ Now we have 3 hosts templates and 2 hosts ~~~
         # * 0: _dummy
         # * 1: template_standard_linux
         # * 2: template_web
@@ -763,8 +878,7 @@ class TestHookTemplate(unittest2.TestCase):
                               service_name)
 
     def test_user_templates(self):
-        """
-        Test user templates
+        """Test user templates
 
         :return: None
         """
@@ -864,8 +978,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(resp['_status'], 'ERR', resp)
 
     def test_user_templates_updates(self):
-        """
-        Test when update a user template
+        """Test when update a user template
 
         :return: None
         """
