@@ -77,7 +77,8 @@ class TestUserrestrict(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
-    def crud_command(self, my_auth, resource='command', name='test', crud='crud'):
+    def crud_command(self, my_auth, resource='command', name='test', crud='crud', extra_data=None):
+        # pylint: disable=too-many-arguments
         """Create, read, update and delete a command
 
         :return: None
@@ -91,11 +92,19 @@ class TestUserrestrict(unittest2.TestCase):
             '_sub_realm': True
         }
 
+        if extra_data:
+            for key in extra_data:
+                if extra_data[key] == 'remove':
+                    data.pop(key)
+                else:
+                    data.update({key: extra_data[key]})
+
         # - create with provided authentication
         print("Try to create a new %s" % resource)
         resp = requests.post(self.endpoint + '/' + resource, json=data,
                              headers=headers, auth=my_auth)
         resp = resp.json()
+        print("Result: %s" % resp)
         if 'c' in crud:
             print("Created")
             assert resp['_status'] == 'OK'
@@ -111,17 +120,21 @@ class TestUserrestrict(unittest2.TestCase):
             resp = resp.json()
             assert resp['_status'] == 'OK'
 
-        # - check command read
+        # - check resource read
         print("Try to get %s" % resource)
-        params = {'where': json.dumps({'name': name})}
+        params = {}
+        if 'name' in data:
+            params = {'where': json.dumps({'name': name})}
         response = requests.get(self.endpoint + '/' + resource, params=params, auth=my_auth)
         resp = response.json()
+        print("Result: %s" % resp)
         cmd_id = None
         cmd_etag = None
         if 'r' in crud:
             print("Got")
             self.assertEqual(len(resp['_items']), 1)
-            self.assertEqual(resp['_items'][0]['name'], name)
+            if 'name' in data:
+                self.assertEqual(resp['_items'][0]['name'], name)
             cmd_id = resp['_items'][0]['_id']
             cmd_etag = resp['_items'][0]['_etag']
         else:
@@ -131,24 +144,28 @@ class TestUserrestrict(unittest2.TestCase):
                 u'_error': {u'message': u'Not allowed to POST on this endpoint / resource.',
                             u'code': 401}}
 
-        # - check command update
+        # - check resource update
         print("Try to update %s" % resource)
         headers = {'Content-Type': 'application/json', 'If-Match': cmd_etag}
-        data = {'alias': 'Updated alias'}
-        resp = requests.patch(self.endpoint + '/command/' + cmd_id, json=data,
+        patch_data = {'alias': 'Updated alias'}
+        resp = requests.patch(self.endpoint + '/' + resource + '/' + cmd_id, json=patch_data,
                               headers=headers, auth=my_auth)
         resp = resp.json()
+        print("Result: %s" % resp)
         if 'u' in crud:
             print("Updated")
-            assert resp['_status'] == 'OK'
+            if resp['_status'] == 'ERR':
+                assert resp == {u'_status': u'ERR', u'_issues': {u'alias': u'unknown field'}}
+            else:
+                assert resp['_status'] == 'OK'
 
-            # - read to get new etag and confirm update
-            params = {'where': json.dumps({'name': name})}
-            response = requests.get(self.endpoint + '/' + resource, params=params, auth=my_auth)
-            resp = response.json()
-            self.assertEqual(len(resp['_items']), 1)
-            self.assertEqual(resp['_items'][0]['name'], name)
-            self.assertEqual(resp['_items'][0]['alias'], "Updated alias")
+                # - read to get new etag and confirm update
+                params = {'where': json.dumps({'name': name})}
+                response = requests.get(self.endpoint + '/' + resource, params=params, auth=my_auth)
+                resp = response.json()
+                self.assertEqual(len(resp['_items']), 1)
+                self.assertEqual(resp['_items'][0]['name'], name)
+                self.assertEqual(resp['_items'][0]['alias'], "Updated alias")
         else:
             print("Refused: %s" % resp)
             assert resp == {
@@ -156,17 +173,23 @@ class TestUserrestrict(unittest2.TestCase):
                 u'_error': {u'message': u'Not allowed to PATCH on this endpoint / resource.',
                             u'code': 401}}
 
-        # - read to get new etag and confirm update
+        # - delete element
         print("Try to delete %s" % resource)
-        params = {'where': json.dumps({'name': name})}
+        params = {}
+        if 'name' in data:
+            params = {'where': json.dumps({'name': name})}
         response = requests.get(self.endpoint + '/' + resource, params=params, auth=my_auth)
         resp = response.json()
-        self.assertEqual(len(resp['_items']), 1)
-        cmd_id = resp['_items'][0]['_id']
-        cmd_etag = resp['_items'][0]['_etag']
+        print("Result: %s" % resp)
+        if 'name' in data:
+            self.assertEqual(len(resp['_items']), 1)
+        cmd_id = resp['_items'][len(resp['_items']) - 1]['_id']
+        cmd_etag = resp['_items'][len(resp['_items']) - 1]['_etag']
 
         headers = {'If-Match': cmd_etag}
-        resp = requests.delete(self.endpoint + '/command/' + cmd_id, headers=headers, auth=my_auth)
+        resp = requests.delete(self.endpoint + '/' + resource + '/' + cmd_id,
+                               headers=headers, auth=my_auth)
+        print("Result: %s" % resp)
         if 'd' in crud:
             print("Deleted")
             assert resp.status_code == 204
@@ -199,7 +222,69 @@ class TestUserrestrict(unittest2.TestCase):
         resp = response.json()
 
         my_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+        self.crud_command(my_auth, 'realm', 'default-super-admin',
+                          extra_data={'_realm': 'remove', '_sub_realm': 'remove'})
         self.crud_command(my_auth, 'command', 'default-super-admin')
+        self.crud_command(my_auth, 'timeperiod', 'default-super-admin')
+        self.crud_command(my_auth, 'host', 'default-super-admin')
+
+        # Create an host resource
+        data = {
+            'name': 'my_host',
+            '_realm': self.realmAll_id,
+            '_sub_realm': True
+        }
+        resp = requests.post(self.endpoint + '/host', json=data,
+                             headers=headers, auth=my_auth)
+        resp = resp.json()
+        host_id = resp['_id']
+
+        self.crud_command(my_auth, 'service', 'default-super-admin',
+                          extra_data={'host': host_id})
+        self.crud_command(my_auth, 'user', 'default-super-admin')
+        self.crud_command(my_auth, 'alignak', 'default-super-admin')
+        self.crud_command(my_auth, 'alignakdaemon', 'default-super-admin',
+                          extra_data={'alive': True, 'last_check': 123456789,
+                                      'passive': False, 'reachable': True,
+                                      'address': '127.0.0.1', 'spare': False,
+                                      'type': 'arbiter', 'port': 7770})
+        self.crud_command(my_auth, 'statsd', 'default-super-admin',
+                          extra_data={'address': '127.0.0.1'})
+        self.crud_command(my_auth, 'graphite', 'default-super-admin',
+                          extra_data={'carbon_address': '127.0.0.1',
+                                      'graphite_address': '127.0.0.1'})
+        self.crud_command(my_auth, 'influxdb', 'default-super-admin',
+                          extra_data={'database': 'db', 'address': '127.0.0.1',
+                                      'login': 'login', 'password': 'password'})
+        self.crud_command(my_auth, 'grafana', 'default-super-admin',
+                          extra_data={'apikey': '123456789', 'address': '127.0.0.1'})
+        self.crud_command(my_auth, 'history', 'default-super-admin',
+                          extra_data={'type': 'webui.comment', 'name': 'remove'})
+        # self.crud_command(my_auth, 'logcheckresult', 'default-super-admin')
+
+        # Create a service resource
+        data = {
+            'host': resp['_id'],
+            'name': 'my_service',
+            '_realm': self.realmAll_id,
+            '_sub_realm': True
+        }
+        resp = requests.post(self.endpoint + '/service', json=data,
+                             headers=headers, auth=my_auth)
+        resp = resp.json()
+        service_id = resp['_id']
+        self.crud_command(my_auth, 'actionacknowledge', 'default-super-admin',
+                          extra_data={
+                              'host': host_id, 'service': service_id,
+                              'user': self.user_admin['_id'], 'name': 'remove'})
+        self.crud_command(my_auth, 'actiondowntime', 'default-super-admin',
+                          extra_data={
+                              'host': host_id, 'service': service_id,
+                              'user': self.user_admin['_id'], 'name': 'remove'})
+        self.crud_command(my_auth, 'actionforcecheck', 'default-super-admin',
+                          extra_data={
+                              'host': host_id, 'service': service_id,
+                              'user': self.user_admin['_id'], 'name': 'remove'})
 
     def test_user_rights_super_admin(self):
         """Test that a newly created super-admin has all the rights (CRUD)
