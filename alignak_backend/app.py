@@ -1942,6 +1942,7 @@ with app.test_request_context():
         post_internal("user", {"name": "admin", "alias": "Administrator",
                                "password": "admin",
                                "back_role_super_admin": True,
+                               "is_admin": True,
                                "can_update_livestate": True,
                                "can_submit_commands": True,
                                'skill_level': 2,
