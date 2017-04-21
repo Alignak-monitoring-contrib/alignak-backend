@@ -16,7 +16,7 @@ def get_name(friendly=False):
     return 'serviceescalation'
 
 
-def get_doc():
+def get_doc():  # pragma: no cover
     """Get documentation of this resource
 
     :return: rst string
