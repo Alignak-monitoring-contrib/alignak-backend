@@ -381,16 +381,17 @@ class Template(object):
         for (field_name, field_value) in iteritems(item):
             fields_not_update.append(field_name)
         item['_template_fields'] = {}
-        if ('_is_template' not in item or not item['_is_template']) \
-                and '_templates' in item and item['_templates'] != []:
+
+        # Whether host is a template or not...
+        if '_templates' in item and item['_templates']:
             for host_template in item['_templates']:
                 hosts = host.find_one({'_id': ObjectId(host_template)})
-                if hosts is not None:
-                    for (field_name, field_value) in iteritems(hosts):
-                        if field_name not in fields_not_update \
-                                and field_name not in ignore_fields:
-                            item[field_name] = field_value
-                            item['_template_fields'][field_name] = host_template
+                if hosts is None:
+                    continue
+                for (field_name, field_value) in iteritems(hosts):
+                    if field_name not in fields_not_update and field_name not in ignore_fields:
+                        item[field_name] = field_value
+                        item['_template_fields'][field_name] = host_template
             schema = host_schema()
             ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template',
                                     '_templates_with_services']
@@ -450,8 +451,9 @@ class Template(object):
         for (field_name, field_value) in iteritems(item):
             fields_not_update.append(field_name)
         item['_template_fields'] = {}
-        if ('_is_template' not in item or not item['_is_template']) \
-                and '_templates' in item and item['_templates'] != []:
+
+        # Whether service is a template or not...
+        if '_templates' in item and item['_templates'] != []:
             for service_template in item['_templates']:
                 services = service.find_one({'_id': ObjectId(service_template)})
                 if services is not None:
@@ -552,8 +554,9 @@ class Template(object):
         for (field_name, field_value) in iteritems(item):
             fields_not_update.append(field_name)
         item['_template_fields'] = {}
-        if ('_is_template' not in item or not item['_is_template']) \
-                and '_templates' in item and item['_templates'] != []:
+
+        # Whether user is a template or not...
+        if '_templates' in item and item['_templates']:
             for user_template in item['_templates']:
                 users = user.find_one({'_id': ObjectId(user_template)})
                 if users is not None:

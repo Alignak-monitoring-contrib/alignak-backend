@@ -35,7 +35,7 @@ class TestHookTemplate(unittest2.TestCase):
         """
         # Set test mode for Alignak backend
         os.environ['TEST_ALIGNAK_BACKEND'] = '1'
-        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-templates-test'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -161,6 +161,98 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rh[3]['name'], "host_002")
         self.assertEqual(rh[4]['name'], "host_003")
 
+    def test_host_templates_with_templates(self):
+        """Test host templates linked to other templates
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        # Check if command right in backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
+        rc = resp['_items']
+        self.assertEqual(rc[2]['name'], "ping")
+
+        # Create a template
+        data = {
+            'name': 'tpl-A',
+            'check_command': rc[2]['_id'],
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        # Check if host template is in the backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(rh[1]['name'], "tpl-A")
+        self.assertEqual(rh[1]['_template_fields'], {})
+        host_template_id = rh[1]['_id']
+
+        # Create a second template templated from the first one
+        data = {
+            'name': 'tpl-A.1',
+            'check_command': rc[2]['_id'],
+            '_is_template': True,
+            '_templates': [host_template_id],
+            '_realm': self.realm_all
+        }
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        # Check if host template is in the backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(resp['_items']), 3)
+        self.assertEqual(rh[1]['name'], "tpl-A")
+        self.assertEqual(rh[1]['_template_fields'], {})
+        self.assertEqual(rh[2]['name'], "tpl-A.1")
+        # The second template has some template fields from its linked template
+        # except for some specific fields
+        self.assertNotEqual(rh[2]['_template_fields'], {})
+        for field in rh[2]['_template_fields']:
+            value = rh[2]['_template_fields'][field]
+            if field in ['notification_period', 'snapshot_period', 'snapshot_command',
+                         'maintenance_period', 'check_period',
+                         '_users_delete', '_users_read', '_users_update']:
+                assert value == 0
+            else:
+                assert value == host_template_id, "Field %s value is %s" % (field, value)
+        host_template_id = rh[2]['_id']
+
+        # Create an host linked to the second template
+        data = {
+            'name': 'host-1',
+            '_templates': [host_template_id],
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/host', json=data,
+                                 headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[1]['name'], "tpl-A")
+        self.assertEqual(rh[2]['name'], "tpl-A.1")
+        self.assertEqual(rh[3]['name'], "host-1")
+        # The host has some template fields from its linked template
+        # except for some specific fields
+        self.assertNotEqual(rh[3]['_template_fields'], {})
+        for field in rh[3]['_template_fields']:
+            value = rh[3]['_template_fields'][field]
+            if field in ['notification_period', 'snapshot_period', 'snapshot_command',
+                         'maintenance_period', 'check_period',
+                         '_users_delete', '_users_read', '_users_update']:
+                assert value == 0
+            else:
+                assert value == host_template_id, "Field %s value is %s" % (field, value)
+
     def test_host_templates_updates(self):
         """Test when update a host template
 
@@ -280,7 +372,8 @@ class TestHookTemplate(unittest2.TestCase):
         """
         headers = {'Content-Type': 'application/json'}
         sort_id = {'sort': '_id'}
-        # Add command
+
+        # Add a command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
@@ -291,6 +384,7 @@ class TestHookTemplate(unittest2.TestCase):
         rc = resp['_items']
         self.assertEqual(rc[2]['name'], "ping")
 
+        # Add an host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[2]['_id']
         if 'realm' in data:
@@ -303,6 +397,7 @@ class TestHookTemplate(unittest2.TestCase):
         rh = resp['_items']
         self.assertEqual(rh[1]['name'], "srv001")
 
+        # Add an host
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[2]['_id']
         data['name'] = 'host_001'
@@ -345,6 +440,116 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[0]['name'], "ping")
         self.assertEqual(rs[1]['name'], "ping")
         self.assertEqual(rs[1]['host'], rh[2]['_id'])
+
+    def test_service_templates_with_templates(self):
+        """Test service templates linked to other templates
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+
+        # Add a command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        # Check if command right in backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
+        rc = resp['_items']
+        self.assertEqual(rc[2]['name'], "ping")
+
+        # Create an host
+        data = {
+            'name': 'host-1',
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/host', json=data,
+                                 headers=headers, auth=self.auth)
+        # Check if host right in backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[0]['name'], "_dummy")
+        self.assertEqual(rh[1]['name'], "host-1")
+
+        # Create a template
+        data = {
+            'name': 'service-tpl-A',
+            'host': rh[0]['_id'],
+            'check_command': rc[2]['_id'],
+            'business_impact': 4,
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        ret = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK')
+        service_template_id = resp['_id']
+
+        # Create a second template templated from the first one
+        data = {
+            'name': 'service-tpl-A.1',
+            'host': rh[0]['_id'],
+            'check_command': rc[2]['_id'],
+            '_realm': self.realm_all,
+            '_is_template': True,
+            '_templates': [service_template_id]
+        }
+        ret = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        # Check if templates are in the backend
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(rs[0]['name'], "service-tpl-A")
+        self.assertEqual(rs[0]['_template_fields'], {})
+        self.assertEqual(rs[1]['name'], "service-tpl-A.1")
+        # The second template has some template fields from its linked template
+        # except for some specific fields
+        self.assertNotEqual(rs[1]['_template_fields'], {})
+        for field in rs[1]['_template_fields']:
+            value = rs[1]['_template_fields'][field]
+            if field in ['notification_period', 'snapshot_period', 'snapshot_command',
+                         'maintenance_period', 'check_period',
+                         '_users_delete', '_users_read', '_users_update']:
+                assert value == 0
+            else:
+                assert value == service_template_id, "Field %s value is %s" % (field, value)
+        service_template_id = rs[1]['_id']
+
+        # Create a service linked to the second template
+        data = {
+            'name': 'service-1',
+            'host': rh[1]['_id'],
+            'check_command': rc[2]['_id'],
+            '_templates': [service_template_id],
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/service', json=data,
+                                 headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(rs[0]['name'], "service-tpl-A")
+        self.assertEqual(rs[1]['name'], "service-tpl-A.1")
+        self.assertEqual(rs[2]['name'], "service-1")
+        # The user has some template fields from its linked template
+        # except for some specific fields
+        self.assertNotEqual(rs[2]['_template_fields'], {})
+        for field in rs[2]['_template_fields']:
+            value = rs[2]['_template_fields'][field]
+            if field in ['notification_period', 'snapshot_period', 'snapshot_command',
+                         'maintenance_period', 'check_period',
+                         '_users_delete', '_users_read', '_users_update']:
+                assert value == 0
+            else:
+                assert value == service_template_id, "Field %s value is %s" % (field, value)
 
     def test_service_templates_updates(self):
         """Test when update service template
@@ -976,6 +1181,104 @@ class TestHookTemplate(unittest2.TestCase):
         ret = requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
         resp = ret.json()
         self.assertEqual(resp['_status'], 'ERR', resp)
+
+    def test_user_templates_with_templates(self):
+        """Test user templates linked to other templates
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+
+        # Add commands
+        data = json.loads(open('cfg/command_notification_host.json').read())
+        data['_realm'] = self.realm_all
+        ret = requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+        host_notif = resp['_id']
+
+        data = json.loads(open('cfg/command_notification_service.json').read())
+        data['_realm'] = self.realm_all
+        ret = requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK', resp)
+        service_notif = resp['_id']
+
+        # get timeperiods
+        response = requests.get(self.endpoint + '/timeperiod', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rtp = resp['_items']
+
+        # Create a template
+        data = {
+            'name': 'user-tpl-A',
+            'host_notification_period': rtp[0]['_id'],
+            'service_notification_period': rtp[0]['_id'],
+            'host_notification_commands': [host_notif],
+            'service_notification_commands': [service_notif],
+            '_realm': self.realm_all,
+            '_is_template': True
+        }
+        ret = requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK')
+        user_template_id = resp['_id']
+
+        # Create a second template templated from the first one
+        data = {
+            'name': 'user-tpl-A.1',
+            '_realm': self.realm_all,
+            '_is_template': True,
+            '_templates': [user_template_id]
+        }
+        ret = requests.post(self.endpoint + '/user', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        # Check if templates are in the backend
+        response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
+        resp = response.json()
+        ru = resp['_items']
+        self.assertEqual(len(resp['_items']), 3)
+        self.assertEqual(ru[1]['name'], "user-tpl-A")
+        self.assertEqual(ru[1]['_template_fields'], {})
+        self.assertEqual(ru[2]['name'], "user-tpl-A.1")
+        # The second template has some template fields from its linked template
+        # except for some specific fields
+        self.assertNotEqual(ru[2]['_template_fields'], {})
+        for field in ru[2]['_template_fields']:
+            value = ru[2]['_template_fields'][field]
+            if field in ['_users_delete', '_users_read', '_users_update']:
+                assert value == 0
+            else:
+                assert value == user_template_id, "Field %s value is %s" % (field, value)
+        user_template_id = ru[2]['_id']
+
+        # Create a user linked to the second template
+        data = {
+            'name': 'user-1',
+            '_templates': [user_template_id],
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/user', json=data,
+                                 headers=headers, auth=self.auth)
+
+        response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
+        resp = response.json()
+        ru = resp['_items']
+        self.assertEqual(ru[1]['name'], "user-tpl-A")
+        self.assertEqual(ru[2]['name'], "user-tpl-A.1")
+        self.assertEqual(ru[3]['name'], "user-1")
+        # The user has some template fields from its linked template
+        # except for some specific fields
+        self.assertNotEqual(ru[3]['_template_fields'], {})
+        for field in ru[3]['_template_fields']:
+            value = ru[3]['_template_fields'][field]
+            if field in ['_users_delete', '_users_read', '_users_update']:
+                assert value == 0
+            else:
+                assert value == user_template_id, "Field %s value is %s" % (field, value)
 
     def test_user_templates_updates(self):
         """Test when update a user template
