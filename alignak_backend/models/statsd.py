@@ -44,22 +44,30 @@ def get_schema():
     return {
         'schema': {
             'name': {
+                "title": "StatsD connection name",
+                "comment": "Unique StatsD connection name",
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'address': {
+                "title": "Server address",
+                "comment": "",
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'port': {
+                "title": "Server port",
+                "comment": "",
                 'type': 'integer',
                 'empty': False,
                 'default': 8125
             },
             'prefix': {
+                "title": "Metrics prefix",
+                "comment": "Prefix that is configured in the StatsD server (if any).",
                 'type': 'string',
                 'default': '',
             },
