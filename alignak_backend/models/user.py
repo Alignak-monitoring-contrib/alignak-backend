@@ -270,6 +270,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'nullable': True
             },
 
             'service_notifications_enabled': {
@@ -308,6 +309,7 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
+                'nullable': True
             },
 
             # todo: not yet implemented (see #103)
