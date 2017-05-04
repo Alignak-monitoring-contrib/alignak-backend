@@ -64,15 +64,17 @@ def get_schema():
                 'default': 3000
             },
             'apikey': {
+                "title": "Grafana API key",
+                "comment": "This API key is defined in the Grafana administration Web "
+                           "interface and it must have administrator rights in your "
+                           "Grafana organization.",
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'timezone': {
-                "title": "Grafana API key",
-                "comment": "This API key is defined in the Grafana administration Web "
-                           "interface and it must have administrator rights in your "
-                           "Grafana organization.",
+                "title": "Grafana timezone",
+                "comment": "This timezone is used, if needed, to define the Alignak Timezone.",
                 'type': 'string',
                 'empty': False,
                 'default': 'browser'

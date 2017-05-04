@@ -1945,10 +1945,12 @@ with app.test_request_context():
                                "is_admin": True,
                                "can_update_livestate": True,
                                "can_submit_commands": True,
-                               'skill_level': 2,
-                               "host_notification_period": always['_id'],
-                               "service_notification_period": always['_id'],
-                               "_realm": default_realm['_id'], "_sub_realm": True}, True)
+                               "skill_level": 2,
+                               "host_notifications_enabled": False,
+                               "host_notification_period": always["_id"],
+                               "service_notifications_enabled": False,
+                               "service_notification_period": always["_id"],
+                               "_realm": default_realm["_id"], "_sub_realm": True}, True)
         print("Created super admin user")
         print("===============================================================================")
         print(r"/!\ WARNING /!\ Change the default password according to the documentation: "
