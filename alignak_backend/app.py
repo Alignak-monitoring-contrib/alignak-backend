@@ -1173,6 +1173,28 @@ def after_delete_resource_realm():
     g.updateRealm = False
 
 
+# Alignak
+def pre_alignak_patch(updates, original):
+    # pylint: disable=unused-argument
+    """Hook before updating an alignak element.
+
+    When updating an alignak, if only the running data are updated, do not change the
+    _updated field.
+
+    :param updates: list of alignak fields to update
+    :type updates: dict
+    :param original: list of original fields
+    :type original: dict
+    :return: None
+    """
+    for key in updates:
+        if key not in ['_updated', 'last_alive', 'last_command_check', 'last_log_rotation']:
+            break
+    else:
+        # Only the running fields were updated, do not change _updated field
+        del updates['_updated']
+
+
 # Hosts/ services
 def pre_host_patch(updates, original):
     """
@@ -1798,6 +1820,7 @@ app.on_update_hostgroup += pre_hostgroup_patch
 app.on_update_servicegroup += pre_servicegroup_patch
 app.on_insert_graphite += pre_timeseries_post
 app.on_insert_influxdb += pre_timeseries_post
+app.on_update_alignak += pre_alignak_patch
 # check right on submit actions
 app.on_pre_POST_actionacknowledge += pre_post_action_right
 app.on_pre_POST_actiondowntime += pre_post_action_right
