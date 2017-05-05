@@ -157,3 +157,39 @@ class TestAlignak(unittest2.TestCase):
                                  auth=self.auth)
         resp = response.json()
         self.assertEqual('OK', resp['_status'], resp)
+        _id = resp['_id']
+        _etag = resp['_etag']
+        _updated = resp['_updated']
+
+        # Only update some fields, with a little delay...
+        time.sleep(1)
+        headers['If-Match'] = _etag
+        data = {
+            'name': 'my_alignak',
+            'alias': 'New alias',
+            'last_alive': 123456789,
+            'last_command_check': 123456789,
+            'last_log_rotation': 123456789
+        }
+        response = requests.patch(self.endpoint + '/alignak/%s' % _id, json=data,
+                                  headers=headers, auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        assert _updated != resp['_updated']
+        _id = resp['_id']
+        _etag = resp['_etag']
+        _updated = resp['_updated']
+
+        # Only update some live running fields, with a little delay...
+        time.sleep(1)
+        headers['If-Match'] = _etag
+        data = {
+            'last_alive': 123456789,
+            'last_command_check': 123456789,
+            'last_log_rotation': 123456789
+        }
+        response = requests.patch(self.endpoint + '/alignak/%s' % _id, json=data,
+                                  headers=headers, auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        assert _updated == resp['_updated']
