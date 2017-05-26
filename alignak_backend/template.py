@@ -9,7 +9,7 @@
 from __future__ import print_function
 from copy import deepcopy
 from future.utils import iteritems
-from flask import current_app, g
+from flask import current_app, g, abort, make_response
 from eve.methods.post import post_internal
 from eve.methods.patch import patch_internal
 from eve.methods.put import put_internal
@@ -385,6 +385,9 @@ class Template(object):
         # Whether host is a template or not...
         if '_templates' in item and item['_templates']:
             for host_template in item['_templates']:
+                if not ObjectId.is_valid(host_template):
+                    abort(make_response(
+                        "The template '%s' is not at the right format" % host_template, 412))
                 hosts = host.find_one({'_id': ObjectId(host_template)})
                 if hosts is None:
                     continue
@@ -455,6 +458,9 @@ class Template(object):
         # Whether service is a template or not...
         if '_templates' in item and item['_templates'] != []:
             for service_template in item['_templates']:
+                if not ObjectId.is_valid(service_template):
+                    abort(make_response(
+                        "The template '%s' is not at the right format" % service_template, 412))
                 services = service.find_one({'_id': ObjectId(service_template)})
                 if services is not None:
                     for (field_name, field_value) in iteritems(services):
@@ -558,6 +564,9 @@ class Template(object):
         # Whether user is a template or not...
         if '_templates' in item and item['_templates']:
             for user_template in item['_templates']:
+                if not ObjectId.is_valid(user_template):
+                    abort(make_response(
+                        "The template '%s' is not at the right format" % user_template, 412))
                 users = user.find_one({'_id': ObjectId(user_template)})
                 if users is not None:
                     for (field_name, field_value) in iteritems(users):
