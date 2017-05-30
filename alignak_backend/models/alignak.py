@@ -121,25 +121,15 @@ def get_schema():
                 "title": "Global host event handler",
                 "comment": "Command that will be used as an event handler "
                            "if none is specified for a specific host/service.",
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'command',
-                    'embeddable': True
-                },
-                'default': None,
-                'nullable': True
+                'type': 'string',
+                'default': 'None'
             },
             'global_service_event_handler': {
                 "title": "Global service event handler",
                 "comment": "Command that will be used as an event handler "
                            "if none is specified for a specific host/service.",
-                'type': 'objectid',
-                'data_relation': {
-                    'resource': 'command',
-                    'embeddable': True
-                },
-                'default': None,
-                'nullable': True
+                'type': 'string',
+                'default': 'None'
             },
 
             # todo: deprecate this according to Alignak
