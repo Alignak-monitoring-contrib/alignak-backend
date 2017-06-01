@@ -1667,6 +1667,7 @@ def get_settings(prev_settings):
     settings_filenames = [
         '/usr/local/etc/alignak-backend/settings.json',
         '/etc/alignak-backend/settings.json',
+        'etc/alignak-backend/settings.json',
         os.path.abspath('./etc/settings.json'),
         os.path.abspath('../etc/settings.json'),
         os.path.abspath('./settings.json')
