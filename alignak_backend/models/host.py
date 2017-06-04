@@ -197,7 +197,7 @@ def get_schema():
                 "title": "Location",
                 "comment": "Element GPS coordinates",
                 'type': 'point',
-                'default': {"type": "Point", "coordinates": [46.3613628, 6.5394704]}
+                'default': {"type": "Point", "coordinates": [48.858293, 2.294601]}
             },
             'parents': {
                 "title": "Parents",
