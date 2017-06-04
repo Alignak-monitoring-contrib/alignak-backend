@@ -760,7 +760,7 @@ def get_schema():
                 "title": "Last state",
                 "comment": "Former state",
                 'type': 'string',
-                'default': 'OK',
+                'default': 'UNKNOWN',
                 'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UNREACHABLE"]
             },
             'ls_last_state_type': {
