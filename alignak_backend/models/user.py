@@ -239,7 +239,7 @@ def get_schema():
                 "comment": "If unset, this user will never receive any notification when a "
                            "problem is detected for an host/service he is linked to.",
                 'type': 'boolean',
-                'default': True
+                'default': False
             },
             'host_notification_period': {
                 "title": "Host notifications period",
@@ -278,7 +278,7 @@ def get_schema():
                 "comment": "If unset, this user will never receive any notification when a "
                            "problem is detected for an host/service he is linked to.",
                 'type': 'boolean',
-                'default': True
+                'default': False
             },
             'service_notification_period': {
                 "title": "Service notifications period",
