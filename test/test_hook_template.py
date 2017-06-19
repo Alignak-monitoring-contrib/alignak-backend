@@ -201,7 +201,26 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rh[1]['tags'], ['tag-1'])
         self.assertEqual(rh[1]['customs'], {'key1': 'value1'})
 
-        # Create a second template templated from the first one
+        # Create a service template linked to the newly created host template
+        data = {
+            'name': 'service-tpl-A',
+            'host': host_template_id,
+            'check_command': rc[2]['_id'],
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        ret = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        # Only 1 service in the backend, and it is the newly created service template
+        self.assertEqual(len(rs), 1)
+        self.assertEqual(rs[0]['name'], "service-tpl-A")
+
+        # Create a second host template templated from the first one
         data = {
             'name': 'tpl-A.1',
             'check_command': rc[2]['_id'],
@@ -238,6 +257,14 @@ class TestHookTemplate(unittest2.TestCase):
 
         host_template_id = rh[2]['_id']
 
+        # Check that no services got created
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        # Only 1 service in the backend, and it is the newly created service template
+        self.assertEqual(len(rs), 1)
+        self.assertEqual(rs[0]['name'], "service-tpl-A")
+
         # Create an host linked to the second template
         data = {
             'name': 'host-1',
@@ -269,6 +296,16 @@ class TestHookTemplate(unittest2.TestCase):
         # The host has some fields that were cumulated from its linked template
         self.assertEqual(rh[3]['tags'], ['tag-1', 'tag-2', 'tag-3'])
         self.assertEqual(rh[3]['customs'], {'key1': 'value1', 'key2': 'value2', 'key3': 'value3'})
+
+        # Check that no services got created
+        # Perharps that a service should have been created?
+        #
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        # Only 1 service in the backend, and it is the newly created service template
+        self.assertEqual(len(rs), 1)
+        self.assertEqual(rs[0]['name'], "service-tpl-A")
 
     def test_host_templates_updates(self):
         """Test when update a host template

@@ -147,7 +147,8 @@ class Template(object):
         """
         service_db = current_app.data.driver.db['service']
         for _, item in enumerate(items):
-            if item['_templates'] != [] and item['_templates_with_services']:
+            if not item['_is_template'] and item['_templates'] != [] \
+                    and item['_templates_with_services']:
                 # Try to add services
                 services = {}
                 # loop on host templates and collect services that are templates
