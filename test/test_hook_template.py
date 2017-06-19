@@ -219,6 +219,7 @@ class TestHookTemplate(unittest2.TestCase):
         # Only 1 service in the backend, and it is the newly created service template
         self.assertEqual(len(rs), 1)
         self.assertEqual(rs[0]['name'], "service-tpl-A")
+        self.assertEqual(rs[0]['_is_template'], True)
 
         # Create a second host template templated from the first one
         data = {
@@ -257,13 +258,28 @@ class TestHookTemplate(unittest2.TestCase):
 
         host_template_id = rh[2]['_id']
 
+        # Create a service template linked to the newly created host template
+        data = {
+            'name': 'service-tpl-B',
+            'host': host_template_id,
+            'check_command': rc[2]['_id'],
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        ret = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK')
+
         # Check that no services got created
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         rs = resp['_items']
-        # Only 1 service in the backend, and it is the newly created service template
-        self.assertEqual(len(rs), 1)
+        # Now 2 services in the backend, and it is only services templates
+        self.assertEqual(len(rs), 2)
         self.assertEqual(rs[0]['name'], "service-tpl-A")
+        self.assertEqual(rs[0]['_is_template'], True)
+        self.assertEqual(rs[1]['name'], "service-tpl-B")
+        self.assertEqual(rs[1]['_is_template'], True)
 
         # Create an host linked to the second template
         data = {
@@ -298,14 +314,23 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rh[3]['customs'], {'key1': 'value1', 'key2': 'value2', 'key3': 'value3'})
 
         # Check that no services got created
-        # Perharps that a service should have been created?
-        #
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         rs = resp['_items']
-        # Only 1 service in the backend, and it is the newly created service template
-        self.assertEqual(len(rs), 1)
+        # Now 4 services exist in the backend:
+        # - the 2 services templates
+        # - and the services created because of the templated host creation
+        # (one from each host template)
+        self.assertEqual(len(rs), 4)
         self.assertEqual(rs[0]['name'], "service-tpl-A")
+        self.assertEqual(rs[0]['_is_template'], True)
+        self.assertEqual(rs[1]['name'], "service-tpl-B")
+        self.assertEqual(rs[1]['_is_template'], True)
+        # Services are created almost simultaneously creation order is incertain...
+        self.assertIn(rs[2]['name'], ["service-tpl-A", "service-tpl-B"])
+        self.assertEqual(rs[2]['_is_template'], False)
+        self.assertIn(rs[2]['name'], ["service-tpl-A", "service-tpl-B"])
+        self.assertEqual(rs[3]['_is_template'], False)
 
     def test_host_templates_updates(self):
         """Test when update a host template
@@ -887,6 +912,7 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rc[5]['name'], "ssh")
 
         # Add host templates
+        # template template_standard_linux
         data = json.loads(open('cfg/host_srv001.json').read())
         data['check_command'] = rc[0]['_id']
         if 'realm' in data:
@@ -895,7 +921,16 @@ class TestHookTemplate(unittest2.TestCase):
         data['name'] = 'template_standard_linux'
         data['_is_template'] = True
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        # Check if host right in backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 2)
+        self.assertEqual(rh[1]['name'], "template_standard_linux")
+
+        # template_web based on template standard_linux
         data['name'] = 'template_web'
+        data['_templates'] = [rh[1]['_id']]
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         # Check if host right in backend
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
@@ -906,8 +941,8 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rh[2]['name'], "template_web")
         # ~~~ Now we have 3 hosts templates ~~~
         # * 0: _dummy
-        # * 1: template_standard_linux
-        # * 2: template_web
+        # * 1: template_standard_linux -> services ping and ssh
+        # * 2: template_web -> services ping and ssh AND http and https
 
         # Add services templates
         data = {
@@ -937,12 +972,28 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[1]['name'], "ssh")
         self.assertEqual(rs[2]['name'], "http")
         self.assertEqual(rs[3]['name'], "https")
+        # ~~~ Now our 3 hosts templates are linked with services templates ~~~
+        # * 0: _dummy
+        # * 1: template_standard_linux -> services ping and ssh
+        # * 2: template_web -> services http and https (AND ping and ssh from template inheritance)
         # ~~~ Now we have 4 services templates all
         # linked to the template_standard_linux host template ~~~
         # * 0: ping
         # * 1: ssh
         # * 2: http
         # * 3: https
+
+        params = {'where': json.dumps({'host': rh[1]['_id']})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 2)
+
+        params = {'where': json.dumps({'host': rh[2]['_id']})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 2)
 
         # add a host with host template + allow service templates
         data = {
@@ -964,8 +1015,12 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
+        self.assertEqual(len(rh), 5)
+        self.assertEqual(rh[1]['name'], "template_standard_linux")
+        self.assertEqual(rh[2]['name'], "template_web")
         self.assertEqual(rh[3]['name'], "host_001")
         self.assertEqual(rh[4]['name'], "host_002")
+
         # ~~~ Now we have 3 hosts templates and 2 hosts ~~~
         # * 0: _dummy
         # * 1: template_standard_linux
@@ -973,10 +1028,25 @@ class TestHookTemplate(unittest2.TestCase):
         # * 3: host_001
         # * 4: host_002
 
+        # The new hosts have 4 services each
+        params = {'where': json.dumps({'host': rh[3]['_id']})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 4)
+
+        params = {'where': json.dumps({'host': rh[4]['_id']})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 4)
+
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         rs = resp['_items']
         self.assertEqual(len(rs), 12)
+        # 4 services are the templates
+        # 8 are the services of the 2 real hosts
         ref = [
             {
                 'name': 'http',
@@ -1065,6 +1135,7 @@ class TestHookTemplate(unittest2.TestCase):
         requests.patch(self.endpoint + '/host/' + rh[3]['_id'], json=data, headers=headers_patch,
                        auth=self.auth)
 
+        # 2 services were removed
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         rs = resp['_items']
@@ -1088,6 +1159,8 @@ class TestHookTemplate(unittest2.TestCase):
         resp = response.json()
         rh = resp['_items']
         self.assertEqual(rh[3]['_templates'], [rh[1]['_id'], rh[2]['_id']])
+
+        # 2 services were created
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         rs = resp['_items']
@@ -1110,7 +1183,10 @@ class TestHookTemplate(unittest2.TestCase):
         resp = response.json()
         rs = resp['_items']
 
-        self.assertEqual(len(rs), 15)
+        # Both hosts inherit the new service from the standard linux
+        self.assertEqual(len(rs), 16)
+        self.assertEqual(rs[15]['_templates'][0], ret_new['_id'])
+        self.assertFalse(rs[15]['_is_template'])
         self.assertEqual(rs[14]['_templates'][0], ret_new['_id'])
         self.assertFalse(rs[14]['_is_template'])
         self.assertEqual(rs[13]['_templates'][0], ret_new['_id'])
