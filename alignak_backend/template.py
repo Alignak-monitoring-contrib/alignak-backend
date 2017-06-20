@@ -367,34 +367,86 @@ class Template(object):
                 Template.update_user_use_template(user, updates)
 
     @staticmethod
-    def fill_template_host(item):
+    def get_inherited_fields(item, fields, tpl_type='host'):
+        """Get the required fields from all the host templates hierarchy
+
+        :param item: the first template item to search for
+        :type item: dict
+        :param fields: a dictionary with the fields to cumulate
+        :type fields: dict
+        :param tpl_type: the template type (host, service or user)
+        :type tpl_type: str
+        :return: None
+        """
+        db_drv = current_app.data.driver.db[tpl_type]
+
+        # Cumulable fields exist in the item?
+        for (field_name, field_value) in iteritems(item):
+            if field_name not in fields:
+                continue
+            if isinstance(field_value, dict):
+                fields[field_name].update(field_value)
+            elif isinstance(field_value, list):
+                fields[field_name][:0] = field_value
+
+        # If some more templates are to get searched
+        if '_templates' in item and item['_templates']:
+            for tpl_id in item['_templates']:
+                template = db_drv.find_one({'_id': ObjectId(tpl_id)})
+                Template.get_inherited_fields(template, fields, tpl_type)
+
+    @staticmethod
+    def fill_template_host(item):  # pylint: disable=too-many-locals
         """Prepare fields of host with fields of host templates
 
         :param item: field name / values of the host
         :type item: dict
         :return: None
         """
-        host = current_app.data.driver.db['host']
-        ignore_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
-                         '_is_template', 'realm', '_templates_with_services']
-        fields_not_update = []
+        host_drv = current_app.data.driver.db['host']
+        # The fields which values may be cumulated:
+        cumulated_fields = {'tags': [], 'customs': {}, 'users': [], 'usergroups': []}
+        # The fields which must be ignored:
+        ignored_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
+                          '_is_template', 'realm', '_templates_with_services']
+        not_updated_fields = []
         for (field_name, field_value) in iteritems(item):
-            fields_not_update.append(field_name)
+            not_updated_fields.append(field_name)
         item['_template_fields'] = {}
 
         # Whether host is a template or not...
+        is_a_template = False
+        if '_is_template' in item:
+            is_a_template = item['_is_template']
+
         if '_templates' in item and item['_templates']:
             for host_template in item['_templates']:
                 if not ObjectId.is_valid(host_template):
                     abort(make_response(
                         "The template '%s' is not at the right format" % host_template, 412))
-                hosts = host.find_one({'_id': ObjectId(host_template)})
-                if hosts is None:
+                host = host_drv.find_one({'_id': ObjectId(host_template)})
+                if host is None:
                     continue
-                for (field_name, field_value) in iteritems(hosts):
-                    if field_name not in fields_not_update and field_name not in ignore_fields:
+                for (field_name, field_value) in iteritems(host):
+                    if field_name not in not_updated_fields \
+                            and field_name not in ignored_fields \
+                            and field_name not in cumulated_fields:
                         item[field_name] = field_value
                         item['_template_fields'][field_name] = host_template
+
+            # Cumulate fields only if item is not a template
+            if not is_a_template:
+                Template.get_inherited_fields(item, cumulated_fields, tpl_type='host')
+                for (field_name, field_value) in iteritems(cumulated_fields):
+                    if isinstance(field_value, dict):
+                        item[field_name] = field_value
+                    elif isinstance(field_value, list):
+                        seen = set()
+                        seen_add = seen.add
+                        item[field_name] = [x for x in field_value
+                                            if not (x in seen or seen_add(x))]
+                    item['_template_fields'][field_name] = 0
+
             schema = host_schema()
             ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template',
                                     '_templates_with_services']
@@ -440,34 +492,56 @@ class Template(object):
             patch_internal('host', to_patch, False, False, **lookup)
 
     @staticmethod
-    def fill_template_service(item):
+    def fill_template_service(item):  # pylint: disable=too-many-locals
         """Prepare fields of service with fields of service templates
 
         :param item: field name / values of the service
         :type item: dict
         :return: None
         """
-        service = current_app.data.driver.db['service']
-        ignore_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
-                         '_is_template', '_realm', 'host', '_templates_from_host_template']
-        fields_not_update = []
+        service_drv = current_app.data.driver.db['service']
+        # The fields which values may be cumulated:
+        cumulated_fields = {'tags': [], 'customs': {}, 'users': [], 'usergroups': []}
+        # The fields which must be ignored:
+        ignored_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
+                          '_is_template', '_realm', 'host', '_templates_from_host_template']
+        not_updated_fields = []
         for (field_name, field_value) in iteritems(item):
-            fields_not_update.append(field_name)
+            not_updated_fields.append(field_name)
         item['_template_fields'] = {}
 
         # Whether service is a template or not...
+        is_a_template = False
+        if '_is_template' in item:
+            is_a_template = item['_is_template']
+
         if '_templates' in item and item['_templates'] != []:
             for service_template in item['_templates']:
                 if not ObjectId.is_valid(service_template):
                     abort(make_response(
                         "The template '%s' is not at the right format" % service_template, 412))
-                services = service.find_one({'_id': ObjectId(service_template)})
-                if services is not None:
-                    for (field_name, field_value) in iteritems(services):
-                        if field_name not in fields_not_update \
-                                and field_name not in ignore_fields:
+                service = service_drv.find_one({'_id': ObjectId(service_template)})
+                if service is not None:
+                    for (field_name, field_value) in iteritems(service):
+                        if field_name not in not_updated_fields \
+                                and field_name not in ignored_fields\
+                                and field_name not in cumulated_fields:
                             item[field_name] = field_value
                             item['_template_fields'][field_name] = service_template
+
+            # Cumulate fields only if item is not a template
+            if not is_a_template:
+                Template.get_inherited_fields(item, cumulated_fields, tpl_type='service')
+                for (field_name, field_value) in iteritems(cumulated_fields):
+                    if isinstance(field_value, dict):
+                        item[field_name] = field_value
+                    elif isinstance(field_value, list):
+                        seen = set()
+                        seen_add = seen.add
+                        item[field_name] = [x for x in field_value
+                                            if not (x in seen or seen_add(x))]
+                    item['_template_fields'][field_name] = 0
+
             schema = service_schema()
             ignore_schema_fields = ['_realm', '_template_fields', '_templates', '_is_template',
                                     '_templates_from_host_template']
@@ -546,34 +620,57 @@ class Template(object):
         return item
 
     @staticmethod
-    def fill_template_user(item):
+    def fill_template_user(item):  # pylint: disable=too-many-locals
         """Prepare fields of user with fields of user templates
 
         :param item: field name / values of the user
         :type item: dict
         :return: None
         """
-        user = current_app.data.driver.db['user']
-        ignore_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
-                         '_is_template', 'realm']
-        fields_not_update = []
+        user_drv = current_app.data.driver.db['user']
+        # The fields which values may be cumulated:
+        cumulated_fields = {'tags': [], 'customs': {},
+                            'host_notification_commands': [], 'service_notification_commands': []}
+        # The fields which must be ignored:
+        ignored_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
+                          '_is_template', 'realm']
+        not_updated_fields = []
         for (field_name, field_value) in iteritems(item):
-            fields_not_update.append(field_name)
+            not_updated_fields.append(field_name)
         item['_template_fields'] = {}
 
         # Whether user is a template or not...
+        is_a_template = False
+        if '_is_template' in item:
+            is_a_template = item['_is_template']
+
         if '_templates' in item and item['_templates']:
             for user_template in item['_templates']:
                 if not ObjectId.is_valid(user_template):
                     abort(make_response(
                         "The template '%s' is not at the right format" % user_template, 412))
-                users = user.find_one({'_id': ObjectId(user_template)})
-                if users is not None:
-                    for (field_name, field_value) in iteritems(users):
-                        if field_name not in fields_not_update \
-                                and field_name not in ignore_fields:
+                user = user_drv.find_one({'_id': ObjectId(user_template)})
+                if user is not None:
+                    for (field_name, field_value) in iteritems(user):
+                        if field_name not in not_updated_fields \
+                                and field_name not in ignored_fields\
+                                and field_name not in cumulated_fields:
                             item[field_name] = field_value
                             item['_template_fields'][field_name] = user_template
+
+            # Cumulate fields only if item is not a template
+            if not is_a_template:
+                Template.get_inherited_fields(item, cumulated_fields, tpl_type='user')
+                for (field_name, field_value) in iteritems(cumulated_fields):
+                    if isinstance(field_value, dict):
+                        item[field_name] = field_value
+                    elif isinstance(field_value, list):
+                        seen = set()
+                        seen_add = seen.add
+                        item[field_name] = [x for x in field_value
+                                            if not (x in seen or seen_add(x))]
+                    item['_template_fields'][field_name] = 0
+
             schema = user_schema()
             ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template']
             for key in schema['schema']:
