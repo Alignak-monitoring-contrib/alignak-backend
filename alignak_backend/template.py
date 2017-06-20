@@ -20,7 +20,7 @@ from alignak_backend.models.service import get_schema as service_schema
 from alignak_backend.models.user import get_schema as user_schema
 
 
-class Template(object):
+class Template(object):  # pylint: disable=too-many-public-methods
     """Template class    """
 
     @staticmethod
@@ -77,6 +77,40 @@ class Template(object):
                 original['_etag'] = response[0]['_etag']
 
     @staticmethod
+    def get_host_template_services(host, templates_with_services=True, templates=None):
+        """Recursively get all the services from an host templates hierarchy
+
+        First get the services from the host templates of the current host template. And then
+        get the services of the current host template.
+
+        :param host: a new host to create, whare to attache the found services
+        :type host: host
+        :param templates: list of templates to search services into
+        :type host: host
+        :param templates_with_services: create the services linked with the hosts templates
+        :type templates_with_services: bool
+        :return: list of the services to create
+        """
+        services = {}
+        host_drv = current_app.data.driver.db['host']
+        service_srv = current_app.data.driver.db['service']
+
+        for host_template_id in templates:
+            host_tpl = host_drv.find_one({'_id': host_template_id})
+            if host_tpl['_templates']:
+                services.update(Template.get_host_template_services(host,
+                                                                    templates_with_services,
+                                                                    host_tpl['_templates']))
+
+            if templates_with_services:
+                my_template_services = service_srv.find({'_is_template': True,
+                                                         'host': host_tpl['_id']})
+                for srv in my_template_services:
+                    services[srv['name']] = Template.prepare_service_to_post(srv, host['_id'])
+
+        return services
+
+    @staticmethod
     def on_updated_host(updates, original):
         """Called by EVE HOOK (app.on_updated_host)
 
@@ -90,12 +124,12 @@ class Template(object):
         :type original: dict
         :return: None
         """
-        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-locals, too-many-nested-blocks
         if g.get('ignore_hook_patch', False):
             g.ignore_hook_patch = False
             return
         if original['_is_template']:
-            # We must update all host use this template
+            # We must update all host using this template
             host_db = current_app.data.driver.db['host']
             hosts = host_db.find({'_templates': original['_id']})
             for host in hosts:
@@ -104,33 +138,38 @@ class Template(object):
             if '_templates'in updates and updates['_templates'] != original['_templates']:
                 if original['_templates_with_services']:
                     service_db = current_app.data.driver.db['service']
-                    # Get all services of this host
-                    myservices = service_db.find({'_is_template': False,
-                                                  'host': original['_id']})
+
+                    # Get all the real services of this host
+                    myservices = service_db.find({'_is_template': False, 'host': original['_id']})
                     myservices_template_id = []
                     myservices_bis = {}
                     for myservice in myservices:
-                        myservices_template_id.append(myservice['_templates'][0])
-                        myservices_bis[myservice['_templates'][0]] = myservice
+                        # Consider all the service templates... not only the first one!
+                        for template_srv in myservice['_templates']:
+                            myservices_template_id.append(template_srv)
+                            myservices_bis[template_srv] = myservice
 
-                    services = {}
+                    # Find services templates in the update
+                    services = Template.get_host_template_services(original, True,
+                                                                   updates['_templates'])
                     service_template_id = []
-                    # loop on host templates and add into services the service are templates
-                    for hostid in updates['_templates']:
-                        services_template = service_db.find({'_is_template': True,
-                                                             'host': hostid})
-                        for srv in services_template:
-                            services[srv['name']] = Template.prepare_service_to_post(srv,
-                                                                                     original[
-                                                                                         '_id'])
-                            service_template_id.append(services[srv['name']]['_templates'][0])
+                    for service_name in services:
+                        service = services[service_name]
+                        for template_srv_id in service['_templates']:
+                            service_template_id.append(template_srv_id)
+
+                    # Compare servies to add/delete
                     services_to_add = list(set(service_template_id) - set(myservices_template_id))
                     services_to_del = list(set(myservices_template_id) - set(service_template_id))
-                    for (_, service) in iteritems(services):
-                        if service['_templates'][0] in services_to_add:
-                            post_internal('service', [service])
+                    for service_name in services:
+                        service = services[service_name]
+                        for template_srv_id in service['_templates']:
+                            if template_srv_id in services_to_add:
+                                post_internal('service', [service])
                     for template_id in services_to_del:
+                        print("To remove: %s" % template_id)
                         if template_id in myservices_bis:
+                            print("Removing: %s" % template_id)
                             lookup = {"_id": myservices_bis[template_id]['_id']}
                             deleteitem_internal('service', False, False, **lookup)
 
@@ -145,16 +184,17 @@ class Template(object):
         :type items: list
         :return: None
         """
-        service_db = current_app.data.driver.db['service']
         for _, item in enumerate(items):
-            if item['_templates'] != [] and item['_templates_with_services']:
-                # Try to add services
-                services = {}
-                # loop on host templates and collect services that are templates
-                for hostid in item['_templates']:
-                    services_template = service_db.find({'_is_template': True, 'host': hostid})
-                    for srv in services_template:
-                        services[srv['name']] = Template.prepare_service_to_post(srv, item['_id'])
+            if not item['_is_template'] and item['_templates'] != [] \
+                    and item['_templates_with_services']:
+
+                # Recursively get the services from the host template
+                services = Template.get_host_template_services(item,
+                                                               item['_templates_with_services'],
+                                                               item['_templates'])
+
+                # for service in services:
+                #     services[srv['name']] = Template.prepare_service_to_post(srv, host['_id'])
 
                 # when ok, and if some exist, add all services to this host
                 template_services = [services[k] for k in services]
