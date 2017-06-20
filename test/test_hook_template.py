@@ -184,6 +184,8 @@ class TestHookTemplate(unittest2.TestCase):
             'name': 'tpl-A',
             'check_command': rc[2]['_id'],
             '_is_template': True,
+            'tags': ['tag-1'],
+            'customs': {'key1': 'value1'},
             '_realm': self.realm_all
         }
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
@@ -195,6 +197,9 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rh[1]['name'], "tpl-A")
         self.assertEqual(rh[1]['_template_fields'], {})
         host_template_id = rh[1]['_id']
+        # The host template has some specific fields
+        self.assertEqual(rh[1]['tags'], ['tag-1'])
+        self.assertEqual(rh[1]['customs'], {'key1': 'value1'})
 
         # Create a second template templated from the first one
         data = {
@@ -202,6 +207,8 @@ class TestHookTemplate(unittest2.TestCase):
             'check_command': rc[2]['_id'],
             '_is_template': True,
             '_templates': [host_template_id],
+            'tags': ['tag-2', 'tag-3'],
+            'customs': {'key2': 'value2', 'key3': 'value3'},
             '_realm': self.realm_all
         }
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
@@ -220,10 +227,15 @@ class TestHookTemplate(unittest2.TestCase):
             value = rh[2]['_template_fields'][field]
             if field in ['notification_period', 'snapshot_period', 'snapshot_command',
                          'maintenance_period', 'check_period',
-                         '_users_delete', '_users_read', '_users_update']:
+                         '_users_delete', '_users_read', '_users_update',
+                         'tags', 'customs', 'users', 'usergroups']:
                 assert value == 0
             else:
                 assert value == host_template_id, "Field %s value is %s" % (field, value)
+        # The host template has some specific fields and cumulated fields are not inherited
+        self.assertEqual(rh[2]['tags'], ['tag-2', 'tag-3'])
+        self.assertEqual(rh[2]['customs'], {'key2': 'value2', 'key3': 'value3'})
+
         host_template_id = rh[2]['_id']
 
         # Create an host linked to the second template
@@ -248,10 +260,15 @@ class TestHookTemplate(unittest2.TestCase):
             value = rh[3]['_template_fields'][field]
             if field in ['notification_period', 'snapshot_period', 'snapshot_command',
                          'maintenance_period', 'check_period',
-                         '_users_delete', '_users_read', '_users_update']:
+                         '_users_delete', '_users_read', '_users_update',
+                         'tags', 'customs', 'users', 'usergroups']:
                 assert value == 0
             else:
                 assert value == host_template_id, "Field %s value is %s" % (field, value)
+
+        # The host has some fields that were cumulated from its linked template
+        self.assertEqual(rh[3]['tags'], ['tag-1', 'tag-2', 'tag-3'])
+        self.assertEqual(rh[3]['customs'], {'key1': 'value1', 'key2': 'value2', 'key3': 'value3'})
 
     def test_host_templates_updates(self):
         """Test when update a host template
@@ -516,7 +533,8 @@ class TestHookTemplate(unittest2.TestCase):
             value = rs[1]['_template_fields'][field]
             if field in ['notification_period', 'snapshot_period', 'snapshot_command',
                          'maintenance_period', 'check_period',
-                         '_users_delete', '_users_read', '_users_update']:
+                         '_users_delete', '_users_read', '_users_update',
+                         'tags', 'customs', 'users', 'usergroups']:
                 assert value == 0
             else:
                 assert value == service_template_id, "Field %s value is %s" % (field, value)
@@ -546,7 +564,8 @@ class TestHookTemplate(unittest2.TestCase):
             value = rs[2]['_template_fields'][field]
             if field in ['notification_period', 'snapshot_period', 'snapshot_command',
                          'maintenance_period', 'check_period',
-                         '_users_delete', '_users_read', '_users_update']:
+                         '_users_delete', '_users_read', '_users_update',
+                         'tags', 'customs', 'users', 'usergroups']:
                 assert value == 0
             else:
                 assert value == service_template_id, "Field %s value is %s" % (field, value)
@@ -1249,7 +1268,9 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertNotEqual(ru[2]['_template_fields'], {})
         for field in ru[2]['_template_fields']:
             value = ru[2]['_template_fields'][field]
-            if field in ['_users_delete', '_users_read', '_users_update']:
+            if field in ['_users_delete', '_users_read', '_users_update',
+                         'tags', 'customs',
+                         'host_notification_commands', 'service_notification_commands']:
                 assert value == 0
             else:
                 assert value == user_template_id, "Field %s value is %s" % (field, value)
@@ -1275,7 +1296,9 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertNotEqual(ru[3]['_template_fields'], {})
         for field in ru[3]['_template_fields']:
             value = ru[3]['_template_fields'][field]
-            if field in ['_users_delete', '_users_read', '_users_update']:
+            if field in ['_users_delete', '_users_read', '_users_update',
+                         'tags', 'customs',
+                         'host_notification_commands', 'service_notification_commands']:
                 assert value == 0
             else:
                 assert value == user_template_id, "Field %s value is %s" % (field, value)
