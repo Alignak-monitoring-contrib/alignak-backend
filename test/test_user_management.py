@@ -243,6 +243,28 @@ class TestUserManagement(unittest2.TestCase):
         # New defined token
         assert user2['token'] != ''
         assert user2['token'] != first_token
+        new_token = user2['token']
+
+        # Update the user with a new password
+        datap = {'password': 'new_password'}
+        headers_patch = {
+            'Content-Type': 'application/json',
+            'If-Match': user2['_etag']
+        }
+        response = requests.patch(self.endpoint + '/user/' + user2['_id'],
+                                  json=datap, headers=headers_patch, auth=self.auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+
+        # Get updated user
+        params = {'where': json.dumps({'name': 'user2'})}
+        response = requests.get(self.endpoint + '/user', params=params, auth=self.auth)
+        user2 = response.json()
+        user2 = user2['_items'][0]
+        assert user2['_id'] == user2_id
+        assert 'token' in user2
+        # User token did not changed
+        assert user2['token'] == new_token
 
     def test_token_on_create(self):
         """Create user with empty token.
