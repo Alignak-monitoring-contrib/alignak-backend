@@ -167,9 +167,7 @@ class Template(object):  # pylint: disable=too-many-public-methods
                             if template_srv_id in services_to_add:
                                 post_internal('service', [service])
                     for template_id in services_to_del:
-                        print("To remove: %s" % template_id)
                         if template_id in myservices_bis:
-                            print("Removing: %s" % template_id)
                             lookup = {"_id": myservices_bis[template_id]['_id']}
                             deleteitem_internal('service', False, False, **lookup)
 
@@ -192,9 +190,6 @@ class Template(object):  # pylint: disable=too-many-public-methods
                 services = Template.get_host_template_services(item,
                                                                item['_templates_with_services'],
                                                                item['_templates'])
-
-                # for service in services:
-                #     services[srv['name']] = Template.prepare_service_to_post(srv, host['_id'])
 
                 # when ok, and if some exist, add all services to this host
                 template_services = [services[k] for k in services]
