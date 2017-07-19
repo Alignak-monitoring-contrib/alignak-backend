@@ -250,8 +250,8 @@ def pre_post(resource, user_request):
     if g.get('back_role_super_admin', False):
         return
 
-    # Only if not super-admin
-    if resource not in ['user']:
+    # Only for some resources ...
+    if resource not in ['user', 'actionacknowledge', 'actiondowntime', 'actionforcecheck']:
         # Get all resources we can have rights for creation
         resources_post = g.get('resources_post', {})
         resources_post_custom = g.get('resources_post_custom', {})
@@ -277,8 +277,8 @@ def pre_patch(resource, user_request, lookup):
     if g.get('back_role_super_admin', False):
         return
 
-    # Only if not super-admin
-    if resource not in ['user']:
+    # Only for some resources ...
+    if resource not in ['user', 'actionacknowledge', 'actiondowntime', 'actionforcecheck']:
         # Get all resources we can have rights for updating
         resources_patch = g.get('resources_patch', {})
         resources_patch_parents = g.get('resources_patch_parents', {})
