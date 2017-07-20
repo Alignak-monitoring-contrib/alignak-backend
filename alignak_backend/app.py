@@ -1240,6 +1240,14 @@ def pre_host_patch(updates, original):
     :return: None
     """
     for key in updates:
+        if key in ['_realm']:
+            services_drv = current_app.data.driver.db['service']
+            services = services_drv.find({'host': original['_id']})
+            for service in services:
+                lookup = {"_id": service['_id']}
+                patch_internal('service', {"_realm": updates['_realm']}, False, False, **lookup)
+            break
+
         if key not in ['_overall_state_id', '_updated', '_realm'] and not key.startswith('ls_'):
             break
     else:
