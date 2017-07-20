@@ -144,9 +144,10 @@ def get_schema():
             'business_impact': {
                 "title": "Business impact",
                 "comment": "The business impact level indicates the level of importance of this "
-                           "element. The highest value the most important is the elemen.",
+                           "element. The highest value the most important is the element.",
                 'type': 'integer',
-                'default': 2
+                'default': 2,
+                'allowed': [0, 1, 2, 3, 4, 5]
             },
             'alias': {
                 "title": "Alias",
@@ -457,7 +458,7 @@ def get_schema():
                 'default': []
             },
             'usergroups': {
-                "title": "Notifications users",
+                "title": "Notifications users groups",
                 "comment": "List of the users groups that will receive the sent notifications.",
                 'type': 'list',
                 'schema': {
