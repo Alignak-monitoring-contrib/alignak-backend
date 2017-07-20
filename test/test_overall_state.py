@@ -172,7 +172,7 @@ class TestOverallState(unittest2.TestCase):
         # On host insertion, _overall_state_id field is 3, because host is UNREACHABLE
         self.assertEqual(3, rh[0]['_overall_state_id'])
 
-    def test_update_host(self):
+    def test_update_host(self):  # pylint: disable=too-many-locals
         """Test host overall state computation when updating live state of an host
 
         :return: None
@@ -206,6 +206,7 @@ class TestOverallState(unittest2.TestCase):
         rh = resp['_items']
         # On host insertion, _overall_state_id field is 3, because host is UNREACHABLE
         self.assertEqual(3, rh[0]['_overall_state_id'])
+        updated = rh[0]['_updated']
 
         # Add service 1
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -221,6 +222,16 @@ class TestOverallState(unittest2.TestCase):
         ls_service = response.json()
         # On service insertion, _overall_state_id field is 3, because service is UNKNOWN
         self.assertEqual(3, ls_service['_overall_state_id'])
+
+        # Check host
+        response = requests.get(self.endpoint + '/host', params=params, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 1)
+        rh = resp['_items']
+        # Host _overall_state_id did not changed
+        self.assertEqual(3, rh[0]['_overall_state_id'])
+        new_updated = rh[0]['_updated']
+        self.assertEqual(updated, new_updated)
 
         # Add service 2
         data = json.loads(open('cfg/service_srv002_ping.json').read())
@@ -239,6 +250,16 @@ class TestOverallState(unittest2.TestCase):
 
         # On service insertion, _overall_state_id field is 3, because service is UNKNOWN
         self.assertEqual(3, ls_service['_overall_state_id'])
+
+        # Check host
+        response = requests.get(self.endpoint + '/host', params=params, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 1)
+        rh = resp['_items']
+        # Host _overall_state_id did not changed
+        self.assertEqual(3, rh[0]['_overall_state_id'])
+        new_updated = rh[0]['_updated']
+        self.assertEqual(updated, new_updated)
 
         # Get all services
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
@@ -279,6 +300,8 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 3 (unreachable)
         self.assertEqual(3, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # Update live state for an host
         # => UP SOFT (will fail because we only care about HARD state!)
@@ -300,6 +323,8 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field did not changed!
         self.assertEqual(3, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # Update live state for an host
         # => UP HARD (only care about HARD state!)
@@ -321,6 +346,8 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 0 (host up)
         self.assertEqual(0, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # Update live state for an host
         # => UNREACHABLE HARD (only care about HARD state!)
@@ -342,6 +369,8 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 3 (host unreachable)
         self.assertEqual(3, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # Update live state for an host
         # => DOWN HARD (only care about HARD state!)
@@ -363,6 +392,8 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 4 (host down)
         self.assertEqual(4, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # we acknowledge the host
         time.sleep(0.1)
@@ -383,6 +414,8 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 1 (host down and ack)
         self.assertEqual(1, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # we downtime the host
         time.sleep(0.1)
@@ -404,6 +437,8 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 2 (host down and downtimed)
         self.assertEqual(2, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
     def test_update_host_and_services(self):
         """Test host overall state computation when updating live state of an host and its services
@@ -510,6 +545,7 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 3 (unreachable)
         self.assertEqual(3, ls_host['_overall_state_id'])
+        updated = ls_host['_updated']
 
         # Update live state for an host
         # => UP HARD (only care about HARD state!)
@@ -531,6 +567,8 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 0 (host up)
         self.assertEqual(0, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # -----
         # Now, we will update the host services and check the host overall state
@@ -582,6 +620,8 @@ class TestOverallState(unittest2.TestCase):
                                 params=sort_id, auth=self.auth)
         ls_host = response.json()
         self.assertEqual(3, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # Service 2 is still WARNING but ack
         time.sleep(0.1)
@@ -638,6 +678,8 @@ class TestOverallState(unittest2.TestCase):
                                 params=sort_id, auth=self.auth)
         ls_host = response.json()
         self.assertEqual(4, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
         # Service 1 is downtimed
         time.sleep(0.1)
@@ -666,6 +708,8 @@ class TestOverallState(unittest2.TestCase):
                                 params=sort_id, auth=self.auth)
         ls_host = response.json()
         self.assertEqual(2, ls_host['_overall_state_id'])
+        new_updated = ls_host['_updated']
+        self.assertEqual(updated, new_updated)
 
     def test_create_service(self):
         """Test service overall state computation when creating a service
