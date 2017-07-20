@@ -1173,6 +1173,34 @@ def after_delete_resource_realm():
     g.updateRealm = False
 
 
+# Hosts deletion
+def pre_delete_host(item):
+    """Hook before deleting an host.
+    Searches for the host services and deletes them
+
+    :param item: fields of the item / record
+    :type item: dict
+    :return: None
+    """
+    print("Deleting host: %s" % item['name'])
+    services_drv = current_app.data.driver.db['service']
+    services = services_drv.find({'host': item['_id']})
+    for service in services:
+        print("Deleting service: %s/%s" % (item['name'], service['name']))
+        lookup = {"_id": service['_id']}
+        deleteitem_internal('service', False, False, **lookup)
+
+
+def after_delete_host(item):
+    """Hook after host deletion. Update tree children of parent host
+
+    :param item: fields of the item / record
+    :type item: dict
+    :return: None
+    """
+    print("Deleted host: %s" % item['name'])
+
+
 # Alignak
 def pre_alignak_patch(updates, original):
     # pylint: disable=unused-argument
@@ -1812,6 +1840,8 @@ app.on_post_POST_service += update_etag
 app.on_update_host += pre_host_patch
 app.on_update_service += pre_service_patch
 app.on_updated_service += after_updated_service
+app.on_delete_item_host += pre_delete_host
+app.on_deleted_item_host += after_delete_host
 app.on_delete_item_realm += pre_delete_realm
 app.on_deleted_item_realm += after_delete_realm
 app.on_deleted_resource_realm += after_delete_resource_realm
@@ -2210,7 +2240,8 @@ def cron_grafana(engine='jsonify'):
                 created = graf.create_dashboard(host)
                 if created:
                     print("[cron_grafana] created a dashboard for '%s'..." % host['name'])
-                    resp[grafana['name']]['created_dashboards'].append(host['name'])
+                    if host['name'] not in resp[grafana['name']]['created_dashboards']:
+                        resp[grafana['name']]['created_dashboards'].append(host['name'])
                 else:
                     print("[cron_grafana] dashboard creation failed for '%s'..." % host['name'])
 
