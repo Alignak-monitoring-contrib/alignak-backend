@@ -991,8 +991,8 @@ def get_schema():
                 "title": "Template fields",
                 "comment": "If this element is not a template, this field contains the list of "
                            "the fields linked to the templates this element is linked to",
-                'type': 'dict',
-                'default': {}
+                'type': 'list',
+                'default': []
             }
         }
     }

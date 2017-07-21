@@ -1274,7 +1274,6 @@ def pre_host_patch(updates, original):
             for service in services:
                 lookup = {"_id": service['_id']}
                 patch_internal('service', {"_realm": updates['_realm']}, False, False, **lookup)
-            break
 
         if key not in ['_overall_state_id', '_updated', '_realm'] and not key.startswith('ls_'):
             break
