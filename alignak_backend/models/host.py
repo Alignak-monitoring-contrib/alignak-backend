@@ -289,7 +289,8 @@ def get_schema():
             },
             'check_command_args': {
                 "title": "Check command arguments",
-                "comment": "",
+                "comment": "Separate arguments with !. For example, if your have 2 arguments, "
+                           "enter test1!test2",
                 'type': 'string',
                 'default': ''
             },
