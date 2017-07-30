@@ -361,6 +361,47 @@ class TestTimeseries(unittest2.TestCase):
         }
         self.assertItemsEqual(reference['data'], ret['data'])
 
+    def test_prepare_data_cumulative(self):
+        """Prepare timeseries from cumulative counters
+            PROCESS_SERVICE_CHECK_RESULT;ek3022fdj-00007;Maintenance;0;Application started
+            |'MaintenanceOff'=197c 'MaintenanceOn'=1083c 'skAppCritical'=2c 'skAppKoRestart'=1c
+
+        :return: None
+        """
+        # Nnrpe check_disk
+        item = {
+            'host': 'srv001',
+            'service': 'maintenance',
+            'state': 'OK',
+            'state_type': 'HARD',
+            'state_id': 0,
+            'acknowledged': False,
+            'last_check': int(time.time()),
+            'last_state': 'OK',
+            'output': 'Check output',
+            'long_output': '',
+            # Note the leading space and /
+            'perf_data': "'MaintenanceOff'=197c 'MaintenanceOn'=1083c",
+            '_realm': 'All.Propieres'
+        }
+
+        ret = Timeseries.prepare_data(item)
+        reference = {
+            'data': [
+                {
+                    'name': 'MaintenanceOff',
+                    'value': 197,
+                    'uom': 'c'
+                },
+                {
+                    'name': 'MaintenanceOn',
+                    'value': 1083,
+                    'uom': 'c'
+                },
+            ]
+        }
+        self.assertItemsEqual(reference['data'], ret['data'])
+
     def test_prepare_special_formatted(self):
         """Prepare timeseries from a special perfdata, with
         * : in name
