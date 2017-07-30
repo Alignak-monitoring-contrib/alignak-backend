@@ -12,7 +12,6 @@ from future.utils import iteritems
 from flask import current_app, g, abort, make_response
 from eve.methods.post import post_internal
 from eve.methods.patch import patch_internal
-from eve.methods.put import put_internal
 from eve.methods.delete import deleteitem_internal
 from bson.objectid import ObjectId
 from alignak_backend.models.host import get_schema as host_schema
@@ -55,24 +54,17 @@ class Template(object):  # pylint: disable=too-many-public-methods
         if g.get('ignore_hook_patch', False):
             return
         if not original['_is_template']:
-            ignore_schema_fields = ['realm', '_template_fields', '_templates',
-                                    '_is_template',
-                                    '_templates_with_services']
+            # case the host is not a template
             template_fields = original['_template_fields']
-            do_put = False
+            do_patch = False
             for (field_name, _) in iteritems(updates):
-                if field_name not in ignore_schema_fields:
-                    if field_name in template_fields:
-                        del template_fields[field_name]
-                        do_put = True
-            if do_put:
+                if field_name in template_fields:
+                    template_fields.remove(field_name)
+                    do_patch = True
+            if do_patch:
                 lookup = {"_id": original['_id']}
-                putdata = deepcopy(original)
-                putdata['_template_fields'] = template_fields
-                del putdata['_etag']
-                del putdata['_updated']
-                del putdata['_created']
-                response = put_internal('host', putdata, False, False, **lookup)
+                to_patch = {"_template_fields": template_fields}
+                response = patch_internal('host', to_patch, False, False, **lookup)
                 updates['_etag'] = response[0]['_etag']
                 original['_etag'] = response[0]['_etag']
 
@@ -89,6 +81,8 @@ class Template(object):  # pylint: disable=too-many-public-methods
         :type host: host
         :param templates_with_services: create the services linked with the hosts templates
         :type templates_with_services: bool
+        :param templates: list of templates
+        :type templates: list
         :return: list of the services to create
         """
         services = {}
@@ -106,7 +100,7 @@ class Template(object):  # pylint: disable=too-many-public-methods
                 my_template_services = service_srv.find({'_is_template': True,
                                                          'host': host_tpl['_id']})
                 for srv in my_template_services:
-                    services[srv['name']] = Template.prepare_service_to_post(srv, host['_id'])
+                    services[srv['name']] = Template.prepare_service_to_post(srv, host)
 
         return services
 
@@ -218,7 +212,7 @@ class Template(object):  # pylint: disable=too-many-public-methods
                 hosts = host_db.find(
                     {'_templates': hostid, '_templates_with_services': True})
                 for hs in hosts:
-                    services.append(Template.prepare_service_to_post(deepcopy(item), hs['_id']))
+                    services.append(Template.prepare_service_to_post(deepcopy(item), hs))
         if services != []:
             post_internal('service', services)
 
@@ -271,24 +265,16 @@ class Template(object):  # pylint: disable=too-many-public-methods
         if g.get('ignore_hook_patch', False):
             return
         if not original['_is_template']:
-            ignore_schema_fields = ['realm', '_template_fields', '_templates',
-                                    '_is_template',
-                                    '_templates_from_host_template']
             template_fields = original['_template_fields']
-            do_put = False
+            do_patch = False
             for (field_name, _) in iteritems(updates):
-                if field_name not in ignore_schema_fields:
-                    if field_name in template_fields:
-                        del template_fields[field_name]
-                        do_put = True
-            if do_put:
+                if field_name in template_fields:
+                    template_fields.remove(field_name)
+                    do_patch = True
+            if do_patch:
                 lookup = {"_id": original['_id']}
-                putdata = deepcopy(original)
-                putdata['_template_fields'] = template_fields
-                del putdata['_etag']
-                del putdata['_updated']
-                del putdata['_created']
-                response = put_internal('service', putdata, False, False, **lookup)
+                to_patch = {"_template_fields": template_fields}
+                response = patch_internal('service', to_patch, False, False, **lookup)
                 updates['_etag'] = response[0]['_etag']
                 original['_etag'] = response[0]['_etag']
 
@@ -330,14 +316,16 @@ class Template(object):  # pylint: disable=too-many-public-methods
             users_request = [user_request.json]
 
         for user in users_request:
-            if 'host_notification_period' not in user:
-                tp_drv = current_app.data.driver.db['timeperiod']
-                tp = tp_drv.find_one({'name': 'Never'})
-                user['host_notification_period'] = tp['_id']
-            if 'service_notification_period' not in user:
-                tp_drv = current_app.data.driver.db['timeperiod']
-                tp = tp_drv.find_one({'name': 'Never'})
-                user['service_notification_period'] = tp['_id']
+            # not fill in case the user use a template
+            if '_templates' not in user or not user['_templates']:
+                if 'host_notification_period' not in user:
+                    tp_drv = current_app.data.driver.db['timeperiod']
+                    tp = tp_drv.find_one({'name': 'Never'})
+                    user['host_notification_period'] = tp['_id']
+                if 'service_notification_period' not in user:
+                    tp_drv = current_app.data.driver.db['timeperiod']
+                    tp = tp_drv.find_one({'name': 'Never'})
+                    user['service_notification_period'] = tp['_id']
             Template.fill_template_user(user)
 
     @staticmethod
@@ -356,23 +344,16 @@ class Template(object):  # pylint: disable=too-many-public-methods
         if g.get('ignore_hook_patch', False):
             return
         if not original['_is_template']:
-            ignore_schema_fields = ['realm', '_template_fields', '_templates',
-                                    '_is_template']
             template_fields = original['_template_fields']
-            do_put = False
+            do_patch = False
             for (field_name, _) in iteritems(updates):
-                if field_name not in ignore_schema_fields:
-                    if field_name in template_fields:
-                        del template_fields[field_name]
-                        do_put = True
-            if do_put:
+                if field_name in template_fields:
+                    template_fields.remove(field_name)
+                    do_patch = True
+            if do_patch:
                 lookup = {"_id": original['_id']}
-                putdata = deepcopy(original)
-                putdata['_template_fields'] = template_fields
-                del putdata['_etag']
-                del putdata['_updated']
-                del putdata['_created']
-                response = put_internal('user', putdata, False, False, **lookup)
+                to_patch = {"_template_fields": template_fields}
+                response = patch_internal('user', to_patch, False, False, **lookup)
                 updates['_etag'] = response[0]['_etag']
                 original['_etag'] = response[0]['_etag']
 
@@ -432,7 +413,8 @@ class Template(object):  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def fill_template_host(item):  # pylint: disable=too-many-locals
-        """Prepare fields of host with fields of host templates
+        """Prepare fields of host with fields of host templates. The field _template_fields will
+        contain all fields filled by templates
 
         :param item: field name / values of the host
         :type item: dict
@@ -442,12 +424,10 @@ class Template(object):  # pylint: disable=too-many-public-methods
         # The fields which values may be cumulated:
         cumulated_fields = {'tags': [], 'customs': {}, 'users': [], 'usergroups': []}
         # The fields which must be ignored:
-        ignored_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
-                          '_is_template', 'realm', '_templates_with_services']
         not_updated_fields = []
         for (field_name, field_value) in iteritems(item):
             not_updated_fields.append(field_name)
-        item['_template_fields'] = {}
+        item['_template_fields'] = []
 
         # Whether host is a template or not...
         is_a_template = False
@@ -464,10 +444,11 @@ class Template(object):  # pylint: disable=too-many-public-methods
                     continue
                 for (field_name, field_value) in iteritems(host):
                     if field_name not in not_updated_fields \
-                            and field_name not in ignored_fields \
-                            and field_name not in cumulated_fields:
+                            and field_name not in cumulated_fields \
+                            and not field_name.startswith('_') \
+                            and not field_name.startswith('ls_'):
                         item[field_name] = field_value
-                        item['_template_fields'][field_name] = host_template
+                        item['_template_fields'].append(field_name)
 
             # Cumulate fields only if item is not a template
             if not is_a_template:
@@ -480,15 +461,13 @@ class Template(object):  # pylint: disable=too-many-public-methods
                         seen_add = seen.add
                         item[field_name] = [x for x in field_value
                                             if not (x in seen or seen_add(x))]
-                    item['_template_fields'][field_name] = 0
+                    item['_template_fields'].append(field_name)
 
             schema = host_schema()
-            ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template',
-                                    '_templates_with_services']
             for key in schema['schema']:
-                if key not in ignore_schema_fields:
+                if not key.startswith('_') and not key.startswith('ls_'):
                     if key not in item:
-                        item['_template_fields'][key] = 0
+                        item['_template_fields'].append(key)
 
         if 'check_command' not in item:
             # Get default host check commands
@@ -538,12 +517,10 @@ class Template(object):  # pylint: disable=too-many-public-methods
         # The fields which values may be cumulated:
         cumulated_fields = {'tags': [], 'customs': {}, 'users': [], 'usergroups': []}
         # The fields which must be ignored:
-        ignored_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
-                          '_is_template', '_realm', 'host', '_templates_from_host_template']
         not_updated_fields = []
         for (field_name, field_value) in iteritems(item):
             not_updated_fields.append(field_name)
-        item['_template_fields'] = {}
+        item['_template_fields'] = []
 
         # Whether service is a template or not...
         is_a_template = False
@@ -559,10 +536,11 @@ class Template(object):  # pylint: disable=too-many-public-methods
                 if service is not None:
                     for (field_name, field_value) in iteritems(service):
                         if field_name not in not_updated_fields \
-                                and field_name not in ignored_fields\
-                                and field_name not in cumulated_fields:
+                                and field_name not in cumulated_fields \
+                                and not field_name.startswith('_') \
+                                and not field_name.startswith('ls_'):
                             item[field_name] = field_value
-                            item['_template_fields'][field_name] = service_template
+                            item['_template_fields'].append(field_name)
 
             # Cumulate fields only if item is not a template
             if not is_a_template:
@@ -575,15 +553,17 @@ class Template(object):  # pylint: disable=too-many-public-methods
                         seen_add = seen.add
                         item[field_name] = [x for x in field_value
                                             if not (x in seen or seen_add(x))]
-                    item['_template_fields'][field_name] = 0
+                    item['_template_fields'].append(field_name)
 
             schema = service_schema()
-            ignore_schema_fields = ['_realm', '_template_fields', '_templates', '_is_template',
-                                    '_templates_from_host_template']
             for key in schema['schema']:
-                if key not in ignore_schema_fields:
+                if not key.startswith('_') and not key.startswith('ls_'):
                     if key not in item:
-                        item['_template_fields'][key] = 0
+                        item['_template_fields'].append(key)
+
+            # we must never have 'host' in the _template_fields
+            if 'host' in item['_template_fields']:
+                item['_template_fields'].remove('host')
 
         if 'check_command' not in item:
             # Get default service check commands
@@ -622,21 +602,20 @@ class Template(object):  # pylint: disable=too-many-public-methods
             patch_internal('service', to_patch, False, False, **lookup)
 
     @staticmethod
-    def prepare_service_to_post(item, hostid):
+    def prepare_service_to_post(item, host):
         """Prepare a service linked with a service template in case the host is in template host +
         services
 
         :param item: the service template source
         :type item: dict
-        :param hostid: the id of the host where put this new service
-        :type hostid: str
+        :param host: the host where put this new service
+        :type host: Host
         :return: The service with right fields
         :rtype: dict
         """
-        ignore_schema_fields = ['_realm', '_template_fields', '_templates',
-                                '_is_template', '_templates_from_host_template']
         schema = service_schema()
-        item['host'] = hostid
+        item['host'] = host['_id']
+        item['_realm'] = host['_realm']
         item['_templates'] = [item['_id']]
         del item['_etag']
         del item['_id']
@@ -648,10 +627,13 @@ class Template(object):  # pylint: disable=too-many-public-methods
             del item['_links']
         item['_is_template'] = False
         item['_templates_from_host_template'] = True
-        item['_template_fields'] = {}
+        item['_template_fields'] = []
         for key in schema['schema']:
-            if item not in ignore_schema_fields:
-                item['_template_fields'][key] = 0
+            if not key.startswith('_') and not key.startswith('ls_'):
+                item['_template_fields'].append(key)
+        # we must never have 'host' in the _template_fields
+        if 'host' in item['_template_fields']:
+            item['_template_fields'].remove('host')
         return item
 
     @staticmethod
@@ -667,12 +649,10 @@ class Template(object):  # pylint: disable=too-many-public-methods
         cumulated_fields = {'tags': [], 'customs': {},
                             'host_notification_commands': [], 'service_notification_commands': []}
         # The fields which must be ignored:
-        ignored_fields = ['_id', '_etag', '_updated', '_created', '_template_fields', '_templates',
-                          '_is_template', 'realm']
         not_updated_fields = []
         for (field_name, field_value) in iteritems(item):
             not_updated_fields.append(field_name)
-        item['_template_fields'] = {}
+        item['_template_fields'] = []
 
         # Whether user is a template or not...
         is_a_template = False
@@ -688,10 +668,10 @@ class Template(object):  # pylint: disable=too-many-public-methods
                 if user is not None:
                     for (field_name, field_value) in iteritems(user):
                         if field_name not in not_updated_fields \
-                                and field_name not in ignored_fields\
-                                and field_name not in cumulated_fields:
+                                and field_name not in cumulated_fields \
+                                and not field_name.startswith('_'):
                             item[field_name] = field_value
-                            item['_template_fields'][field_name] = user_template
+                            item['_template_fields'].append(field_name)
 
             # Cumulate fields only if item is not a template
             if not is_a_template:
@@ -704,14 +684,13 @@ class Template(object):  # pylint: disable=too-many-public-methods
                         seen_add = seen.add
                         item[field_name] = [x for x in field_value
                                             if not (x in seen or seen_add(x))]
-                    item['_template_fields'][field_name] = 0
+                    item['_template_fields'].append(field_name)
 
             schema = user_schema()
-            ignore_schema_fields = ['realm', '_template_fields', '_templates', '_is_template']
             for key in schema['schema']:
-                if key not in ignore_schema_fields:
+                if not key.startswith('_'):
                     if key not in item:
-                        item['_template_fields'][key] = 0
+                        item['_template_fields'].append(key)
 
     @staticmethod
     def update_user_use_template(user, fields):
