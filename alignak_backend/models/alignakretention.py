@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Resource information of retentionservice
+Resource information of alignakretention
 """
 
 
@@ -12,8 +12,8 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Service data retention"
-    return 'retentionservice'
+        return "Host/service data retention from scheduler of Alignak"
+    return 'alignakretention'
 
 
 def get_doc():  # pragma: no cover
@@ -23,7 +23,7 @@ def get_doc():  # pragma: no cover
     :rtype: str
     """
     return """
-    The ``retentionservice`` model is used by the Alignak backend scheduler module for the
+    The ``alignakretention`` model is used by the Alignak backend scheduler module for the
     Alignak retention feature.
     """
 
@@ -36,9 +36,18 @@ def get_schema():
     """
     return {
         'allow_unknown': True,
+        'auth_field': '_user',
+        'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
         'schema': {
-            'service': {
-                'type': 'list',
+            'host': {
+                'type': 'string',
             },
+            '_user': {
+                'type': 'objectid',
+                'data_relation': {
+                    'resource': 'user',
+                    'embeddable': True
+                },
+            }
         }
     }
