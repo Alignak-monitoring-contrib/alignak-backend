@@ -1752,6 +1752,7 @@ settings['X_HEADERS'] = (
 )
 settings['PAGINATION_LIMIT'] = 50
 settings['PAGINATION_DEFAULT'] = 25
+settings['AUTH_FIELD'] = None
 
 settings['MONGO_HOST'] = 'localhost'
 settings['MONGO_PORT'] = 27017
