@@ -1766,3 +1766,426 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_unreachable_soft'], 0)
         self.assertEqual(r[0]['services_acknowledged'], 0)
         self.assertEqual(r[0]['services_in_downtime'], 0)
+
+    def test_delete_host(self):
+        """We add 2 hosts and delete one host
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        # Check if command right in backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
+        rc = resp['_items']
+
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[2]['_id']
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+        host_id = resp['_id']
+        host_etag = resp['_etag']
+        # Check if livesynthesis right created
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 1)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 1)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
+
+        # add second host
+        data['name'] = 'srv002'
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 2)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 2)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
+
+        # delete the first host
+        headers_delete = {
+            'Content-Type': 'application/json',
+            'If-Match': host_etag
+        }
+        response = requests.delete(self.endpoint + '/host/' + host_id,
+                                   headers=headers_delete, auth=self.auth)
+        self.assertEqual(response.status_code, 204)
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 1)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 1)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
+
+    def test_host_use_hostservice_template(self):
+        """
+        test add and delete
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+
+        data = json.loads(open('cfg/command_http.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+
+        data = json.loads(open('cfg/command_https.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+
+        data = json.loads(open('cfg/command_ssh.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+
+        # Check if command right in backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rc = resp['_items']
+        self.assertEqual(len(rc), 6)
+        self.assertEqual(rc[2]['name'], "ping")
+        self.assertEqual(rc[3]['name'], "http")
+        self.assertEqual(rc[4]['name'], "https")
+        self.assertEqual(rc[5]['name'], "ssh")
+
+        # Add host templates
+        # template template_standard_linux
+        data = {
+            'name': 'template_standard_linux',
+            '_is_template': True,
+            '_realm': self.realm_all,
+            'check_command': rc[0]['_id'],
+            'address': '192.168.0.2',
+            'business_impact': 5
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Check if host right in backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 2)
+        self.assertEqual(rh[1]['name'], "template_standard_linux")
+
+        # template_web based on template standard_linux
+        data['name'] = 'template_web'
+        data['_templates'] = [rh[1]['_id']]
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Check if host right in backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 3)
+        self.assertEqual(rh[1]['name'], "template_standard_linux")
+        self.assertEqual(rh[2]['name'], "template_web")
+        # ~~~ Now we have 3 hosts templates ~~~
+        # * 0: _dummy
+        # * 1: template_standard_linux
+        # * 2: template_web
+
+        # Add services templates
+        data = {
+            'name': 'ping',
+            'host': rh[1]['_id'],
+            'check_command': rc[1]['_id'],
+            'business_impact': 4,
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        data['name'] = 'ssh'
+        data['check_command'] = rc[3]['_id']
+        response = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        data['name'] = 'http'
+        data['host'] = rh[2]['_id']
+        data['check_command'] = rc[1]['_id']
+        response = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        data['name'] = 'https'
+        data['check_command'] = rc[2]['_id']
+        response = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 4)
+        self.assertEqual(rs[0]['name'], "ping")
+        self.assertEqual(rs[1]['name'], "ssh")
+        self.assertEqual(rs[2]['name'], "http")
+        self.assertEqual(rs[3]['name'], "https")
+        # ~~~ Now our 3 hosts templates are linked with services templates ~~~
+        # * 0: _dummy
+        # * 1: template_standard_linux -> services ping and ssh
+        # * 2: template_web -> services http and https (AND ping and ssh from template inheritance)
+        # ~~~ Now we have 4 services templates all
+        # linked to the template_standard_linux host template ~~~
+        # * 0: ping
+        # * 1: ssh
+        # linked to the template_web host template ~~~
+        # * 2: http
+        # * 3: https
+
+        # be sure we have 2 services on host template_standard_linux
+        params = {'where': json.dumps({'host': rh[1]['_id']})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 2)
+
+        # be sure we have 2 services on host template_web
+        params = {'where': json.dumps({'host': rh[2]['_id']})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 2)
+
+        # check not added the templates in the livesynthesis
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 0)
+
+        # add a host with host template + allow service templates
+        data = {
+            'name': 'host_001',
+            '_templates': [rh[1]['_id'], rh[2]['_id']],
+            '_templates_with_services': True,
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # add a second host with host template + allow service templates
+        data = {
+            'name': 'host_002',
+            '_templates': [rh[1]['_id'], rh[2]['_id']],
+            '_templates_with_services': True,
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 5)
+        self.assertEqual(rh[1]['name'], "template_standard_linux")
+        self.assertEqual(rh[2]['name'], "template_web")
+        self.assertEqual(rh[3]['name'], "host_001")
+        self.assertEqual(rh[4]['name'], "host_002")
+
+        # ~~~ Now we have 3 hosts templates and 2 hosts ~~~
+        # * 0: _dummy
+        # * 1: template_standard_linux
+        # * 2: template_web
+        # * 3: host_001
+        # * 4: host_002
+
+        # The new hosts have 4 services each
+        params = {'where': json.dumps({'host': rh[3]['_id']})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 4)
+
+        params = {'where': json.dumps({'host': rh[4]['_id']})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 4)
+
+        # check have the 2 hosts and the 8 services in the livesynthesis
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 2)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 2)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
+        self.assertEqual(r[0]['services_total'], 8)
+        self.assertEqual(r[0]['services_ok_hard'], 0)
+        self.assertEqual(r[0]['services_ok_soft'], 0)
+        self.assertEqual(r[0]['services_warning_hard'], 0)
+        self.assertEqual(r[0]['services_warning_soft'], 0)
+        self.assertEqual(r[0]['services_critical_hard'], 0)
+        self.assertEqual(r[0]['services_critical_soft'], 0)
+        self.assertEqual(r[0]['services_unknown_hard'], 8)
+        self.assertEqual(r[0]['services_unknown_soft'], 0)
+        self.assertEqual(r[0]['services_unreachable_hard'], 0)
+        self.assertEqual(r[0]['services_unreachable_soft'], 0)
+        self.assertEqual(r[0]['services_acknowledged'], 0)
+        self.assertEqual(r[0]['services_in_downtime'], 0)
+
+        # Now remove the host template template_web of the host host_001
+        data = {'_templates': [rh[1]['_id']]}
+        headers_patch = {
+            'Content-Type': 'application/json',
+            'If-Match': rh[3]['_etag']
+        }
+        response = requests.patch(self.endpoint + '/host/' + rh[3]['_id'], json=data,
+                                  headers=headers_patch, auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # 2 services were removed
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 10)
+
+        params = {'where': json.dumps({'_is_template': False})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 6)
+
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[3]['_templates'], [rh[1]['_id']])
+        self.assertEqual(rh[4]['_templates'], [rh[1]['_id'], rh[2]['_id']])
+
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 2)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 2)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
+        self.assertEqual(r[0]['services_total'], 6)
+        self.assertEqual(r[0]['services_ok_hard'], 0)
+        self.assertEqual(r[0]['services_ok_soft'], 0)
+        self.assertEqual(r[0]['services_warning_hard'], 0)
+        self.assertEqual(r[0]['services_warning_soft'], 0)
+        self.assertEqual(r[0]['services_critical_hard'], 0)
+        self.assertEqual(r[0]['services_critical_soft'], 0)
+        self.assertEqual(r[0]['services_unknown_hard'], 6)
+        self.assertEqual(r[0]['services_unknown_soft'], 0)
+        self.assertEqual(r[0]['services_unreachable_hard'], 0)
+        self.assertEqual(r[0]['services_unreachable_soft'], 0)
+        self.assertEqual(r[0]['services_acknowledged'], 0)
+        self.assertEqual(r[0]['services_in_downtime'], 0)
+
+        # Now add a new template service
+        data = {
+            'name': 'ssh_new_method',
+            'host': rh[1]['_id'],
+            'check_command': rc[0]['_id'],
+            'business_impact': 4,
+            '_is_template': True,
+            '_templates_from_host_template': True,
+            '_realm': self.realm_all
+        }
+        responsep = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                  auth=self.auth)
+        ret_new = responsep.json()
+        self.assertEqual('OK', ret_new['_status'], ret_new)
+
+        # 1 template service + 2 services added
+        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(len(rs), 13)
+
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 2)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 2)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
+        self.assertEqual(r[0]['services_total'], 8)
+        self.assertEqual(r[0]['services_ok_hard'], 0)
+        self.assertEqual(r[0]['services_ok_soft'], 0)
+        self.assertEqual(r[0]['services_warning_hard'], 0)
+        self.assertEqual(r[0]['services_warning_soft'], 0)
+        self.assertEqual(r[0]['services_critical_hard'], 0)
+        self.assertEqual(r[0]['services_critical_soft'], 0)
+        self.assertEqual(r[0]['services_unknown_hard'], 8)
+        self.assertEqual(r[0]['services_unknown_soft'], 0)
+        self.assertEqual(r[0]['services_unreachable_hard'], 0)
+        self.assertEqual(r[0]['services_unreachable_soft'], 0)
+        self.assertEqual(r[0]['services_acknowledged'], 0)
+        self.assertEqual(r[0]['services_in_downtime'], 0)

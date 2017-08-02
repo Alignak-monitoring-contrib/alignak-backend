@@ -2029,6 +2029,10 @@ with app.test_request_context():
     app.on_inserted_service += Livesynthesis.on_inserted_service
     app.on_updated_host += Livesynthesis.on_updated_host
     app.on_updated_service += Livesynthesis.on_updated_service
+    app.on_deleted_item_host += Livesynthesis.on_deleted_item_host
+    app.on_deleted_item_service += Livesynthesis.on_deleted_item_service
+    app.on_deleted_resource_host += Livesynthesis.on_deleted_resource_host
+    app.on_deleted_resource_host += Livesynthesis.on_deleted_resource_service
     app.on_fetched_item_livesynthesis += Livesynthesis.on_fetched_item_history
 
     # Templates management
