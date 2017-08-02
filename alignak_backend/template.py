@@ -210,7 +210,7 @@ class Template(object):  # pylint: disable=too-many-public-methods
                 # use the host template and have _templates_with_services=True
                 hostid = item['host']
                 hosts = host_db.find(
-                    {'_templates': hostid, '_templates_with_services': True})
+                    {'_templates': hostid, '_templates_with_services': True, '_is_template': False})
                 for hs in hosts:
                     services.append(Template.prepare_service_to_post(deepcopy(item), hs))
         if services != []:
