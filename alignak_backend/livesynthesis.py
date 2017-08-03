@@ -234,8 +234,9 @@ class Livesynthesis(object):
             if live_current is None:
                 ls = Livesynthesis()
                 ls.recalculate()
-            data = {"$inc": {minus: -1, plus: 1}}
-            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+            else:
+                data = {"$inc": {minus: -1, plus: 1}}
+                current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
     @staticmethod
     def on_updated_service(updated, original):
@@ -252,8 +253,93 @@ class Livesynthesis(object):
             if live_current is None:
                 ls = Livesynthesis()
                 ls.recalculate()
-            data = {"$inc": {minus: -1, plus: 1}}
+            else:
+                data = {"$inc": {minus: -1, plus: 1}}
+                current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def on_deleted_item_host(item):
+        """When delete an host, decrement livesynthesis
+
+        :param item: fields of the item deleted
+        :type item: dict
+        :return: None
+        """
+        if item['_is_template']:
+            return
+
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+        if live_current is None:
+            ls = Livesynthesis()
+            ls.recalculate()
+        else:
+            minus = Livesynthesis.livesynthesis_to_delete('hosts', item)
+            data = {"$inc": {minus: -1, 'hosts_total': -1}}
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def on_deleted_resource_host():
+        """When delete all host (delete the resource 'host'), simply recalcule livestate
+
+        :return: None
+        """
+        ls = Livesynthesis()
+        ls.recalculate()
+
+    @staticmethod
+    def on_deleted_item_service(item):
+        """When delete a service, decrement livesynthesis
+
+        :param item: fields of the item deleted
+        :type item: dict
+        :return: None
+        """
+        if item['_is_template']:
+            return
+
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+        if live_current is None:
+            ls = Livesynthesis()
+            ls.recalculate()
+        else:
+            minus = Livesynthesis.livesynthesis_to_delete('services', item)
+            data = {"$inc": {minus: -1, 'services_total': -1}}
+            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def on_deleted_resource_service():
+        """When delete all services (delete the resource 'service'), simply recalcule livestate
+
+        :return: None
+        """
+        # the most simple method is to recalculate the livesynthesis
+        ls = Livesynthesis()
+        ls.recalculate()
+
+    @staticmethod
+    def livesynthesis_to_delete(type_check, item):
+        """Detect when type of livestate decrement
+
+        :param type_check: hosts | services
+        :type type_check: str
+        :param item: fields of the item (the host | the service)
+        :type item: dict
+        :return: the livesynthesis field to decrement
+        :rtype: str
+        """
+        minus = "%s_%s_%s" % (type_check, item['ls_state'].lower(),
+                              item['ls_state_type'].lower())
+
+        # Acknowledgement modification
+        if item['ls_acknowledged']:
+            minus = "%s_acknowledged" % (type_check)
+
+        # Downtime modification
+        if item['ls_downtimed']:
+            minus = "%s_in_downtime" % (type_check)
+        return minus
 
     @staticmethod
     def livesynthesis_to_update(type_check, updated, original):
@@ -322,7 +408,7 @@ class Livesynthesis(object):
         Add to response some more information.
         We manage the 2 special parameters:
          * history
-        * concatenation
+         * concatenation
 
         :param response: the response
         :type response: dict

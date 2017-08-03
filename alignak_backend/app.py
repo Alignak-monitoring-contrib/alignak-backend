@@ -1708,6 +1708,10 @@ def get_settings(prev_settings):
         os.path.abspath('./settings.json')
     ]
 
+    # Configuration file name in environment
+    if os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'):
+        settings_filenames = [os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE')]
+
     comment_re = re.compile(
         r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
         re.DOTALL | re.MULTILINE
@@ -1806,7 +1810,7 @@ if settings['SCHEDULER_GRAFANA_ACTIVE']:
             'seconds': 120
         }
     )
-if settings['SCHEDULER_LIVESYNTHESIS_HISTORY']:
+if settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] > 0:
     jobs.append(
         {
             'id': 'cron_livesynthesis_history',
@@ -2025,6 +2029,10 @@ with app.test_request_context():
     app.on_inserted_service += Livesynthesis.on_inserted_service
     app.on_updated_host += Livesynthesis.on_updated_host
     app.on_updated_service += Livesynthesis.on_updated_service
+    app.on_deleted_item_host += Livesynthesis.on_deleted_item_host
+    app.on_deleted_item_service += Livesynthesis.on_deleted_item_service
+    app.on_deleted_resource_host += Livesynthesis.on_deleted_resource_host
+    app.on_deleted_resource_host += Livesynthesis.on_deleted_resource_service
     app.on_fetched_item_livesynthesis += Livesynthesis.on_fetched_item_history
 
     # Templates management

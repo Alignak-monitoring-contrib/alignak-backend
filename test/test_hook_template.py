@@ -1518,9 +1518,7 @@ class TestHookTemplate(unittest2.TestCase):
         rs = resp['_items']
 
         # Both hosts inherit the new service from the standard linux
-        self.assertEqual(len(rs), 16)
-        self.assertEqual(rs[15]['_templates'][0], ret_new['_id'])
-        self.assertFalse(rs[15]['_is_template'])
+        self.assertEqual(len(rs), 15)
         self.assertEqual(rs[14]['_templates'][0], ret_new['_id'])
         self.assertFalse(rs[14]['_is_template'])
         self.assertEqual(rs[13]['_templates'][0], ret_new['_id'])
