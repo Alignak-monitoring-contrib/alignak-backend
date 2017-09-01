@@ -92,13 +92,6 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
-            'obsess_over_service': {
-                "title": "Obsessive check",
-                "comment": "Nagios legacy property not used in Alignak",
-                'skill_level': 2,
-                'type': 'boolean',
-                'default': False
-            },
             'trending_policies': {
                 "title": "Trending policies",
                 "comment": "To be explained (see #113)",
