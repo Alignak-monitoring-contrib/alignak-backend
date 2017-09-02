@@ -264,13 +264,13 @@ class Grafana(object):
                                                 tags, datasource))
 
             if fields['warning'] is not None:
-                targets.append(self.generate_target({'measurement': fields['name'] + '_warn',
+                targets.append(self.generate_target({'measurement': fields['name'] + '_warning',
                                                      'refid': refid + '-w',
                                                      'mytarget': metrics['warning']},
                                                     tags, datasource))
 
             if fields['critical'] is not None:
-                targets.append(self.generate_target({'measurement': fields['name'] + '_crit',
+                targets.append(self.generate_target({'measurement': fields['name'] + '_critical',
                                                      'refid': refid + '-c',
                                                      'mytarget': metrics['critical']},
                                                     tags, datasource))
@@ -329,13 +329,14 @@ class Grafana(object):
                                                     tags, datasource))
 
                 if fields['warning'] is not None:
-                    targets.append(self.generate_target({'measurement': fields['name'] + '_warn',
+                    targets.append(self.generate_target({'measurement': fields['name'] + '_warning',
                                                          'refid': refid + '-w',
                                                          'mytarget': metrics['warning']},
                                                         tags, datasource))
 
                 if fields['critical'] is not None:
-                    targets.append(self.generate_target({'measurement': fields['name'] + '_crit',
+                    targets.append(self.generate_target({'measurement':
+                                                         fields['name'] + '_critical',
                                                          'refid': refid + '-c',
                                                          'mytarget': metrics['critical']},
                                                         tags, datasource))
@@ -372,14 +373,14 @@ class Grafana(object):
             "dashboard": {
                 'id': None,
                 'title': "Host: " + hostname,
-                'timezone': self.dashboard_data['timezone'],
-                'refresh': self.dashboard_data['refresh'],
-                'schemaVersion': 13,
                 'tags': ['alignak', 'host'],
                 'style': 'dark',
+                'timezone': self.dashboard_data['timezone'],
+                'refresh': self.dashboard_data['refresh'],
                 'editable': True,
                 'hideControls': False,
-                'sharedCrosshair': False,
+                'graphTooltip': 1,
+                'rows': rows,
                 'time': {
                     'from': 'now-6h',
                     'to': 'now'
@@ -392,7 +393,6 @@ class Grafana(object):
                         '5s', '10s', '30s', '1m', '5m', '15m', '30m', '1h', '2h'
                     ]
                 },
-                'rows': rows,
                 'templating': {
                     'list': [
                         {
@@ -442,7 +442,13 @@ class Grafana(object):
                             'allFormat': 'glob'
                         }
                     ]
-                }
+                },
+                'annotations': {
+                    'list': []
+                },
+                "schemaVersion": 7,
+                "version": 0,
+                "links": []
             },
             "overwrite": True
         }
