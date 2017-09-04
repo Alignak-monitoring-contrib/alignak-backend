@@ -237,7 +237,7 @@ def pre_get(resource, user_request, lookup):
 
 
 def pre_post(resource, user_request):
-    """Hook before get posting data.
+    """Hook before posting data.
 
     Check if the user restrictions match the request
 
@@ -1699,6 +1699,22 @@ def on_fetched_item_tree(resource_name, itemresp):
             itemresp['_tree_parents'].remove(realm_id)
 
 
+def pre_post_alias(resource_name, items):
+    """
+    Hook before insert.
+    If `alias` field not filled, we fill it with the `name` field
+
+    :param items: list of items (list because can use bulk)
+    :type items: list
+    :return: None
+    """
+    resource_list = current_app.config['DOMAIN']
+    if 'alias' in resource_list[resource_name]['schema']:
+        for key, item in enumerate(items):
+            if 'alias' not in item or item['alias'] == '':
+                items[key]['alias'] = items[key]['name']
+
+
 def generate_token():
     """
     Generate a user token
@@ -1862,6 +1878,10 @@ app.on_pre_POST += pre_post
 app.on_pre_PATCH += pre_patch
 app.on_pre_DELETE += pre_delete
 app.on_insert_user += pre_user_post
+
+# Manage alias when insert
+app.on_insert += pre_post_alias
+
 app.on_update_user += pre_user_patch
 app.on_inserted_user += after_insert_user
 app.on_inserted_host += after_insert_host
