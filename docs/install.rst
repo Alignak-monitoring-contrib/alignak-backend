@@ -54,6 +54,8 @@ You can install with pip::
 
 The required Python modules are automatically installed if not they are not yet present on your system.
 
+**Note** that if you need to `sudo pip install alignak-backend` on your system, you will probably need to set proper user's rights on some folders created by the installer. The concerned folders are * /usr/local/etc/alignak-backend* and */usr/local/var/log/alignak-backend*.
+
 From source
 ~~~~~~~~~~~
 
