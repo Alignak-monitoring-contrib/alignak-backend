@@ -1690,10 +1690,14 @@ def on_fetched_item_tree(resource_name, itemresp):
     if g.get('back_role_super_admin', False):
         return
     resources_get = g.get('resources_get', {})
+
     # check _parent
-    if not itemresp['_parent'] in resources_get['realm']:
+    if '_parent' not in itemresp or not itemresp['_parent'] in resources_get['realm']:
         itemresp['_parent'] = None
     # check _tree_parents
+    if '_tree_parents' not in itemresp:
+        itemresp['_tree_parents'] = []
+
     for realm_id in itemresp['_tree_parents']:
         if realm_id not in resources_get['realm']:
             itemresp['_tree_parents'].remove(realm_id)
