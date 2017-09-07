@@ -784,7 +784,7 @@ def pre_hostgroup_post(items):
     hgs_drv = current_app.data.driver.db['hostgroup']
     for dummy, item in enumerate(items):
         # Default parent
-        if '_parent' not in item:
+        if '_parent' not in item or not item['_parent']:
             # Use default hostgroup as a parent
             def_hg = hgs_drv.find_one({'name': 'All'})
             if def_hg:
@@ -843,7 +843,7 @@ def pre_servicegroup_post(items):
     sgs_drv = current_app.data.driver.db['servicegroup']
     for dummy, item in enumerate(items):
         # Default parent
-        if '_parent' not in item:
+        if '_parent' not in item or not item['_parent']:
             # Use default servicegroup as a parent
             def_sg = sgs_drv.find_one({'name': 'All'})
             if def_sg:
@@ -902,7 +902,7 @@ def pre_usergroup_post(items):
     ugs_drv = current_app.data.driver.db['usergroup']
     for dummy, item in enumerate(items):
         # Default parent
-        if '_parent' not in item:
+        if '_parent' not in item or not item['_parent']:
             # Use default usergroup as a parent
             def_ug = ugs_drv.find_one({'name': 'All'})
             if def_ug:
@@ -994,7 +994,7 @@ def pre_realm_post(items):
     realmsdrv = current_app.data.driver.db['realm']
     for dummy, item in enumerate(items):
         # Default parent
-        if '_parent' not in item:
+        if '_parent' not in item or not item['_parent']:
             # Use default realm as a parent
             dr = realmsdrv.find_one({'name': 'All'})
             item['_parent'] = dr['_id']

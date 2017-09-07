@@ -115,6 +115,8 @@ def get_schema():
                     'resource': 'usergroup',
                     'embeddable': True
                 },
+                'nullable': True,
+                'default': None
             },
             '_tree_parents': {
                 "title": "Parents",

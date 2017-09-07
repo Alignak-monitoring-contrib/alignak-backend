@@ -139,6 +139,7 @@ def get_schema():
                     'resource': 'realm',
                     'embeddable': True
                 },
+                'default': None
             },
             '_tree_parents': {
                 "title": "Parents",

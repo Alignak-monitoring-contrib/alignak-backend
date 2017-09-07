@@ -131,6 +131,8 @@ def get_schema():
                     'resource': 'servicegroup',
                     'embeddable': True
                 },
+                'nullable': True,
+                'default': None
             },
             '_tree_parents': {
                 "title": "Parents",
