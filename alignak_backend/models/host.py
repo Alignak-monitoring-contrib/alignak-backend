@@ -700,10 +700,10 @@ def get_schema():
             'ls_state_id': {
                 "title": "State identifier",
                 "comment": "Current state identifier. "
-                           "O: UP, 1: DOWN, 2: UNREACHABLE",
+                           "O: UP, 1: DOWN, 2/3: NOT USED, 4: UNREACHABLE",
                 'type': 'integer',
                 'default': 3,
-                'allowed': [0, 1, 2, 3]
+                'allowed': [0, 1, 2, 3, 4]
             },
             'ls_acknowledged': {
                 "title": "Acknowledged",
