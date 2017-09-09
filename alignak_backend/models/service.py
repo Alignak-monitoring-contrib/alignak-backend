@@ -85,13 +85,6 @@ def get_schema():
             },
 
             # todo: To be deprecated
-            'failure_prediction_enabled': {
-                "title": "Failure prediction",
-                "comment": "Nagios legacy property not used in Alignak",
-                'skill_level': 2,
-                'type': 'boolean',
-                'default': False
-            },
             'trending_policies': {
                 "title": "Trending policies",
                 "comment": "To be explained (see #113)",
