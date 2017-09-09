@@ -75,7 +75,7 @@ class Template(object):  # pylint: disable=too-many-public-methods
         First get the services from the host templates of the current host template. And then
         get the services of the current host template.
 
-        :param host: a new host to create, whare to attache the found services
+        :param host: a new host to create, where to attach the found services
         :type host: host
         :param templates: list of templates to search services into
         :type host: host
