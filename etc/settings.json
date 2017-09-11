@@ -22,28 +22,17 @@
   "MONGO_USERNAME": null,             /* Username to access to MongoDB */
   "MONGO_PASSWORD": null,             /* Password to access to MongoDB */
 
-  "GRAPHITE_HOST": null,  /* Graphite/carbon for metrics, to disable it, use: null */
-  "GRAPHITE_PORT": 2004,  /* Port of Graphite/carbon */
+  "IP_CRON": ["127.0.0.1"],  /* List of IP allowed to use cron routes/endpoint of the backend */
 
-  "INFLUXDB_HOST": null,          /* Influxdb for metrics, to disable it, use: null */
-  "INFLUXDB_PORT": 8086,          /* Port of Influxdb */
-  "INFLUXDB_DATABASE": "alignak", /* Name of database in Influxdb */
-  "INFLUXDB_LOGIN": "admin",       /* Username to access to Influxdb */
-  "INFLUXDB_PASSWORD": "admin",    /* Username to access to Influxdb */
-
-  /* Timeseries data are stored in retention in backend. Activate the timeseries scheduler
-   will push into timeseries databases the data.
-   BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+  /* Timeseries data are stored internally in the backend.
+  The timeseries scheduler will push them regularly to the configured databases
+   BE CAREFULL, ACTIVATE THIS ON ONE BACKEND ONLY! */
   "SCHEDULER_TIMESERIES_ACTIVE": false,
   /* This scheduler will create / update dashboards in grafana.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
   "SCHEDULER_GRAFANA_ACTIVE": false,
-
-  "GRAFANA_HOST": null,           /* IP or DNS of grafana, to disable it, use: null */
-  "GRAFANA_PORT": 3000,           /* Port of grafana */
-  "GRAFANA_APIKEY": "",           /* API key generated in grafana interface */
-  "GRAFANA_TEMPLATE_DASHBOARD": {
-    "timezone": "browser",
-    "refresh": "1m"
-  }
+  /* if 0, disable it, otherwise define the history in minutes.
+   It will keep history each minute.
+   BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+  "SCHEDULER_LIVESYNTHESIS_HISTORY": 60
 }

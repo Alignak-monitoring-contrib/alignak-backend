@@ -8,17 +8,32 @@
     This module is an Alignak REST backend
 """
 # Application version and manifest
-VERSION = (0, 5, 1)
+VERSION = (1, 0, 0)
 
 __application__ = u"Alignak_Backend"
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
 __version__ = '.'.join((str(each) for each in VERSION[:4]))
 __author__ = u"Alignak team"
-__copyright__ = u"(c) 2015 - %s" % __author__
+__author_email__ = u"david.durieux@alignak.net"
+__copyright__ = u"(c) 2015-2017 - %s" % __author__
 __license__ = u"GNU Affero General Public License, version 3"
 __description__ = u"Alignak REST backend"
 __releasenotes__ = u"""Alignak REST Backend"""
-__doc_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-backend"
+__git_url__ = "https://github.com/Alignak-monitoring-contrib/alignak-backend"
+__doc_url__ = "http://alignak-backend.readthedocs.org"
+
+__classifiers__ = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Intended Audience :: Developers',
+    'Intended Audience :: System Administrators',
+    'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+    'Natural Language :: English',
+    'Programming Language :: Python',
+    'Topic :: System :: Monitoring',
+    'Topic :: System :: Systems Administration'
+]
+
 # Application manifest
 manifest = {
     'name': __application__,

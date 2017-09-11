@@ -1,0 +1,4 @@
+{
+    "name": "notify-host-by-email-html",
+    "command_line": "$PLUGINSDIR$/notify_by_email.py -t host -S $SMTP_SERVER$ -ST $SMTP_PORT$ -SL $SMTP_LOGIN$ -SP $SMTP_PASSWORD$ -fh -to $CONTACTEMAIL$ -fr $MAIL_FROM$ -nt $NOTIFICATIONTYPE$ -hn \"$HOSTNAME$\" -ha $HOSTADDRESS$ -s $HOSTSTATE$ -ls $LASTHOSTSTATE$ -o \"$HOSTOUTPUT$\" -dt $HOSTDURATIONSEC$ -db \"$LASTHOSTSTATECHANGE$\" -i $HOSTBUSINESSIMPACT$ -p \"$HOSTPERFDATA$\""
+}

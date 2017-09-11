@@ -4,6 +4,7 @@
 This module provide classes to handle performance data from monitoring plugin output
 """
 import re
+from six import itervalues
 
 PERFDATA_SPLIT_PATTERN = re.compile(r'([^=]+=\S+)')
 METRIC_PATTERN = \
@@ -63,7 +64,6 @@ class Metric(object):
         self.name = self.value = self.uom = \
             self.warning = self.critical = self.min = self.max = None
         string = string.strip()
-        # print "Analysis string", string
         matches = METRIC_PATTERN.match(string)
         if matches:
             # Get the name but remove all ' in it
@@ -74,20 +74,28 @@ class Metric(object):
             self.critical = guess_int_or_float(matches.group(5))
             self.min = guess_int_or_float(matches.group(6))
             self.max = guess_int_or_float(matches.group(7))
-            # print 'Name', self.name
-            # print "Value", self.value
-            # print "Res", r
-            # print r.groups()
             if self.uom == '%':
                 self.min = 0
                 self.max = 100
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover, only for debugging purpose
         string = "%s=%s%s" % (self.name, self.value, self.uom)
-        if self.warning:
+        if self.warning is not None:
             string += ";%s" % (self.warning)
-        if self.critical:
+        else:
+            string += ";"
+        if self.critical is not None:
             string += ";%s" % (self.critical)
+        else:
+            string += ";"
+        if self.min is not None:
+            string += ";%s" % (self.min)
+        else:
+            string += ";"
+        if self.max is not None:
+            string += ";%s" % (self.max)
+        else:
+            string += ";"
         return string
 
 
@@ -106,14 +114,14 @@ class PerfDatas(object):
             if metric.name is not None:
                 self.metrics[metric.name] = metric
 
-    def __iter__(self):
-        return self.metrics.itervalues()
+    def __iter__(self):  # pragma: no cover, not used internally
+        return itervalues(self.metrics)
 
-    def __len__(self):
+    def __len__(self):  # pragma: no cover, not used internally
         return len(self.metrics)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key):  # pragma: no cover, not used internally
         return self.metrics[key]
 
-    def __contains__(self, key):
+    def __contains__(self, key):  # pragma: no cover, not used internally
         return key in self.metrics

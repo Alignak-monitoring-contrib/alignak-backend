@@ -1,0 +1,12 @@
+@import "theme.css";
+
+/*
+    This to make the table first column do not have any margin when two lines exist
+*/
+table.docutils div.line-block {
+    margin-left: 0;
+}
+
+.wy-nav-content {
+    max-width: none;
+}

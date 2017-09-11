@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import os
 import sys
-import re
-del os.link
+
 from importlib import import_module
 
 try:
@@ -20,42 +18,18 @@ except:
 if python_version < (2, 7):
     sys.exit("This application requires a minimum Python 2.7.x, sorry!")
 
-try:
-    from alignak.version import VERSION
-    __alignak_version__ = VERSION
-except:
-    __alignak_version__ = 'x.y.z'
-
 from alignak_backend import __application__, __version__, __copyright__
-from alignak_backend import __releasenotes__, __license__, __doc_url__
+from alignak_backend import __releasenotes__, __license__, __doc_url__, __git_url__
+from alignak_backend import __author__, __author_email__, __classifiers__
 from alignak_backend import __name__ as __pkg_name__
 
 package = import_module('alignak_backend')
 
-# Define paths
-if 'linux' in sys.platform or 'sunos5' in sys.platform:
-    paths = {
-        'bin':     "/usr/bin",
-        'var':     "/var/lib/alignak_backend/",
-        'share':   "/var/lib/alignak_backend/share",
-        'etc':     "/etc/alignak_backend",
-        'run':     "/var/run/alignak_backend",
-        'log':     "/var/log/alignak_backend",
-        'libexec': "/var/lib/alignak_backend/libexec",
-    }
-elif 'bsd' in sys.platform or 'dragonfly' in sys.platform:
-    paths = {
-        'bin':     "/usr/local/bin",
-        'var':     "/usr/local/libexec/alignak_backend",
-        'share':   "/usr/local/share/alignak_backend",
-        'etc':     "/usr/local/etc/alignak_backend",
-        'run':     "/var/run/alignak_backend",
-        'log':     "/var/log/alignak_backend",
-        'libexec': "/usr/local/libexec/alignak_backend/plugins",
-    }
-else:
-    print("Unsupported platform, sorry!")
-    exit(1)
+data_files = [('etc/alignak-backend', ['etc/settings.json', 'etc/uwsgi.ini']),
+              ('bin', ['bin/alignak-backend-uwsgi']),
+              ('var/log/alignak-backend', [])]
+if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
+    data_files.append(('etc/rc.d', ['bin/rc.d/alignak-backend']))
 
 setup(
     name=__pkg_name__,
@@ -64,43 +38,33 @@ setup(
     license=__license__,
 
     # metadata for upload to PyPI
-    author="David Durieux",
-    author_email="d.durieux@siprossii.com",
+    author=__author__,
+    author_email=__author_email__,
     keywords="alignak monitoring backend",
-    url="https://github.com/Alignak-monitoring-contrib/alignak-backend",
+    url=__git_url__,
     description=package.__doc__.strip(),
     long_description=open('README.rst').read(),
+
+    classifiers = __classifiers__,
 
     zip_safe=False,
 
     packages=find_packages(),
-    include_package_data=True,
-    # package_data={
-        # 'sample': ['package_data.dat'],
-    # },
-    data_files = [(paths['etc'], ['etc/settings.json'])],
 
+    # Where to install distributed files
+    data_files = data_files,
+
+    # Dependencies (if some) ...
     install_requires=[
-        'python-dateutil==2.4.2', 'Eve>=0.5', 'flask-bootstrap', 'docopt', 'jsonschema',
-        'eve-swagger', 'configparser',
-        'future', 'influxdb', 'flask-apscheduler'
+        'python-dateutil>=2.4.2', 'Eve>=0.5', 'flask-bootstrap', 'docopt', 'jsonschema',
+        'eve-swagger', 'configparser', 'future', 'influxdb', 'flask-apscheduler',
+        'uwsgi', 'statsd'
     ],
 
+    # Entry points (if some) ...
     entry_points={
         'console_scripts': [
-            'alignak_backend = alignak_backend.main:main'
+            'alignak-backend = alignak_backend.main:main'
         ],
-    },
-
-    classifiers = [
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: System Administrators',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Natural Language :: English',
-        'Programming Language :: Python',
-        'Topic :: System :: Monitoring',
-        'Topic :: System :: Systems Administration'
-    ]
+    }
 )

@@ -7,7 +7,8 @@
     This module manages the livesynthesis
 """
 from __future__ import print_function
-from flask import current_app, g, request, abort, jsonify
+import pymongo
+from flask import current_app, g, request
 from eve.methods.patch import patch_internal
 
 
@@ -45,6 +46,8 @@ class Livesynthesis(object):
                     'services_warning_soft': 0,
                     'services_critical_hard': 0,
                     'services_critical_soft': 0,
+                    'services_unreachable_hard': 0,
+                    'services_unreachable_soft': 0,
                     'services_unknown_hard': 0,
                     'services_unknown_soft': 0,
                     'services_acknowledged': 0,
@@ -63,37 +66,44 @@ class Livesynthesis(object):
                 data = {"hosts_total": hosts_count}
 
                 data['hosts_up_hard'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "UP", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['hosts_down_hard'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "DOWN", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['hosts_unreachable_hard'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "UNREACHABLE", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
 
                 data['hosts_up_soft'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "UP", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['hosts_down_soft'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "DOWN", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['hosts_unreachable_soft'] = hosts.find({
+                    '_is_template': False,
                     "ls_state": "UNREACHABLE", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
 
-                data['hosts_acknowledged'] = hosts.find(
-                    {'ls_acknowledged': True, "_realm": realm["_id"]}
-                ).count()
-                data['hosts_in_downtime'] = hosts.find(
-                    {'ls_downtimed': True, "_realm": realm["_id"]}
-                ).count()
+                data['hosts_acknowledged'] = hosts.find({
+                    '_is_template': False,
+                    'ls_acknowledged': True, "_realm": realm["_id"]
+                }).count()
+                data['hosts_in_downtime'] = hosts.find({
+                    '_is_template': False, 'ls_downtimed': True, "_realm": realm["_id"]
+                }).count()
 
                 lookup = {"_id": live_current['_id']}
                 patch_internal('livesynthesis', data, False, False, **lookup)
@@ -105,45 +115,65 @@ class Livesynthesis(object):
                 data = {"services_total": services_count}
 
                 data['services_ok_hard'] = services.find({
+                    '_is_template': False,
                     "ls_state": "OK", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_warning_hard'] = services.find({
+                    '_is_template': False,
                     "ls_state": "WARNING", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_critical_hard'] = services.find({
+                    '_is_template': False,
                     "ls_state": "CRITICAL", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_unknown_hard'] = services.find({
+                    '_is_template': False,
                     "ls_state": "UNKNOWN", "ls_state_type": "HARD",
+                    "ls_acknowledged": False, "_realm": realm["_id"]
+                }).count()
+                data['services_unreachable_hard'] = services.find({
+                    '_is_template': False,
+                    "ls_state": "UNREACHABLE", "ls_state_type": "HARD",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
 
                 data['services_ok_soft'] = services.find({
+                    '_is_template': False,
                     "ls_state": "OK", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_warning_soft'] = services.find({
+                    '_is_template': False,
                     "ls_state": "WARNING", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_critical_soft'] = services.find({
+                    '_is_template': False,
                     "ls_state": "CRITICAL", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
                 data['services_unknown_soft'] = services.find({
+                    '_is_template': False,
                     "ls_state": "UNKNOWN", "ls_state_type": "SOFT",
                     "ls_acknowledged": False, "_realm": realm["_id"]
                 }).count()
+                data['services_unreachable_soft'] = services.find({
+                    '_is_template': False,
+                    "ls_state": "UNREACHABLE", "ls_state_type": "SOFT",
+                    "ls_acknowledged": False, "_realm": realm["_id"]
+                }).count()
 
-                data['services_acknowledged'] = services.find(
-                    {"ls_acknowledged": True, "_realm": realm["_id"]}
-                ).count()
-                data['services_in_downtime'] = services.find(
-                    {"ls_downtimed": True, "_realm": realm["_id"]}
-                ).count()
+                data['services_acknowledged'] = services.find({
+                    '_is_template': False,
+                    "ls_acknowledged": True, "_realm": realm["_id"]
+                }).count()
+                data['services_in_downtime'] = services.find({
+                    '_is_template': False,
+                    "ls_downtimed": True, "_realm": realm["_id"]
+                }).count()
                 lookup = {"_id": live_current['_id']}
                 patch_internal('livesynthesis', data, False, False, **lookup)
 
@@ -154,6 +184,9 @@ class Livesynthesis(object):
         """
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         for _, item in enumerate(items):
+            if item['_is_template']:
+                continue
+
             live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
             if live_current is None:
                 ls = Livesynthesis()
@@ -172,6 +205,9 @@ class Livesynthesis(object):
         """
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         for _, item in enumerate(items):
+            if item['_is_template']:
+                continue
+
             live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
             if live_current is None:
                 ls = Livesynthesis()
@@ -188,6 +224,9 @@ class Livesynthesis(object):
         """
             What to do when an host live state is updated ...
         """
+        if original['_is_template']:
+            return
+
         minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
         if minus:
             livesynthesis_db = current_app.data.driver.db['livesynthesis']
@@ -195,14 +234,18 @@ class Livesynthesis(object):
             if live_current is None:
                 ls = Livesynthesis()
                 ls.recalculate()
-            data = {"$inc": {minus: -1, plus: 1}}
-            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+            else:
+                data = {"$inc": {minus: -1, plus: 1}}
+                current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
     @staticmethod
     def on_updated_service(updated, original):
         """
             What to do when a service live state is updated ...
         """
+        if original['_is_template']:
+            return
+
         minus, plus = Livesynthesis.livesynthesis_to_update('services', updated, original)
         if minus:
             livesynthesis_db = current_app.data.driver.db['livesynthesis']
@@ -210,14 +253,100 @@ class Livesynthesis(object):
             if live_current is None:
                 ls = Livesynthesis()
                 ls.recalculate()
-            data = {"$inc": {minus: -1, plus: 1}}
+            else:
+                data = {"$inc": {minus: -1, plus: 1}}
+                current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def on_deleted_item_host(item):
+        """When delete an host, decrement livesynthesis
+
+        :param item: fields of the item deleted
+        :type item: dict
+        :return: None
+        """
+        if item['_is_template']:
+            return
+
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+        if live_current is None:
+            ls = Livesynthesis()
+            ls.recalculate()
+        else:
+            minus = Livesynthesis.livesynthesis_to_delete('hosts', item)
+            data = {"$inc": {minus: -1, 'hosts_total': -1}}
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def on_deleted_resource_host():
+        """When delete all host (delete the resource 'host'), simply recalcule livestate
+
+        :return: None
+        """
+        ls = Livesynthesis()
+        ls.recalculate()
+
+    @staticmethod
+    def on_deleted_item_service(item):
+        """When delete a service, decrement livesynthesis
+
+        :param item: fields of the item deleted
+        :type item: dict
+        :return: None
+        """
+        if item['_is_template']:
+            return
+
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+        if live_current is None:
+            ls = Livesynthesis()
+            ls.recalculate()
+        else:
+            minus = Livesynthesis.livesynthesis_to_delete('services', item)
+            data = {"$inc": {minus: -1, 'services_total': -1}}
+            current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+    @staticmethod
+    def on_deleted_resource_service():
+        """When delete all services (delete the resource 'service'), simply recalcule livestate
+
+        :return: None
+        """
+        # the most simple method is to recalculate the livesynthesis
+        ls = Livesynthesis()
+        ls.recalculate()
+
+    @staticmethod
+    def livesynthesis_to_delete(type_check, item):
+        """Detect when type of livestate decrement
+
+        :param type_check: hosts | services
+        :type type_check: str
+        :param item: fields of the item (the host | the service)
+        :type item: dict
+        :return: the livesynthesis field to decrement
+        :rtype: str
+        """
+        minus = "%s_%s_%s" % (type_check, item['ls_state'].lower(),
+                              item['ls_state_type'].lower())
+
+        # Acknowledgement modification
+        if item['ls_acknowledged']:
+            minus = "%s_acknowledged" % (type_check)
+
+        # Downtime modification
+        if item['ls_downtimed']:
+            minus = "%s_in_downtime" % (type_check)
+        return minus
 
     @staticmethod
     def livesynthesis_to_update(type_check, updated, original):
         """
         Define fields counters to minus and plus (or nothing to do)
 
+        :param type_check:
         :param updated:
         :param original:
         :return: list with field name (minus, plus)
@@ -225,7 +354,8 @@ class Livesynthesis(object):
         """
 
         # State modification
-        if 'ls_state' not in updated and 'ls_state_type' not in updated:
+        if 'ls_state' not in updated and 'ls_state_type' not in updated \
+                and 'ls_acknowledged' not in updated and 'ls_downtimed' not in updated:
             return False, False
         elif 'ls_state' in updated and 'ls_state_type' not in updated:
             plus = "%s_%s_%s" % (type_check, updated['ls_state'].lower(),
@@ -233,6 +363,11 @@ class Livesynthesis(object):
         elif 'ls_state' not in updated and 'ls_state_type' in updated:
             plus = "%s_%s_%s" % (type_check, original['ls_state'].lower(),
                                  updated['ls_state_type'].lower())
+        elif 'ls_state' not in updated and 'ls_state_type' not in updated:
+            if 'ls_acknowledged' in updated and not updated['ls_acknowledged'] \
+                    or 'ls_downtimed' in updated and not updated['ls_downtimed']:
+                plus = "%s_%s_%s" % (type_check, original['ls_state'].lower(),
+                                     original['ls_state_type'].lower())
         else:
             # so have 'state' and 'state_type' in updated
             plus = "%s_%s_%s" % (type_check, updated['ls_state'].lower(),
@@ -265,3 +400,71 @@ class Livesynthesis(object):
             return False, False
 
         return minus, plus
+
+    @staticmethod
+    def on_fetched_item_history(response):
+        # pylint: disable=too-many-locals
+        """
+        Add to response some more information.
+        We manage the 2 special parameters:
+         * history
+         * concatenation
+
+        :param response: the response
+        :type response: dict
+        :return: None
+        """
+        realm_drv = current_app.data.driver.db['realm']
+        livesynthesis_db = current_app.data.driver.db['livesynthesis']
+        livesynthesisretention_db = current_app.data.driver.db['livesynthesisretention']
+
+        history = request.args.get('history')
+        concatenation = request.args.get('concatenation')
+
+        if concatenation is not None:
+            # get the realm the user have access
+            realm = realm_drv.find_one({'_id': response['_realm']})
+            livesynthesis_id = []
+            if g.get('back_role_super_admin', False):
+                # no restrictions, we are admin
+                livesynthesis = livesynthesis_db.find({'_realm': {'$in': realm['_all_children']}})
+                for lives in livesynthesis:
+                    livesynthesis_id.append(lives['_id'])
+                    for prop in [x for x in lives if not x.startswith('_')]:
+                        response[prop] += lives[prop]
+
+            else:
+                resources_get = g.get('resources_get', {})
+                livesynthesis_access = resources_get['livesynthesis']
+                custom_resources = g.get('resources_get_custom', {})
+                if 'livesynthesis' in custom_resources:
+                    livesynthesis_access.extend(custom_resources['livesynthesis'])
+                livesynthesis = livesynthesis_db.find({'_realm': {'$in': livesynthesis_access}})
+                for lives in livesynthesis:
+                    if lives['_id'] != response['_id']:
+                        livesynthesis_id.append(lives['_id'])
+                        for prop in [x for x in lives if not x.startswith('_')]:
+                            response[prop] += lives[prop]
+
+        if history is not None:
+            response['history'] = []
+            lsretentions = livesynthesisretention_db.find({'livesynthesis': response['_id']}).sort(
+                '_created', pymongo.DESCENDING)
+            for lsretention in lsretentions:
+                for prop in ['livesynthesis', '_id', '_updated', '_etag']:
+                    if prop in lsretention:
+                        del lsretention[prop]
+                for prop in lsretention:
+                    if not prop == '_created':
+                        lsretention[prop] = int(lsretention[prop])
+                response['history'].append(lsretention)
+            if concatenation is not None:
+                for ls_id in livesynthesis_id:
+                    lsretentions = livesynthesisretention_db.find({'livesynthesis': ls_id}).sort(
+                        '_created', pymongo.DESCENDING)
+                num = 0
+                for lsretention in lsretentions:
+                    for prop in lsretention:
+                        if not prop.startswith('_') and prop != 'livesynthesis':
+                            response['history'][num][prop] += lsretention[prop]
+                    num += 1

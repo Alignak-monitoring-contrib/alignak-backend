@@ -87,48 +87,41 @@ class TestRights(unittest2.TestCase):
         cls.dagobah = resp['_id']
 
         # Add users
-        # User 1
+        # User 1 - read right on Sluis realm and sub-realms
         data = {'name': 'user1', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.user_admin['host_notification_period'],
-                'service_notification_period': cls.user_admin['service_notification_period'],
-                '_realm': cls.realmAll_id}
+                '_realm': cls.sluis}
         response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
         cls.user1_id = resp['_id']
-        data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': 'command', 'crud': ['read'],
-                'sub_realm': True}
-        requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
-                      auth=cls.auth)
+        # data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': 'command', 'crud': ['read'],
+        #         'sub_realm': True}
+        # requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
+        #               auth=cls.auth)
 
-        # User 2
+        # User 2 - read right on Hoth realm and sub-realms
         data = {'name': 'user2', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.user_admin['host_notification_period'],
-                'service_notification_period': cls.user_admin['service_notification_period'],
-                '_realm': cls.realmAll_id}
+                '_realm': cls.hoth}
         response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
         cls.user2_id = resp['_id']
-        data = {'user': resp['_id'], 'realm': cls.hoth, 'resource': 'command', 'crud': ['read']}
-        requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
-                      auth=cls.auth)
+        # No more necessary: default is to get read right on user's realm
+        # data = {'user': resp['_id'], 'realm': cls.hoth, 'resource': 'command', 'crud': ['read']}
+        # requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
+        #               auth=cls.auth)
 
-        # User 3
+        # User 3 - read right on All realm and no sub-realms
         data = {'name': 'user3', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.user_admin['host_notification_period'],
-                'service_notification_period': cls.user_admin['service_notification_period'],
-                '_realm': cls.realmAll_id}
+                '_realm': cls.realmAll_id, '_sub_realm': False}
         response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
         cls.user3_id = resp['_id']
 
-        # User 4
+        # User 4 - read right on Sluis realm and no sub-realms + custom right on command
         data = {'name': 'user4', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.user_admin['host_notification_period'],
-                'service_notification_period': cls.user_admin['service_notification_period'],
-                '_realm': cls.realmAll_id}
+                '_realm': cls.sluis, '_sub_realm': False}
         response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
@@ -138,18 +131,28 @@ class TestRights(unittest2.TestCase):
         requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
                       auth=cls.auth)
 
-        # User 5
+        # User 5 - read right on Sluis realm and no sub-realms
         data = {'name': 'user5', 'password': 'test', 'back_role_super_admin': False,
-                'host_notification_period': cls.user_admin['host_notification_period'],
-                'service_notification_period': cls.user_admin['service_notification_period'],
-                '_realm': cls.realmAll_id}
+                '_realm': cls.sluis, '_sub_realm': False}
         response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
                                  auth=cls.auth)
         resp = response.json()
         cls.user5_id = resp['_id']
-        data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': '*', 'crud': ['read']}
-        requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
-                      auth=cls.auth)
+        # data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': '*', 'crud': ['read']}
+        # requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
+        #               auth=cls.auth)
+
+        # User 6 - read right on Sluis realm and its sub realms
+        data = {'name': 'user6', 'password': 'test', 'back_role_super_admin': False,
+                '_realm': cls.sluis, '_sub_realm': True}
+        response = requests.post(cls.endpoint + '/user', json=data, headers=headers,
+                                 auth=cls.auth)
+        resp = response.json()
+        cls.user6_id = resp['_id']
+        # data = {'user': resp['_id'], 'realm': cls.sluis, 'resource': '*', 'crud': ['read'],
+        #         'sub_realm': True}
+        # requests.post(cls.endpoint + '/userrestrictrole', json=data, headers=headers,
+        #               auth=cls.auth)
 
     @classmethod
     def tearDownClass(cls):
@@ -162,13 +165,12 @@ class TestRights(unittest2.TestCase):
         time.sleep(2)
 
     def test_roles(self):
-        """
-        Test roles to different users to see if they get the right commands
+        """Test roles for different users to see if they get the right commands
 
         :return: None
         """
         headers = {'Content-Type': 'application/json'}
-        sort_id = {'sort': '_id'}
+
         # Add command
         data = json.loads(open('cfg/command_ping.json').read())
         data['_users_read'] = [self.user1_id]
@@ -177,14 +179,22 @@ class TestRights(unittest2.TestCase):
         data['name'] = 'ping1'
         data['_users_read'] = [self.user4_id]
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
-        # Check if command right in backend
-        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+
+        # Get the commands for realm All
+        params = {'where': json.dumps({'_realm': self.realmAll_id})}
+        response = requests.get(self.endpoint + '/command', params=params, auth=self.auth)
         resp = response.json()
-        self.assertEqual(resp['_items'][0]['name'], "ping1")
+        assert len(resp['_items']) == 3
 
         data['_sub_realm'] = False
         data['name'] = 'ping2'
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+
+        # Get the commands for realm All
+        params = {'where': json.dumps({'_realm': self.realmAll_id})}
+        response = requests.get(self.endpoint + '/command', params=params, auth=self.auth)
+        resp = response.json()
+        assert len(resp['_items']) == 4
 
         data['_realm'] = self.sluis
         data['_sub_realm'] = False
@@ -192,16 +202,40 @@ class TestRights(unittest2.TestCase):
         data['_users_read'] = [self.user4_id]
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
 
+        # Get the commands for realm Sluis
+        params = {'where': json.dumps({'_realm': self.sluis})}
+        response = requests.get(self.endpoint + '/command', params=params, auth=self.auth)
+        resp = response.json()
+        assert len(resp['_items']) == 1
+
         data['_realm'] = self.dagobah
         data['_sub_realm'] = False
         data['name'] = 'ping4'
         data['_users_read'] = [self.user4_id]
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
 
+        # Get the commands for realm Dagobah
+        params = {'where': json.dumps({'_realm': self.dagobah})}
+        response = requests.get(self.endpoint + '/command', params=params, auth=self.auth)
+        resp = response.json()
+        assert len(resp['_items']) == 1
+
         data['_realm'] = self.hoth
         data['_sub_realm'] = False
         data['name'] = 'ping5'
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+
+        # Get the commands for realm Hoth
+        params = {'where': json.dumps({'_realm': self.hoth})}
+        response = requests.get(self.endpoint + '/command', params=params, auth=self.auth)
+        resp = response.json()
+        assert len(resp['_items']) == 1
+
+        # Now we have some commands in all the realms:
+        # - All: 3 commands visible in sub-realms and 1 only for All realm
+        # - Hoth: 1 not visible in sub-realms
+        # - Sluis: 1 not visible in sub-realms
+        # - Dagobah: 1 not visible in sub-realms
 
         params = {'username': 'user1', 'password': 'test', 'action': 'generate'}
         # get token user 1
@@ -233,32 +267,80 @@ class TestRights(unittest2.TestCase):
         resp = response.json()
         user5_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
 
+        # Get commands for each user
+        # User 1 - read right on Sluis realm and sub-realms
+        # Should see 3 commands from All realm, 1 from Sluis and 1 from Dagobah
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user1_auth)
         resp = response.json()
-        self.assertEqual(len(resp['_items']), 3)
-        self.assertEqual(resp['_meta']['total'], 3)
+        self.assertEqual(len(resp['_items']), 5)
+        self.assertEqual(resp['_meta']['total'], 5)
 
+        # User 2 - read right on Hoth realm and sub-realms
+        # Should see 3 commands from All realm, 1 from Hoth
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user2_auth)
         resp = response.json()
-        self.assertEqual(len(resp['_items']), 2)
-        self.assertEqual(resp['_meta']['total'], 2)
+        self.assertEqual(len(resp['_items']), 4)
+        self.assertEqual(resp['_meta']['total'], 4)
 
+        # User 3 - read right on All realm and no sub-realms
+        # Should see 4 commands from All realm
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user3_auth)
         resp = response.json()
-        self.assertEqual(len(resp['_items']), 0)
-        self.assertEqual(resp['_meta']['total'], 0)
+        self.assertEqual(len(resp['_items']), 4)
+        self.assertEqual(resp['_meta']['total'], 4)
 
+        # User 4 - read right on Sluis realm and no sub-realms + custom right on command
+        # Should see 3 commands from All realm, 1 from Sluis
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user4_auth)
         resp = response.json()
-        self.assertEqual(len(resp['_items']), 1)
-        self.assertEqual(resp['_meta']['total'], 1)
+        self.assertEqual(len(resp['_items']), 4)
+        self.assertEqual(resp['_meta']['total'], 4)
 
+        # User 5 - read right on Sluis realm and no sub-realms
+        # Should see 3 commands from All realm, 1 from Sluis
         response = requests.get(self.endpoint + '/command', params={'sort': "name"},
                                 auth=user5_auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 4)
+        self.assertEqual(resp['_meta']['total'], 4)
+
+    def test_restrict_right(self):
+        """Test user with restriction in realms
+
+        user6 has read rights on Sluis realm and its sub-realms. He will not get the All realm...
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+
+        params = {'username': 'user6', 'password': 'test', 'action': 'generate'}
+        # get token user 6
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        user6_auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+
+        # Check user6 with realms, must have 2 realms : Sluis and Dagobah
+        response = requests.get(self.endpoint + '/realm', params={'sort': "name"},
+                                auth=user6_auth)
+        resp = response.json()
         self.assertEqual(len(resp['_items']), 2)
         self.assertEqual(resp['_meta']['total'], 2)
+        self.assertEqual('Dagobah', resp['_items'][0]['name'])
+        self.assertEqual('Sluis', resp['_items'][1]['name'])
+
+        # check _parent and _tree_parents of realms are in realms we have access
+        parent = ''
+        for realm in resp['_items']:
+            if realm['name'] == 'Sluis':
+                parent = realm['_id']
+        for realm in resp['_items']:
+            if realm['name'] == 'Sluis':
+                assert realm['_parent'] is None
+                assert realm['_tree_parents'] == []
+            elif realm['name'] == 'Dagobah':
+                assert realm['_parent'] == parent
+                assert realm['_tree_parents'] == [parent]

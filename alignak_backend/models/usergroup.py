@@ -5,48 +5,77 @@ Resource information of usergroup
 """
 
 
-def get_name():
-    """
-    Get name of this resource
+def get_name(friendly=False):
+    """Get name of this resource
 
     :return: name of this resource
     :rtype: str
     """
+    if friendly:  # pragma: no cover
+        return "Alignak users groups"
     return 'usergroup'
 
 
-def get_schema():
+def get_doc():  # pragma: no cover
+    """Get documentation of this resource
+
+    :return: rst string
+    :rtype: str
     """
-    Schema structure of this resource
+    return """
+    The ``usergroup`` model is used to group several users.
+
+    """
+
+
+def get_schema():
+    """Schema structure of this resource
 
     :return: schema dictionary
     :rtype: dict
     """
     return {
         'schema': {
+            # Importation source
             'imported_from': {
+                "title": "Imported from",
+                "comment": "Item importation source (alignak-backend-import, ...)",
                 'type': 'string',
                 'default': 'unknown'
             },
+            'definition_order': {
+                "title": "Definition order",
+                "comment": "Priority level if several elements have the same name",
+                'type': 'integer',
+                'default': 100
+            },
+
+            # Identity
             'name': {
+                "title": "Users group name",
+                "comment": "Unique users group name",
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
-            'definition_order': {
-                'type': 'integer',
-                'default': 100
-            },
             'alias': {
+                "title": "Alias",
+                "comment": "Element friendly name used by the Web User Interface.",
                 'type': 'string',
-                'default': '',
+                'default': ''
             },
             'notes': {
+                "title": "Notes",
+                "comment": "Element notes. Free text to store element information.",
                 'type': 'string',
-                'default': '',
+                'default': ''
             },
+
+            # Usergroup specific
             'usergroups': {
+                "title": "Groups",
+                "comment": "List of the groups of this group",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -58,6 +87,8 @@ def get_schema():
                 'default': []
             },
             'users': {
+                "title": "Members",
+                "comment": "List of the members of this group",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -68,18 +99,28 @@ def get_schema():
                 },
                 'default': []
             },
+
+            # Automatically managed by the backend
             '_level': {
+                "title": "Level",
+                "comment": "Level in the hierarchy",
                 'type': 'integer',
                 'default': 0,
             },
             '_parent': {
+                "title": "Parent",
+                "comment": "Immediate parent in the hierarchy",
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'usergroup',
                     'embeddable': True
                 },
+                'nullable': True,
+                'default': None
             },
             '_tree_parents': {
+                "title": "Parents",
+                "comment": "List of parents in the hierarchy",
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -90,7 +131,11 @@ def get_schema():
                 },
                 'default': []
             },
+
+            # Realm
             '_realm': {
+                "title": "Realm",
+                "comment": "Realm this element belongs to.",
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -99,9 +144,13 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
+                "title": "Sub-realms",
+                "comment": "Is this element visible in the sub-realms of its realm?",
                 'type': 'boolean',
-                'default': False
+                'default': True
             },
+
+            # Users CRUD permissions
             '_users_read': {
                 'type': 'list',
                 'schema': {
@@ -111,7 +160,6 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
-                'default': [],
             },
             '_users_update': {
                 'type': 'list',
@@ -122,7 +170,6 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
-                'default': [],
             },
             '_users_delete': {
                 'type': 'list',
@@ -133,7 +180,6 @@ def get_schema():
                         'embeddable': True,
                     }
                 },
-                'default': [],
             },
         }
     }

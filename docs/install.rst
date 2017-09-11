@@ -6,16 +6,43 @@ Installation
 Requirements
 ------------
 
-To use this backend, you first need to install and run MongoDB_
+MongoDB
+~~~~~~~
+
+To use this Alignak backend, you first need to install and run MongoDB_
 
 .. _MongoDB: http://docs.mongodb.org/manual/
 
-If you want to run with uwsgi, you need to install uwsgi and plugin python (on Debian)::
+As an excerpt of the MongoDB installation documentation, this script will install the Mongo DB community edition on a Linux Ubuntu 16::
+
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
+    echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/testing multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+    sudo apt-get update
+    sudo apt-get install -y mongodb-org
+    sudo service mongod start
+
+
+.. warning:: Check for your specific Unix/Linux distribution in the `MongoDB_` installation documentation.
+
+
+uWSGI
+~~~~~
+
+We recommend to use uWSGI as an application server for the Alignak backend and we provide a python pip installer that has `uwsgi` as a requirement.
+
+If you prefer using your Unix/Linux ditribution packaging to install uWSGI and the alignak backend (not yet packaged... help needed for this), please refer to your distribution packages for installing. You will also need to install the uWSGI Python plugin.
+
+As an example on Debian::
 
     sudo apt-get install uwsgi uwsgi-plugin-python
 
+
+.. warning:: If you get some errors with the plugins, you will need to set some options in the alignak backend */usr/local/etc/alignak-backend/uwsgi.ini* configuration file. See this configuration file commented accordingly.
+
 Install with pip
 ----------------
+
+**Note** that the recommended way for installing on a production server is mostly often to use the packages existing for your distribution. Nevertheless, the pip installation provides a startup script using an uwsgi server and, for FreeBSD users, rc.d scripts.
 
 With pip
 ~~~~~~~~
@@ -24,6 +51,10 @@ You can install with pip::
 
     pip install alignak_backend
 
+
+The required Python modules are automatically installed if not they are not yet present on your system.
+
+**Note** that if you need to `sudo pip install alignak-backend` on your system, you will probably need to set proper user's rights on some folders created by the installer. The concerned folders are * /usr/local/etc/alignak-backend* and */usr/local/var/log/alignak-backend*.
 
 From source
 ~~~~~~~~~~~
@@ -41,27 +72,3 @@ For contributors
 If you want to hack into the codebase (e.g for future contribution), just install like this::
 
     pip install -e .
-
-
-Install from source without pip
--------------------------------
-
-If you are on Debian::
-
-    sudo apt-get -y install python python-dev python-pip git
-
-
-Get the project sources::
-
-    git clone https://github.com/Alignak-monitoring/alignak-backend
-
-
-Install python prerequisites (Normally, you can install with user *alignak* )::
-
-    pip install -r alignak-backend/requirements.txt
-
-
-And install::
-
-    cd alignak-backend
-    sudo python setup.py install
