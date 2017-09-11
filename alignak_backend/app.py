@@ -25,6 +25,8 @@ from datetime import datetime, timedelta
 
 import logging
 from logging.config import dictConfig as logger_dictConfig
+from dateutil import parser
+
 from future.utils import iteritems
 
 from eve import Eve
@@ -2532,6 +2534,116 @@ def cron_timeseries():
                     break
                 lookup = {"_id": data['_id']}
                 deleteitem_internal('timeseriesretention', False, False, **lookup)
+
+
+@app.route("/annotations", methods=['POST'])
+def grafana_annotations(engine='jsonify'):
+    # pylint: disable=too-many-locals
+    """
+    The annotation request from the Simple JSON Datasource is a POST request to the /annotations
+    endpoint in your datasource. The JSON request body looks like this:
+
+    {
+      "range": {
+        "from": "2016-04-15T13:44:39.070Z",
+        "to": "2016-04-15T14:44:39.070Z"
+      },
+      "rangeRaw": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "annotation": {
+        "name": "deploy",
+        "datasource": "Simple JSON Datasource",
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "enable": true,
+        "query": "#deploy"
+      }
+    }
+
+    Grafana expects a response containing an array of annotation objects in the following format:
+
+    [
+      {
+        annotation: annotation, // The original annotation sent from Grafana.
+        time: time, // Time since UNIX Epoch in milliseconds. (required)
+        title: title, // The title for the annotation tooltip. (required)
+        tags: tags, // Tags for the annotation. (optional)
+        text: text // Text for the annotation. (optional)
+      }
+    ]
+
+    :return: See upper comment
+    :rtype: list
+    """
+    posted_data = request.json
+    annotation = None
+    query = None
+    hosts = []
+    services = []
+    try:
+        annotation = posted_data.get("annotation")
+        query = annotation.get("query")
+        time_frame = posted_data.get("range")
+        range_from = time_frame.get("from")
+        range_from_date = parser.parse(range_from)
+        range_to = time_frame.get("to")
+        range_to_date = parser.parse(range_to)
+    except Exception as e:
+        abort(400, description='Bad format for posted data: %s' % str(e))
+
+    with app.test_request_context():
+        resp = []
+        history_db = current_app.data.driver.db['history']
+
+        query = query.split('/')
+        if len(query) < 2:
+            abort(400, description='Bad format for query: %s. '
+                                   'Query must be something like event_type/target' % query)
+
+        event_type = query[0]
+        hosts = query[1]
+        hosts = hosts.replace("{", "")
+        hosts = hosts.replace("}", "")
+        hosts = hosts.split(",")
+        if len(query) > 2:
+            services = query[2]
+            services = services.replace("{", "")
+            services = services.replace("}", "")
+            services = services.split(",")
+
+        search = {
+            "type": event_type,
+            "host_name": {"$in": hosts},
+            "_created": {"$gte": range_from_date, "$lte": range_to_date},
+        }
+        if services:
+            search["service_name"] = {"$in": services}
+
+        history = history_db.find(search)
+
+        for event in history:
+            title = event['message']
+            if "host_name" in event and event["host_name"]:
+                if "service_name" in event and event["service_name"]:
+                    title = "%s/%s - %s" \
+                            % (event["host_name"], event["service_name"], event["message"])
+                else:
+                    title = "%s - %s" \
+                            % (event["host_name"], event["message"])
+            item = {
+                "annotation": annotation,
+                "time": event['_updated'],
+                "title": title,
+                "tags": [event["type"]],
+                "text": event['message']
+            }
+            resp.append(item)
+
+        if engine == 'jsonify':
+            return jsonify(resp)
+
+        return json.dumps(resp)
 
 
 @app.route("/cron_grafana", methods=['GET'])

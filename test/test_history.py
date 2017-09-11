@@ -442,3 +442,127 @@ class TestHistory(unittest2.TestCase):
             self.assertEqual(re[count]['message'], "Message: %s" % event_type)
             assert '_realm' not in re[count]
             count = count + 1
+
+    def test_history_get_events(self):
+        """Test history: add all types of events
+
+        :return: None
+        """
+
+        headers = {'Content-Type': 'application/json'}
+
+        # Create an event in the history
+        data = {
+            'host_name': "test",
+            'user': None,
+            'type': 'monitoring.alert',
+            'message': "Test event #1 for an alert"
+        }
+        response = requests.post(self.endpoint + '/history',
+                                 json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Create an event in the history
+        data = {
+            'host_name': "test1",
+            'user': None,
+            'type': 'monitoring.notification',
+            'message': "Test event #2 for a notification"
+        }
+        response = requests.post(self.endpoint + '/history',
+                                 json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Create an event in the history
+        data = {
+            'host_name': "test2",
+            'user': None,
+            'type': 'monitoring.notification',
+            'message': "Test event #3 for a notification"
+        }
+        response = requests.post(self.endpoint + '/history',
+                                 json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Get history
+        search = {'sort': '_id'}
+        response = requests.get(self.endpoint + '/history', params=search, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 3)
+        for h in re:
+            print("H: %s" % h['_created'])
+
+        # 1- Search events for an host
+        search = {
+            'where': json.dumps({
+                "host_name": "test",
+            })
+        }
+        response = requests.get(self.endpoint + '/history', params=search, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 1)
+
+        # 2- Search events for two hosts
+        search = {
+            'where': json.dumps({
+                "host_name": {"$in": ["test", "test1"]},
+            })
+        }
+        response = requests.get(self.endpoint + '/history', params=search, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 2)
+
+        # 3- Search alerts for two hosts
+        search = {
+            'where': json.dumps({
+                "type": "monitoring.alert",
+                "host_name": {"$in": ["test", "test1"]},
+                # "_created": {"$gte": range_from, "$lte": range_to},
+            })
+        }
+        response = requests.get(self.endpoint + '/history', params=search, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 1)
+
+        # 4- Search recent events
+        time.sleep(3)
+        now = datetime.utcnow()
+        range_to = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        # One second in the past
+        past = now - timedelta(seconds=1)
+        range_from = past.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        print("Date from: %s, to: %s" % (range_from, range_to))
+
+        search = {
+            'where': json.dumps({
+                "_created": {"$gte": range_from, "$lte": range_to},
+            })
+        }
+        response = requests.get(self.endpoint + '/history', params=search, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        # No results ...
+        self.assertEqual(len(re), 0)
+
+        # Search later in the past
+        past = now - timedelta(seconds=10)
+        range_from = past.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        print("Date from: %s, to: %s" % (range_from, range_to))
+
+        search = {
+            'where': json.dumps({
+                "_created": {"$gte": range_from, "$lte": range_to},
+            })
+        }
+        response = requests.get(self.endpoint + '/history', params=search, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        # No results ...
+        self.assertEqual(len(re), 3)

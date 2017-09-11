@@ -289,7 +289,7 @@ Grafana: the dashboard/graph tool
 The backend can create the dashboards (one per host) and the graphs (one per host and one per
 services in the dashboard of the host related).
 
-We need define grafana server and activate the _cron_ on one Backend in case you have
+We need to define grafana server and activate the _cron_ on one Backend in case you have
 a cluster of Backend (many backends).
 
 For that, activate it in configuration file::
@@ -329,6 +329,23 @@ It's possible to force to regenerate all dashboards in grafana (works only from 
 ::
 
     curl "http://127.0.0.1:5000/cron_grafana?forcegenerate=1"
+
+
+Grafana annotations
+-------------------
+
+The backend can be used as an annotations backend by Grafana. The `/annotations` endpoint is complying to the Grafana API to request annotations for the graph panels. You can request all the data stored into the backend `history` collection (eg. check results, alerts, notifications, ...).
+
+Using the Grafana Simple Json, configure the backend URL in proxy mode with HTTP authentication and use a backend user token for the username.
+
+The Grafana annotation query syntax is very simple: event_type/hosts/services
+
+The `event_type` is any allowed value in the `type` property of the `history` endpoint. If `event_type` is not existing in the `history` endpoint, the returned annotations list will be empty.
+The `hosts` is an host name or a list of hosts names into braces. eg. {host_name} or {host_name1,host_name2}.
+The `services` (optional parameter) is a service name or a list of services names into braces. eg. {service_name} or {service_name1,service_name2}
+
+**Note** that the annotations list will be limited by the backend configured maximum list of results (25 or 50 items).
+
 
 
 Special parameters for livesynthesis
