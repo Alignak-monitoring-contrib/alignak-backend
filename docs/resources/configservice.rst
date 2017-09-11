@@ -23,9 +23,9 @@ Monitored service (service)
    "| :ref:`_realm <service-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <service-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| :ref:`_template_fields <service-_template_fields>`
-   | *Template fields*", "dict", "", "{}", ""
+   | *Template fields*", "list", "", "[]", ""
    "| :ref:`_templates <service-_templates>`
    | *Templates*", "objectid list", "", "[]", ":ref:`service <resource-service>`"
    "| :ref:`_templates_from_host_template <service-_templates_from_host_template>`
@@ -57,7 +57,7 @@ Monitored service (service)
    | *BR smart notifications*", "boolean", "", "False", ""
    "| :ref:`check_command <service-check_command>`
    | *Check command*", "objectid", "", "", ":ref:`command <resource-command>`"
-   "| check_command_args
+   "| :ref:`check_command_args <service-check_command_args>`
    | *Check command arguments*", "string", "", "", ""
    "| :ref:`check_freshness <service-check_freshness>`
    | *Check freshness*", "boolean", "", "False", ""
@@ -78,15 +78,13 @@ Monitored service (service)
    "| :ref:`duplicate_foreach <service-duplicate_foreach>`
    | *Duplicate for each*", "string", "", "", ""
    "| :ref:`escalations <service-escalations>`
-   | *Escalations*", "objectid list", "", "[]", ":ref:`escalation <resource-escalation>`"
+   | *Escalations*", "objectid list", "", "[]", ":ref:`serviceescalation <resource-serviceescalation>`"
    "| :ref:`event_handler <service-event_handler>`
    | *Event handler*", "objectid", "", "None", ":ref:`command <resource-command>`"
    "| event_handler_args
    | *Event handler arguments*", "string", "", "", ""
    "| event_handler_enabled
    | *Event handler enabled*", "boolean", "", "False", ""
-   "| :ref:`failure_prediction_enabled <service-failure_prediction_enabled>`
-   | *Failure prediction*", "boolean", "", "False", ""
    "| :ref:`first_notification_delay <service-first_notification_delay>`
    | *First notification delay*", "integer", "", "0", ""
    "| :ref:`flap_detection_enabled <service-flap_detection_enabled>`
@@ -142,7 +140,7 @@ Monitored service (service)
    "| ls_last_notification
    | *Last notification sent*", "integer", "", "0", ""
    "| :ref:`ls_last_state <service-ls_last_state>`
-   | *Last state*", "string", "", "OK", ""
+   | *Last state*", "string", "", "UNKNOWN", ""
    "| :ref:`ls_last_state_changed <service-ls_last_state_changed>`
    | *Last state changed*", "integer", "", "0", ""
    "| :ref:`ls_last_state_type <service-ls_last_state_type>`
@@ -179,7 +177,8 @@ Monitored service (service)
    | *State type*", "string", "", "HARD", ""
    "| :ref:`macromodulations <service-macromodulations>`
    | *Macros modulations*", "list", "", "[]", ""
-   "| maintenance_period", "objectid", "", "", ":ref:`timeperiod <resource-timeperiod>`"
+   "| :ref:`maintenance_period <service-maintenance_period>`
+   | *Maintenance period*", "objectid", "", "", ":ref:`timeperiod <resource-timeperiod>`"
    "| :ref:`max_check_attempts <service-max_check_attempts>`
    | *Maximum check attempts*", "integer", "", "1", ""
    "| merge_host_users", "boolean", "", "False", ""
@@ -197,8 +196,6 @@ Monitored service (service)
    | *Notifications period*", "objectid", "", "", ":ref:`timeperiod <resource-timeperiod>`"
    "| notifications_enabled
    | *Notifications enabled*", "boolean", "", "True", ""
-   "| :ref:`obsess_over_service <service-obsess_over_service>`
-   | *Obsessive check*", "boolean", "", "False", ""
    "| parallelize_check", "boolean", "", "True", ""
    "| passive_checks_enabled
    | *Passive checks enabled*", "boolean", "", "True", ""
@@ -217,7 +214,7 @@ Monitored service (service)
    "| :ref:`snapshot_command <service-snapshot_command>`
    | *Snapshot command*", "objectid", "", "", ":ref:`command <resource-command>`"
    "| :ref:`snapshot_criteria <service-snapshot_criteria>`
-   | *Snapshot criteria*", "list", "", "['d', 'x']", ""
+   | *Snapshot criteria*", "list", "", "['w', 'c', 'x']", ""
    "| snapshot_enabled
    | *Snapshot enabled*", "boolean", "", "False", ""
    "| :ref:`snapshot_interval <service-snapshot_interval>`
@@ -282,7 +279,9 @@ Monitored service (service)
 
 .. _service-business_impact:
 
-``business_impact``: The business impact level indicates the level of importance of this element. The highest value the most important is the elemen.
+``business_impact``: The business impact level indicates the level of importance of this element. The highest value the most important is the element.
+
+   Allowed values: [, 0, ,,  , 1, ,,  , 2, ,,  , 3, ,,  , 4, ,,  , 5, ]
 
 .. _service-business_impact_modulations:
 
@@ -296,7 +295,7 @@ Monitored service (service)
 
 ``business_rule_host_notification_options``: Not yet implemented (#146)
 
-   Allowed values: d, u, r, f, s, n
+   Allowed values: [, ', d, ', ,,  , ', u, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
 
 .. _service-business_rule_output_template:
 
@@ -306,7 +305,7 @@ Monitored service (service)
 
 ``business_rule_service_notification_options``: Not yet implemented (#146)
 
-   Allowed values: w, u, c, r, f, s, n
+   Allowed values: [, ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
 
 .. _service-business_rule_smart_notifications:
 
@@ -315,6 +314,10 @@ Monitored service (service)
 .. _service-check_command:
 
 ``check_command``: Command that will be executed to check if the element is ok.
+
+.. _service-check_command_args:
+
+``check_command_args``: Separate arguments with !. For example, if your have 2 arguments, enter test1!test2
 
 .. _service-check_freshness:
 
@@ -352,10 +355,6 @@ Monitored service (service)
 
 ``event_handler``: Command that should run whenever a change in the element state is detected.
 
-.. _service-failure_prediction_enabled:
-
-``failure_prediction_enabled``: Nagios legacy property not used in Alignak
-
 .. _service-first_notification_delay:
 
 ``first_notification_delay``: Number of minutes to wait before sending out the first problem notification when a non-ok state is detected. If you set this value to 0, the first notification will be sent-out immediately.
@@ -368,13 +367,13 @@ Monitored service (service)
 
 ``flap_detection_options``: States involved in the flapping detection logic.
 
-   Allowed values: o, w, c, u, x
+   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', c, ', ,,  , ', u, ', ,,  , ', x, ', ]
 
 .. _service-freshness_state:
 
 ``freshness_state``: Passive checks only. The state that will be forced by Alignak when the freshness check fails.
 
-   Allowed values: o, w, c, u, x
+   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', c, ', ,,  , ', u, ', ,,  , ', x, ', ]
 
 .. _service-freshness_threshold:
 
@@ -408,7 +407,7 @@ Monitored service (service)
 
 ``initial_state``: Alignak sets this default state until a check happen
 
-   Allowed values: o, w, c, u, x
+   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', c, ', ,,  , ', u, ', ,,  , ', x, ', ]
 
 .. _service-is_volatile:
 
@@ -454,7 +453,7 @@ Monitored service (service)
 
 ``ls_last_state``: Former state
 
-   Allowed values: OK, WARNING, CRITICAL, UNKNOWN, UNREACHABLE
+   Allowed values: [, ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
 
 .. _service-ls_last_state_changed:
 
@@ -464,7 +463,7 @@ Monitored service (service)
 
 ``ls_last_state_type``: Former state type
 
-   Allowed values: HARD, SOFT
+   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
 
 .. _service-ls_last_time_critical:
 
@@ -514,21 +513,27 @@ Monitored service (service)
 
 ``ls_state``: Current state
 
-   Allowed values: OK, WARNING, CRITICAL, UNKNOWN, UNREACHABLE
+   Allowed values: [, ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
 
 .. _service-ls_state_id:
 
 ``ls_state_id``: Current state identifier. O: OK, 1: WARNING, 2: CRITICAL, 3: UNKNOWN, 4: UNREACHABLE
 
+   Allowed values: [, 0, ,,  , 1, ,,  , 2, ,,  , 3, ,,  , 4, ]
+
 .. _service-ls_state_type:
 
 ``ls_state_type``: Current state type
 
-   Allowed values: HARD, SOFT
+   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
 
 .. _service-macromodulations:
 
 ``macromodulations``: Not yet implemented (#115).
+
+.. _service-maintenance_period:
+
+``maintenance_period``: The maintenance period of a service is a time period that defines an equivalent of scheduled downtimes for the service.
 
 .. _service-max_check_attempts:
 
@@ -554,15 +559,11 @@ Monitored service (service)
 
 ``notification_options``: List of the notifications types that can be sent.
 
-   Allowed values: w, u, c, r, f, s, x, n
+   Allowed values: [, ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', x, ', ,,  , ', n, ', ]
 
 .. _service-notification_period:
 
 ``notification_period``: Time period during which notifications can be sent.
-
-.. _service-obsess_over_service:
-
-``obsess_over_service``: Nagios legacy property not used in Alignak
 
 .. _service-poller_tag:
 
@@ -604,11 +605,11 @@ Monitored service (service)
 
 ``stalking_options``: When enabled for a specific state, Alignak will add an information log for each element check even if the state did not changed.
 
-   Allowed values: o, w, u, c, x
+   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', x, ', ]
 
 .. _service-tags:
 
-``tags``: List of tags for this element. Currently, only the used templates appear in the tags list. Will be improved feature...
+``tags``: List of tags for this element. Intended to set tags by the Web UI
 
 .. _service-time_to_orphanage:
 

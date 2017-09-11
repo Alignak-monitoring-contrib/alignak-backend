@@ -25,9 +25,9 @@ Monitored host (host)
    "| :ref:`_realm <host-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <host-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| :ref:`_template_fields <host-_template_fields>`
-   | *Template fields*", "dict", "", "{}", ""
+   | *Template fields*", "list", "", "[]", ""
    "| :ref:`_templates <host-_templates>`
    | *Templates*", "objectid list", "", "[]", ":ref:`host <resource-host>`"
    "| :ref:`_templates_with_services <host-_templates_with_services>`
@@ -61,7 +61,7 @@ Monitored host (host)
    | *BR smart notifications*", "boolean", "", "False", ""
    "| :ref:`check_command <host-check_command>`
    | *Check command*", "objectid", "", "", ":ref:`command <resource-command>`"
-   "| check_command_args
+   "| :ref:`check_command_args <host-check_command_args>`
    | *Check command arguments*", "string", "", "", ""
    "| :ref:`check_freshness <host-check_freshness>`
    | *Check freshness*", "boolean", "", "False", ""
@@ -79,15 +79,13 @@ Monitored host (host)
    "| :ref:`display_name <host-display_name>`
    | *Display name*", "string", "", "", ""
    "| :ref:`escalations <host-escalations>`
-   | *Escalations*", "objectid list", "", "[]", ":ref:`escalation <resource-escalation>`"
+   | *Escalations*", "objectid list", "", "[]", ":ref:`hostescalation <resource-hostescalation>`"
    "| :ref:`event_handler <host-event_handler>`
    | *Event handler*", "objectid", "", "None", ":ref:`command <resource-command>`"
    "| event_handler_args
    | *Event handler arguments*", "string", "", "", ""
    "| event_handler_enabled
    | *Event handler enabled*", "boolean", "", "False", ""
-   "| :ref:`failure_prediction_enabled <host-failure_prediction_enabled>`
-   | *Failure prediction*", "boolean", "", "False", ""
    "| :ref:`first_notification_delay <host-first_notification_delay>`
    | *First notification delay*", "integer", "", "0", ""
    "| :ref:`flap_detection_enabled <host-flap_detection_enabled>`
@@ -110,7 +108,7 @@ Monitored host (host)
    "| :ref:`labels <host-labels>`
    | *BR labels*", "list", "", "[]", ""
    "| :ref:`location <host-location>`
-   | *Location*", "point", "", "{'type': 'Point', 'coordinates': [46.3613628, 6.5394704]}", ""
+   | *Location*", "point", "", "{'type': 'Point', 'coordinates': [48.858293, 2.294601]}", ""
    "| low_flap_threshold
    | *Low flapping threshold*", "integer", "", "25", ""
    "| :ref:`ls_acknowledged <host-ls_acknowledged>`
@@ -138,7 +136,7 @@ Monitored host (host)
    "| ls_last_notification
    | *Last notification sent*", "integer", "", "0", ""
    "| :ref:`ls_last_state <host-ls_last_state>`
-   | *Last state*", "string", "", "OK", ""
+   | *Last state*", "string", "", "UNREACHABLE", ""
    "| :ref:`ls_last_state_changed <host-ls_last_state_changed>`
    | *Last state changed*", "integer", "", "0", ""
    "| :ref:`ls_last_state_type <host-ls_last_state_type>`
@@ -173,7 +171,8 @@ Monitored host (host)
    | *State type*", "string", "", "HARD", ""
    "| :ref:`macromodulations <host-macromodulations>`
    | *Macros modulations*", "list", "", "[]", ""
-   "| maintenance_period", "objectid", "", "", ":ref:`timeperiod <resource-timeperiod>`"
+   "| :ref:`maintenance_period <host-maintenance_period>`
+   | *Maintenance period*", "objectid", "", "", ":ref:`timeperiod <resource-timeperiod>`"
    "| :ref:`max_check_attempts <host-max_check_attempts>`
    | *Maximum check attempts*", "integer", "", "1", ""
    "| :ref:`name <host-name>`
@@ -190,8 +189,6 @@ Monitored host (host)
    | *Notifications period*", "objectid", "", "", ":ref:`timeperiod <resource-timeperiod>`"
    "| notifications_enabled
    | *Notifications enabled*", "boolean", "", "True", ""
-   "| :ref:`obsess_over_host <host-obsess_over_host>`
-   | *Obsessive check*", "boolean", "", "False", ""
    "| :ref:`parents <host-parents>`
    | *Parents*", "objectid list", "", "[]", ":ref:`host <resource-host>`"
    "| passive_checks_enabled
@@ -233,7 +230,7 @@ Monitored host (host)
    "| :ref:`trigger_name <host-trigger_name>`
    | *Trigger name*", "string", "", "", ""
    "| :ref:`usergroups <host-usergroups>`
-   | *Notifications users*", "objectid list", "", "[]", ":ref:`usergroup <resource-usergroup>`"
+   | *Notifications users groups*", "objectid list", "", "[]", ":ref:`usergroup <resource-usergroup>`"
    "| :ref:`users <host-users>`
    | *Notifications users*", "objectid list", "", "[]", ":ref:`user <resource-user>`"
    "| :ref:`vrml_image <host-vrml_image>`", "string", "", "", ""
@@ -283,7 +280,9 @@ Monitored host (host)
 
 .. _host-business_impact:
 
-``business_impact``: The business impact level indicates the level of importance of this element. The highest value the most important is the elemen.
+``business_impact``: The business impact level indicates the level of importance of this element. The highest value the most important is the element.
+
+   Allowed values: [, 0, ,,  , 1, ,,  , 2, ,,  , 3, ,,  , 4, ,,  , 5, ]
 
 .. _host-business_impact_modulations:
 
@@ -297,7 +296,7 @@ Monitored host (host)
 
 ``business_rule_host_notification_options``: Not yet implemented (#146)
 
-   Allowed values: d, u, r, f, s, n
+   Allowed values: [, ', d, ', ,,  , ', u, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
 
 .. _host-business_rule_output_template:
 
@@ -307,7 +306,7 @@ Monitored host (host)
 
 ``business_rule_service_notification_options``: Not yet implemented (#146)
 
-   Allowed values: w, u, c, r, f, s, n
+   Allowed values: [, ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
 
 .. _host-business_rule_smart_notifications:
 
@@ -316,6 +315,10 @@ Monitored host (host)
 .. _host-check_command:
 
 ``check_command``: Command that will be executed to check if the element is ok.
+
+.. _host-check_command_args:
+
+``check_command_args``: Separate arguments with !. For example, if your have 2 arguments, enter test1!test2
 
 .. _host-check_freshness:
 
@@ -349,10 +352,6 @@ Monitored host (host)
 
 ``event_handler``: Command that should run whenever a change in the element state is detected.
 
-.. _host-failure_prediction_enabled:
-
-``failure_prediction_enabled``: Nagios legacy property not used in Alignak
-
 .. _host-first_notification_delay:
 
 ``first_notification_delay``: Number of minutes to wait before sending out the first problem notification when a non-ok state is detected. If you set this value to 0, the first notification will be sent-out immediately.
@@ -365,13 +364,13 @@ Monitored host (host)
 
 ``flap_detection_options``: States involved in the flapping detection logic.
 
-   Allowed values: o, d, x
+   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ]
 
 .. _host-freshness_state:
 
 ``freshness_state``: Passive checks only. The state that will be forced by Alignak when the freshness check fails.
 
-   Allowed values: o, d, x
+   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ]
 
 .. _host-freshness_threshold:
 
@@ -397,7 +396,7 @@ Monitored host (host)
 
 ``initial_state``: Alignak sets this default state until a check happen
 
-   Allowed values: o, d, x
+   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ]
 
 .. _host-labels:
 
@@ -443,7 +442,7 @@ Monitored host (host)
 
 ``ls_last_state``: Former state
 
-   Allowed values: OK, WARNING, CRITICAL, UNKNOWN, UP, DOWN, UNREACHABLE
+   Allowed values: [, ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
 
 .. _host-ls_last_state_changed:
 
@@ -453,7 +452,7 @@ Monitored host (host)
 
 ``ls_last_state_type``: Former state type
 
-   Allowed values: HARD, SOFT
+   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
 
 .. _host-ls_last_time_down:
 
@@ -499,21 +498,27 @@ Monitored host (host)
 
 ``ls_state``: Current state
 
-   Allowed values: UP, DOWN, UNREACHABLE
+   Allowed values: [, ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
 
 .. _host-ls_state_id:
 
-``ls_state_id``: Current state identifier. O: UP, 1: DOWN, 2: UNREACHABLE
+``ls_state_id``: Current state identifier. O: UP, 1: DOWN, 2/3: NOT USED, 4: UNREACHABLE
+
+   Allowed values: [, 0, ,,  , 1, ,,  , 2, ,,  , 3, ,,  , 4, ]
 
 .. _host-ls_state_type:
 
 ``ls_state_type``: Current state type
 
-   Allowed values: HARD, SOFT
+   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
 
 .. _host-macromodulations:
 
 ``macromodulations``: Not yet implemented (#115).
+
+.. _host-maintenance_period:
+
+``maintenance_period``: The maintenance period of an host is a time period that defines an equivalent of scheduled downtimes for the host.
 
 .. _host-max_check_attempts:
 
@@ -539,15 +544,11 @@ Monitored host (host)
 
 ``notification_options``: List of the notifications types that can be sent.
 
-   Allowed values: d, x, r, f, s, n
+   Allowed values: [, ', d, ', ,,  , ', x, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
 
 .. _host-notification_period:
 
 ``notification_period``: Time period during which notifications can be sent.
-
-.. _host-obsess_over_host:
-
-``obsess_over_host``: Nagios legacy property not used in Alignak
 
 .. _host-parents:
 
@@ -589,7 +590,7 @@ Monitored host (host)
 
 ``stalking_options``: When enabled for a specific state, Alignak will add an information log for each element check even if the state did not changed.
 
-   Allowed values: o, d, x
+   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ]
 
 .. _host-statusmap_image:
 
@@ -597,7 +598,7 @@ Monitored host (host)
 
 .. _host-tags:
 
-``tags``: List of tags for this element. Currently, only the used templates appear in the tags list. Will be improved feature...
+``tags``: List of tags for this element. Intended to set tags by the Web UI
 
 .. _host-time_to_orphanage:
 

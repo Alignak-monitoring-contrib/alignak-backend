@@ -17,7 +17,7 @@ Events log (history)
    :header: "Property", "Type", "Required", "Default", "Relation"
 
    "| _realm", "objectid", "", "", ":ref:`realm <resource-realm>`"
-   "| _sub_realm", "boolean", "", "False", ""
+   "| _sub_realm", "boolean", "", "True", ""
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| :ref:`host <history-host>`
    | *Concerned host identifier*", "objectid", "", "", ":ref:`host <resource-host>`"
@@ -61,7 +61,7 @@ Events log (history)
 
 ``type``: 
 
-   Allowed values: webui.comment, check.result, check.request, check.requested, ack.add, ack.processed, ack.delete, downtime.add, downtime.processed, downtime.delete, monitoring.timeperiod_transition, monitoring.alert, monitoring.event_handler, monitoring.flapping_start, monitoring.flapping_stop, monitoring.downtime_start, monitoring.downtime_cancelled, monitoring.downtime_end, monitoring.acknowledge, monitoring.notification
+   Allowed values: [, ', w, e, b, u, i, ., c, o, m, m, e, n, t, ', ,,  , ', c, h, e, c, k, ., r, e, s, u, l, t, ', ,,  , ', c, h, e, c, k, ., r, e, q, u, e, s, t, ', ,,  , ', c, h, e, c, k, ., r, e, q, u, e, s, t, e, d, ', ,,  , ', a, c, k, ., a, d, d, ', ,,  , ', a, c, k, ., p, r, o, c, e, s, s, e, d, ', ,,  , ', a, c, k, ., d, e, l, e, t, e, ', ,,  , ', d, o, w, n, t, i, m, e, ., a, d, d, ', ,,  , ', d, o, w, n, t, i, m, e, ., p, r, o, c, e, s, s, e, d, ', ,,  , ', d, o, w, n, t, i, m, e, ., d, e, l, e, t, e, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., e, x, t, e, r, n, a, l, _, c, o, m, m, a, n, d, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., t, i, m, e, p, e, r, i, o, d, _, t, r, a, n, s, i, t, i, o, n, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., a, l, e, r, t, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., e, v, e, n, t, _, h, a, n, d, l, e, r, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., f, l, a, p, p, i, n, g, _, s, t, a, r, t, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., f, l, a, p, p, i, n, g, _, s, t, o, p, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., d, o, w, n, t, i, m, e, _, s, t, a, r, t, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., d, o, w, n, t, i, m, e, _, c, a, n, c, e, l, l, e, d, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., d, o, w, n, t, i, m, e, _, e, n, d, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., a, c, k, n, o, w, l, e, d, g, e, ', ,,  , ', m, o, n, i, t, o, r, i, n, g, ., n, o, t, i, f, i, c, a, t, i, o, n, ', ]
 
 .. _history-user:
 

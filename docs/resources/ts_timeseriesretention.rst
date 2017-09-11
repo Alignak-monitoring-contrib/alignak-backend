@@ -24,12 +24,14 @@ TS cache (timeseriesretention)
    "| name
    | *Stored metric name*", "**string**", "**True**", "****", ""
    "| realm
-   | *Stored metric host realm*", "**string**", "**True**", "****", ""
+   | *Stored metric host/service realm*", "**string**", "**True**", "****", ""
    "| service
    | *Stored metric service*", "**string**", "**True**", "****", ""
    "| timestamp
    | *Stored metric timestamp*", "**integer**", "**True**", "****", ""
+   "| uom
+   | *Stored metric unit of measure*", "**string**", "**True**", "****", ""
    "| value
-   | *Stored metric value*", "**integer**", "**True**", "****", ""
+   | *Stored metric value*", "**string**", "**True**", "****", ""
 
 

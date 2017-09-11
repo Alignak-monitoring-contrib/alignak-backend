@@ -107,7 +107,7 @@ for filepath in f:
             comment = schema[field].get('comment', '')
             allowed = schema[field].get('allowed', None)
             if allowed:
-                comment = "%s \n\n Allowed values: %s" % (comment, ', '.join(allowed))
+                comment = "%s \n\n Allowed values: %s" % (str(comment), ', '.join(str(allowed)))
             required = ''
             if 'required' in schema[field]:
                 if schema[field]['required']:
@@ -145,7 +145,7 @@ for filepath in f:
             comment = schema[field].get('comment', '')
             allowed = schema[field].get('allowed', None)
             if allowed:
-                comment = "%s\n\n   Allowed values: %s" % (comment, ', '.join(allowed))
+                comment = "%s\n\n   Allowed values: %s" % (str(comment), ', '.join(str(allowed)))
             if not comment:
                 continue
 

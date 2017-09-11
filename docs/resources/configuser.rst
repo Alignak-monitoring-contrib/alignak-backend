@@ -22,9 +22,9 @@ Alignak user (user)
    "| :ref:`_realm <user-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <user-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| :ref:`_template_fields <user-_template_fields>`
-   | *Template fields*", "dict", "", "{}", ""
+   | *Template fields*", "list", "", "[]", ""
    "| :ref:`_templates <user-_templates>`
    | *Templates*", "objectid list", "", "[]", ":ref:`user <resource-user>`"
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"
@@ -46,8 +46,6 @@ Alignak user (user)
    | *Alias*", "string", "", "", ""
    "| :ref:`back_role_super_admin <user-back_role_super_admin>`
    | *Super administrator*", "boolean", "", "False", ""
-   "| :ref:`business_impact <user-business_impact>`
-   | *Business impact*", "integer", "", "2", ""
    "| :ref:`can_submit_commands <user-can_submit_commands>`
    | *Can submit commands*", "boolean", "", "False", ""
    "| :ref:`can_update_livestate <user-can_update_livestate>`
@@ -65,7 +63,7 @@ Alignak user (user)
    "| :ref:`host_notification_period <user-host_notification_period>`
    | *Host notifications period*", "**objectid**", "**True**", "****", ":ref:`timeperiod <resource-timeperiod>`"
    "| :ref:`host_notifications_enabled <user-host_notifications_enabled>`
-   | *Host notifications enabled*", "boolean", "", "True", ""
+   | *Host notifications enabled*", "boolean", "", "False", ""
    "| :ref:`imported_from <user-imported_from>`
    | *Imported from*", "string", "", "unknown", ""
    "| :ref:`is_admin <user-is_admin>`
@@ -89,7 +87,9 @@ Alignak user (user)
    "| :ref:`service_notification_period <user-service_notification_period>`
    | *Service notifications period*", "**objectid**", "**True**", "****", ":ref:`timeperiod <resource-timeperiod>`"
    "| :ref:`service_notifications_enabled <user-service_notifications_enabled>`
-   | *Service notifications enabled*", "boolean", "", "True", ""
+   | *Service notifications enabled*", "boolean", "", "False", ""
+   "| :ref:`skill_level <user-skill_level>`
+   | *Level*", "integer", "", "0", ""
    "| :ref:`tags <user-tags>`
    | *Tags*", "list", "", "[]", ""
    "| :ref:`token <user-token>`
@@ -148,10 +148,6 @@ Alignak user (user)
 
 ``back_role_super_admin``: This user is a super-administrator that is allowed to view and do anything in the Alignak backend
 
-.. _user-business_impact:
-
-``business_impact``: The business impact level indicates the level of importance of this element. The highest value the most important is the elemen.
-
 .. _user-can_submit_commands:
 
 ``can_submit_commands``: Used by the Web User Interface to allow the logged-in user to send commands to Alignak. This do not allow the user to edit the Alignak backend data.
@@ -176,7 +172,7 @@ Alignak user (user)
 
 ``host_notification_options``: List of the notifications types that can be sent.
 
-   Allowed values: d, u, r, f, s, n
+   Allowed values: [, ', d, ', ,,  , ', u, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
 
 .. _user-host_notification_period:
 
@@ -226,7 +222,7 @@ Alignak user (user)
 
 ``service_notification_options``: List of the notifications types that can be sent.
 
-   Allowed values: w, u, c, r, f, s, n
+   Allowed values: [, ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
 
 .. _user-service_notification_period:
 
@@ -236,9 +232,13 @@ Alignak user (user)
 
 ``service_notifications_enabled``: If unset, this user will never receive any notification when a problem is detected for an host/service he is linked to.
 
+.. _user-skill_level:
+
+``skill_level``: This field is the user's skill level. It is used by the Web User Interface to display more or less advanced information. Each property in the backend data models may have its own skill level and it will be displayed it the user's skill level is greater than or equal. As default, the skill level is 0 and the property will be displayed.
+
 .. _user-tags:
 
-``tags``: List of tags for this element. Currently, only the used templates appear in the tags list. Will be improved feature...
+``tags``: List of tags for this element. Intended to set tags by the Web UI
 
 .. _user-token:
 

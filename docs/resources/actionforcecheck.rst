@@ -20,9 +20,9 @@ Check request (actionforcecheck)
    :header: "Property", "Type", "Required", "Default", "Relation"
 
    "| :ref:`_realm <actionforcecheck-_realm>`
-   | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
+   | *Realm*", "objectid", "", "", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <actionforcecheck-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| :ref:`comment <actionforcecheck-comment>`
    | *Comment*", "string", "", "", ""

@@ -20,9 +20,9 @@ Downtimes (actiondowntime)
    :header: "Property", "Type", "Required", "Default", "Relation"
 
    "| :ref:`_realm <actiondowntime-_realm>`
-   | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
+   | *Realm*", "objectid", "", "", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <actiondowntime-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| :ref:`action <actiondowntime-action>`
    | *Action*", "string", "", "add", ""
@@ -58,7 +58,7 @@ Downtimes (actiondowntime)
 
 ``action``: Use 'add' to add a new downtime, or 'delete' to delete an downtime
 
-   Allowed values: add, delete
+   Allowed values: [, ', a, d, d, ', ,,  , ', d, e, l, e, t, e, ', ]
 
 .. _actiondowntime-comment:
 

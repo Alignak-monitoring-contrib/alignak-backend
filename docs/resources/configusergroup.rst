@@ -17,11 +17,11 @@ Alignak users groups (usergroup)
    "| :ref:`_level <usergroup-_level>`
    | *Level*", "integer", "", "0", ""
    "| :ref:`_parent <usergroup-_parent>`
-   | *Parent*", "objectid", "", "", ":ref:`usergroup <resource-usergroup>`"
+   | *Parent*", "objectid", "", "None", ":ref:`usergroup <resource-usergroup>`"
    "| :ref:`_realm <usergroup-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <usergroup-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| :ref:`_tree_parents <usergroup-_tree_parents>`
    | *Parents*", "objectid list", "", "[]", ":ref:`usergroup <resource-usergroup>`"
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"

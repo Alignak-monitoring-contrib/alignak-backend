@@ -8,13 +8,13 @@ Alignak time period (timeperiod)
 
     Time periods are used in many situations:
 
-    - for the hosts and services active/passive checks. Touside the defined time periods,
+    - for the hosts and services active/passive checks. Outside of the defined time periods,
     Alignak will not try to determine the hosts/services states.
 
     - for the notifications. The notifications will be sent-out only during the defined
     time periods.
 
-    A time period is built with  time ranges for each day of the week that "rotate" once the
+    A time period is built with time ranges for each day of the week that "rotate" once the
     week has ended. Different types of exceptions to the normal weekly time are supported,
     including: specific weekdays, days of generic months, days of specific months,
     and calendar dates.
@@ -29,7 +29,7 @@ Alignak time period (timeperiod)
    "| :ref:`_realm <timeperiod-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <timeperiod-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| _users_update", "objectid list", "", "", ":ref:`user <resource-user>`"

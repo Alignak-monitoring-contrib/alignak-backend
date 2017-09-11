@@ -7,8 +7,13 @@ Alignak daemons live state (alignakdaemon)
     The ``alignakdaemon`` model is maintained by Alignak to provide the live state of
     the Alignak daemons.
 
-    Alignak arbiter daemon is polling all the running daemons regularly and it stores
-    the information about this polling in the Alignak backend.
+    For hosts and services, the live synthesis stores values computed from the real
+    live state, each time an element state is updated:
+    - a counter containing the number of host/service in each state
+    - a counter containing the number of host/service acknowledged
+    - a counter containing the number of host/service in downtime
+    - a counter containing the number of host/service flapping
+    - the maximum business impact of the host/service in the state
     
 
 .. image:: ../_static/ls_alignakdaemon.png
@@ -20,7 +25,7 @@ Alignak daemons live state (alignakdaemon)
    "| :ref:`_realm <alignakdaemon-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <alignakdaemon-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| _users_update", "objectid list", "", "", ":ref:`user <resource-user>`"
@@ -78,7 +83,7 @@ Alignak daemons live state (alignakdaemon)
 
 ``type``: Daemon type: 'arbiter', 'scheduler', 'poller', 'broker', 'reactionner', 'receiver'
 
-   Allowed values: arbiter, scheduler, poller, broker, reactionner, receiver
+   Allowed values: [, ', a, r, b, i, t, e, r, ', ,,  , ', s, c, h, e, d, u, l, e, r, ', ,,  , ', p, o, l, l, e, r, ', ,,  , ', b, r, o, k, e, r, ', ,,  , ', r, e, a, c, t, i, o, n, n, e, r, ', ,,  , ', r, e, c, e, i, v, e, r, ', ]
 
 
 

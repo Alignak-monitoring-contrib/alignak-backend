@@ -17,11 +17,11 @@ Alignak services groups (servicegroup)
    "| :ref:`_level <servicegroup-_level>`
    | *Level*", "integer", "", "0", ""
    "| :ref:`_parent <servicegroup-_parent>`
-   | *Parent*", "objectid", "", "", ":ref:`servicegroup <resource-servicegroup>`"
+   | *Parent*", "objectid", "", "None", ":ref:`servicegroup <resource-servicegroup>`"
    "| :ref:`_realm <servicegroup-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <servicegroup-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| :ref:`_tree_parents <servicegroup-_tree_parents>`
    | *Parents*", "objectid list", "", "[]", ":ref:`servicegroup <resource-servicegroup>`"
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"

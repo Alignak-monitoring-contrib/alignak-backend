@@ -19,7 +19,7 @@ Check result log (logcheckresult)
    "| :ref:`_realm <logcheckresult-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <logcheckresult-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| acknowledged
    | *Acknowledged*", "boolean", "", "False", ""
@@ -81,13 +81,13 @@ Check result log (logcheckresult)
 
 ``last_state``: 
 
-   Allowed values: OK, WARNING, CRITICAL, UNKNOWN, UP, DOWN, UNREACHABLE
+   Allowed values: [, ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ,,  , ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
 
 .. _logcheckresult-last_state_type:
 
 ``last_state_type``: 
 
-   Allowed values: HARD, SOFT
+   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
 
 .. _logcheckresult-service:
 
@@ -101,13 +101,13 @@ Check result log (logcheckresult)
 
 ``state``: 
 
-   Allowed values: UP, DOWN, UNREACHABLE, OK, WARNING, CRITICAL, UNKNOWN
+   Allowed values: [, ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ,,  , ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ]
 
 .. _logcheckresult-state_type:
 
 ``state_type``: 
 
-   Allowed values: HARD, SOFT
+   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
 
 
 

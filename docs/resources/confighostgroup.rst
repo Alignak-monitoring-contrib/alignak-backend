@@ -17,11 +17,11 @@ Alignak hosts groups (hostgroup)
    "| :ref:`_level <hostgroup-_level>`
    | *Level*", "integer", "", "0", ""
    "| :ref:`_parent <hostgroup-_parent>`
-   | *Parent*", "objectid", "", "", ":ref:`hostgroup <resource-hostgroup>`"
+   | *Parent*", "objectid", "", "None", ":ref:`hostgroup <resource-hostgroup>`"
    "| :ref:`_realm <hostgroup-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <hostgroup-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| :ref:`_tree_parents <hostgroup-_tree_parents>`
    | *Parents*", "objectid list", "", "[]", ":ref:`hostgroup <resource-hostgroup>`"
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"

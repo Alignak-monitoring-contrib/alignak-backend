@@ -18,7 +18,7 @@ Host dependency (hostdependency)
    "| :ref:`_realm <hostdependency-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <hostdependency-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| _users_update", "objectid list", "", "", ":ref:`user <resource-user>`"
@@ -80,7 +80,7 @@ Host dependency (hostdependency)
 
 ``execution_failure_criteria``: See Alginak doc about dependency checks.
 
-   Allowed values: o, d, x, p, n
+   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ,,  , ', p, ', ,,  , ', n, ', ]
 
 .. _hostdependency-hostgroups:
 
@@ -106,7 +106,7 @@ Host dependency (hostdependency)
 
 ``notification_failure_criteria``: See Alginak doc about dependency checks.
 
-   Allowed values: o, d, x, p, n
+   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ,,  , ', p, ', ,,  , ', n, ', ]
 
 
 

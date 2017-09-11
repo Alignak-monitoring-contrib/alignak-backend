@@ -23,7 +23,7 @@ Graphite connection (graphite)
    "| :ref:`_realm <graphite-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <graphite-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| _users_update", "objectid list", "", "", ":ref:`user <resource-user>`"

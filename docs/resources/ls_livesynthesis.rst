@@ -25,7 +25,7 @@ Alignak live state synthesis (livesynthesis)
    "| :ref:`_realm <livesynthesis-_realm>`
    | *Realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`_sub_realm <livesynthesis-_sub_realm>`
-   | *Sub-realms*", "boolean", "", "False", ""
+   | *Sub-realms*", "boolean", "", "True", ""
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| hosts_acknowledged
    | *Hosts ackowledged*", "integer", "", "0", ""

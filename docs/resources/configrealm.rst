@@ -33,7 +33,7 @@ Alignak realm (realm)
    "| :ref:`_level <realm-_level>`
    | *Level*", "integer", "", "0", ""
    "| :ref:`_parent <realm-_parent>`
-   | *Parent*", "objectid", "", "", ":ref:`realm <resource-realm>`"
+   | *Parent*", "objectid", "", "None", ":ref:`realm <resource-realm>`"
    "| :ref:`_tree_parents <realm-_tree_parents>`
    | *Parents*", "objectid list", "", "[]", ":ref:`realm <resource-realm>`"
    "| _users_delete", "objectid list", "", "", ":ref:`user <resource-user>`"
