@@ -64,6 +64,7 @@ class TestTimeseries(unittest2.TestCase):
         response = requests.get(cls.endpoint + '/realm', auth=cls.auth)
         resp = response.json()
         cls.realm_all = resp['_items'][0]['_id']
+        print("Realm All: %s" % cls.realm_all)
 
         # add more realms
         data = {"name": "All A", "_parent": cls.realm_all}
@@ -542,6 +543,7 @@ class TestTimeseries(unittest2.TestCase):
 
         :return: None
         """
+        print("***Realm All: %s" % self.realm_all)
         headers = {'Content-Type': 'application/json'}
         data = {
             'name': 'realm A',

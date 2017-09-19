@@ -1,7 +1,9 @@
 {
     "name": "srv001",
+    "alias": "Server #1",
     "address": "192.168.0.2",
     "realm": "",
     "business_impact": 5,
-    "check_command": ""
+    "check_command": "",
+    "tags": ["t1", "t2"]
 }

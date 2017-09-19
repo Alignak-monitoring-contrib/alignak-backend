@@ -217,6 +217,7 @@ class Timeseries(object):
         :return: realms name separed by .
         :rtype: str
         """
+        print("******Realm All: %s" % realm_id)
         prefix_realm = ''
         realm_db = current_app.data.driver.db['realm']
         realm_info = realm_db.find_one({'_id': realm_id})

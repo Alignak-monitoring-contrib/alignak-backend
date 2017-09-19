@@ -1,0 +1,47 @@
+{
+  "hosts up": {
+    "endpoint": "host",
+    "query": {
+      "ls_state_id": 0, "_is_template": false
+    }
+  }
+  ,"hosts down": {
+    "endpoint": "host",
+    "query": {
+      "ls_state_id": {"$in": [1, 2]}, "_is_template": false
+    }
+  }
+  ,"hosts unreachable": {
+    "endpoint": "host",
+    "query": {
+      "ls_state_id": {"$gt": 2}, "_is_template": false
+    }
+  }
+  ,"services ok": {
+    "endpoint": "service",
+    "query": {
+      "ls_state_id": 0, "_is_template": false
+    }
+  },
+  "services warning": {
+    "endpoint": "service",
+    "query": {
+      "ls_state_id": 1, "_is_template": false
+    }
+  },
+  "services critical": {
+    "endpoint": "service",
+    "query": {
+      "ls_state_id": 2, "_is_template": false
+    }
+  },
+  "services unreachable": {
+    "endpoint": "service",
+    "query": {
+      "ls_state_id": {
+        "$gt": 2
+      },
+      "_is_template": false
+    }
+  }
+}

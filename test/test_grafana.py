@@ -104,12 +104,12 @@ class TestGrafana(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         # cls.p.kill()
         time.sleep(2)
-        os.unlink("/tmp/alignak_backend.log")
+        # os.unlink("/tmp/alignak_backend.log")
 
     @classmethod
     def setUp(cls):
         """
-        Delete resources in backend
+        Create resources in the backend
 
         :return: None
         """
@@ -157,6 +157,8 @@ class TestGrafana(unittest2.TestCase):
             del data['realm']
         data['_realm'] = cls.realmAll_A1
         data['name'] = "srv002"
+        data['alias'] = "Server #2"
+        data['tags'] = ["t2"]
         data['ls_last_check'] = int(time.time())
         data['ls_perf_data'] = "rta=14.581000ms;1000.000000;3000.000000;0.000000 pl=0%;100;100;0"
         response = requests.post(cls.endpoint + '/host', json=data, headers=headers, auth=cls.auth)
@@ -319,263 +321,6 @@ class TestGrafana(unittest2.TestCase):
             '_realm': self.realmAll_A1
         }
         requests.post(self.endpoint + '/graphite', json=data, headers=headers, auth=self.auth)
-
-    def test_grafana_annotations(self):
-        """
-        Get annotations
-
-        :return: None
-        """
-        headers = {'Content-Type': 'application/json'}
-
-        # Create an event in the history
-        data = {
-            'host_name': "test",
-            "service_name": "service",
-            'user': None,
-            'type': 'monitoring.alert',
-            'message': "Test event #1 for an alert"
-        }
-        response = requests.post(self.endpoint + '/history',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        self.assertEqual('OK', resp['_status'], resp)
-
-        # Wait 1 second
-        time.sleep(1)
-
-        # Create an event in the history
-        data = {
-            'host_name': "test1",
-            'user': None,
-            'type': 'monitoring.alert',
-            'message': "Test event #2 for an alert"
-        }
-        response = requests.post(self.endpoint + '/history',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        self.assertEqual('OK', resp['_status'], resp)
-
-        # Wait 1 second
-        time.sleep(1)
-
-        # Create an event in the history
-        data = {
-            'host_name': "test2",
-            'user': None,
-            'type': 'monitoring.alert',
-            'message': "Test event #3 for an alert"
-        }
-        response = requests.post(self.endpoint + '/history',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        self.assertEqual('OK', resp['_status'], resp)
-
-        # Wait 1 second
-        time.sleep(1)
-
-        # Create an event now in the history
-        data = {
-            'host_name': "test2",
-            'user': None,
-            'type': 'monitoring.notification',
-            'message': "Test event #4 for an alert"
-        }
-        response = requests.post(self.endpoint + '/history',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        self.assertEqual('OK', resp['_status'], resp)
-
-        # Request some annotations
-        # 1- no results within the time frame
-        # Time frame for the request
-        now = datetime.utcnow()
-        range_to = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        # Only one second in the past
-        past = now - timedelta(seconds=1)
-        range_from = past.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        print("Date from: %s, to: %s" % (range_from, range_to))
-
-        # Grafana request for some annotations
-        data = {
-            u'range': {
-                u'from': range_from,
-                u'to': range_to,
-                # Ignored...
-                u'raw': {u'to': u'now', u'from': u'now-6h'}
-            },
-            # Ignored...
-            u'rangeRaw': {u'to': u'now', u'from': u'now-6h'},
-            u'annotation': {
-                # Request for alerts of hosts test and test1
-                u'query': u'monitoring.alert/{test,test1}',
-                # 4 ignored fields...
-                u'iconColor': u'rgba(255, 96, 96, 1)',
-                u'enable': True,
-                u'name': u'Host alerts',
-                u'datasource': u'Backend'
-            }
-        }
-        response = requests.post(self.endpoint + '/annotations',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        # No items in the response
-        print("Response :%s" % resp)
-        self.assertEqual(len(resp), 0)
-
-        # Request some annotations
-        # 2- with results in the time frame
-        # Time frame for the request
-        now = datetime.utcnow()
-        range_to = now.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        # Five seconds in the past
-        past = now - timedelta(seconds=5)
-        range_from = past.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        print("Date from: %s, to: %s" % (range_from, range_to))
-
-        # Grafana request for some annotations
-        data = {
-            u'range': {
-                u'from': range_from,
-                u'to': range_to,
-                # Ignored...
-                u'raw': {u'to': u'now', u'from': u'now-6h'}
-            },
-            # Ignored...
-            u'rangeRaw': {u'to': u'now', u'from': u'now-6h'},
-            u'annotation': {
-                # Request for alerts of hosts test and test1
-                u'query': u'monitoring.alert/{test,test1}',
-                # 4 ignored fields...
-                u'iconColor': u'rgba(255, 96, 96, 1)',
-                u'enable': True,
-                u'name': u'Host alerts',
-                u'datasource': u'Backend'
-            }
-        }
-        response = requests.post(self.endpoint + '/annotations',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        # Grafana expects a response containing an array of annotation objects
-        # in the following format:
-        # [
-        #   {
-        #     annotation: annotation, // The original annotation sent from Grafana.
-        #     time: time, // Time since UNIX Epoch in milliseconds. (required)
-        #     title: title, // The title for the annotation tooltip. (required)
-        #     tags: tags, // Tags for the annotation. (optional)
-        #     text: text // Text for the annotation. (optional)
-        #   }
-        # ]
-
-        # Two items in the response
-        self.assertEqual(len(resp), 2)
-
-        # All expected data fields are present
-        rsp = resp[0]
-        self.assertIn('annotation', rsp)
-        self.assertEqual(rsp['annotation'], data['annotation'])
-        self.assertIn('time', rsp)
-        self.assertIn('title', rsp)
-        self.assertEqual(rsp['title'], "test/service - Test event #1 for an alert")
-        self.assertIn('tags', rsp)
-        self.assertEqual(rsp['tags'], ["monitoring.alert"])
-        self.assertIn('text', rsp)
-        self.assertEqual(rsp['text'], "Test event #1 for an alert")
-
-        rsp = resp[1]
-        self.assertIn('annotation', rsp)
-        self.assertEqual(rsp['annotation'], data['annotation'])
-        self.assertIn('time', rsp)
-        self.assertIn('title', rsp)
-        self.assertEqual(rsp['title'], "test1 - Test event #2 for an alert")
-        self.assertIn('tags', rsp)
-        self.assertEqual(rsp['tags'], ["monitoring.alert"])
-        self.assertIn('text', rsp)
-        self.assertEqual(rsp['text'], "Test event #2 for an alert")
-
-        # Request some annotations
-        # 3- for one host only
-        # Grafana request for some annotations
-        data = {
-            u'range': {
-                u'from': range_from,
-                u'to': range_to,
-            },
-            u'annotation': {
-                # Request for alerts of hosts test and test1
-                u'query': u'monitoring.alert/test',
-            }
-        }
-        response = requests.post(self.endpoint + '/annotations',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        # One item in the response
-        self.assertEqual(len(resp), 1)
-
-        # All expected data fields are present
-        rsp = resp[0]
-        self.assertIn('annotation', rsp)
-        self.assertEqual(rsp['annotation'], data['annotation'])
-        self.assertIn('time', rsp)
-        self.assertIn('title', rsp)
-        self.assertEqual(rsp['title'], "test/service - Test event #1 for an alert")
-        self.assertIn('tags', rsp)
-        self.assertEqual(rsp['tags'], ["monitoring.alert"])
-        self.assertIn('text', rsp)
-        self.assertEqual(rsp['text'], "Test event #1 for an alert")
-
-        # Request some annotations
-        # 4- for one host specific service
-        # Grafana request for some annotations
-        data = {
-            u'range': {
-                u'from': range_from,
-                u'to': range_to,
-            },
-            # Ignored...
-            u'annotation': {
-                # Request for alerts of the service "service " for the host test
-                u'query': u'monitoring.alert/test/service',
-            }
-        }
-        response = requests.post(self.endpoint + '/annotations',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        # One item in the response
-        self.assertEqual(len(resp), 1)
-
-        # All expected data fields are present
-        rsp = resp[0]
-        self.assertIn('annotation', rsp)
-        self.assertEqual(rsp['annotation'], data['annotation'])
-        self.assertIn('time', rsp)
-        self.assertIn('title', rsp)
-        self.assertEqual(rsp['title'], "test/service - Test event #1 for an alert")
-        self.assertIn('tags', rsp)
-        self.assertEqual(rsp['tags'], ["monitoring.alert"])
-        self.assertIn('text', rsp)
-        self.assertEqual(rsp['text'], "Test event #1 for an alert")
-
-        # Request some annotations
-        # 5- unknown event
-        # Grafana request for some annotations
-        data = {
-            u'range': {
-                u'from': range_from,
-                u'to': range_to,
-            },
-            # Ignored...
-            u'annotation': {
-                # Request for alerts of the host test
-                u'query': u'fake.event/test',
-            }
-        }
-        response = requests.post(self.endpoint + '/annotations',
-                                 json=data, headers=headers, auth=self.auth)
-        resp = response.json()
-        # One item in the response
-        self.assertEqual(len(resp), 0)
 
     def test_create_dashboard_panels_graphite(self):
         """Create dashboard into grafana with datasource graphite
@@ -984,6 +729,14 @@ class TestGrafana(unittest2.TestCase):
         :return: None
         """
         headers = {'Content-Type': 'application/json'}
+
+        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
+            del os.environ['ALIGNAK_BACKEND_PRINT']
+        # if 'ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES' in os.environ:
+        #     del os.environ['ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES']
+        # if 'ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES' in os.environ:
+        #     del os.environ['ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES']
+
         # Create grafana in realm All + subrealm
         data = {
             'name': 'grafana All',
@@ -1108,6 +861,7 @@ class TestGrafana(unittest2.TestCase):
                 mockreq.post('http://192.168.0.101:3000/api/dashboards/db', json='true')
 
                 dashboards = json.loads(cron_grafana(engine='jsondumps'))
+                print("Dashboards: %s" % dashboards)
                 # Created a dashboard for the host srv001 (it has perf_data in the host check)
                 assert len(dashboards['grafana All']['created_dashboards']) == 1
                 assert dashboards['grafana All']['created_dashboards'][0] == 'srv001'

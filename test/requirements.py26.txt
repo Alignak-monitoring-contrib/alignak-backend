@@ -9,6 +9,5 @@ astroid==1.2.1
 six==1.4.0
 unittest2==0.5.1
 httmock
-
-# endfor pytlint
+# endfor pylint
 
