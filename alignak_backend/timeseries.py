@@ -242,9 +242,12 @@ class Timeseries(object):
         send_data = []
         for d in data:
             if d['service'] == '':
-                prefix = '.'.join([d['realm'], d['host']])
+                prefix = d['host']
             else:
-                prefix = '.'.join([d['realm'], d['host'], d['service']])
+                prefix = '.'.join([d['host'], d['service']])
+            # manage realms prefix of graphite server
+            if graphite.get('realms_prefix'):
+                prefix = d['realm'] + '.' + prefix
             # manage prefix of graphite server
             if graphite['prefix'] != '':
                 prefix = graphite['prefix'] + '.' + prefix

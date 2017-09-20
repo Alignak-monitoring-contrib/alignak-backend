@@ -567,16 +567,20 @@ class TestTimeseries(unittest2.TestCase):
         """Test with 2 graphites + 1 infuxdb in realm All + sub_realm true.
         We send data in timeseries class and catch the request to graphite and influxdb.
 
+        Note that the realms_prefix (True/False) feature cannot be tested! This because the prefix
+        is prepended when data are sent to Graphite!
+
         :return: None
         """
         headers = {'Content-Type': 'application/json'}
 
-        # add graphite 001, realm All, with a prefix
+        # add graphite 001, realm All, with a prefix but no realms prefix for the metrics
         data = {
             'name': 'graphite 001',
             'carbon_address': '192.168.0.101',
             'graphite_address': '192.168.0.101',
             'prefix': 'graphite1',
+            'realms_prefix': False,
             '_realm': self.realm_all,
             '_sub_realm': True
         }
@@ -592,6 +596,7 @@ class TestTimeseries(unittest2.TestCase):
             'carbon_address': '192.168.0.102',
             'graphite_address': '192.168.0.102',
             'prefix': '',
+            'realms_prefix': True,
             '_realm': self.realm_all,
             '_sub_realm': False
         }

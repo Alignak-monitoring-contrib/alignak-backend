@@ -99,7 +99,7 @@ def get_schema():
             },
             'influxdb': {
                 'schema_version': 1,
-                'title': 'Graphite relation',
+                'title': 'InfluxDB relation',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'influxdb',
