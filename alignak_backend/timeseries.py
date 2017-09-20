@@ -23,6 +23,33 @@ class Timeseries(object):
     """
 
     @staticmethod
+    def sanitize_name(field_name):
+        """Sanitize a field name for aTSDB (Graphite or Influx)
+        - remove unallowed characters from the field name
+
+        :param field_name: Field name to clean
+        :type field_name: string
+        :return: sanitized field name
+        """
+
+        # Sanitize field name for TSDB (Graphite or Influx):
+        sanitized = field_name.strip()
+        if sanitized.startswith('/'):
+            sanitized = '_' + sanitized[1:]
+        # + becomes a _
+        sanitized = sanitized.replace("+", "_")
+        # / becomes a -
+        sanitized = sanitized.replace("/", "-")
+        # space becomes a _
+        sanitized = sanitized.replace(" ", "_")
+        # % becomes _pct
+        sanitized = sanitized.replace("%", "_pct")
+        # all character not in [a-zA-Z_-0-9.] is removed
+        sanitized = re.sub(r'[^a-zA-Z_\-0-9\.\$]', '', sanitized)
+
+        return sanitized
+
+    @staticmethod
     def after_inserted_logcheckresult(items):
         """Called by EVE HOOK (app.on_inserted_logcheckresult)
 
@@ -36,10 +63,11 @@ class Timeseries(object):
             ts = Timeseries.prepare_data(item)
             host_info = host_db.find_one({'_id': item['host']})
             item_realm = host_info['_realm']
-            service = ''
+            host_name = Timeseries.sanitize_name(host_info['name'])
+            service_name = ''
             if item['service'] is not None:
                 service_info = service_db.find_one({'_id': item['service']})
-                service = service_info['name']
+                service_name = Timeseries.sanitize_name(service_info['name'])
                 # todo: really? a service realm may be different from its host's realm ?
                 item_realm = service_info['_realm']
             send_data = []
@@ -47,8 +75,8 @@ class Timeseries(object):
                 send_data.append({
                     # todo: sure not to use item_realm?
                     "realm": Timeseries.get_realms_prefix(item['_realm']),
-                    "host": host_info['name'],
-                    "service": service,
+                    "host": host_name,
+                    "service": service_name,
                     "name": d['name'],
                     # Cast as a string to bypass int/float real value
                     "value": str(d['value']),
@@ -78,20 +106,7 @@ class Timeseries(object):
                 fields['name'] = m.group(1)
 
             # Sanitize field name for TSDB (Graphite or Influx):
-            my_target = fields['name'].strip()
-            if my_target.startswith('/'):
-                my_target = '_' + my_target[1:]
-            # + becomes a _
-            my_target = my_target.replace("+", "_")
-            # / becomes a -
-            my_target = my_target.replace("/", "-")
-            # space becomes a _
-            my_target = my_target.replace(" ", "_")
-            # % becomes _pct
-            my_target = my_target.replace("%", "_pct")
-            # all character not in [a-zA-Z_-0-9.] is removed
-            my_target = re.sub(r'[^a-zA-Z_\-0-9\.\$]', '', my_target)
-            fields['name'] = my_target
+            fields['name'] = Timeseries.sanitize_name(fields['name'])
 
             if fields['value'] is not None:
                 data_timeseries['data'].append(
