@@ -26,6 +26,10 @@ cd $BASE_PATH
 
 pip install --upgrade pip
 
+# Force upgrading six else uninstalling six 1.10 to upgrade 1.11 breaks the Travis build for Python 3.4 !
+pip install --upgrade six
+pip freeze
+
 # install prog AND tests requirements :
 pip install -r requirements.txt
 pip install -e .
