@@ -2207,6 +2207,15 @@ def backend_config():
     return jsonify(my_config)
 
 
+@app.route("/version")
+def backend_version():
+    """
+    Offer route to get the backend config
+    """
+    my_version = {"version": manifest['version']}
+    return jsonify(my_version)
+
+
 @app.route("/cron_timeseries")
 def cron_timeseries():
     """

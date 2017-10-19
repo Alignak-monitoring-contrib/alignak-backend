@@ -15,7 +15,7 @@ import requests
 import requests_mock
 import unittest2
 from bson.objectid import ObjectId
-from alignak_backend.grafana import Grafana
+from alignak_backend import manifest
 
 
 class TestConfig(unittest2.TestCase):
@@ -89,3 +89,13 @@ class TestConfig(unittest2.TestCase):
         response = requests.get(self.endpoint + '/backendconfig')
         resp = response.json()
         assert resp == {u'PAGINATION_DEFAULT': 25, u'PAGINATION_LIMIT': 50}
+
+    def test_version_endpoint(self):
+        """Get backend version
+
+        :return: None
+        """
+        # Get backend version
+        response = requests.get(self.endpoint + '/version')
+        resp = response.json()
+        assert resp == {u'version': manifest['version']}
