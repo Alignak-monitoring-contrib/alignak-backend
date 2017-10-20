@@ -23,7 +23,7 @@ The Alignak backend logs its activity in two files that are located in */usr/loc
 
 * *alignak-backend-error.log* contains the other messages: start, stop, activity log, ...
 
-.. warning:: If you do not have those files when the backend is started, make sure that the user account used to run the backend is allow to write in the */usr/local/var/log* directory ;)
+.. warning:: If you do not have those files when the backend is started, make sure that the user account used to run the backend is allowed to write in the */usr/local/var/log* directory ;)
 
 
 Developer mode
@@ -78,6 +78,14 @@ On start, some useful information are printed on the console::
 
 
 Alignak-backend runs on port 5000, so you should use ``http://ip:5000/`` as a base URL for the API.
+
+Environment variables
+---------------------
+
+If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
+
+If an environment variable `ALIGNAK_BACKEND_UWSGI_FILE` exist, the `alignak-backend-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
+
 
 Change default admin password
 -----------------------------

@@ -6,11 +6,16 @@ Configuration
 Introduction
 ------------
 
-The backend uses a configuration file.
-It is located in one of these folders:
+The backend uses a configuration file that is located in one of these folders:
 
-* /usr/local/etc/alignak_backend/settings.json
-* /etc/alignak_backend/settings.json
+   * /usr/local/etc/alignak_backend/settings.json
+   * /etc/alignak_backend/settings.json
+   * etc/alignak_backend/settings.json
+   * ./etc/settings.json
+   * ../etc/settings.json
+   * ./settings.json
+
+If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
 
 It's a JSON structured file.
 

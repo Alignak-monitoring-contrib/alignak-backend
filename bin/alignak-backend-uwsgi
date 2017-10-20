@@ -1,1 +1,16 @@
-uwsgi --ini /usr/local/etc/alignak-backend/uwsgi.ini
+#!/bin/sh
+if [ ${ALIGNAK_BACKEND_UWSGI_FILE} ]; then
+    ALIGNAK_BACKEND_UWSGI_CFG="$ALIGNAK_BACKEND_UWSGI_FILE"
+else
+    ALIGNAK_BACKEND_UWSGI_CFG="/usr/local/etc/alignak-backend/uwsgi.ini"
+fi
+echo "Alignak backend uWSGI configuration file: ${ALIGNAK_BACKEND_UWSGI_CFG}"
+
+if [ ${ALIGNAK_BACKEND_CONFIGURATION_FILE} ]; then
+    ALIGNAK_BACKEND_CFG="$ALIGNAK_BACKEND_CONFIGURATION_FILE"
+else
+    ALIGNAK_BACKEND_CFG="/usr/local/etc/alignak-backend/settings.json"
+fi
+echo "Alignak backend configuration file: ${ALIGNAK_BACKEND_CFG}"
+
+uwsgi --ini "$ALIGNAK_BACKEND_UWSGI_CFG"
