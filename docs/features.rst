@@ -16,6 +16,20 @@ To get your backend *token*, POST on *http://127.0.0.1:5000/login* with your cre
 and the response will provide the token to use in the next requests.
 
 
+Authentication free endpoints
+-----------------------------
+
+Some endpoints of the Alignak backend do not require a user authentication.
+
+Those endpoints are:
+
+* */backendconfig*, to get the backend pagination configuration. The response will return PAGINATION_LIMIT and PAGINATION_DEFAULT values.
+
+* */version*, to get the curret backend version. The response will return `version` with the current Alignak backend version.
+
+and the response will provide the token to use in the next requests.
+
+
 Rights management
 -----------------
 
