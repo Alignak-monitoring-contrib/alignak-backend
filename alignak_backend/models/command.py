@@ -44,88 +44,104 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             # Importation source
             'imported_from': {
-                "title": "Imported from",
-                "comment": "Item importation source (alignak-backend-import, ...)",
+                'schema_version': 1,
+                'title': 'Imported from',
+                'comment': 'Item importation source (alignak-backend-import, ...)',
                 'type': 'string',
                 'default': 'unknown'
             },
             'definition_order': {
-                "title": "Definition order",
-                "comment": "Priority level if several elements have the same name",
+                'schema_version': 1,
+                'title': 'Definition order',
+                'comment': 'Priority level if several elements have the same name',
                 'type': 'integer',
                 'default': 100
             },
 
             # Identity
             'name': {
-                "title": "Command name",
-                "comment": "Unique command name",
+                'schema_version': 1,
+                'title': 'Command name',
+                'comment': 'Unique command name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'alias': {
-                "title": "Alias",
-                "comment": "Element friendly name used by the Web User Interface.",
+                'schema_version': 1,
+                'title': 'Alias',
+                'comment': 'Element friendly name used by the Web User Interface.',
                 'type': 'string',
                 'default': ''
             },
             'notes': {
-                "title": "Notes",
-                "comment": "Element notes. Free text to store element information.",
+                'schema_version': 1,
+                'title': 'Notes',
+                'comment': 'Element notes. Free text to store element information.',
                 'type': 'string',
                 'default': ''
             },
 
             # Command specific
             'command_line': {
-                "title": "Command line",
-                "comment": "System command executed to run the command.",
+                'schema_version': 1,
+                'title': 'Command line',
+                'comment': 'System command executed to run the command.',
                 'type': 'string',
             },
             'module_type': {
-                "title": "Module type",
-                "comment": "A specific module type may be defined to associate commands "
-                           "to a dedicated worker. To be completed...",
+                'schema_version': 1,
+                'title': 'Module type',
+                'comment': 'A specific module type may be defined to associate commands '
+                           'to a dedicated worker. To be completed...',
                 'type': 'string',
                 'default': 'fork'
             },
             'timeout': {
-                "title": "Timeout",
-                "comment": "Maximum command execution time before ALignak force the command stop.",
+                'schema_version': 1,
+                'title': 'Timeout',
+                'comment': 'Maximum command execution time before ALignak force the command stop.',
                 'type': 'integer',
                 'default': -1
             },
             'enable_environment_macros': {
-                "title": "Environment macros",
-                "comment": "Set Alignak environment macros before running this command.",
+                'schema_version': 1,
+                'title': 'Environment macros',
+                'comment': 'Set Alignak environment macros before running this command.',
                 'type': 'boolean',
                 'default': False
             },
 
             # Alignak daemons
             'poller_tag': {
-                "title": "Poller tag",
-                "comment": "Set a value for this element checks to be managed by a "
-                           "dedicated poller.",
+                'schema_version': 1,
+                'title': 'Poller tag',
+                'comment': 'Set a value for this element checks to be managed by a '
+                           'dedicated poller.',
                 'type': 'string',
                 'default': ''
             },
             'reactionner_tag': {
-                "title": "Reactionner tag",
-                "comment": "Set a value for this element notifications to be managed by a "
-                           "dedicated reactionner.",
+                'schema_version': 1,
+                'title': 'Reactionner tag',
+                'comment': 'Set a value for this element notifications to be managed by a '
+                           'dedicated reactionner.',
                 'type': 'string',
                 'default': ''
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -134,14 +150,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -152,6 +170,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -162,6 +181,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -171,5 +191,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

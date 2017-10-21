@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Grafana connection"
+        return 'Grafana connection'
     return 'grafana'
 
 
@@ -41,62 +41,74 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'name': {
-                "title": "Grafana connection name",
-                "comment": "Unique Grafana connection name",
+                'schema_version': 1,
+                'title': 'Grafana connection name',
+                'comment': 'Unique Grafana connection name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'address': {
-                "title": "Server address",
-                "comment": "",
+                'schema_version': 1,
+                'title': 'Server address',
+                'comment': '',
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'port': {
-                "title": "Server port",
-                "comment": "",
+                'schema_version': 1,
+                'title': 'Server port',
+                'comment': '',
                 'type': 'integer',
                 'empty': False,
                 'default': 3000
             },
             'apikey': {
-                "title": "Grafana API key",
-                "comment": "This API key is defined in the Grafana administration Web "
-                           "interface and it must have administrator rights in your "
-                           "Grafana organization.",
+                'schema_version': 1,
+                'title': 'Grafana API key',
+                'comment': 'This API key is defined in the Grafana administration Web '
+                           'interface and it must have administrator rights in your '
+                           'Grafana organization.',
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'timezone': {
-                "title": "Grafana timezone",
-                "comment": "This timezone is used, if needed, to define the Alignak Timezone.",
+                'schema_version': 1,
+                'title': 'Grafana timezone',
+                'comment': 'This timezone is used, if needed, to define the Alignak Timezone.',
                 'type': 'string',
                 'empty': False,
                 'default': 'browser'
             },
             'refresh': {
-                "title": "Dashboard refresh period",
-                "comment": "The default Grafana dashboard refresh time.",
+                'schema_version': 1,
+                'title': 'Dashboard refresh period',
+                'comment': 'The default Grafana dashboard refresh time.',
                 'type': 'string',
                 'empty': False,
                 'default': '1m'
             },
             'ssl': {
-                "title": "SSL",
-                "comment": "Set this property if your Grafana requires SSL connection.",
+                'schema_version': 1,
+                'title': 'SSL',
+                'comment': 'Set this property if your Grafana requires SSL connection.',
                 'type': 'boolean',
                 'default': False
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -105,14 +117,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -123,6 +137,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -133,6 +148,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -142,5 +158,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

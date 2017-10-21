@@ -39,8 +39,13 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'user': {
-                "title": "Concerned user",
+                'schema_version': 1,
+                'title': 'Concerned user',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'user',
@@ -49,7 +54,8 @@ def get_schema():
                 'required': True,
             },
             'realm': {
-                "title": "Concerned realm",
+                'schema_version': 1,
+                'title': 'Concerned realm',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -58,14 +64,16 @@ def get_schema():
                 'required': True,
             },
             'sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this right applicable to the sub-realms of the realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this right applicable to the sub-realms of the realm?',
                 'type': 'boolean',
                 'default': False
             },
             'resource': {
-                "title": "Concerned resource",
-                "comment": "Resource concerned with the right",
+                'schema_version': 1,
+                'title': 'Concerned resource',
+                'comment': 'Resource concerned with the right',
                 'type': 'string',
                 'default': '*',
                 'allowed': [
@@ -83,12 +91,14 @@ def get_schema():
                 ],
             },
             'crud': {
-                "title": "Right",
-                "comment": "User's right for the concerned resource in the concerned realm. "
+                'schema_version': 1,
+                'title': 'Right',
+                'comment': "User's right for the concerned resource in the concerned realm. "
                            "Use ``*`` if all resources are concerned.",
                 'type': 'list',
                 'default': ['read'],
                 'allowed': ['create', 'read', 'update', 'delete', 'custom']
             },
-        }
+        },
+        'schema_deleted': {}
     }

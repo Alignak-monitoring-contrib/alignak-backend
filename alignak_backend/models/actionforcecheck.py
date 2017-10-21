@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Check request"
+        return 'Check request'
     return 'actionforcecheck'
 
 
@@ -41,9 +41,14 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'host': {
-                "title": "Host",
-                "comment": "The host concerned by the acknowledge.",
+                'schema_version': 1,
+                'title': 'Host',
+                'comment': 'The host concerned by the acknowledge.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'host',
@@ -52,8 +57,9 @@ def get_schema():
                 'required': True
             },
             'service': {
-                "title": "Service",
-                "comment": "The service concerned by the acknowledge.",
+                'schema_version': 1,
+                'title': 'Service',
+                'comment': 'The service concerned by the acknowledge.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'service',
@@ -63,8 +69,9 @@ def get_schema():
                 'nullable': True
             },
             'user': {
-                "title": "User",
-                "comment": "The user concerned by the acknowledge.",
+                'schema_version': 1,
+                'title': 'User',
+                'comment': 'The user concerned by the acknowledge.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'user',
@@ -73,25 +80,28 @@ def get_schema():
                 'required': True,
             },
             'comment': {
-                "title": "Comment",
-                "comment": "The comment of the acknowledge action. Free text.",
+                'schema_version': 1,
+                'title': 'Comment',
+                'comment': 'The comment of the acknowledge action. Free text.',
                 'type': 'string',
                 'default': ''
             },
 
             'processed': {
-                "title": "Processed",
-                "comment": "The action has been set on the host/service by Alignak and it can "
-                           "be considered as effective if processed is True",
+                'schema_version': 1,
+                'title': 'Processed',
+                'comment': 'The action has been set on the host/service by Alignak and it can '
+                           'be considered as effective if processed is True',
                 'type': 'boolean',
                 'default': False
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to. Note that this property will always "
-                           "be forced to the value of the concerned host realm.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to. Note that this property will always '
+                           'be forced to the value of the concerned host realm.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -99,14 +109,16 @@ def get_schema():
                 }
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -116,5 +128,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Host/service data retention from scheduler of Alignak"
+        return 'Host/service data retention from scheduler of Alignak'
     return 'alignakretention'
 
 
@@ -39,15 +39,22 @@ def get_schema():
         'auth_field': '_user',
         'item_methods': ['GET', 'PATCH', 'PUT', 'DELETE'],
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'host': {
+                'schema_version': 1,
                 'type': 'string',
             },
             '_user': {
+                'schema_version': 1,
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'user',
                     'embeddable': True
                 },
             }
-        }
+        },
+        'schema_deleted': {}
     }

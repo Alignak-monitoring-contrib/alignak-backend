@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Acknowledges"
+        return 'Acknowledges'
     return 'actionacknowledge'
 
 
@@ -41,18 +41,24 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'action': {
-                "title": "Action",
-                "comment": "Use 'add' to add a new acknowledge, or "
-                           "'delete' to delete an acknowledge",
+                'schema_version': 1,
+                'title': 'Action',
+                'comment': 'Use "add" to add a new acknowledge, or '
+                           '"delete" to delete an acknowledge',
                 'type': 'string',
                 'default': 'add',
-                'allowed': ["add", "delete"]
+                'allowed': ['add', 'delete']
             },
 
             'host': {
-                "title": "Host",
-                "comment": "The host concerned by the acknowledge.",
+                'schema_version': 1,
+                'title': 'Host',
+                'comment': 'The host concerned by the acknowledge.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'host',
@@ -61,8 +67,9 @@ def get_schema():
                 'required': True
             },
             'service': {
-                "title": "Service",
-                "comment": "The service concerned by the acknowledge.",
+                'schema_version': 1,
+                'title': 'Service',
+                'comment': 'The service concerned by the acknowledge.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'service',
@@ -72,8 +79,9 @@ def get_schema():
                 'nullable': True
             },
             'user': {
-                "title": "User",
-                "comment": "The user concerned by the acknowledge.",
+                'schema_version': 1,
+                'title': 'User',
+                'comment': 'The user concerned by the acknowledge.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'user',
@@ -82,58 +90,65 @@ def get_schema():
                 'required': True,
             },
             'comment': {
-                "title": "Comment",
-                "comment": "The comment of the acknowledge action. Free text.",
+                'schema_version': 1,
+                'title': 'Comment',
+                'comment': 'The comment of the acknowledge action. Free text.',
                 'type': 'string',
                 'default': ''
             },
 
             'processed': {
-                "title": "Processed",
-                "comment": "The action has been set on the host/service by Alignak and it can "
-                           "be considered as effective if processed is True",
+                'schema_version': 1,
+                'title': 'Processed',
+                'comment': 'The action has been set on the host/service by Alignak and it can '
+                           'be considered as effective if processed is True',
                 'type': 'boolean',
                 'default': False
             },
             'notified': {
-                "title": "Notified",
-                "comment": "The action has been fetched by the Alignak arbiter if notified is "
-                           "True but it is not yet to be considered as an effective "
-                           "scheduled downtime",
+                'schema_version': 1,
+                'title': 'Notified',
+                'comment': 'The action has been fetched by the Alignak arbiter if notified is '
+                           'True but it is not yet to be considered as an effective '
+                           'scheduled downtime',
                 'type': 'boolean',
                 'default': False
             },
 
             'sticky': {
-                "title": "Sticky",
-                "comment": "If the sticky option is set, the acknowledgement will remain "
-                           "until the host/service recovers. Otherwise the acknowledgement "
-                           "will automatically be removed when the host/service state changes.",
+                'schema_version': 1,
+                'title': 'Sticky',
+                'comment': 'If the sticky option is set, the acknowledgement will remain '
+                           'until the host/service recovers. Otherwise the acknowledgement '
+                           'will automatically be removed when the host/service state changes.',
                 'type': 'boolean',
                 'default': True
             },
             'notify': {
-                "title": "Notify",
-                "comment": "If the notify option is set, a notification will be sent out "
-                           "to contacts indicating that the current host/service problem has "
-                           "been acknowledged, else there will be no notification.",
+                'schema_version': 1,
+                'title': 'Notify',
+                'comment': 'If the notify option is set, a notification will be sent out '
+                           'to contacts indicating that the current host/service problem has '
+                           'been acknowledged, else there will be no notification.',
                 'type': 'boolean',
                 'default': False
             },
             'persistent': {
-                "title": "Persistent",
-                "comment": "Alignak always consider an acknowledge as persistent. Thus this "
-                           "property is of no importance and it will be removed in a future "
-                           "version.",
+                'schema_version': 1,
+                'title': 'Persistent',
+                'comment': 'Alignak always consider an acknowledge as persistent. Thus this '
+                           'property is of no importance and it will be removed in a future '
+                           'version.',
                 'type': 'boolean',
                 'default': True
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to. Note that this property will always "
-                           "be forced to the value of the concerned host realm.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to. Note that this property will always '
+                           'be forced to the value of the concerned host realm.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -141,14 +156,16 @@ def get_schema():
                 }
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -158,5 +175,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }
