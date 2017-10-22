@@ -192,6 +192,11 @@ class MyValidator(Validator):
         """Validate 'comment' field (always valid)"""
         return
 
+    # pylint: disable=unused-argument
+    def _validate_schema_version(self, schema_version, field, value):
+        """Validate 'schema_version' field (always valid)"""
+        return
+
 
 # Hooks used to check user's rights
 def pre_get(resource, user_request, lookup):

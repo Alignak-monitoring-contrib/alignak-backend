@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Check result log"
+        return 'Check result log'
     return 'logcheckresult'
 
 
@@ -38,8 +38,13 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'host': {
-                "title": "Concerned host",
+                'schema_version': 1,
+                'title': 'Concerned host',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'host',
@@ -48,16 +53,18 @@ def get_schema():
                 'required': True,
             },
             'host_name': {
-                "title": "Host name",
-                "comment": "The backend stores the host name. This allows to keep "
-                           "an information about the concerned host even if it "
-                           "has been deleted from the backend.",
+                'schema_version': 1,
+                'title': 'Host name',
+                'comment': 'The backend stores the host name. This allows to keep '
+                           'an information about the concerned host even if it '
+                           'has been deleted from the backend.',
                 'type': 'string',
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
             'service': {
-                "title": "Concerned service",
-                "comment": "If not set, this check result is an host check",
+                'schema_version': 1,
+                'title': 'Concerned service',
+                'comment': 'If not set, this check result is an host check',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'service',
@@ -67,112 +74,132 @@ def get_schema():
                 'nullable': True
             },
             'service_name': {
-                "title": "Service name",
-                "comment": "The backend stores the service name. This allows to keep "
-                           "an information about the concerned service even if it "
-                           "has been deleted from the backend.",
+                'schema_version': 1,
+                'title': 'Service name',
+                'comment': 'The backend stores the service name. This allows to keep '
+                           'an information about the concerned service even if it '
+                           'has been deleted from the backend.',
                 'type': 'string',
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
             'state': {
-                "title": "State",
+                'schema_version': 1,
+                'title': 'State',
                 'type': 'string',
-                'allowed': ["UP", "DOWN", "UNREACHABLE", "OK", "WARNING", "CRITICAL", "UNKNOWN"],
+                'allowed': ['UP', 'DOWN', 'UNREACHABLE', 'OK', 'WARNING', 'CRITICAL', 'UNKNOWN'],
                 'required': True,
             },
             'state_type': {
-                "title": "State type",
+                'schema_version': 1,
+                'title': 'State type',
                 'type': 'string',
-                'allowed': ["HARD", "SOFT"],
+                'allowed': ['HARD', 'SOFT'],
                 'required': True,
             },
             'state_id': {
-                "title": "State identifier",
+                'schema_version': 1,
+                'title': 'State identifier',
                 'type': 'integer',
                 'default': 0
             },
             'passive_check': {
-                "title": "Passive check",
+                'schema_version': 1,
+                'title': 'Passive check',
                 'type': 'boolean',
                 'default': False
             },
             'acknowledged': {
-                "title": "Acknowledged",
+                'schema_version': 1,
+                'title': 'Acknowledged',
                 'type': 'boolean',
                 'default': False
             },
             'acknowledgement_type': {
-                "title": "Acknowledgement type",
+                'schema_version': 1,
+                'title': 'Acknowledgement type',
                 'type': 'integer',
                 'default': 1
             },
             'downtimed': {
-                "title": "Downtimed",
+                'schema_version': 1,
+                'title': 'Downtimed',
                 'type': 'boolean',
                 'default': False
             },
             'last_check': {
-                "title": "Check timestamp",
+                'schema_version': 1,
+                'title': 'Check timestamp',
                 'type': 'integer',
                 'default': 0
             },
             'last_state': {
-                "title": "Last state",
+                'schema_version': 1,
+                'title': 'Last state',
                 'type': 'string',
                 'default': 'OK',
-                'allowed': ["OK", "WARNING", "CRITICAL", "UNKNOWN", "UP", "DOWN", "UNREACHABLE"]
+                'allowed': ['OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UP', 'DOWN', 'UNREACHABLE']
             },
             'last_state_type': {
-                "title": "Last state type",
+                'schema_version': 1,
+                'title': 'Last state type',
                 'type': 'string',
-                'allowed': ["HARD", "SOFT"],
+                'allowed': ['HARD', 'SOFT'],
                 'required': True,
             },
             'last_state_id': {
-                "title": "Last state identifier",
+                'schema_version': 1,
+                'title': 'Last state identifier',
                 'type': 'integer',
                 'default': 0
             },
             'last_state_changed': {
-                "title": "Last state changed",
+                'schema_version': 1,
+                'title': 'Last state changed',
                 'type': 'integer',
                 'default': 0
             },
             'state_changed': {
-                "title": "State changed",
+                'schema_version': 1,
+                'title': 'State changed',
                 'type': 'boolean',
                 'default': False
             },
             'output': {
-                "title": "Output",
+                'schema_version': 1,
+                'title': 'Output',
                 'type': 'string',
                 'default': ''
             },
             'long_output': {
-                "title": "Long output",
+                'schema_version': 1,
+                'title': 'Long output',
                 'type': 'string',
                 'default': ''
             },
             'perf_data': {
-                "title": "Performance data",
+                'schema_version': 1,
+                'title': 'Performance data',
                 'type': 'string',
                 'default': ''
             },
             'latency': {
-                "title": "Latency",
+                'schema_version': 1,
+                'title': 'Latency',
                 'type': 'float',
                 'default': 0.0
             },
             'execution_time': {
-                "title": "Execution time",
+                'schema_version': 1,
+                'title': 'Execution time',
                 'type': 'float',
                 'default': 0.0
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -181,14 +208,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -198,5 +227,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

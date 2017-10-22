@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Alignak daemons live state"
+        return 'Alignak daemons live state'
     return 'alignakdaemon'
 
 
@@ -44,64 +44,77 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'name': {
-                "title": "Daemon name",
-                "comment": "Unique daemon name",
+                'schema_version': 1,
+                'title': 'Daemon name',
+                'comment': 'Unique daemon name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'address': {
-                "title": "Address",
+                'schema_version': 1,
+                'title': 'Address',
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'port': {
-                "title": "Port",
+                'schema_version': 1,
+                'title': 'Port',
                 'type': 'integer',
                 'required': True,
                 'empty': False,
             },
             'last_check': {
-                "title": "Last check",
-                "comment": "Last time the daemon was checked",
+                'schema_version': 1,
+                'title': 'Last check',
+                'comment': 'Last time the daemon was checked',
                 'type': 'integer',
                 'required': True,
                 'empty': False,
             },
             'alive': {
-                "title": "Alive",
-                "comment": "The daemon is alive",
+                'schema_version': 1,
+                'title': 'Alive',
+                'comment': 'The daemon is alive',
                 'type': 'boolean',
                 'required': True,
                 'default': False
             },
             'reachable': {
-                "title": "Reachable",
-                "comment": "The daemon is reachable",
+                'schema_version': 1,
+                'title': 'Reachable',
+                'comment': 'The daemon is reachable',
                 'type': 'boolean',
                 'required': True,
                 'default': False
             },
             'passive': {
-                "title": "Passive",
-                "comment": "The daemon is a passive daemon",
+                'schema_version': 1,
+                'title': 'Passive',
+                'comment': 'The daemon is a passive daemon',
                 'type': 'boolean',
                 'required': True,
                 'default': False
             },
             'spare': {
-                "title": "Spare",
-                "comment": "The daemon is a spare daemon",
+                'schema_version': 1,
+                'title': 'Spare',
+                'comment': 'The daemon is a spare daemon',
                 'type': 'boolean',
                 'required': True,
                 'default': False
             },
             'type': {
-                "title": "Type",
-                "comment": "Daemon type: 'arbiter', 'scheduler', 'poller', "
-                           "'broker', 'reactionner', 'receiver'",
+                'schema_version': 1,
+                'title': 'Type',
+                'comment': 'Daemon type: "arbiter", "scheduler", "poller", '
+                           '"broker", "reactionner", "receiver"',
                 'type': 'string',
                 'required': True,
                 'allowed': ['arbiter', 'scheduler', 'poller', 'broker', 'reactionner', 'receiver']
@@ -109,8 +122,9 @@ def get_schema():
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -119,14 +133,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -137,6 +153,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -147,6 +164,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -156,5 +174,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

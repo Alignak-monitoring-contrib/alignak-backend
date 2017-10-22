@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Alignak live state synthesis"
+        return 'Alignak live state synthesis'
     return 'livesynthesis'
 
 
@@ -44,142 +44,173 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'hosts_total': {
-                "title": "Hosts count",
+                'schema_version': 1,
+                'title': 'Hosts count',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_up_hard': {
-                "title": "Hosts Up hard",
+                'schema_version': 1,
+                'title': 'Hosts Up hard',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_up_soft': {
-                "title": "Hosts Up soft",
+                'schema_version': 1,
+                'title': 'Hosts Up soft',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_down_hard': {
-                "title": "Hosts Down hard",
+                'schema_version': 1,
+                'title': 'Hosts Down hard',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_down_soft': {
-                "title": "Hosts Down soft",
+                'schema_version': 1,
+                'title': 'Hosts Down soft',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_unreachable_hard': {
-                "title": "Hosts Unreachable hard",
+                'schema_version': 1,
+                'title': 'Hosts Unreachable hard',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_unreachable_soft': {
-                "title": "Hosts Unreachable soft",
+                'schema_version': 1,
+                'title': 'Hosts Unreachable soft',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_acknowledged': {
-                "title": "Hosts ackowledged",
+                'schema_version': 1,
+                'title': 'Hosts ackowledged',
                 'type': 'integer',
                 'default': 0
             },
             'hosts_in_downtime': {
-                "title": "Hosts in downtime",
+                'schema_version': 1,
+                'title': 'Hosts in downtime',
                 'type': 'integer',
                 'default': 0
             },
             'hosts_flapping': {
-                "title": "Hosts flapping",
+                'schema_version': 1,
+                'title': 'Hosts flapping',
                 'type': 'integer',
                 'default': 0
             },
             'hosts_business_impact': {
-                "title": "Hosts business impact",
+                'schema_version': 1,
+                'title': 'Hosts business impact',
                 'type': 'integer',
                 'default': 0
             },
 
             'services_total': {
-                "title": "Services count",
+                'schema_version': 1,
+                'title': 'Services count',
                 'type': 'integer',
                 'default': 0,
             },
             'services_ok_hard': {
-                "title": "Services Ok hard",
+                'schema_version': 1,
+                'title': 'Services Ok hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_ok_soft': {
-                "title": "Services Ok soft",
+                'schema_version': 1,
+                'title': 'Services Ok soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_warning_hard': {
-                "title": "Services Warning hard",
+                'schema_version': 1,
+                'title': 'Services Warning hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_warning_soft': {
-                "title": "Services Warning soft",
+                'schema_version': 1,
+                'title': 'Services Warning soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_critical_hard': {
-                "title": "Services Critical hard",
+                'schema_version': 1,
+                'title': 'Services Critical hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_critical_soft': {
-                "title": "Services Criticl soft",
+                'schema_version': 1,
+                'title': 'Services Criticl soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_unknown_hard': {
-                "title": "Services Unknown hard",
+                'schema_version': 1,
+                'title': 'Services Unknown hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_unknown_soft': {
-                "title": "Services Unknown soft",
+                'schema_version': 1,
+                'title': 'Services Unknown soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_unreachable_hard': {
-                "title": "Services Unreachable hard",
+                'schema_version': 1,
+                'title': 'Services Unreachable hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_unreachable_soft': {
-                "title": "Services Unreachable soft",
+                'schema_version': 1,
+                'title': 'Services Unreachable soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_acknowledged': {
-                "title": "Services acknowledged",
+                'schema_version': 1,
+                'title': 'Services acknowledged',
                 'type': 'integer',
                 'default': 0
             },
             'services_in_downtime': {
-                "title": "Services in downtime",
+                'schema_version': 1,
+                'title': 'Services in downtime',
                 'type': 'integer',
                 'default': 0
             },
             'services_flapping': {
-                "title": "Services flapping",
+                'schema_version': 1,
+                'title': 'Services flapping',
                 'type': 'integer',
                 'default': 0
             },
             'services_business_impact': {
-                "title": "Services business impact",
+                'schema_version': 1,
+                'title': 'Services business impact',
                 'type': 'integer',
                 'default': 0
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -188,14 +219,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -205,5 +238,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

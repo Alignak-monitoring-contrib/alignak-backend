@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Alignak realm"
+        return 'Alignak realm'
     return 'realm'
 
 
@@ -48,24 +48,31 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             # Importation source
             'imported_from': {
-                "title": "Imported from",
-                "comment": "Item importation source (alignak-backend-import, ...)",
+                'schema_version': 1,
+                'title': 'Imported from',
+                'comment': 'Item importation source (alignak-backend-import, ...)',
                 'type': 'string',
                 'default': 'unknown'
             },
             'definition_order': {
-                "title": "Definition order",
-                "comment": "Priority level if several elements have the same name",
+                'schema_version': 1,
+                'title': 'Definition order',
+                'comment': 'Priority level if several elements have the same name',
                 'type': 'integer',
                 'default': 100
             },
 
             # Identity
             'name': {
-                "title": "Realm name",
-                "comment": "Unique realm name",
+                'schema_version': 1,
+                'title': 'Realm name',
+                'comment': 'Unique realm name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
@@ -73,58 +80,67 @@ def get_schema():
                 'regex': r"^[a-zA-Z0-9 \-_]+$",
             },
             'alias': {
-                "title": "Alias",
-                "comment": "Element friendly name used by the Web User Interface.",
+                'schema_version': 1,
+                'title': 'Alias',
+                'comment': 'Element friendly name used by the Web User Interface.',
                 'type': 'string',
                 'default': ''
             },
             'notes': {
-                "title": "Notes",
-                "comment": "Element notes. Free text to store element information.",
+                'schema_version': 1,
+                'title': 'Notes',
+                'comment': 'Element notes. Free text to store element information.',
                 'type': 'string',
                 'default': ''
             },
 
             'default': {
-                "title": "Default realm",
-                "comment": "This realm is the default realm used when no realm information "
-                           "is provided.",
+                'schema_version': 1,
+                'title': 'Default realm',
+                'comment': 'This realm is the default realm used when no realm information '
+                           'is provided.',
                 'type': 'boolean',
                 'default': False
             },
 
             # todo: check whether this is really useful :/
             'hosts_critical_threshold': {
+                'schema_version': 1,
                 'type': 'integer',
                 'min': 0,
                 'max': 100,
                 'default': 5
             },
             'hosts_warning_threshold': {
+                'schema_version': 1,
                 'type': 'integer',
                 'min': 0,
                 'max': 100,
                 'default': 3
             },
             'services_critical_threshold': {
+                'schema_version': 1,
                 'type': 'integer',
                 'min': 0,
                 'max': 100,
                 'default': 5
             },
             'services_warning_threshold': {
+                'schema_version': 1,
                 'type': 'integer',
                 'min': 0,
                 'max': 100,
                 'default': 3
             },
             'global_critical_threshold': {
+                'schema_version': 1,
                 'type': 'integer',
                 'min': 0,
                 'max': 100,
                 'default': 5
             },
             'global_warning_threshold': {
+                'schema_version': 1,
                 'type': 'integer',
                 'min': 0,
                 'max': 100,
@@ -132,8 +148,9 @@ def get_schema():
             },
 
             '_parent': {
-                "title": "Parent",
-                "comment": "Immediate parent in the hierarchy",
+                'schema_version': 1,
+                'title': 'Parent',
+                'comment': 'Immediate parent in the hierarchy',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -142,8 +159,9 @@ def get_schema():
                 'default': None
             },
             '_tree_parents': {
-                "title": "Parents",
-                "comment": "List of parents in the hierarchy",
+                'schema_version': 1,
+                'title': 'Parents',
+                'comment': 'List of parents in the hierarchy',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -155,8 +173,9 @@ def get_schema():
                 'default': []
             },
             '_children': {
-                "title": "Children",
-                "comment": "List of the immediate children in the hierarchy",
+                'schema_version': 1,
+                'title': 'Children',
+                'comment': 'List of the immediate children in the hierarchy',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -168,8 +187,9 @@ def get_schema():
                 'default': []
             },
             '_all_children': {
-                "title": "Children",
-                "comment": "List of all the children in the hierarchy",
+                'schema_version': 1,
+                'title': 'Children',
+                'comment': 'List of all the children in the hierarchy',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -181,14 +201,16 @@ def get_schema():
                 'default': []
             },
             '_level': {
-                "title": "Level",
-                "comment": "Level in the hierarchy",
+                'schema_version': 1,
+                'title': 'Level',
+                'comment': 'Level in the hierarchy',
                 'type': 'integer',
                 'default': 0,
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -199,6 +221,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -209,6 +232,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -218,5 +242,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

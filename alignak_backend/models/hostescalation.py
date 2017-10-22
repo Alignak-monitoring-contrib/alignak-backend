@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:
-        return "Host escalation"
+        return 'Host escalation'
     return 'hostescalation'
 
 
@@ -38,16 +38,22 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             # Importation source
             'imported_from': {
-                "title": "Imported from",
-                "comment": "Item importation source (alignak-backend-import, ...)",
+                'schema_version': 1,
+                'title': 'Imported from',
+                'comment': 'Item importation source (alignak-backend-import, ...)',
                 'type': 'string',
                 'default': 'unknown'
             },
             'definition_order': {
-                "title": "Definition order",
-                "comment": "Priority level if several elements have the same name",
+                'schema_version': 1,
+                'title': 'Definition order',
+                'comment': 'Priority level if several elements have the same name',
                 'type': 'integer',
                 'default': 100
             },
@@ -55,46 +61,52 @@ def get_schema():
             # Old and to be deprecated stuff...
             # todo: To be deprecated
             'first_notification': {
-                "title": "First notification count",
-                "comment": "Nagios legacy. Number of the first notification this "
-                           "escalation will be used. **Note** that this property "
-                           "will be deprecated in favor of the ``first_notification_time``.",
+                'schema_version': 1,
+                'title': 'First notification count',
+                'comment': 'Nagios legacy. Number of the first notification this '
+                           'escalation will be used. **Note** that this property '
+                           'will be deprecated in favor of the ``first_notification_time``.',
                 'type': 'integer',
             },
             'last_notification': {
-                "title": "Last notification count",
-                "comment": "Nagios legacy. Number of the last notification this "
-                           "escalation will not be used anymore. **Note** that this property "
-                           "will be deprecated in favor of the ``last_notification_time``.",
+                'schema_version': 1,
+                'title': 'Last notification count',
+                'comment': 'Nagios legacy. Number of the last notification this '
+                           'escalation will not be used anymore. **Note** that this property '
+                           'will be deprecated in favor of the ``last_notification_time``.',
                 'type': 'integer',
             },
 
             # Identity
             'name': {
-                "title": "Host escalation name",
-                "comment": "Unique host escalation name",
+                'schema_version': 1,
+                'title': 'Host escalation name',
+                'comment': 'Unique host escalation name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'alias': {
-                "title": "Alias",
-                "comment": "Element friendly name used by the Web User Interface.",
+                'schema_version': 1,
+                'title': 'Alias',
+                'comment': 'Element friendly name used by the Web User Interface.',
                 'type': 'string',
                 'default': '',
             },
             'notes': {
-                "title": "Notes",
-                "comment": "Element notes. Free text to store element information.",
+                'schema_version': 1,
+                'title': 'Notes',
+                'comment': 'Element notes. Free text to store element information.',
                 'type': 'string',
                 'default': '',
             },
 
             # Concerned items: hosts or hosts groups
             'hosts': {
-                "title": "Hosts",
-                "comment": "List of the hosts concerned by the escalation.",
+                'schema_version': 1,
+                'title': 'Hosts',
+                'comment': 'List of the hosts concerned by the escalation.',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -105,8 +117,9 @@ def get_schema():
                 }
             },
             'hostgroups': {
-                "title": "Hosts groups",
-                "comment": "List of the hosts groups concerned by the escalation.",
+                'schema_version': 1,
+                'title': 'Hosts groups',
+                'comment': 'List of the hosts groups concerned by the escalation.',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -119,23 +132,26 @@ def get_schema():
 
             # Escalated notification sent-out time
             'first_notification_time': {
-                "title": "First notification time",
-                "comment": "Duration in minutes before sending the first escalated notification.",
+                'schema_version': 1,
+                'title': 'First notification time',
+                'comment': 'Duration in minutes before sending the first escalated notification.',
                 'type': 'integer',
                 'default': 60
             },
             'last_notification_time': {
-                "title": "Last notification time",
-                "comment": "Duration in minutes before sending the last escalated notification. "
-                           "Escalated notifications will be sent-out between the "
-                           "first_notification_time and last_notification_time period.",
+                'schema_version': 1,
+                'title': 'Last notification time',
+                'comment': 'Duration in minutes before sending the last escalated notification. '
+                           'Escalated notifications will be sent-out between the '
+                           'first_notification_time and last_notification_time period.',
                 'type': 'integer',
                 'default': 240
             },
             'escalation_period': {
-                "title": "Escalation time period",
-                "comment": "No escalation notifications will be sent-out "
-                           "except during this time period.",
+                'schema_version': 1,
+                'title': 'Escalation time period',
+                'comment': 'No escalation notifications will be sent-out '
+                           'except during this time period.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'timeperiod',
@@ -143,27 +159,30 @@ def get_schema():
                 }
             },
             'escalation_options': {
-                "title": "Escalation options",
-                "comment": "List of the notifications types this escalation is concerned with. "
-                           "This escalation will be used only if the host is in one of the "
-                           "states specified in this property.",
+                'schema_version': 1,
+                'title': 'Escalation options',
+                'comment': 'List of the notifications types this escalation is concerned with. '
+                           'This escalation will be used only if the host is in one of the '
+                           'states specified in this property.',
                 'type': 'list',
                 'default': ['d', 'x', 'r'],
                 'allowed': ['d', 'x', 'r']
             },
             'notification_interval': {
-                "title": "Notifications interval",
-                "comment": "Number of minutes to wait before re-sending the escalated "
-                           "notifications if the problem is still present. If you set this "
-                           "value to 0, only one notification will be sent out.",
+                'schema_version': 1,
+                'title': 'Notifications interval',
+                'comment': 'Number of minutes to wait before re-sending the escalated '
+                           'notifications if the problem is still present. If you set this '
+                           'value to 0, only one notification will be sent out.',
                 'type': 'integer',
                 'default': 60
             },
 
             # Notified users / users groups
             'users': {
-                "title": "Escalation users",
-                "comment": "List of the users concerned by this escalation.",
+                'schema_version': 1,
+                'title': 'Escalation users',
+                'comment': 'List of the users concerned by this escalation.',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -174,8 +193,9 @@ def get_schema():
                 },
             },
             'usergroups': {
-                "title": "Escalation users groups",
-                "comment": "List of the users groups concerned by this escalation.",
+                'schema_version': 1,
+                'title': 'Escalation users groups',
+                'comment': 'List of the users groups concerned by this escalation.',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -188,8 +208,9 @@ def get_schema():
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -198,14 +219,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -216,6 +239,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -226,6 +250,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -235,5 +260,6 @@ def get_schema():
                     }
                 },
             }
-        }
+        },
+        'schema_deleted': {}
     }
