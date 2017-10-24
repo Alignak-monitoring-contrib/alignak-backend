@@ -44,7 +44,7 @@ def get_schema():
         'schema': {
             'schema_version': {
                 'type': 'integer',
-                'default': 1,
+                'default': 2,
             },
             'name': {
                 'schema_version': 1,
@@ -93,6 +93,13 @@ def get_schema():
                 'comment': 'Prefix that will be prepended to the metrics sent to this TS DB.',
                 'type': 'string',
                 'default': '',
+            },
+            'realms_prefix': {
+                'schema_version': 2,
+                "title": "Realms prefix",
+                "comment": "Include the realms prefix for the metrics sent to this TS DB.",
+                'type': 'boolean',
+                'default': True
             },
             'grafana': {
                 'schema_version': 1,

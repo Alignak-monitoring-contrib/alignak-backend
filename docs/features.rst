@@ -166,6 +166,7 @@ For Carbon/Graphite, use resource _graphite_, composed with information:
 * *graphite_address*: address of graphite (IP, DNS),
 * *graphite_port*: port of graphite, default 8080,
 * *prefix*: a prefix to use in carbon for our data
+* *realms_prefix*: a boolean value to include or not a prefix with the realms hierarchy
 * *grafana*: id of grafana
 
 Curl example::
