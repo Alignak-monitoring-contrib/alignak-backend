@@ -184,7 +184,7 @@ class TestGrafana(unittest2.TestCase):
         """
         for resource in ['host', 'service', 'command', 'history',
                          'actionacknowledge', 'actiondowntime', 'actionforcecheck', 'grafana',
-                         'graphite', 'influxdb']:
+                         'graphite', 'influxdb', 'statsd']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
     def test_grafana_on_realms(self):
@@ -317,12 +317,34 @@ class TestGrafana(unittest2.TestCase):
         requests.post(self.endpoint + '/graphite', json=data, headers=headers, auth=self.auth)
 
     def test_create_dashboard_panels_graphite(self):
-        # pylint: disable=too-many-locals
-        """
-        Create dashboard into grafana with datasource graphite
+        """Create dashboard into grafana with datasource graphite
+
+        realms prefix is included
 
         :return: None
         """
+        self._create_dashboard_panels_graphite(True)
+
+    def test_create_dashboard_panels_graphite_no_realms_prefix(self):
+        """Create dashboard into grafana with datasource graphite
+
+        realms prefix is not included
+
+        :return: None
+        """
+        self._create_dashboard_panels_graphite(False)
+
+    def _create_dashboard_panels_graphite(self, realms_prefix):
+        # pylint: disable=too-many-locals, too-many-nested-blocks
+        """
+        Create dashboard into grafana with datasource graphite
+
+        realms_prefix is True or False to include the realms hierarchy
+        in the Grafana panels targets
+
+        :return: None
+        """
+
         headers = {'Content-Type': 'application/json'}
         # Create grafana in realm All + subrealm
         data = {
@@ -354,12 +376,13 @@ class TestGrafana(unittest2.TestCase):
         self.assertEqual('OK', resp['_status'], resp)
         statsd_all = resp['_id']
 
-        # Create a graphite in All B linked to grafana
+        # Create a graphite in All B linked to grafana with or without a realms prefix
         data = {
             'name': 'graphite B',
             'carbon_address': '192.168.0.101',
             'graphite_address': '192.168.0.101',
             'prefix': 'my_B',
+            'realms_prefix': realms_prefix,
             'grafana': grafana_all,
             'statsd': statsd_all,
             '_realm': self.realmAll_B
@@ -369,12 +392,13 @@ class TestGrafana(unittest2.TestCase):
         resp = response.json()
         self.assertEqual('OK', resp['_status'], resp)
 
-        # Create a graphite in All A + subrealm liked to grafana
+        # Create a graphite in All A + subrealm linked to grafana
         data = {
             'name': 'graphite A sub',
             'carbon_address': '192.168.0.102',
             'graphite_address': '192.168.0.102',
             'prefix': 'my_A_sub',
+            'realms_prefix': realms_prefix,
             'grafana': grafana_all,
             '_realm': self.realmAll_A,
             '_sub_realm': True
@@ -482,7 +506,15 @@ class TestGrafana(unittest2.TestCase):
                             methods[h.method] += 1
                             if h.method == 'POST':
                                 dash = h.json()
-                                print("Post response: %s" % dash)
+                                # print("Post response: %s" % dash)
+                                for row in dash['dashboard']['rows']:
+                                    for panel in row['panels']:
+                                        for target in panel['targets']:
+                                            print("Target: %s" % target['target'])
+                                            if not realms_prefix:
+                                                assert '$ts_prefix.srv002' in target['target']
+                                            else:
+                                                assert '$ts_prefix.All' in target['target']
                                 # assert len(dash['dashboard']['rows']) == 2
                         assert {'POST': 1, 'GET': 1} == methods
 
