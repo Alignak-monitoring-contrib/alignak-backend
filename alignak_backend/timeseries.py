@@ -152,7 +152,7 @@ class Timeseries(object):
 
     @staticmethod
     def get_realms_prefix(realm_id):
-        """Get realm path since first level
+        """Get realms path from top level
 
         :param realm_id: id of the realm
         :type realm_id: str
