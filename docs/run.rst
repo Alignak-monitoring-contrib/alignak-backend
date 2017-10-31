@@ -25,6 +25,33 @@ The Alignak backend logs its activity in two files that are located in */usr/loc
 
 .. warning:: If you do not have those files when the backend is started, make sure that the user account used to run the backend is allowed to write in the */usr/local/var/log* directory ;)
 
+To stop / reload the Alignak backend application:
+::
+
+    # Ctrl+C in the session where you started the alignak-backend-uwsgi script will stop the Alignak backend
+
+    # To gracefully reload all the workers
+    $ kill -SIGHUP `cat /tmp/alignak-backend.pid`
+
+    # To gently kill and restart all the workers
+    $ kill -SIGTERM `cat /tmp/alignak-backend.pid`
+
+    # To brutally kill all the workers
+    $ kill -SIGINT `cat /tmp/alignak-backend.pid`
+
+
+Environment variables
+---------------------
+
+If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
+
+If an environment variable `ALIGNAK_BACKEND_UWSGI_FILE` exist, the `alignak-backend-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
+
+
+system.d service mode
+---------------------
+
+The alignak backend installation script used when you install with pip:
 
 Developer mode
 --------------
@@ -78,14 +105,6 @@ On start, some useful information are printed on the console::
 
 
 Alignak-backend runs on port 5000, so you should use ``http://ip:5000/`` as a base URL for the API.
-
-Environment variables
----------------------
-
-If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
-
-If an environment variable `ALIGNAK_BACKEND_UWSGI_FILE` exist, the `alignak-backend-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
-
 
 Change default admin password
 -----------------------------
