@@ -41,7 +41,7 @@ def get_schema():
         'schema': {
             'schema_version': {
                 'type': 'integer',
-                'default': 1,
+                'default': 2,
             },
             # Importation source
             'imported_from': {
@@ -70,13 +70,6 @@ def get_schema():
                 'unique': True,
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
-            # 'business_impact': {
-            #     "title": "Business impact",
-            #     "comment": "The business impact level indicates the level of importance of this "
-            #                "element. The highest value the most important is the elemen.",
-            #     'type': 'integer',
-            #     'default': 2
-            # },
             'alias': {
                 'schema_version': 1,
                 'title': 'Alias',
@@ -187,6 +180,13 @@ def get_schema():
                            'backend data.',
                 'type': 'boolean',
                 'default': False
+            },
+            'webui_visible': {
+                'schema_version': 2,
+                'title': 'Web UI visible',
+                'comment': 'If not set, the Web User Interface will not take car of this user.',
+                'type': 'boolean',
+                'default': True
             },
 
             'min_business_impact': {
