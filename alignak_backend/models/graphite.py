@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Graphite connection"
+        return 'Graphite connection'
     return 'graphite'
 
 
@@ -42,53 +42,71 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 2,
+            },
             'name': {
-                "title": "Graphite connection name",
-                "comment": "Unique Graphite connection name",
+                'schema_version': 1,
+                'title': 'Graphite connection name',
+                'comment': 'Unique Graphite connection name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'carbon_address': {
-                "title": "Carbon daemon address",
-                "comment": "",
+                'schema_version': 1,
+                'title': 'Carbon daemon address',
+                'comment': '',
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'carbon_port': {
-                "title": "Carbon daemon port",
-                "comment": "",
+                'schema_version': 1,
+                'title': 'Carbon daemon port',
+                'comment': '',
                 'type': 'integer',
                 'empty': False,
                 'default': 2004
             },
             'graphite_address': {
-                "title": "Graphite address",
-                "comment": "",
+                'schema_version': 1,
+                'title': 'Graphite address',
+                'comment': '',
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'graphite_port': {
-                "title": "Graphite port",
-                "comment": "",
+                'schema_version': 1,
+                'title': 'Graphite port',
+                'comment': '',
                 'type': 'integer',
                 'empty': False,
                 'default': 8080
             },
             'prefix': {
-                "title": "Metrics prefix",
-                "comment": "Prefix that will be prepended to the metrics sent to this TS DB.",
+                'schema_version': 1,
+                'title': 'Metrics prefix',
+                'comment': 'Prefix that will be prepended to the metrics sent to this TS DB.',
                 'type': 'string',
                 'default': '',
             },
+            'realms_prefix': {
+                'schema_version': 2,
+                "title": "Realms prefix",
+                "comment": "Include the realms prefix for the metrics sent to this TS DB.",
+                'type': 'boolean',
+                'default': True
+            },
             'grafana': {
-                "title": "Grafana relation",
-                "comment": "If set, the Alignak backend will use this Grafana relation for "
-                           "the metrics sent to the Influx DB. It will create/update the "
-                           "Grafana panels accordindgly.",
+                'schema_version': 1,
+                'title': 'Grafana relation',
+                'comment': 'If set, the Alignak backend will use this Grafana relation for '
+                           'the metrics sent to the Influx DB. It will create/update the '
+                           'Grafana panels accordindgly.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'grafana',
@@ -98,9 +116,10 @@ def get_schema():
                 'default': None
             },
             'statsd': {
-                "title": "StatsD relation",
-                "comment": "If set, the Alignak backend will use this StatsD relation for "
-                           "the metrics sent to the Influx DB.",
+                'schema_version': 1,
+                'title': 'StatsD relation',
+                'comment': 'If set, the Alignak backend will use this StatsD relation for '
+                           'the metrics sent to the Influx DB.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'statsd',
@@ -112,8 +131,9 @@ def get_schema():
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -122,14 +142,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -140,6 +162,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -150,6 +173,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -159,5 +183,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

@@ -43,39 +43,48 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'name': {
-                "title": "StatsD connection name",
-                "comment": "Unique StatsD connection name",
+                'schema_version': 1,
+                'title': 'StatsD connection name',
+                'comment': 'Unique StatsD connection name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'address': {
-                "title": "Server address",
-                "comment": "",
+                'schema_version': 1,
+                'title': 'Server address',
+                'comment': '',
                 'type': 'string',
                 'required': True,
                 'empty': False,
             },
             'port': {
-                "title": "Server port",
-                "comment": "",
+                'schema_version': 1,
+                'title': 'Server port',
+                'comment': '',
                 'type': 'integer',
                 'empty': False,
                 'default': 8125
             },
             'prefix': {
-                "title": "Metrics prefix",
-                "comment": "Prefix that is configured in the StatsD server (if any).",
+                'schema_version': 1,
+                'title': 'Metrics prefix',
+                'comment': 'Prefix that is configured in the StatsD server (if any).',
                 'type': 'string',
                 'default': '',
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -84,14 +93,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -102,6 +113,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -112,6 +124,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -121,5 +134,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

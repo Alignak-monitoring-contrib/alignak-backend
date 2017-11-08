@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Alignak hosts groups"
+        return 'Alignak hosts groups'
     return 'hostgroup'
 
 
@@ -36,62 +36,74 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             # Importation source
             'imported_from': {
-                "title": "Imported from",
-                "comment": "Item importation source (alignak-backend-import, ...)",
+                'schema_version': 1,
+                'title': 'Imported from',
+                'comment': 'Item importation source (alignak-backend-import, ...)',
                 'type': 'string',
                 'default': 'unknown'
             },
             'definition_order': {
-                "title": "Definition order",
-                "comment": "Priority level if several elements have the same name",
+                'schema_version': 1,
+                'title': 'Definition order',
+                'comment': 'Priority level if several elements have the same name',
                 'type': 'integer',
                 'default': 100
             },
 
             # Identity
             'name': {
-                "title": "Hosts group name",
-                "comment": "Unique hosts group name",
+                'schema_version': 1,
+                'title': 'Hosts group name',
+                'comment': 'Unique hosts group name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'alias': {
-                "title": "Alias",
-                "comment": "Element friendly name used by the Web User Interface.",
+                'schema_version': 1,
+                'title': 'Alias',
+                'comment': 'Element friendly name used by the Web User Interface.',
                 'type': 'string',
                 'default': ''
             },
             'notes': {
-                "title": "Notes",
-                "comment": "Element notes. Free text to store element information.",
+                'schema_version': 1,
+                'title': 'Notes',
+                'comment': 'Element notes. Free text to store element information.',
                 'type': 'string',
                 'default': ''
             },
             'notes_url': {
-                "title": "Notes URL",
-                "comment": "Element notes URL. Displayed in the Web UI as some URL to be "
-                           "navigatesd. Note that a very specific text format must be used for "
-                           "this field, see the Web UI documentation.",
+                'schema_version': 1,
+                'title': 'Notes URL',
+                'comment': 'Element notes URL. Displayed in the Web UI as some URL to be '
+                           'navigatesd. Note that a very specific text format must be used for '
+                           'this field, see the Web UI documentation.',
                 'type': 'string',
                 'default': ''
             },
             'action_url': {
-                "title": "Actions URL",
-                "comment": "Element actions URL. Displayed in the Web UI as some available "
-                           "actions. Note that a very specific text format must be used for "
-                           "this field, see the Web UI documentation.",
+                'schema_version': 1,
+                'title': 'Actions URL',
+                'comment': 'Element actions URL. Displayed in the Web UI as some available '
+                           'actions. Note that a very specific text format must be used for '
+                           'this field, see the Web UI documentation.',
                 'type': 'string',
                 'default': ''
             },
 
             # Hostgroup specific
             'hostgroups': {
-                "title": "Groups",
-                "comment": "List of the groups of this group",
+                'schema_version': 1,
+                'title': 'Groups',
+                'comment': 'List of the groups of this group',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -103,8 +115,9 @@ def get_schema():
                 'default': []
             },
             'hosts': {
-                "title": "Members",
-                "comment": "List of the members of this group",
+                'schema_version': 1,
+                'title': 'Members',
+                'comment': 'List of the members of this group',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -118,14 +131,16 @@ def get_schema():
 
             # Automatically managed by the backend
             '_level': {
-                "title": "Level",
-                "comment": "Level in the hierarchy",
+                'schema_version': 1,
+                'title': 'Level',
+                'comment': 'Level in the hierarchy',
                 'type': 'integer',
                 'default': 0,
             },
             '_parent': {
-                "title": "Parent",
-                "comment": "Immediate parent in the hierarchy",
+                'schema_version': 1,
+                'title': 'Parent',
+                'comment': 'Immediate parent in the hierarchy',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'hostgroup',
@@ -135,8 +150,9 @@ def get_schema():
                 'default': None
             },
             '_tree_parents': {
-                "title": "Parents",
-                "comment": "List of parents in the hierarchy",
+                'schema_version': 1,
+                'title': 'Parents',
+                'comment': 'List of parents in the hierarchy',
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -150,8 +166,9 @@ def get_schema():
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -160,14 +177,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -178,6 +197,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -188,6 +208,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -197,5 +218,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Events log"
+        return 'Events log'
     return 'history'
 
 
@@ -46,9 +46,14 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'host': {
-                "title": "Concerned host identifier",
-                "comment": "! Will be removed in a future version",
+                'schema_version': 1,
+                'title': 'Concerned host identifier',
+                'comment': '! Will be removed in a future version',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'host',
@@ -57,16 +62,18 @@ def get_schema():
                 'nullable': True
             },
             'host_name': {
-                "title": "Concerned host name",
-                "comment": "The backend stores the host name. This allows to keep "
-                           "an information about the concerned host even if it "
-                           "has been deleted from the backend.",
+                'schema_version': 1,
+                'title': 'Concerned host name',
+                'comment': 'The backend stores the host name. This allows to keep '
+                           'an information about the concerned host even if it '
+                           'has been deleted from the backend.',
                 'type': 'string',
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
             'service': {
-                "title": "Concerned service identifier",
-                "comment": "! Will be removed in a future version",
+                'schema_version': 1,
+                'title': 'Concerned service identifier',
+                'comment': '! Will be removed in a future version',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'service',
@@ -75,16 +82,18 @@ def get_schema():
                 'nullable': True
             },
             'service_name': {
-                "title": "Concerned service name",
-                "comment": "The backend stores the service name. This allows to keep "
-                           "an information about the concerned service even if it "
-                           "has been deleted from the backend.",
+                'schema_version': 1,
+                'title': 'Concerned service name',
+                'comment': 'The backend stores the service name. This allows to keep '
+                           'an information about the concerned service even if it '
+                           'has been deleted from the backend.',
                 'type': 'string',
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
             'user': {
-                "title": "Concerned user identifier",
-                "comment": "! Will be removed in a future version",
+                'schema_version': 1,
+                'title': 'Concerned user identifier',
+                'comment': '! Will be removed in a future version',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'user',
@@ -93,73 +102,77 @@ def get_schema():
                 'nullable': True
             },
             'user_name': {
-                "title": "Concerned user name",
-                "comment": "The backend stores the user name. This allows to keep "
-                           "an information about the concerned user even if it "
-                           "has been deleted from the backend.",
+                'schema_version': 1,
+                'title': 'Concerned user name',
+                'comment': 'The backend stores the user name. This allows to keep '
+                           'an information about the concerned user even if it '
+                           'has been deleted from the backend.',
                 'type': 'string',
                 'regex': '^[^`~!$%^&*"|\'<>?,()=]+$'
             },
             'type': {
-                "title": "History event type",
+                'schema_version': 1,
+                'title': 'History event type',
                 'type': 'string',
                 'required': True,
                 'allowed': [
                     # WebUI user comment
-                    "webui.comment",
+                    'webui.comment',
 
                     # Check result
-                    "check.result",
+                    'check.result',
 
                     # Request to force a check
-                    "check.request",
-                    "check.requested",
+                    'check.request',
+                    'check.requested',
 
                     # Add acknowledge
-                    "ack.add",
+                    'ack.add',
                     # Set acknowledge
-                    "ack.processed",
+                    'ack.processed',
                     # Delete acknowledge
-                    "ack.delete",
+                    'ack.delete',
 
                     # Add downtime
-                    "downtime.add",
+                    'downtime.add',
                     # Set downtime
-                    "downtime.processed",
+                    'downtime.processed',
                     # Delete downtime
-                    "downtime.delete",
+                    'downtime.delete',
 
                     # external command
-                    "monitoring.external_command",
+                    'monitoring.external_command',
 
                     # timeperiod transition
-                    "monitoring.timeperiod_transition",
+                    'monitoring.timeperiod_transition',
                     # alert
-                    "monitoring.alert",
+                    'monitoring.alert',
                     # event handler
-                    "monitoring.event_handler",
+                    'monitoring.event_handler',
                     # flapping start / stop
-                    "monitoring.flapping_start",
-                    "monitoring.flapping_stop",
+                    'monitoring.flapping_start',
+                    'monitoring.flapping_stop',
                     # downtime start / cancel / end
-                    "monitoring.downtime_start",
-                    "monitoring.downtime_cancelled",
-                    "monitoring.downtime_end",
+                    'monitoring.downtime_start',
+                    'monitoring.downtime_cancelled',
+                    'monitoring.downtime_end',
                     # acknowledge
-                    "monitoring.acknowledge",
+                    'monitoring.acknowledge',
                     # notification
-                    "monitoring.notification",
+                    'monitoring.notification',
                 ],
                 'default': 'check.result'
             },
             'message': {
-                "title": "History event message",
+                'schema_version': 1,
+                'title': 'History event message',
                 'type': 'string',
                 'default': ''
             },
             'logcheckresult': {
-                "title": "Relate log chek result (if any)",
-                "comment": "This relation is only valid if the event type is a check result",
+                'schema_version': 1,
+                'title': 'Relate log chek result (if any)',
+                'comment': 'This relation is only valid if the event type is a check result',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'logcheckresult',
@@ -168,6 +181,7 @@ def get_schema():
                 'required': False,
             },
             '_realm': {
+                'schema_version': 1,
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -175,10 +189,12 @@ def get_schema():
                 },
             },
             '_sub_realm': {
+                'schema_version': 1,
                 'type': 'boolean',
                 'default': True
             },
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -188,5 +204,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

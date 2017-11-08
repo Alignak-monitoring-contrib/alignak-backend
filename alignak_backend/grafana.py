@@ -148,7 +148,8 @@ class Grafana(object):
             my_target = '$statsd_prefix'
         if ts['ts_prefix'] != '':
             my_target += '.$ts_prefix'
-        my_target += '.' + Timeseries.get_realms_prefix(item['_realm'])
+        if ts.get('realms_prefix'):
+            my_target += '.' + Timeseries.get_realms_prefix(item['_realm'])
         if 'host' in item:
             my_target += '.' + item['hostname'] + '.' + item['name']
         else:

@@ -38,45 +38,57 @@ def get_schema():
     return {
         'internal_resource': True,
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'name': {
-                "title": "Stored metric name",
+                'schema_version': 1,
+                'title': 'Stored metric name',
                 'type': 'string',
                 'required': True,
             },
             'realm': {
-                "title": "Stored metric host/service realm",
+                'schema_version': 1,
+                'title': 'Stored metric host/service realm',
                 'type': 'string',
                 'required': True,
             },
             'host': {
-                "title": "Stored metric host",
+                'schema_version': 1,
+                'title': 'Stored metric host',
                 'type': 'string',
                 'required': True,
             },
             'service': {
-                "title": "Stored metric service",
+                'schema_version': 1,
+                'title': 'Stored metric service',
                 'type': 'string',
                 'required': True,
             },
             'value': {
-                "title": "Stored metric value",
+                'schema_version': 1,
+                'title': 'Stored metric value',
                 # Value store as a string to bypass the int/float real value
                 'type': 'string',
                 'required': True,
             },
             'uom': {
-                "title": "Stored metric unit of measure",
+                'schema_version': 1,
+                'title': 'Stored metric unit of measure',
                 'type': 'string',
                 'default': '',
                 'required': True,
             },
             'timestamp': {
-                "title": "Stored metric timestamp",
+                'schema_version': 1,
+                'title': 'Stored metric timestamp',
                 'type': 'integer',
                 'required': True,
             },
             'graphite': {
-                "title": "Graphite relation",
+                'schema_version': 1,
+                'title': 'Graphite relation',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'graphite',
@@ -86,7 +98,8 @@ def get_schema():
                 'default': None
             },
             'influxdb': {
-                "title": "Graphite relation",
+                'schema_version': 1,
+                'title': 'InfluxDB relation',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'influxdb',
@@ -95,5 +108,6 @@ def get_schema():
                 'nullable': True,
                 'default': None
             },
-        }
+        },
+        'schema_deleted': {}
     }

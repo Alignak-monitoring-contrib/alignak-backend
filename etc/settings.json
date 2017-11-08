@@ -24,8 +24,11 @@
 
   "IP_CRON": ["127.0.0.1"],  /* List of IP allowed to use cron routes/endpoint of the backend */
 
-  /* Timeseries data are stored internally in the backend.
-  The timeseries scheduler will push them regularly to the configured databases
+  /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
+  to the corresponding TSDB. If the TSDB is not available, metrics are stored internally
+  in the backend.
+  The timeseries scheduler will check periodially if some some metrics are existing in the
+  retention and will send them to the configured TSDB.
    BE CAREFULL, ACTIVATE THIS ON ONE BACKEND ONLY! */
   "SCHEDULER_TIMESERIES_ACTIVE": false,
   /* This scheduler will create / update dashboards in grafana.

@@ -48,68 +48,81 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             # Importation source
             'imported_from': {
-                "title": "Imported from",
-                "comment": "Item importation source (alignak-backend-import, ...)",
+                'schema_version': 1,
+                'title': 'Imported from',
+                'comment': 'Item importation source (alignak-backend-import, ...)',
                 'type': 'string',
                 'default': 'unknown'
             },
             'definition_order': {
-                "title": "Definition order",
-                "comment": "Priority level if several elements have the same name",
+                'schema_version': 1,
+                'title': 'Definition order',
+                'comment': 'Priority level if several elements have the same name',
                 'type': 'integer',
                 'default': 100
             },
 
             # Identity
             'name': {
-                "title": "Time period name",
-                "comment": "Unique time period name",
+                'schema_version': 1,
+                'title': 'Time period name',
+                'comment': 'Unique time period name',
                 'type': 'string',
                 'required': True,
                 'empty': False,
                 'unique': True,
             },
             'alias': {
-                "title": "Alias",
-                "comment": "Element friendly name used by the Web User Interface.",
+                'schema_version': 1,
+                'title': 'Alias',
+                'comment': 'Element friendly name used by the Web User Interface.',
                 'type': 'string',
                 'default': ''
             },
             'notes': {
-                "title": "Notes",
-                "comment": "Element notes. Free text to store element information.",
+                'schema_version': 1,
+                'title': 'Notes',
+                'comment': 'Element notes. Free text to store element information.',
                 'type': 'string',
                 'default': ''
             },
 
             # Timeperiod specific
             'dateranges': {
-                "title": "Date ranges",
-                "comment": "List of date ranges",
+                'schema_version': 1,
+                'title': 'Date ranges',
+                'comment': 'List of date ranges',
                 'type': 'list',
                 'default': []
             },
             'exclude': {
-                "title": "Exclusions",
-                "comment": "List of excluded ranges.",
+                'schema_version': 1,
+                'title': 'Exclusions',
+                'comment': 'List of excluded ranges.',
                 'type': 'list',
                 'default': []
             },
 
             # todo: really manage this...
             'is_active': {
-                "title": "Active",
-                "comment": "The timeperiod is currently active or inactive.",
+                'schema_version': 1,
+                'title': 'Active',
+                'comment': 'The timeperiod is currently active or inactive.',
                 'type': 'boolean',
                 'default': False
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -118,14 +131,16 @@ def get_schema():
                 'required': True,
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -136,6 +151,7 @@ def get_schema():
                 },
             },
             '_users_update': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -146,6 +162,7 @@ def get_schema():
                 },
             },
             '_users_delete': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -155,5 +172,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

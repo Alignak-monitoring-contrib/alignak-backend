@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return "Downtimes"
+        return 'Downtimes'
     return 'actiondowntime'
 
 
@@ -41,18 +41,24 @@ def get_schema():
     """
     return {
         'schema': {
+            'schema_version': {
+                'type': 'integer',
+                'default': 1,
+            },
             'action': {
-                "title": "Action",
-                "comment": "Use 'add' to add a new downtime, or "
-                           "'delete' to delete an downtime",
+                'schema_version': 1,
+                'title': 'Action',
+                'comment': 'Use "add" to add a new downtime, or '
+                           '"delete" to delete an downtime',
                 'type': 'string',
                 'default': 'add',
-                'allowed': ["add", "delete"]
+                'allowed': ['add', 'delete']
             },
 
             'host': {
-                "title": "Host",
-                "comment": "The host concerned by the downtime.",
+                'schema_version': 1,
+                'title': 'Host',
+                'comment': 'The host concerned by the downtime.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'host',
@@ -61,8 +67,9 @@ def get_schema():
                 'required': True
             },
             'service': {
-                "title": "Service",
-                "comment": "The service concerned by the downtime.",
+                'schema_version': 1,
+                'title': 'Service',
+                'comment': 'The service concerned by the downtime.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'service',
@@ -72,8 +79,9 @@ def get_schema():
                 'nullable': True
             },
             'user': {
-                "title": "User",
-                "comment": "The user concerned by the downtime.",
+                'schema_version': 1,
+                'title': 'User',
+                'comment': 'The user concerned by the downtime.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'user',
@@ -82,65 +90,73 @@ def get_schema():
                 'required': True,
             },
             'comment': {
-                "title": "Comment",
-                "comment": "The comment of the downtime action. Free text.",
+                'schema_version': 1,
+                'title': 'Comment',
+                'comment': 'The comment of the downtime action. Free text.',
                 'type': 'string',
                 'default': ''
             },
 
             'processed': {
-                "title": "Processed",
-                "comment": "The action has been set on the host/service by Alignak and it can "
-                           "be considered as effective if processed is True",
+                'schema_version': 1,
+                'title': 'Processed',
+                'comment': 'The action has been set on the host/service by Alignak and it can '
+                           'be considered as effective if processed is True',
                 'type': 'boolean',
                 'default': False
             },
             'notified': {
-                "title": "Notified",
-                "comment": "The action has been fetched by the Alignak arbiter if notified is "
-                           "True but it is not yet to be considered as an effective "
-                           "scheduled downtime",
+                'schema_version': 1,
+                'title': 'Notified',
+                'comment': 'The action has been fetched by the Alignak arbiter if notified is '
+                           'True but it is not yet to be considered as an effective '
+                           'scheduled downtime',
                 'type': 'boolean',
                 'default': False
             },
 
             'start_time': {
-                "title": "Start time",
-                "comment": "The ``start_time`` and ``end_time`` properties are specified in "
-                           "time_t format (seconds since the UNIX epoch).",
+                'schema_version': 1,
+                'title': 'Start time',
+                'comment': 'The ``start_time`` and ``end_time`` properties are specified in '
+                           'time_t format (seconds since the UNIX epoch).',
                 'type': 'integer',
                 'default': 0
             },
             'end_time': {
-                "title": "End time",
-                "comment": "The ``start_time`` and ``end_time`` properties are specified in "
-                           "time_t format (seconds since the UNIX epoch).",
+                'schema_version': 1,
+                'title': 'End time',
+                'comment': 'The ``start_time`` and ``end_time`` properties are specified in '
+                           'time_t format (seconds since the UNIX epoch).',
                 'type': 'integer',
                 'default': 86400
             },
             'fixed': {
-                "title": "Fixed",
-                "comment": "If the ``fixed`` argument is set, the downtime will start and end "
-                           "at the times specified by the ``start_time`` and ``end_time`` "
-                           "properties. Otherwise, the downtime will begin between the "
-                           "``start_time`` and ``end_time`` times and will last for "
-                           "``duration`` seconds.",
+                'schema_version': 1,
+                'title': 'Fixed',
+                'comment': 'If the ``fixed`` argument is set, the downtime will start and end '
+                           'at the times specified by the ``start_time`` and ``end_time`` '
+                           'properties. Otherwise, the downtime will begin between the '
+                           '``start_time`` and ``end_time`` times and will last for '
+                           '``duration`` seconds.',
                 'type': 'boolean',
                 'default': True
             },
             'duration': {
-                "title": "Duration",
-                "comment": "The ``duration`` property is used when the ``fixed`` property "
-                           "is not set.",
+                'schema_version': 1,
+                'title': 'Duration',
+                'comment': 'The ``duration`` property is used when the ``fixed`` property '
+                           'is not set.',
                 'type': 'integer',
                 'default': 86400
             },
 
             # Realm
             '_realm': {
-                "title": "Realm",
-                "comment": "Realm this element belongs to. Note that this property will always "
-                           "be forced to the value of the concerned host realm.",
+                'schema_version': 1,
+                'title': 'Realm',
+                'comment': 'Realm this element belongs to. Note that this property will always '
+                           'be forced to the value of the concerned host realm.',
                 'type': 'objectid',
                 'data_relation': {
                     'resource': 'realm',
@@ -148,14 +164,16 @@ def get_schema():
                 }
             },
             '_sub_realm': {
-                "title": "Sub-realms",
-                "comment": "Is this element visible in the sub-realms of its realm?",
+                'schema_version': 1,
+                'title': 'Sub-realms',
+                'comment': 'Is this element visible in the sub-realms of its realm?',
                 'type': 'boolean',
                 'default': True
             },
 
             # Users CRUD permissions
             '_users_read': {
+                'schema_version': 1,
                 'type': 'list',
                 'schema': {
                     'type': 'objectid',
@@ -165,5 +183,6 @@ def get_schema():
                     }
                 },
             },
-        }
+        },
+        'schema_deleted': {}
     }

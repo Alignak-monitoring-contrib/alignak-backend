@@ -103,6 +103,16 @@ class TestTimeseries(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
+    @classmethod
+    def tearDown(cls):
+        """
+        Delete resources in backend
+
+        :return: None
+        """
+        for resource in ['grafana', 'graphite', 'influxdb']:
+            requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
+
     def test_prepare_data(self):
         """Prepare timeseries from a web perfdata
 
@@ -557,16 +567,20 @@ class TestTimeseries(unittest2.TestCase):
         """Test with 2 graphites + 1 infuxdb in realm All + sub_realm true.
         We send data in timeseries class and catch the request to graphite and influxdb.
 
+        Note that the realms_prefix (True/False) feature cannot be tested! This because the prefix
+        is prepended when data are sent to Graphite!
+
         :return: None
         """
         headers = {'Content-Type': 'application/json'}
 
-        # add graphite 001, realm All, with a prefix
+        # add graphite 001, realm All, with a prefix but no realms prefix for the metrics
         data = {
             'name': 'graphite 001',
             'carbon_address': '192.168.0.101',
             'graphite_address': '192.168.0.101',
             'prefix': 'graphite1',
+            'realms_prefix': False,
             '_realm': self.realm_all,
             '_sub_realm': True
         }
@@ -582,6 +596,7 @@ class TestTimeseries(unittest2.TestCase):
             'carbon_address': '192.168.0.102',
             'graphite_address': '192.168.0.102',
             'prefix': '',
+            'realms_prefix': True,
             '_realm': self.realm_all,
             '_sub_realm': False
         }
@@ -685,10 +700,12 @@ class TestTimeseries(unittest2.TestCase):
             # test with timeseries not available, it must be quick (< 3 seconds), because have
             # 2 graphites and 1 influx, so (2 + 1) * 1 second timeout * 2 (code execution between
             # each tries send to timeseries)
+            # Plus some time because the former test (test_sanitized) also has some TSDB ...
+            # so 12 seconds
             time_begin = time.time()
             Timeseries.after_inserted_logcheckresult([item])
             execution_time = time.time() - time_begin
-            assert execution_time < 6
+            assert execution_time < 12
 
             # check data in timeseriesretention
             timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
@@ -1097,5 +1114,226 @@ class TestTimeseries(unittest2.TestCase):
                  'host': u'srv002', 'realm': u'All.All A', 'name': u'pl_warning',
                  'service': u'', 'graphite': None, 'uom': u''}
             ]
+            self.assertItemsEqual(ref, retention_data)
+            timeseriesretention_db.drop()
+
+    def test_sanitized_host_service_names(self):
+        # pylint: disable=too-many-locals
+        """Test that host and service names are sanitize before sending date
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+
+        # add graphite 001, realm All, with a prefix
+        data = {
+            'name': 'graphite 001 bis',
+            'carbon_address': '192.168.0.101',
+            'graphite_address': '192.168.0.101',
+            'prefix': 'graphite1',
+            '_realm': self.realm_all,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/graphite', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        graphite_001 = resp['_id']
+
+        # add graphite 002, realm All, no sub-realms
+        data = {
+            'name': 'graphite 002 bis',
+            'carbon_address': '192.168.0.102',
+            'graphite_address': '192.168.0.102',
+            'prefix': '',
+            '_realm': self.realm_all,
+            '_sub_realm': False
+        }
+        response = requests.post(self.endpoint + '/graphite', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        graphite_002 = resp['_id']
+
+        # add influxdb 001, realm All
+        data = {
+            'name': 'influxdb 001 bis',
+            'address': '192.168.0.103',
+            'login': 'alignak',
+            'password': 'alignak',
+            'database': 'alignak',
+            '_realm': self.realm_all,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/influxdb', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        influxdb_001 = resp['_id']
+
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        data['_sub_realm'] = True
+        data['name'] = 'ping2'
+        response = requests.post(self.endpoint + '/command', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        command_ping = resp['_id']
+
+        # add host in realm All
+        data = {
+            'name': 'My host',
+            'address': '127.0.0.1',
+            'check_command': command_ping,
+            '_realm': self.realm_all,
+            '_sub_realm': False
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        host_id = resp['_id']
+
+        # add a service for this host
+        data = {
+            'name': 'My service',
+            'host': host_id,
+            'check_command': command_ping,
+            '_realm': self.realm_all,
+            '_sub_realm': False
+        }
+        response = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        service_id = resp['_id']
+
+        # === Test now with an host in realm All ===
+        # add logcheckresult for host001
+        # Metrics sent to Graphite 1, Graphite 2 and InfluxDB
+        item = {
+            'host': ObjectId(host_id),
+            'host_name': 'My host',
+            'service': ObjectId(service_id),
+            'service_name': 'My service',
+            'state': 'OK',
+            'state_type': 'HARD',
+            'state_id': 0,
+            'acknowledged': False,
+            'last_check': int(time.time()),
+            'last_state': 'OK',
+            'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
+            'long_output': '',
+            'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+            '_realm': ObjectId(self.realm_all),
+            '_sub_realm': False
+        }
+        from alignak_backend.app import app, current_app
+        with app.test_request_context():
+            # test with timeseries not available, it must be quick (< 3 seconds), because have
+            # 2 graphites and 1 influx, so (2 + 1) * 1 second timeout * 2 (code execution between
+            # each tries send to timeseries)
+            time_begin = time.time()
+            Timeseries.after_inserted_logcheckresult([item])
+            execution_time = time.time() - time_begin
+            assert execution_time < 6
+
+            # check data in timeseriesretention
+            timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
+            retentions = timeseriesretention_db.find()
+            retention_data = []
+            for retention in retentions:
+                retention_data.append({
+                    'realm': retention['realm'],
+                    'name': retention['name'],
+                    'uom': retention['uom'],
+                    'service': retention['service'],
+                    'graphite': retention['graphite'],
+                    'influxdb': retention['influxdb'],
+                    'host': retention['host'],
+                    'value': retention['value']
+                })
+            ref = [
+                # InfluxDB
+                {'influxdb': ObjectId(influxdb_001), 'value': u'74.827003', 'host': u'My_host',
+                 'realm': u'All', 'name': u'rta', 'service': u'My_service',
+                 'graphite': None, 'uom': u'ms'},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'100', 'host': u'My_host',
+                 'realm': u'All', 'name': u'rta_warning', 'service': u'My_service',
+                 'graphite': None, 'uom': u'ms'},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'110', 'host': u'My_host',
+                 'realm': u'All', 'name': u'rta_critical', 'service': u'My_service',
+                 'graphite': None, 'uom': u'ms'},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'rta_min', 'service': u'My_service',
+                 'graphite': None, 'uom': u'ms'},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'pl', 'service': u'My_service',
+                 'graphite': None, 'uom': u'%'},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'10', 'host': u'My_host',
+                 'realm': u'All', 'name': u'pl_warning', 'service': u'My_service',
+                 'graphite': None, 'uom': u'%'},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'pl_min', 'service': u'My_service',
+                 'graphite': None, 'uom': u'%'},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'100', 'host': u'My_host',
+                 'realm': u'All', 'name': u'pl_max', 'service': u'My_service',
+                 'graphite': None, 'uom': u'%'},
+
+                # Graphite 001
+                {'influxdb': None, 'value': u'74.827003', 'host': u'My_host', 'realm': u'All',
+                 'name': u'rta', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_001), 'uom': u'ms'},
+                {'influxdb': None, 'value': u'100', 'host': u'My_host', 'realm': u'All',
+                 'name': u'rta_warning', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_001), 'uom': u'ms'},
+                {'influxdb': None, 'value': u'110', 'host': u'My_host', 'realm': u'All',
+                 'name': u'rta_critical', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_001), 'uom': u'ms'},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host', 'realm': u'All',
+                 'name': u'rta_min', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_001), 'uom': u'ms'},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host', 'realm': u'All',
+                 'name': u'pl', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_001), 'uom': u'%'},
+                {'influxdb': None, 'value': u'10', 'host': u'My_host', 'realm': u'All',
+                 'name': u'pl_warning', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_001), 'uom': u'%'},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host', 'realm': u'All',
+                 'name': u'pl_min', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_001), 'uom': u'%'},
+                {'influxdb': None, 'value': u'100', 'host': u'My_host', 'realm': u'All',
+                 'name': u'pl_max', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_001), 'uom': u'%'},
+
+                # Graphite 002
+                {'influxdb': None, 'value': u'74.827003', 'host': u'My_host', 'realm': u'All',
+                 'name': u'rta', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_002), 'uom': u'ms'},
+                {'influxdb': None, 'value': u'100', 'host': u'My_host', 'realm': u'All',
+                 'name': u'rta_warning', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_002), 'uom': u'ms'},
+                {'influxdb': None, 'value': u'110', 'host': u'My_host', 'realm': u'All',
+                 'name': u'rta_critical', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_002), 'uom': u'ms'},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host', 'realm': u'All',
+                 'name': u'rta_min', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_002), 'uom': u'ms'},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host', 'realm': u'All',
+                 'name': u'pl', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_002), 'uom': u'%'},
+                {'influxdb': None, 'value': u'10', 'host': u'My_host', 'realm': u'All',
+                 'name': u'pl_warning', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_002), 'uom': u'%'},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host', 'realm': u'All',
+                 'name': u'pl_min', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_002), 'uom': u'%'},
+                {'influxdb': None, 'value': u'100', 'host': u'My_host', 'realm': u'All',
+                 'name': u'pl_max', 'service': u'My_service',
+                 'graphite': ObjectId(graphite_002), 'uom': u'%'},
+            ]
+
             self.assertItemsEqual(ref, retention_data)
             timeseriesretention_db.drop()

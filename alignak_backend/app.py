@@ -192,6 +192,11 @@ class MyValidator(Validator):
         """Validate 'comment' field (always valid)"""
         return
 
+    # pylint: disable=unused-argument
+    def _validate_schema_version(self, schema_version, field, value):
+        """Validate 'schema_version' field (always valid)"""
+        return
+
 
 # Hooks used to check user's rights
 def pre_get(resource, user_request, lookup):
@@ -2205,6 +2210,15 @@ def backend_config():
     my_config = {"PAGINATION_LIMIT": settings['PAGINATION_LIMIT'],
                  "PAGINATION_DEFAULT": settings['PAGINATION_DEFAULT']}
     return jsonify(my_config)
+
+
+@app.route("/version")
+def backend_version():
+    """
+    Offer route to get the backend config
+    """
+    my_version = {"version": manifest['version']}
+    return jsonify(my_version)
 
 
 @app.route("/cron_timeseries")

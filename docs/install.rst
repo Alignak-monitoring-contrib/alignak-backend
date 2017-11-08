@@ -42,7 +42,14 @@ As an example on Debian::
 Install with pip
 ----------------
 
-**Note** that the recommended way for installing on a production server is mostly often to use the packages existing for your distribution. Nevertheless, the pip installation provides a startup script using an uwsgi server and, for FreeBSD users, rc.d scripts.
+**Note** that the recommended way for installing on a production server is mostly often to use the packages existing for your distribution.
+
+Nevertheless, the pip installation provides:
+- a startup script using an uwsgi server,
+- for FreeBSD users, an rc.d sample script
+- for system based systems (Debian, CentOS), an alignak-backend service unit example.
+
+All this stuff is available in the repository *bin* directory.
 
 With pip
 ~~~~~~~~
@@ -54,7 +61,7 @@ You can install with pip::
 
 The required Python modules are automatically installed if not they are not yet present on your system.
 
-**Note** that if you need to `sudo pip install alignak-backend` on your system, you will probably need to set proper user's rights on some folders created by the installer. The concerned folders are * /usr/local/etc/alignak-backend* and */usr/local/var/log/alignak-backend*.
+**Note** that if you need to `sudo pip install alignak-backend` on your system, you will probably need to set proper user's rights on some folders created by the installer. The concerned folders are */usr/local/etc/alignak-backend* and */usr/local/var/log/alignak-backend*.
 
 From source
 ~~~~~~~~~~~
