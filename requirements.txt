@@ -1,6 +1,5 @@
 # Force python-dateutil version because flask-apscheduler requires this version !
 python-dateutil>=2.4.2
-Eve>=0.5
 docopt
 jsonschema
 eve-swagger
@@ -9,4 +8,5 @@ future
 flask-apscheduler
 influxdb
 statsd
+Eve>=0.5
 uwsgi
