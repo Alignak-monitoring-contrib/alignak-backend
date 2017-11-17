@@ -1234,7 +1234,9 @@ def pre_host_patch(updates, original):
     """
     Hook before updating an host element.
 
-    When updating an host, if only the live state is updated, do not change the
+    If the host realm changed, set its services realm according...
+
+    When updating an host, if only the customs and live state is updated, do not change the
     _updated field and compute the new host overall state..
 
     Compute the host overall state identifier, including:
@@ -1275,13 +1277,15 @@ def pre_host_patch(updates, original):
     """
     for key in updates:
         if key in ['_realm']:
+            # If host realm changed, set its services realm according...
             services_drv = current_app.data.driver.db['service']
             services = services_drv.find({'host': original['_id']})
             for service in services:
                 lookup = {"_id": service['_id']}
                 patch_internal('service', {"_realm": updates['_realm']}, False, False, **lookup)
 
-        if key not in ['_overall_state_id', '_updated', '_realm'] and not key.startswith('ls_'):
+        if key not in ['_overall_state_id', '_updated', '_realm', 'customs'] \
+                and not key.startswith('ls_'):
             break
     else:
         # We updated the host live state, compute the new overall state, or
@@ -1371,7 +1375,7 @@ def pre_service_patch(updates, original):
     """
     Hook before updating a service element.
 
-    When updating a service, if only the live state is updated, do not change the
+    When updating a service, if only the customs and live state is updated, do not change the
     _updated field and compute the new service overall state..
 
     Compute the service overall state identifier, including:
@@ -1402,7 +1406,8 @@ def pre_service_patch(updates, original):
     #     abort(make_response("Updating _overall_state_id for a service is forbidden", 412))
 
     for key in updates:
-        if key not in ['_overall_state_id', '_updated', '_realm'] and not key.startswith('ls_'):
+        if key not in ['_overall_state_id', '_updated', '_realm', 'customs'] \
+                and not key.startswith('ls_'):
             break
     else:
         # pylint: disable=too-many-boolean-expressions
