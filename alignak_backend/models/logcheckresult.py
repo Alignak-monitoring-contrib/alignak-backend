@@ -269,7 +269,6 @@ def get_schema():
                     'resource': 'realm',
                     'embeddable': True
                 },
-                'required': True,
             },
             '_sub_realm': {
                 'schema_version': 1,

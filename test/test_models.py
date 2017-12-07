@@ -22,8 +22,9 @@ class TestModels(unittest2.TestCase):
         """
         allmodels = register_models()
         for model_name in allmodels:
-            print(model_name)
+            print("Model: %s" % model_name)
             for field in allmodels[model_name]['schema']:
+                print("- field: %s" % field)
                 if field == 'schema_version':
                     assert 'schema_version' not in allmodels[model_name]['schema'][field]
                 else:
@@ -38,9 +39,10 @@ class TestModels(unittest2.TestCase):
         """
         allmodels = register_models()
         for model_name in allmodels:
-            print(model_name)
+            print("Model: %s" % model_name)
             highest = 0
             for field in allmodels[model_name]['schema']:
+                print("- field: %s" % field)
                 if field != 'schema_version':
                     if allmodels[model_name]['schema'][field]['schema_version'] > highest:
                         highest = allmodels[model_name]['schema'][field]['schema_version']
