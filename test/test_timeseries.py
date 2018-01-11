@@ -125,6 +125,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -205,6 +206,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 0,
                     'uom': ''
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
                 {
                     'name': 'rta',
                     'value': 0.083,
@@ -242,6 +245,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -264,7 +268,9 @@ class TestTimeseries(unittest2.TestCase):
                     'name': 'em0_out_octet',
                     'value': 86608341539,
                     'uom': ''
-                }
+                },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -281,6 +287,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -319,6 +326,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 7381,
                     'uom': 'MB'
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -330,6 +339,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -368,6 +378,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 8317,
                     'uom': 'MB'
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -386,6 +398,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -409,6 +422,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 1083,
                     'uom': 'c'
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -426,6 +441,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -515,6 +531,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 100,
                     'uom': '%'
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -725,6 +743,12 @@ class TestTimeseries(unittest2.TestCase):
                 })
             ref = [
                 # InfluxDB
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'74.827003', 'host': u'srv001',
                  'realm': u'All', 'name': u'rta', 'service': u'', 'graphite': None, 'uom': u'ms'},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'100', 'host': u'srv001',
@@ -747,6 +771,12 @@ class TestTimeseries(unittest2.TestCase):
                  'realm': u'All', 'name': u'pl_max', 'service': u'', 'graphite': None, 'uom': u'%'},
 
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'74.827003', 'host': u'srv001', 'realm': u'All',
                  'name': u'rta', 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u'ms'},
                 {'influxdb': None, 'value': u'100', 'host': u'srv001', 'realm': u'All',
@@ -771,6 +801,12 @@ class TestTimeseries(unittest2.TestCase):
                  'graphite': ObjectId(graphite_001), 'uom': u'%'},
 
                 # Graphite 002
+                {'influxdb': None, 'value': u'3', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
                 {'influxdb': None, 'value': u'74.827003', 'host': u'srv001', 'realm': u'All',
                  'name': u'rta', 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u'ms'},
                 {'influxdb': None, 'value': u'100', 'host': u'srv001', 'realm': u'All',
@@ -809,6 +845,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            # '_overall_state_id': 0, not existing for test purpose
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -846,6 +883,12 @@ class TestTimeseries(unittest2.TestCase):
 
             ref = [
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_overall_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'32.02453', 'host': u'srv003',
                  'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'uom': u'ms'},
@@ -873,6 +916,12 @@ class TestTimeseries(unittest2.TestCase):
                  'graphite': ObjectId(graphite_001), 'uom': u'%'},
 
                 # Influx 001
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'srv003', 'realm': u'All.All A.All A1',
+                 'name': u'alignak_state_id', 'service': u'', 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'32.02453',
                  'host': u'srv003', 'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': None, 'uom': u'ms'},
@@ -981,6 +1030,12 @@ class TestTimeseries(unittest2.TestCase):
 
             ref = [
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_overall_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'32.02453', 'host': u'srv003',
                  'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'uom': u'ms'},
@@ -1008,6 +1063,12 @@ class TestTimeseries(unittest2.TestCase):
                 # that is not able to detect if connection is available (UDP)!
 
                 # Influx 001
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_overall_state_id', 'service': u'',
+                 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_state_id', 'service': u'',
+                 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'32.02453',
                  'host': u'srv003', 'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': None, 'uom': u'ms'},
@@ -1079,6 +1140,12 @@ class TestTimeseries(unittest2.TestCase):
 
             ref = [
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'srv002',
+                 'realm': u'All.All A', 'name': u'alignak_overall_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv002',
+                 'realm': u'All.All A', 'name': u'alignak_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'32.02453', 'host': u'srv002',
                  'realm': u'All.All A', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'uom': u'ms'},
@@ -1099,6 +1166,12 @@ class TestTimeseries(unittest2.TestCase):
                 # Nothing for Graphite 2 because it is not sub-realm!
 
                 # Influx 001
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3',
+                 'host': u'srv002', 'realm': u'All.All A', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'srv002', 'realm': u'All.All A', 'name': u'alignak_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'32.02453',
                  'host': u'srv002', 'realm': u'All.All A', 'name': u'rta', 'service': u'',
                  'graphite': None, 'uom': u'ms'},
@@ -1222,6 +1295,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            # '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -1258,6 +1332,12 @@ class TestTimeseries(unittest2.TestCase):
                 })
             ref = [
                 # InfluxDB
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'My_service', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'My_service', 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'74.827003', 'host': u'My_host',
                  'realm': u'All', 'name': u'rta', 'service': u'My_service',
                  'graphite': None, 'uom': u'ms'},
@@ -1284,6 +1364,12 @@ class TestTimeseries(unittest2.TestCase):
                  'graphite': None, 'uom': u'%'},
 
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'My_service', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'My_service', 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'74.827003', 'host': u'My_host', 'realm': u'All',
                  'name': u'rta', 'service': u'My_service',
                  'graphite': ObjectId(graphite_001), 'uom': u'ms'},
@@ -1310,6 +1396,12 @@ class TestTimeseries(unittest2.TestCase):
                  'graphite': ObjectId(graphite_001), 'uom': u'%'},
 
                 # Graphite 002
+                {'influxdb': None, 'value': u'3', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'My_service', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'My_service', 'graphite': ObjectId(graphite_002), 'uom': u''},
                 {'influxdb': None, 'value': u'74.827003', 'host': u'My_host', 'realm': u'All',
                  'name': u'rta', 'service': u'My_service',
                  'graphite': ObjectId(graphite_002), 'uom': u'ms'},
