@@ -520,7 +520,7 @@ def after_insert_logcheckresult(items):
             print("    -> %s..." % item)
 
         if g.updateLivestate:
-            # # Update the livestate...
+            # Update the livestate...
             if item['service']:
                 # ...for a service
                 lookup = {"_id": item['service']}
@@ -538,11 +538,10 @@ def after_insert_logcheckresult(items):
                     'ls_long_output': item['long_output'],
                     'ls_perf_data': item['perf_data'],
                     'ls_current_attempt': item['current_attempt'],
-                    'ls_max_attempts': item['max_attempts'],
                     'ls_latency': item['latency'],
                     'ls_execution_time': item['execution_time'],
                     'ls_passive_check': item['passive_check'],
-                    'ls_state_changed': item['state_changed'],
+                    'ls_state_changed': item.get('state_changed'),
                     'ls_last_state_changed': item['last_state_changed'],
                     'ls_last_hard_state_changed': item['last_hard_state_changed'],
                     'ls_last_time_ok': item['last_time_0'],
@@ -569,17 +568,15 @@ def after_insert_logcheckresult(items):
                     'ls_long_output': item['long_output'],
                     'ls_perf_data': item['perf_data'],
                     'ls_current_attempt': item['current_attempt'],
-                    'ls_max_attempts': item['max_attempts'],
                     'ls_latency': item['latency'],
                     'ls_execution_time': item['execution_time'],
                     'ls_passive_check': item['passive_check'],
-                    'ls_state_changed': item['state_changed'],
+                    'ls_state_changed': item.get('state_changed'),
                     'ls_last_state_changed': item['last_state_changed'],
                     'ls_last_hard_state_changed': item['last_hard_state_changed'],
                     'ls_last_time_up': item['last_time_0'],
                     'ls_last_time_down': item['last_time_1'],
-                    # 'ls_last_time_2': item['last_time_2'],
-                    # 'ls_last_time_3': item['last_time_3'],
+
                     'ls_last_time_unreachable': item['last_time_4']
                 }
                 (pi_a, pi_b, pi_c, pi_d) = patch_internal('host', data, False, False, **lookup)

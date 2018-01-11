@@ -40,7 +40,7 @@ def get_schema():
         'schema': {
             'schema_version': {
                 'type': 'integer',
-                'default': 2,
+                'default': 3,
             },
             'host': {
                 'schema_version': 2,
@@ -191,13 +191,6 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
-            'max_attempts': {
-                'schema_version': 2,
-                'title': 'Maximum attempts',
-                'comment': '',
-                'type': 'integer',
-                'default': 0
-            },
 
             # Last time hard state changed
             'state_changed': {
@@ -291,5 +284,13 @@ def get_schema():
                 },
             },
         },
-        'schema_deleted': {}
+        'schema_deleted': {
+            'max_attempts': {
+                'schema_version': 3,
+                'title': 'Maximum attempts',
+                'comment': '',
+                'type': 'integer',
+                'default': 0
+            }
+        }
     }

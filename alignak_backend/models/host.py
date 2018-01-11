@@ -40,7 +40,7 @@ def get_schema():
         'schema': {
             'schema_version': {
                 'type': 'integer',
-                'default': 2,
+                'default': 3,
             },
             # Importation source
             'imported_from': {
@@ -865,13 +865,6 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
-            'ls_max_attempts': {
-                'schema_version': 1,
-                'title': 'Maximum attempts',
-                'comment': '',
-                'type': 'integer',
-                'default': 0
-            },
             'ls_latency': {
                 'schema_version': 1,
                 'title': 'Latency',
@@ -1079,15 +1072,22 @@ def get_schema():
         },
         'schema_deleted': {
             'ls_impact': {
-                'schema_version': 1,
+                'schema_version': 2,
                 'title': 'Impact',
                 'comment': 'Is an impact?',
                 'type': 'boolean',
                 'default': False
             },
             'ls_attempt': {
-                'schema_version': 1,
+                'schema_version': 2,
                 'title': 'Current attempt number',
+                'comment': '',
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_max_attempts': {
+                'schema_version': 3,
+                'title': 'Maximum attempts',
                 'comment': '',
                 'type': 'integer',
                 'default': 0
