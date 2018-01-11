@@ -78,7 +78,7 @@ class TestUserrestrict(unittest2.TestCase):
         time.sleep(2)
 
     def crud_command(self, my_auth, resource='command', name='test', crud='crud', extra_data=None):
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-locals, too-many-arguments
         """Create, read, update and delete a command
 
         :return: None

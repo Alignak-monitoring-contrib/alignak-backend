@@ -478,7 +478,7 @@ class Grafana(object):
                                     '/api/datasources', headers=headers, timeout=10)
         except requests.exceptions.SSLError as e:
             print("[cron_grafana] SSL connection error to grafana %s: %s" % (self.name, e))
-            return False
+            return
         except requests.exceptions.RequestException as e:
             print("[cron_grafana] Connection error to grafana %s: %s" % (self.name, e))
             self.connection = False

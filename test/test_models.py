@@ -5,8 +5,8 @@ This test check the models definition
 """
 
 from __future__ import print_function
-from alignak_backend.models import register_models
 import unittest2
+from alignak_backend.models import register_models
 
 
 class TestModels(unittest2.TestCase):

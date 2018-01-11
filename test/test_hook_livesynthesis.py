@@ -1896,7 +1896,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertFalse(minus)
         self.assertFalse(plus)
 
-    def test_realms(self):
+    def test_realms(self):  # pylint: disable=too-many-locals
         """
         Test livesynthesis create / update with realm management
 

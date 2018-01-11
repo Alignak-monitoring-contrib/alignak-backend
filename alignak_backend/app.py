@@ -2294,7 +2294,7 @@ if settings['JOBS']:
 
 
 @app.route("/login", methods=['POST'])
-def login_app():
+def login_app():  # pylint: disable=inconsistent-return-statements
     """
     Log in to backend
     """

@@ -99,7 +99,7 @@ class TestTemplatesUpdate(unittest2.TestCase):
         for resource in ['host', 'service', 'command']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
-    def _create_templates(self):
+    def _create_templates(self):  # pylint: disable=too-many-locals
         """Create hosts and services templates - from the linux-nrpe pack
 
         :return: None

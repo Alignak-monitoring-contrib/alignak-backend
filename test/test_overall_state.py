@@ -449,7 +449,7 @@ class TestOverallState(unittest2.TestCase):
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
-    def test_update_host_and_services(self):
+    def test_update_host_and_services(self):  # pylint: disable=too-many-locals
         """Test host overall state computation when updating live state of an host and its services
 
         :return: None
