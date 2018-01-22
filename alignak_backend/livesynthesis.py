@@ -12,6 +12,8 @@ import pymongo
 from flask import current_app, g, request
 from eve.methods.patch import patch_internal
 
+from alignak_backend.timeseries import Timeseries
+
 
 class Livesynthesis(object):
     """
@@ -131,6 +133,9 @@ class Livesynthesis(object):
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
 
+            # Send livesynthesis to TSDB
+            Timeseries.send_livesynthesis_metrics(realm['_id'], data)
+
             # Update services live synthesis
             services = current_app.data.driver.db['service']
             services_count = services.find({'_is_template': False, '_realm': realm['_id']}).count()
@@ -220,6 +225,9 @@ class Livesynthesis(object):
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
 
+            # Send livesynthesis to TSDB
+            Timeseries.send_livesynthesis_metrics(realm['_id'], data)
+
     @staticmethod
     def on_inserted_host(items):
         """
@@ -247,6 +255,10 @@ class Livesynthesis(object):
                     print("LS - inserted host %s: %s..." % (item['name'], data))
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
+                # Send livesynthesis to TSDB
+                live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+                Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
+
     @staticmethod
     def on_inserted_service(items):
         """
@@ -273,6 +285,10 @@ class Livesynthesis(object):
                 if 'ALIGNAK_BACKEND_PRINT' in os.environ:
                     print("LS - inserted service %s: %s..." % (item['name'], data))
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+                # Send livesynthesis to TSDB
+                live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+                Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
     @staticmethod
     def on_updated_host(updated, original):
@@ -305,6 +321,10 @@ class Livesynthesis(object):
                 if 'ALIGNAK_BACKEND_PRINT' in os.environ:
                     print("LS - updated host %s: %s..." % (original['name'], data))
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+                # Send livesynthesis to TSDB
+                live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
+                Timeseries.send_livesynthesis_metrics(original['_realm'], live_current)
 
     @staticmethod
     def on_updated_service(updated, original):
@@ -340,6 +360,10 @@ class Livesynthesis(object):
                     print("LS - updated service %s: %s..." % (original['name'], data))
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
+                # Send livesynthesis to TSDB
+                live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
+                Timeseries.send_livesynthesis_metrics(original['_realm'], live_current)
+
     @staticmethod
     def on_deleted_host(item):
         """When delete an host, decrement livesynthesis
@@ -362,6 +386,10 @@ class Livesynthesis(object):
             if 'ALIGNAK_BACKEND_PRINT' in os.environ:
                 print("LS - Deleted host %s: %s" % (item['name'], data))
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+            # Send livesynthesis to TSDB
+            live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+            Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
     @staticmethod
     def on_deleted_resource_host():
@@ -396,6 +424,10 @@ class Livesynthesis(object):
             if 'ALIGNAK_BACKEND_PRINT' in os.environ:
                 print("LS - Deleted service %s: %s" % (item['name'], data))
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+            # Send livesynthesis to TSDB
+            live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+            Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
     @staticmethod
     def on_deleted_resource_service():

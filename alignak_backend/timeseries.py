@@ -7,7 +7,9 @@
     This module manages the timeseries carbon / influxdb
 """
 from __future__ import print_function
+import os
 import re
+import time
 from flask import current_app
 from influxdb import InfluxDBClient
 import statsd
@@ -48,6 +50,43 @@ class Timeseries(object):
         sanitized = re.sub(r'[^a-zA-Z_\-0-9\.\$]', '', sanitized)
 
         return sanitized
+
+    @staticmethod
+    def send_livesynthesis_metrics(realm_uuid, livesynthesis):
+        """Called to send the livesynthesis metrics to the configured TSDB
+
+        :param items: List of logcheckresult inserted
+        :type items: list
+        :return: None
+        """
+        ls = {'perf_data': []}
+        for counter in livesynthesis:
+            if counter.startswith('_'):
+                continue
+            if 'ALIGNAK_BACKEND_PRINT' in os.environ:
+                print("   - counter: %s" % (counter))
+            ls['perf_data'].append("%s=%d" % (counter, livesynthesis[counter]))
+
+        ls['perf_data'] = " ".join(ls['perf_data'])
+        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
+            print("   - perf_data: %s" % (ls['perf_data']))
+
+        now = int(time.time())
+
+        ts = Timeseries.prepare_data(ls)
+        send_data = []
+        for d in ts['data']:
+            send_data.append({
+                "realm": Timeseries.get_realms_prefix(realm_uuid),
+                "host": 'alignak_livesynthesis',
+                "service": '',
+                "timestamp": now,
+                "name": d['name'],
+                # Cast as a string to bypass int/float real value
+                "value": str(d['value']),
+                "uom": d['uom']
+            })
+        Timeseries.send_to_timeseries_db(send_data, realm_uuid)
 
     @staticmethod
     def after_inserted_logcheckresult(items):
