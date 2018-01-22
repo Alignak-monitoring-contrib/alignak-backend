@@ -856,6 +856,139 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertEqual(r[0]['services_acknowledged'], 0)
         self.assertEqual(r[0]['services_in_downtime'], 0)
 
+    # pylint: disable=too-many-arguments
+    def check_livesynthesis(self, nb_h_not_monitored=0, nb_h_up=0, nb_h_down=0,
+                            nb_h_unreachable=0, nb_h_acknowledged=0, nb_h_in_downtime=0):
+        """Check some main values in the livesynthesis"""
+        response = requests.get(self.endpoint + '/livesynthesis', auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 1)
+        self.assertEqual(r[0]['hosts_not_monitored'], nb_h_not_monitored)
+        self.assertEqual(r[0]['hosts_up_hard'], nb_h_up)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], nb_h_down)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], nb_h_unreachable)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], nb_h_acknowledged)
+        self.assertEqual(r[0]['hosts_in_downtime'], nb_h_in_downtime)
+
+    def set_host_state(self, _id, _etag, state, state_id):
+        """Set the host state into the backend"""
+        # => DOWN HARD
+        time.sleep(.1)
+        data = {
+            'ls_state': state,
+            'ls_state_id': state_id,
+            'ls_state_type': 'HARD',
+            'ls_last_check': int(time.time()),
+        }
+        headers_patch = {'Content-Type': 'application/json', 'If-Match': _etag}
+        requests.patch(self.endpoint + '/host/' + _id, json=data,
+                       headers=headers_patch, auth=self.auth)
+        response = requests.get(self.endpoint + '/host/' + _id, auth=self.auth)
+        resp = response.json()
+        return resp['_etag']
+
+    def test_update_host_up_down_flapping(self):
+        """
+        Test livesynthesis when updating live state of an host
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        # Check if command right in backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
+        rc = resp['_items']
+
+        # Add host
+        data = json.loads(open('cfg/host_srv001.json').read())
+        data['check_command'] = rc[2]['_id']
+        if 'realm' in data:
+            del data['realm']
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
+        rh = resp['_items']
+
+        # Add service
+        data = json.loads(open('cfg/service_srv001_ping.json').read())
+        data['host'] = rh[1]['_id']
+        data['check_command'] = rc[2]['_id']
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+
+        # Get host
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        ls_host = copy.copy(r[1])
+
+        # Get initial live synthesis
+        response = requests.get(self.endpoint + '/livesynthesis', params=sort_id, auth=self.auth)
+        resp = response.json()
+        r = resp['_items']
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0]['hosts_total'], 1)
+        self.assertEqual(r[0]['hosts_not_monitored'], 0)
+        self.assertEqual(r[0]['hosts_up_hard'], 0)
+        self.assertEqual(r[0]['hosts_up_soft'], 0)
+        self.assertEqual(r[0]['hosts_down_hard'], 0)
+        self.assertEqual(r[0]['hosts_down_soft'], 0)
+        self.assertEqual(r[0]['hosts_unreachable_hard'], 1)
+        self.assertEqual(r[0]['hosts_unreachable_soft'], 0)
+        self.assertEqual(r[0]['hosts_acknowledged'], 0)
+        self.assertEqual(r[0]['hosts_in_downtime'], 0)
+        self.assertEqual(r[0]['services_total'], 1)
+        self.assertEqual(r[0]['services_not_monitored'], 0)
+        self.assertEqual(r[0]['services_ok_hard'], 0)
+        self.assertEqual(r[0]['services_ok_soft'], 0)
+        self.assertEqual(r[0]['services_warning_hard'], 0)
+        self.assertEqual(r[0]['services_warning_soft'], 0)
+        self.assertEqual(r[0]['services_critical_hard'], 0)
+        self.assertEqual(r[0]['services_critical_soft'], 0)
+        self.assertEqual(r[0]['services_unknown_hard'], 1)
+        self.assertEqual(r[0]['services_unknown_soft'], 0)
+        self.assertEqual(r[0]['services_unreachable_hard'], 0)
+        self.assertEqual(r[0]['services_unreachable_soft'], 0)
+        self.assertEqual(r[0]['services_acknowledged'], 0)
+        self.assertEqual(r[0]['services_in_downtime'], 0)
+
+        # Change host state from UP to DOWN several times rapidly
+        host_id = ls_host['_id']
+        host_etag = ls_host['_etag']
+        for _ in range(0, 10):
+            # ----------
+            # Host is UP
+            host_etag = self.set_host_state(host_id, host_etag, 'UP', 0)
+            host_etag = self.set_host_state(host_id, host_etag, 'UP', 0)
+            host_etag = self.set_host_state(host_id, host_etag, 'UP', 0)
+
+            self.check_livesynthesis(nb_h_not_monitored=0, nb_h_up=1, nb_h_down=0)
+
+            # Host is DOWN
+            host_etag = self.set_host_state(host_id, host_etag, 'DOWN', 1)
+            host_etag = self.set_host_state(host_id, host_etag, 'DOWN', 1)
+
+            self.check_livesynthesis(nb_h_not_monitored=0, nb_h_up=0, nb_h_down=1)
+
+            # Host is UNREACHABLE
+            host_etag = self.set_host_state(host_id, host_etag, 'UNREACHABLE', 2)
+
+            self.check_livesynthesis(nb_h_not_monitored=0, nb_h_up=0,
+                                     nb_h_down=0, nb_h_unreachable=1)
+
     def test_update_host_not_monitored(self):
         """
         Test livesynthesis when updating live state of a not monitored host

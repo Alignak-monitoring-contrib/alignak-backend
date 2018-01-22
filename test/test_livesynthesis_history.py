@@ -353,7 +353,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 6,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -369,7 +368,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 1,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         for prop in copy.copy(resp):
             if prop.startswith('_'):
@@ -394,7 +392,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 6,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -410,7 +407,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 1,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         ref_old = {
             u'hosts_total': 3,
@@ -424,7 +420,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 6,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -440,7 +435,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 0,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         del resp['history'][0]['_created']
         self.assertEqual(resp['history'][0], ref)
@@ -471,7 +465,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 6,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -487,7 +480,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 0,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         for prop in copy.copy(resp):
             if prop.startswith('_'):
@@ -512,7 +504,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 6,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -528,7 +519,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 0,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         ref_old = {
             u'hosts_total': 3,
@@ -542,7 +532,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 6,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -558,7 +547,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 0,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         del resp['history'][0]['_created']
         self.assertEqual(resp['history'][0], ref)
@@ -590,7 +578,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 12,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -606,7 +593,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 1,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         for prop in copy.copy(resp):
             if prop.startswith('_'):
@@ -636,7 +622,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 12,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -652,7 +637,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 1,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         ref_middle = {
             u'hosts_total': 6,
@@ -666,7 +650,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 12,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -682,7 +665,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 1,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         ref_old = {
             u'hosts_total': 6,
@@ -696,7 +678,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 12,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -712,7 +693,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 0,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         del resp['history'][0]['_created']
         self.assertEqual(resp['history'][0], ref)
@@ -774,7 +754,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 12,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -790,7 +769,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 1,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         for prop in copy.copy(resp):
             if prop.startswith('_'):
@@ -814,7 +792,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 6,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -830,7 +807,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 1,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         for prop in copy.copy(resp):
             if prop.startswith('_'):
@@ -887,7 +863,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'hosts_acknowledged': 0,
             u'hosts_in_downtime': 0,
             u'hosts_flapping': 0,
-            u'hosts_business_impact': 0,
             u'services_total': 12,
             u'services_not_monitored': 0,
             u'services_ok_hard': 0,
@@ -903,7 +878,6 @@ class TestHookLivesynthesis(unittest2.TestCase):
             u'services_acknowledged': 1,
             u'services_in_downtime': 0,
             u'services_flapping': 0,
-            u'services_business_impact': 0
         }
         for prop in copy.copy(resp):
             if prop.startswith('_'):

@@ -47,6 +47,8 @@ If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file
 
 If an environment variable `ALIGNAK_BACKEND_UWSGI_FILE` exist, the `alignak-backend-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
 
+If an environment variable `ALIGNAK_BACKEND_LIVESYNTHESIS_TSDB` exist, and its value equals '0' then the counters of the livesynthesis will not be set to the timeseries databases.
+
 
 system.d service mode
 ---------------------

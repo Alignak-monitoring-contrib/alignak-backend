@@ -46,7 +46,6 @@ class Livesynthesis(object):
                     'hosts_acknowledged': 0,
                     'hosts_in_downtime': 0,
                     'hosts_flapping': 0,
-                    'hosts_business_impact': 0,
                     'services_total': 0,
                     'services_not_monitored': 0,
                     'services_ok_hard': 0,
@@ -62,7 +61,6 @@ class Livesynthesis(object):
                     'services_acknowledged': 0,
                     'services_in_downtime': 0,
                     'services_flapping': 0,
-                    'services_business_impact': 0,
                     '_realm': realm['_id']
                 }
                 livesynthesis.insert(data)
@@ -133,7 +131,7 @@ class Livesynthesis(object):
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
 
-            # Send livesynthesis to TSDB
+            # Send livesynthesis to TSDB
             Timeseries.send_livesynthesis_metrics(realm['_id'], data)
 
             # Update services live synthesis
@@ -225,7 +223,7 @@ class Livesynthesis(object):
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
 
-            # Send livesynthesis to TSDB
+            # Send livesynthesis to TSDB
             Timeseries.send_livesynthesis_metrics(realm['_id'], data)
 
     @staticmethod
@@ -255,7 +253,7 @@ class Livesynthesis(object):
                     print("LS - inserted host %s: %s..." % (item['name'], data))
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
-                # Send livesynthesis to TSDB
+                # Send livesynthesis to TSDB
                 live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
                 Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
@@ -286,7 +284,7 @@ class Livesynthesis(object):
                     print("LS - inserted service %s: %s..." % (item['name'], data))
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
-                # Send livesynthesis to TSDB
+                # Send livesynthesis to TSDB
                 live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
                 Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
@@ -322,7 +320,7 @@ class Livesynthesis(object):
                     print("LS - updated host %s: %s..." % (original['name'], data))
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
-                # Send livesynthesis to TSDB
+                # Send livesynthesis to TSDB
                 live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
                 Timeseries.send_livesynthesis_metrics(original['_realm'], live_current)
 
@@ -360,7 +358,7 @@ class Livesynthesis(object):
                     print("LS - updated service %s: %s..." % (original['name'], data))
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
-                # Send livesynthesis to TSDB
+                # Send livesynthesis to TSDB
                 live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
                 Timeseries.send_livesynthesis_metrics(original['_realm'], live_current)
 
@@ -387,7 +385,7 @@ class Livesynthesis(object):
                 print("LS - Deleted host %s: %s" % (item['name'], data))
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
-            # Send livesynthesis to TSDB
+            # Send livesynthesis to TSDB
             live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
             Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
@@ -425,7 +423,7 @@ class Livesynthesis(object):
                 print("LS - Deleted service %s: %s" % (item['name'], data))
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
 
-            # Send livesynthesis to TSDB
+            # Send livesynthesis to TSDB
             live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
             Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
