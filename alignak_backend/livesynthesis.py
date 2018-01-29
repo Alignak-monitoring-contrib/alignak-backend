@@ -551,7 +551,7 @@ class Livesynthesis(object):
 
     @staticmethod
     def on_fetched_item_history(response):
-        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-locals, too-many-nested-blocks
         """
         Add to response some more information.
         We manage the 2 special parameters:
@@ -581,6 +581,8 @@ class Livesynthesis(object):
                 for lives in livesynthesis:
                     livesynthesis_id.append(lives['_id'])
                     for prop in [x for x in lives if not x.startswith('_')]:
+                        if prop in ['hosts_business_impact', 'services_business_impact']:
+                            continue
                         response[prop] += lives[prop]
 
             else:
@@ -594,6 +596,8 @@ class Livesynthesis(object):
                     if lives['_id'] != response['_id']:
                         livesynthesis_id.append(lives['_id'])
                         for prop in [x for x in lives if not x.startswith('_')]:
+                            if prop in ['hosts_business_impact', 'services_business_impact']:
+                                continue
                             response[prop] += lives[prop]
 
         if history is not None:
