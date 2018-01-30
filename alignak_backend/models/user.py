@@ -184,7 +184,7 @@ def get_schema():
             'webui_visible': {
                 'schema_version': 2,
                 'title': 'Web UI visible',
-                'comment': 'If not set, the Web User Interface will not take car of this user.',
+                'comment': 'If not set, the Web User Interface will ignore this user.',
                 'type': 'boolean',
                 'default': True
             },

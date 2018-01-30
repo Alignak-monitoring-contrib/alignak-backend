@@ -4,6 +4,7 @@
 This test check preparation of timeseries
 """
 
+from __future__ import print_function
 import time
 import os
 import copy
@@ -47,8 +48,8 @@ class TestTimeseries(unittest2.TestCase):
         cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
-                                  '/tmp/uwsgi.pid'])
-        time.sleep(3)
+                                  '/tmp/uwsgi.pid', '--logto=/tmp/alignak_backend_tsdb.log'])
+        time.sleep(2)
 
         cls.endpoint = 'http://127.0.0.1:5000'
 
@@ -103,6 +104,10 @@ class TestTimeseries(unittest2.TestCase):
         :return: None
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+        with open("/tmp/alignak_backend_tsdb.log") as f:
+            for line in f:
+                print(line)
+        os.unlink("/tmp/alignak_backend_tsdb.log")
         time.sleep(2)
 
     @classmethod
@@ -543,7 +548,7 @@ class TestTimeseries(unittest2.TestCase):
 
         :return: None
         """
-        print("***Realm All: %s" % self.realm_all)
+        # print("***Realm All: %s" % self.realm_all)
         headers = {'Content-Type': 'application/json'}
         data = {
             'name': 'realm A',
@@ -1299,27 +1304,27 @@ class TestTimeseries(unittest2.TestCase):
             self.assertEqual('OK', resp['_status'], resp)
             service_id = resp['_id']
 
-        # === Test now with an host in realm All ===
-        # add logcheckresult for host001
-        # Metrics sent to Graphite 1, Graphite 2 and InfluxDB
-        item = {
-            'host': ObjectId(host_id),
-            'host_name': 'My host',
-            'service': ObjectId(service_id),
-            'service_name': 'My service',
-            'state': 'WARNING',
-            'state_type': 'HARD',
-            'state_id': 0,
-            # '_overall_state_id': 0,
-            'acknowledged': False,
-            'last_check': int(time.time()),
-            'last_state': 'OK',
-            'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
-            'long_output': '',
-            'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
-            '_realm': ObjectId(self.realm_all),
-            '_sub_realm': False
-        }
+            # === Test now with an host in realm All ===
+            # add logcheckresult for host001
+            # Metrics sent to Graphite 1, Graphite 2 and InfluxDB
+            item = {
+                'host': ObjectId(host_id),
+                'host_name': 'My host',
+                'service': ObjectId(service_id),
+                'service_name': 'My service',
+                'state': 'WARNING',
+                'state_type': 'HARD',
+                'state_id': 0,
+                # '_overall_state_id': 0,
+                'acknowledged': False,
+                'last_check': int(time.time()),
+                'last_state': 'OK',
+                'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
+                'long_output': '',
+                'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+                '_realm': ObjectId(self.realm_all),
+                '_sub_realm': False
+            }
 
             # test with timeseries not available, it must be quick (< 3 seconds), because have
             # 2 graphites and 1 influx, so (2 + 1) * 1 second timeout * 2 (code execution between

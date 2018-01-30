@@ -53,7 +53,6 @@ class TestGrafana(unittest2.TestCase):
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
                                   '/tmp/uwsgi.pid', '--logto=/tmp/alignak_backend.log'])
-        # cls.p = subprocess.Popen(['alignak-backend'])
         time.sleep(3)
 
         cls.endpoint = 'http://127.0.0.1:5000'
@@ -102,9 +101,8 @@ class TestGrafana(unittest2.TestCase):
         :return: None
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
-        # cls.p.kill()
         time.sleep(2)
-        # os.unlink("/tmp/alignak_backend.log")
+        os.unlink("/tmp/alignak_backend.log")
 
     @classmethod
     def setUp(cls):

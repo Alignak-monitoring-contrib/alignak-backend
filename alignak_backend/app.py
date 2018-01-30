@@ -1341,7 +1341,7 @@ def pre_delete_host(item):
     services_drv = current_app.data.driver.db['service']
     services = services_drv.find({'host': item['_id']})
     for service in services:
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
+        if 'deletion' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
             print("Deleting service: %s/%s" % (item['name'], service['name']))
         lookup = {"_id": service['_id']}
         deleteitem_internal('service', False, False, **lookup)
@@ -2584,11 +2584,14 @@ if settings.get('GRAFANA_DATASOURCE', True):
                     return
     # The default minimum target queries...
     target_queries = {
-        "hosts": {
+        "Hosts": {
             'endpoint': "host",
-            'query': {
-                "ls_state_id": {"$in": [0, 1, 2, 3]}
-            }
+            'query': {"_is_template": False}
+        },
+        "Services": {
+            'endpoint': "service",
+            'query': {"_is_template": False},
+            'join': ('host', 'host', 'name')
         }
     }
     filename = settings.get('GRAFANA_DATASOURCE_QUERIES', 'grafana_queries.json')
@@ -2598,7 +2601,7 @@ if settings.get('GRAFANA_DATASOURCE', True):
     if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
         print("Queries: %s" % (target_queries))
 
-    # The default minimum target queries...
+    # The default minimum table configuration...
     table_fields = {
         "host": ["name"]
     }
@@ -2630,7 +2633,7 @@ if settings.get('GRAFANA_DATASOURCE', True):
         except Exception as e:
             abort(404, description='Bad format for posted data: %s' % str(e))
 
-        with app.test_request_context():
+        with app.app_context():
             resp = []
             if not target:
                 resp = sorted(target_queries.keys())
@@ -2717,10 +2720,14 @@ if settings.get('GRAFANA_DATASOURCE', True):
         except Exception as e:
             abort(404, description='Bad format for posted data: %s' % str(e))
 
-        with app.test_request_context():
+        with app.app_context():
+            join = None
             if target in target_queries.keys():
                 endpoint = target_queries[target]['endpoint']
+                schema = settings['DOMAIN'][endpoint]['schema']
                 search = target_queries[target]['query']
+                if 'join' in target_queries[target]:
+                    join = target_queries[target]['join']
                 field = None
                 if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
                     print("Found in the configured queries: %s - %s" % (endpoint, search))
@@ -2734,16 +2741,18 @@ if settings.get('GRAFANA_DATASOURCE', True):
                 endpoint = query[0]
                 if endpoint not in settings['DOMAIN'].keys():
                     abort(404, description='Bad endpoint for query: %s.' % endpoint)
+                schema = settings['DOMAIN'][endpoint]['schema']
 
                 # Get and check valid field name in the endpoint
                 field = query[1]
-                if field not in settings['DOMAIN'][endpoint]['schema']:
+                if field not in schema:
                     abort(404, description='Bad field name (%s) for the endpoint: '
                                            '%s.' % (field, endpoint))
 
+                embedded = []
                 # Get and convert value according to the field type
                 value = query[2]
-                field_type = settings['DOMAIN'][endpoint]['schema'][field]['type']
+                field_type = schema[field]['type']
                 regex = False
                 if '/' in value and value[0] == '/':
                     regex = True
@@ -2754,6 +2763,13 @@ if settings.get('GRAFANA_DATASOURCE', True):
                     value = int(value)
                 if field_type == 'boolean':
                     value = bool(value)
+                if field_type == 'list':
+                    value = value
+                if field_type == 'dict':
+                    value = value
+                if field_type == 'objectid':
+                    embedded.append({
+                        'resource': schema[field]['data_relation']['resource'], '_id': value})
 
                 if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
                     print("Request: %s - %s (%s) = %s" % (endpoint, field, field_type, value))
@@ -2775,8 +2791,8 @@ if settings.get('GRAFANA_DATASOURCE', True):
                 fields_list.append(field)
 
             for field_name in fields_list:
-                field_type = settings['DOMAIN'][endpoint]['schema'][field_name]['type']
-                field_title = settings['DOMAIN'][endpoint]['schema'][field_name]['title']
+                field_type = schema[field_name]['type']
+                field_title = schema[field_name]['title']
                 resp[0]["columns"].append({"text": field_title, "type": field_type})
 
             db_collection = current_app.data.driver.db[endpoint]
@@ -2784,12 +2800,30 @@ if settings.get('GRAFANA_DATASOURCE', True):
                 print("Query: %s" % (json.dumps(search)))
             got = db_collection.find(search)
             for element in got:
+                if join:
+                    if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
+                        print("Join query: %s / %s / %s" % (join[0], join[1], join[2]))
+                    # Second join field is the collection to search in
+                    db_join = current_app.data.driver.db[join[1]]
+                    # First join field is the _id to search for
+                    joined = db_join.find_one(element[join[0]])
+                    # Third join field is the field to get
+                    element[join[0]] = joined[join[2]]
+
                 item = []
                 for field_name in fields_list:
                     if isinstance(element[field_name], list):
                         item.append(','.join(element[field_name]))
+                    elif field_name in ['ls_last_check', 'ls_next_check', 'ls_last_state_changed',
+                                        'ls_last_hard_state_changed', 'ls_last_time_up',
+                                        'ls_last_time_down', 'ls_last_time_unknown',
+                                        'ls_last_time_unreachable', 'ls_last_time_ok',
+                                        'ls_last_time_warning', 'ls_last_time_critical']:
+                        value = datetime.utcfromtimestamp(float(element[field_name]))
+                        value = value.strftime('%a, %d %b %Y %H:%M:%S GMT')
+                        item.append(value)
                     elif isinstance(element[field_name], datetime):
-                        value = datetime.fromtimestamp(float(element[field_name]))
+                        value = datetime.utcfromtimestamp(float(element[field_name]))
                         value = value.strftime('%a, %d %b %Y %H:%M:%S GMT')
                         item.append(value)
                     else:

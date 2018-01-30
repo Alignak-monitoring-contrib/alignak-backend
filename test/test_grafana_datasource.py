@@ -7,6 +7,7 @@ This test check grafana and create dashboard + graphs
 from __future__ import print_function
 import os
 import json
+from pprint import pprint
 from datetime import datetime, timedelta
 import time
 import shlex
@@ -16,7 +17,6 @@ import requests
 import requests_mock
 import unittest2
 from bson.objectid import ObjectId
-from pprint import pprint
 from alignak_backend.grafana import Grafana
 
 
@@ -39,13 +39,12 @@ class TestGrafanaDataSource(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test-grafana'
-        os.environ['ALIGNAK_BACKEND_PRINT'] = 'grafana'
 
+        os.environ['ALIGNAK_BACKEND_PRINT'] = 'grafana'
         os.environ['ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES'] = './cfg/grafana_queries.json'
         os.environ['ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES'] = './cfg/grafana_tables.json'
-
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -59,7 +58,7 @@ class TestGrafanaDataSource(unittest2.TestCase):
                                   '--protocol=http', '--enable-threads', '--pidfile',
                                   '/tmp/uwsgi.pid', '--logto=/tmp/alignak_backend.log'])
         # cls.p = subprocess.Popen(['alignak-backend'])
-        time.sleep(3)
+        time.sleep(2)
 
         cls.endpoint = 'http://127.0.0.1:5000'
 
@@ -107,7 +106,9 @@ class TestGrafanaDataSource(unittest2.TestCase):
         :return: None
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
-        # cls.p.kill()
+        with open("/tmp/alignak_backend.log") as f:
+            for line in f:
+                print(line)
         os.unlink("/tmp/alignak_backend.log")
         time.sleep(2)
 
@@ -134,7 +135,10 @@ class TestGrafanaDataSource(unittest2.TestCase):
         if 'realm' in data:
             del data['realm']
         data['_realm'] = cls.realm_all
-        data['ls_last_check'] = int(time.time())
+        data['ls_last_check'] = 1234567890  # Fixed timestamp for test
+        data['ls_state'] = 'UP'
+        data['ls_state_type'] = 'HARD'
+        data['ls_state_id'] = 0
         data['ls_perf_data'] = "rta=14.581000ms;1000.000000;3000.000000;0.000000 pl=0%;100;100;0"
         response = requests.post(cls.endpoint + '/host', json=data, headers=headers, auth=cls.auth)
         resp = response.json()
@@ -147,7 +151,10 @@ class TestGrafanaDataSource(unittest2.TestCase):
         data['check_command'] = rc[0]['_id']
         data['_realm'] = cls.realm_all
         data['name'] = 'load'
-        data['ls_last_check'] = int(time.time())
+        data['ls_last_check'] = 1234567890  # Fixed timestamp for test
+        data['ls_state'] = 'OK'
+        data['ls_state_type'] = 'HARD'
+        data['ls_state_id'] = 0
         data['ls_perf_data'] = "load1=0.360;15.000;30.000;0; load5=0.420;10.000;25.000;0; " \
                                "load15=0.340;5.000;20.000;0;"
         response = requests.post(cls.endpoint + '/service', json=data, headers=headers,
@@ -164,7 +171,10 @@ class TestGrafanaDataSource(unittest2.TestCase):
         data['name'] = "srv002"
         data['alias'] = "Server #2"
         data['tags'] = ["t2"]
-        data['ls_last_check'] = int(time.time())
+        data['ls_last_check'] = 1234567890  # Fixed timestamp for test
+        data['ls_state'] = 'DOWN'
+        data['ls_state_type'] = 'SOFT'
+        data['ls_state_id'] = 1
         data['ls_perf_data'] = "rta=14.581000ms;1000.000000;3000.000000;0.000000 pl=0%;100;100;0"
         response = requests.post(cls.endpoint + '/host', json=data, headers=headers, auth=cls.auth)
         resp = response.json()
@@ -177,7 +187,10 @@ class TestGrafanaDataSource(unittest2.TestCase):
         data['check_command'] = rc[0]['_id']
         data['_realm'] = cls.realmAll_A1
         data['name'] = 'load'
-        data['ls_last_check'] = int(time.time())
+        data['ls_last_check'] = 1234567890  # Fixed timestamp for test
+        data['ls_state'] = 'WARNING'
+        data['ls_state_type'] = 'SOFT'
+        data['ls_state_id'] = 1
         data['ls_perf_data'] = "load1=0.360;15.000;30.000;0; load5=0.420;10.000;25.000;0; " \
                                "load15=0.340;5.000;20.000;0;"
         response = requests.post(cls.endpoint + '/service', json=data, headers=headers,
@@ -594,7 +607,7 @@ class TestGrafanaDataSource(unittest2.TestCase):
         self.assertIn('tags', rsp)
         self.assertEqual(rsp['tags'], ["t1", "t2"])  # Tags
         self.assertIn('text', rsp)
-        self.assertEqual(rsp['text'], "srv001: UNREACHABLE (HARD) - ")     # Live state
+        self.assertEqual(rsp['text'], "srv001: UP (HARD) - ")     # Live state
 
         # Request some annotations
         # 3- for one host only
@@ -625,7 +638,7 @@ class TestGrafanaDataSource(unittest2.TestCase):
         self.assertIn('tags', rsp)
         self.assertEqual(rsp['tags'], ["t1", "t2"])  # Tags
         self.assertIn('text', rsp)
-        self.assertEqual(rsp['text'], "srv001: UNREACHABLE (HARD) - ")
+        self.assertEqual(rsp['text'], "srv001: UP (HARD) - ")
 
         rsp = resp[1]
         self.assertIn('annotation', rsp)
@@ -636,7 +649,7 @@ class TestGrafanaDataSource(unittest2.TestCase):
         self.assertIn('tags', rsp)
         self.assertEqual(rsp['tags'], ["t2"])           # Tags
         self.assertIn('text', rsp)
-        self.assertEqual(rsp['text'], "srv002: UNREACHABLE (HARD) - ")
+        self.assertEqual(rsp['text'], "srv002: DOWN (SOFT) - ")
 
     def test_grafana_search(self):
         """
@@ -657,12 +670,14 @@ class TestGrafanaDataSource(unittest2.TestCase):
         # ]
 
         # One item in the response
-        self.assertEqual(len(resp), 8)
+        self.assertEqual(len(resp), 11)
 
         # All expected data fields are present
-        self.assertEqual(resp, [u'hosts', u'hosts down', u'hosts unreachable', u'hosts up',
-                                u'services critical', u'services ok',
-                                u'services unreachable', u'services warning'])
+        self.assertEqual(resp, [u'Hosts', u'Hosts down', u'Hosts problems', u'Hosts unreachable',
+                                u'Hosts up',
+                                u'Services',
+                                u'Services critical', u'Services ok', u'Services problems',
+                                u'Services unreachable', u'Services warning'])
 
     def test_grafana_query_errors(self):
         """
@@ -691,7 +706,7 @@ class TestGrafanaDataSource(unittest2.TestCase):
         #       "maxDataPoints": 2495 //decided by the panel
         #     }
 
-        ## Missing targets
+        # --- Missing targets
         data = {
             # Ignored data...
             u'range': {u'from': range_from, u'to': range_to},
@@ -713,7 +728,7 @@ class TestGrafanaDataSource(unittest2.TestCase):
         self.assertEqual(resp['_error']['message'],
                          u"Only one target is supported by this datasource.")
 
-        ## Request for more than 1 target
+        # --- Request for more than 1 target
         data = {
             # Ignored data...
             u'range': {u'from': range_from, u'to': range_to},
@@ -736,7 +751,7 @@ class TestGrafanaDataSource(unittest2.TestCase):
         self.assertEqual(resp['_error']['message'],
                          u"Only one target is supported by this datasource.")
 
-        ## Bad formatted query
+        # --- Bad formatted query
         data = {
             # Ignored data...
             u'range': {u'from': range_from, u'to': range_to},
@@ -755,9 +770,8 @@ class TestGrafanaDataSource(unittest2.TestCase):
         resp = response.json()
         self.assertEqual(resp['_status'], 'ERR')
         self.assertEqual(resp['_error']['code'], 404)
-        self.assertEqual(resp['_error']['message'],
-                         u"Bad format for query: [{u'refId': u'A', u'target': u'host'}]. "
-                         u"Query must be something like endpoint:field:value.")
+        self.assertIn("Query must be something like endpoint:field:value.",
+                      resp['_error']['message'])
 
     def test_grafana_query(self):
         """
@@ -774,17 +788,7 @@ class TestGrafanaDataSource(unittest2.TestCase):
         past = now - timedelta(days=5)
         range_from = past.strftime('%a, %d %b %Y %H:%M:%S GMT')
 
-        # Grafana request for available data:
-        #     {
-        #       "range": { "from": "2015-12-22T03:06:13.851Z", "to": "2015-12-22T06:48:24.137Z" },
-        #       "interval": "5s",
-        #       "targets": [
-        #         { "refId": "B", "target": "hosts" },
-        #         { "refId": "A", "target": "hosts" }
-        #       ],
-        #       "format": "json",
-        #       "maxDataPoints": 2495 //decided by the panel
-        #     }
+        # --- Request a list of hosts
         data = {
             # Ignored data...
             u'range': {u'from': range_from, u'to': range_to},
@@ -793,49 +797,14 @@ class TestGrafanaDataSource(unittest2.TestCase):
             u'maxDataPoints': 2495,
             # Useful data:
             "targets": [
-                {"refId": "A", "target": "hosts"}
+                {"refId": "A", "target": "Hosts"}
             ],
         }
         response = requests.post(self.endpoint + '/query',
                                  json=data, headers=headers, auth=self.auth)
         print("Response: %s" % response)
         resp = response.json()
-        from pprint import pprint
         pprint(resp)
-        # Grafana expects a response formatted as:
-        # [
-        #     {
-        #         "type": "table",
-        #         "columns": [
-        #             {
-        #                 "text": "Time",
-        #                 "type": "time",
-        #                 "sort": true,
-        #                 "desc": true,
-        #             },
-        #             {
-        #                 "text": "mean",
-        #             },
-        #             {
-        #                 "text": "sum",
-        #             }
-        #         ],
-        #         "rows": [
-        #             [
-        #                 1457425380000,
-        #                 null,
-        #                 null
-        #             ],
-        #             [
-        #                 1457425370000,
-        #                 1002.76215352,
-        #                 1002.76215352
-        #             ],
-        #         ]
-        #     }
-        # ]
-
-        # One item in the response which is a list
         self.assertEqual(len(resp), 1)
         rsp = resp[0]
 
@@ -844,26 +813,148 @@ class TestGrafanaDataSource(unittest2.TestCase):
         self.assertEqual(rsp["type"], "table")
 
         self.assertIn('columns', rsp)
-        self.assertEqual(len(rsp["columns"]), 13)
-        self.assertEquals(rsp["columns"], [{u'text': u'Host name', u'type': u'string'},
-                                           {u'text': u'Alias', u'type': u'string'},
-                                           {u'text': u'Business impact', u'type': u'integer'},
-                                           {u'text': u'Tags', u'type': u'list'},
-                                           {u'text': u'Active checks enabled', u'type': u'boolean'},
-                                           {u'text': u'Passive checks enabled', u'type': u'boolean'},
-                                           {u'text': u'State', u'type': u'string'},
-                                           {u'text': u'State identifier', u'type': u'integer'},
-                                           {u'text': u'State type', u'type': u'string'},
-                                           {u'text': u'Check timestamp', u'type': u'integer'},
-                                           {u'text': u'Acknowledged', u'type': u'boolean'},
-                                           {u'text': u'Downtimed', u'type': u'boolean'},
-                                           {u'text': u'Grafana identifier', u'type': u'integer'}])
+        self.assertEqual(len(rsp["columns"]), 14)
+        self.assertEqual(
+            rsp["columns"], [{u'text': u'Host name', u'type': u'string'},
+                             {u'text': u'Alias', u'type': u'string'},
+                             {u'text': u'Business impact', u'type': u'integer'},
+                             {u'text': u'Tags', u'type': u'list'},
+                             {u'text': u'Active checks enabled', u'type': u'boolean'},
+                             {u'text': u'Passive checks enabled', u'type': u'boolean'},
+                             {u'text': u'Element overall state', u'type': u'integer'},
+                             {u'text': u'State', u'type': u'string'},
+                             {u'text': u'State identifier', u'type': u'integer'},
+                             {u'text': u'State type', u'type': u'string'},
+                             {u'text': u'Last check time', u'type': u'integer'},
+                             {u'text': u'Acknowledged', u'type': u'boolean'},
+                             {u'text': u'Downtimed', u'type': u'boolean'},
+                             {u'text': u'Grafana identifier', u'type': u'integer'}])
         for column in rsp["columns"]:
             self.assertIn('text', column)
             self.assertIn('type', column)
 
         self.assertIn('rows', rsp)
         # 2 hosts
-        self.assertEqual(len(rsp["rows"]), 3)
+        self.assertEqual(len(rsp["rows"]), 2)
+        self.assertEqual(
+            rsp['rows'], [
+                [u'srv001',
+                 u'Server #1',
+                 5,
+                 u't1,t2',
+                 True,
+                 True,
+                 0,
+                 u'UP',
+                 0,
+                 u'HARD',
+                 u'Fri, 13 Feb 2009 23:31:30 GMT',
+                 # 1234567890 as a Grafana formated date!
+                 False,
+                 False,
+                 0],
+                [u'srv002',
+                 u'Server #2',
+                 5,
+                 u't2',
+                 True,
+                 True,
+                 4,
+                 u'DOWN',
+                 1,
+                 u'SOFT',
+                 u'Fri, 13 Feb 2009 23:31:30 GMT',
+                 # 1234567890 as a Grafana formated date!
+                 False,
+                 False,
+                 0]
+            ])
         for row in rsp["rows"]:
-            self.assertEqual(len(row), 13)
+            self.assertEqual(len(row), 14)
+
+        # --- Request a list of services
+        data = {
+            # Ignored data...
+            u'range': {u'from': range_from, u'to': range_to},
+            u'interval': "5s",
+            u'format': "json",
+            u'maxDataPoints': 2495,
+            # Useful data:
+            "targets": [
+                {"refId": "A", "target": "Services"}
+            ],
+        }
+        response = requests.post(self.endpoint + '/query',
+                                 json=data, headers=headers, auth=self.auth)
+        print("Response: %s" % response)
+        resp = response.json()
+        pprint(resp)
+        self.assertEqual(len(resp), 1)
+        rsp = resp[0]
+
+        # All expected data fields are present
+        self.assertIn('type', rsp)
+        self.assertEqual(rsp["type"], "table")
+
+        self.assertIn('columns', rsp)
+        self.assertEqual(len(rsp["columns"]), 15)
+        self.assertEqual(
+            rsp["columns"], [{u'text': u'Linked host', u'type': u'objectid'},
+                             {u'text': u'Service name', u'type': u'string'},
+                             {u'text': u'Alias', u'type': u'string'},
+                             {u'text': u'Business impact', u'type': u'integer'},
+                             {u'text': u'Tags', u'type': u'list'},
+                             {u'text': u'Active checks enabled', u'type': u'boolean'},
+                             {u'text': u'Passive checks enabled', u'type': u'boolean'},
+                             {u'text': u'Element overall state', u'type': u'integer'},
+                             {u'text': u'State', u'type': u'string'},
+                             {u'text': u'State identifier', u'type': u'integer'},
+                             {u'text': u'State type', u'type': u'string'},
+                             {u'text': u'Last check time', u'type': u'integer'},
+                             {u'text': u'Acknowledged', u'type': u'boolean'},
+                             {u'text': u'Downtimed', u'type': u'boolean'},
+                             {u'text': u'Grafana identifier', u'type': u'integer'}])
+        for column in rsp["columns"]:
+            self.assertIn('text', column)
+            self.assertIn('type', column)
+
+        self.assertIn('rows', rsp)
+        # 2 hosts
+        self.assertEqual(len(rsp["rows"]), 2)
+        self.assertEqual(
+            rsp['rows'], [
+                [u'srv001',
+                 u'load',
+                 u'load',
+                 4,
+                 u'',
+                 True,
+                 True,
+                 0,
+                 u'OK',
+                 0,
+                 u'HARD',
+                 u'Fri, 13 Feb 2009 23:31:30 GMT',
+                 # 1234567890 as a Grafana formated date!
+                 False,
+                 False,
+                 0],
+                [u'srv002',
+                 u'load',
+                 u'load',
+                 4,
+                 u'',
+                 True,
+                 True,
+                 3,
+                 u'WARNING',
+                 1,
+                 u'SOFT',
+                 u'Fri, 13 Feb 2009 23:31:30 GMT',
+                 # 1234567890 as a Grafana formated date!
+                 False,
+                 False,
+                 0]
+            ])
+        for row in rsp["rows"]:
+            self.assertEqual(len(row), 15)

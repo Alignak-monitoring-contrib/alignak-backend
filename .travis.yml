@@ -11,9 +11,13 @@ services:
 
 # command to install dependencies
 # some are only used for travis/coveralls so we are installing them here only
+before_install:
+- export TZ=UTC
+
 install:
   - # Force python-dateutil version because flask-apscheduler requires this version !
   - pip install python-dateutil==2.4.2
+  - date
   - ./test/setup_test.sh
 # command to run tests
 script:
