@@ -37,7 +37,7 @@ class TestGrafana(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
 
         # Delete used mongo DBs
@@ -754,10 +754,10 @@ class TestGrafana(unittest2.TestCase):
         lines = myfile.readlines()
         for line in lines:
             print("- %s" % line)
-        assert 'Connection error to grafana grafana All' in lines[-5]
-        assert '[cron_grafana] grafana All has no connection' in lines[-4]
-        assert 'Connection error to grafana grafana 2' in lines[-3]
-        assert '[cron_grafana] grafana 2 has no connection' in lines[-2]
+        assert 'Connection error to grafana grafana All' in lines[-3]
+        # assert '[cron_grafana] grafana All has no connection' in lines[-4]
+        assert 'Connection error to grafana grafana 2' in lines[-2]
+        # assert '[cron_grafana] grafana 2 has no connection' in lines[-2]
 
     def test_cron_grafana_service(self):
         """
