@@ -37,8 +37,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
         # Set test mode for Alignak backend
         os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
-        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
-            'test_livesynthesis_history_settings.json'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/' \
+                                                           'settings_livesynthesis_history.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
