@@ -465,8 +465,7 @@ def pre_logcheckresult_post(items):
     hosts_drv = current_app.data.driver.db['host']
     services_drv = current_app.data.driver.db['service']
     for dummy, item in enumerate(items):
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LCR - got a check result: %s" % item)
+        current_app.logger.debug("LCR - got a check result: %s" % item)
 
         if not item.get('host') and not item.get('host_name'):
             abort(make_response("Posting LCR without host information is not accepted.", 412))
@@ -502,13 +501,12 @@ def pre_logcheckresult_post(items):
         g.updateLivestate = True
         # If the log check result is older than the item last check, do not update the livestate
         if item_last_check and item['last_check'] < item_last_check:
-            if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                print("LCR - will not update the livestate: %s / %s" % (item['last_check'],
-                                                                        item_last_check))
+            current_app.logger.debug("LCR - will not update the livestate: %s / %s",
+                                     item['last_check'], item_last_check)
             g.updateLivestate = False
 
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LCR - inserting an LCR for %s/%s..." % (item['host_name'], item['service_name']))
+        current_app.logger.debug("LCR - inserting an LCR for %s/%s...",
+                                 item['host_name'], item['service_name'])
 
 
 def after_insert_logcheckresult(items):
@@ -520,9 +518,9 @@ def after_insert_logcheckresult(items):
     :return: None
     """
     for dummy, item in enumerate(items):
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LCR - inserted an LCR for %s/%s..." % (item['host_name'], item['service_name']))
-            print("    -> %s..." % item)
+        current_app.logger.debug("LCR - inserted an LCR for %s/%s...",
+                                 item['host_name'], item['service_name'])
+        current_app.logger.debug("    -> %s..." % item)
 
         if g.updateLivestate:
             # Update the livestate...
@@ -586,8 +584,8 @@ def after_insert_logcheckresult(items):
                 }
                 (pi_a, pi_b, pi_c, pi_d) = patch_internal('host', data, False, False, **lookup)
 
-            if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                print("LCR - updated the livestate: %s, %s, %s, %s" % (pi_a, pi_b, pi_c, pi_d))
+            current_app.logger.debug("LCR - updated the livestate: %s, %s, %s, %s",
+                                     pi_a, pi_b, pi_c, pi_d)
 
         # Create an history event for the new logcheckresult
         message = "%s[%s] (%s/%s): %s" % (item['state'], item['state_type'],
@@ -1295,8 +1293,7 @@ def pre_delete_host(item):
     :type item: dict
     :return: None
     """
-    if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-        print("Deleting host: %s" % item['name'])
+    current_app.logger.debug("Deleting host: %s" % item['name'])
     services_drv = current_app.data.driver.db['service']
     services = services_drv.find({'host': item['_id']})
     for service in services:
@@ -1312,8 +1309,7 @@ def after_delete_host(item):
     :type item: dict
     :return: None
     """
-    if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-        print("Deleted host: %s" % item['name'])
+    current_app.logger.debug("Deleted host: %s", item['name'])
 
 
 # Alignak

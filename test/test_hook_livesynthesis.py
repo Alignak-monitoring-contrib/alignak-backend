@@ -14,9 +14,6 @@ import requests
 import unittest2
 from alignak_backend.livesynthesis import Livesynthesis
 
-# Set an environment variable to print debug information for the backend
-os.environ['ALIGNAK_BACKEND_PRINT'] = '1'
-
 
 class TestHookLivesynthesis(unittest2.TestCase):
     """
@@ -1982,53 +1979,55 @@ class TestHookLivesynthesis(unittest2.TestCase):
 
         :return: None
         """
-        # scenario 1
-        original = {
-            'ls_state': 'UP',
-            'ls_state_type': 'HARD',
-        }
-        updated = {
-            'ls_state': 'DOWN',
-            'ls_state_type': 'SOFT'
-        }
-        minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
-        self.assertEqual(minus, 'hosts_up_hard')
-        self.assertEqual(plus, 'hosts_down_soft')
+        from alignak_backend.app import app
+        with app.app_context():
+            # scenario 1
+            original = {
+                'ls_state': 'UP',
+                'ls_state_type': 'HARD',
+            }
+            updated = {
+                'ls_state': 'DOWN',
+                'ls_state_type': 'SOFT'
+            }
+            minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
+            self.assertEqual(minus, 'hosts_up_hard')
+            self.assertEqual(plus, 'hosts_down_soft')
 
-        # scenario 2
-        original = {
-            'ls_state': 'UP',
-            'ls_state_type': 'SOFT',
-        }
-        updated = {
-            'ls_state': 'DOWN',
-        }
-        minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
-        self.assertEqual(minus, 'hosts_up_soft')
-        self.assertEqual(plus, 'hosts_down_soft')
+            # scenario 2
+            original = {
+                'ls_state': 'UP',
+                'ls_state_type': 'SOFT',
+            }
+            updated = {
+                'ls_state': 'DOWN',
+            }
+            minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
+            self.assertEqual(minus, 'hosts_up_soft')
+            self.assertEqual(plus, 'hosts_down_soft')
 
-        # scenario 3
-        original = {
-            'ls_state': 'UP',
-            'ls_state_type': 'SOFT',
-        }
-        updated = {
-            'ls_state_type': 'HARD',
-        }
-        minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
-        self.assertEqual(minus, 'hosts_up_soft')
-        self.assertEqual(plus, 'hosts_up_hard')
+            # scenario 3
+            original = {
+                'ls_state': 'UP',
+                'ls_state_type': 'SOFT',
+            }
+            updated = {
+                'ls_state_type': 'HARD',
+            }
+            minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
+            self.assertEqual(minus, 'hosts_up_soft')
+            self.assertEqual(plus, 'hosts_up_hard')
 
-        # scenario 4
-        original = {
-            'ls_state': 'UP',
-            'ls_state_type': 'SOFT',
-        }
-        updated = {
-        }
-        minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
-        self.assertFalse(minus)
-        self.assertFalse(plus)
+            # scenario 4
+            original = {
+                'ls_state': 'UP',
+                'ls_state_type': 'SOFT',
+            }
+            updated = {
+            }
+            minus, plus = Livesynthesis.livesynthesis_to_update('hosts', updated, original)
+            self.assertFalse(minus)
+            self.assertFalse(plus)
 
     def test_realms(self):  # pylint: disable=too-many-locals
         """

@@ -63,13 +63,11 @@ class Timeseries(object):
         for counter in livesynthesis:
             if counter.startswith('_'):
                 continue
-            if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                print("   - counter: %s" % (counter))
+            current_app.logger.debug("   - counter: %s", counter)
             ls['perf_data'].append("%s=%d" % (counter, livesynthesis[counter]))
 
         ls['perf_data'] = " ".join(ls['perf_data'])
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("   - perf_data: %s" % (ls['perf_data']))
+        current_app.logger.debug("   - perf_data: %s", ls['perf_data'])
 
         now = int(time.time())
 

@@ -17,9 +17,6 @@ from datetime import datetime
 import requests
 import unittest2
 
-# Set an environment variable to print debug information for the backend
-os.environ['ALIGNAK_BACKEND_PRINT'] = '1'
-
 
 class TestLogcheckresult(unittest2.TestCase):
     """This class tests the logchekresult features"""
