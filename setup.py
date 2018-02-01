@@ -25,8 +25,10 @@ from alignak_backend import __name__ as __pkg_name__
 
 package = import_module('alignak_backend')
 
-data_files = [('etc/alignak-backend', ['etc/settings.json', 'etc/uwsgi.ini']),
-              ('bin', ['bin/alignak-backend-uwsgi']),
+data_files = [('etc/alignak-backend',
+               ['etc/settings.json', 'etc/alignak-backend-logger.json', 'etc/uwsgi.ini']),
+              ('bin',
+               ['bin/alignak-backend-uwsgi']),
               ('var/log/alignak-backend', [])]
 if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
     data_files.append(('etc/rc.d', ['bin/rc.d/alignak-backend']))

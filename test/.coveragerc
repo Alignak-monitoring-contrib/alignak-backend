@@ -1,6 +1,7 @@
 [run]
 omit =
    ./test*
+   ./alignak_backend/carboniface.py
 
 [report]
 omit =

@@ -51,8 +51,8 @@ class Grafana(object):
         for graphite in graphites:
             # A Graphite is linked to me but we do not have any common realm!
             if graphite['_realm'] not in self.realms:
-                print("[grafana-%s] linked graphite %s has no common realm"
-                      % (self.name, graphite['name']))
+                current_app.logger.error("[grafana-%s] linked graphite %s has no common realm",
+                                         self.name, graphite['name'])
                 continue
 
             # Add a statsd_prefix in the graphite if necessary
@@ -61,17 +61,17 @@ class Grafana(object):
             if graphite['statsd']:
                 statsd = statsd_db.find_one({'_id': graphite['statsd']})
                 if statsd and statsd['_realm'] not in self.realms:
-                    print("[grafana-%s] linked statsd %s has no common realm"
-                          % (self.name, statsd['name']))
+                    current_app.logger.error("[grafana-%s] linked statsd %s has no common realm",
+                                             self.name, statsd['name'])
                     continue
                 if statsd and statsd['prefix'] != '':
                     graphite['statsd_prefix'] = statsd['prefix']
 
             # We already have a TS for the Graphite realm!
             if graphite['_realm'] in self.timeseries:
-                print("[grafana-%s] linked graphite %s has the same realm "
-                      "as a previously registered timeserie"
-                      % (self.name, graphite['name']))
+                current_app.logger.error("[grafana-%s] linked graphite %s has the same realm "
+                                         "as a previously registered timeserie",
+                                         self.name, graphite['name'])
                 continue
 
             graphite['type'] = 'graphite'
@@ -80,8 +80,9 @@ class Grafana(object):
                 realm = realm_db.find_one({'_id': graphite['_realm']})
                 for child_realm in realm['_all_children']:
                     if child_realm not in self.realms:
-                        print("[grafana-%s] linked graphite %s, ignore sub-realm: %s"
-                              % (self.name, graphite['name'], child_realm))
+                        current_app.logger.error("[grafana-%s] linked graphite %s, "
+                                                 "ignore sub-realm: %s",
+                                                 self.name, graphite['name'], child_realm)
                         continue
                     self.timeseries[child_realm] = graphite
 
@@ -89,8 +90,8 @@ class Grafana(object):
         for influxdb in influxdbs:
             # An InfluxDB is linked to me but we do not have any common realm!
             if influxdb['_realm'] not in self.realms:
-                print("[grafana-%s] linked influxdb %s has no common realm"
-                      % (self.name, influxdb['name']))
+                current_app.logger.error("[grafana-%s] linked influxdb %s has no common realm",
+                                         self.name, influxdb['name'])
                 continue
 
             # Add a statsd_prefix in the influxdb if necessary
@@ -99,17 +100,17 @@ class Grafana(object):
             if influxdb['statsd']:
                 statsd = statsd_db.find_one({'_id': influxdb['statsd']})
                 if statsd and statsd['_realm'] not in self.realms:
-                    print("[grafana-%s] linked statsd %s has no common realm"
-                          % (self.name, statsd['name']))
+                    current_app.logger.error("[grafana-%s] linked statsd %s has no common realm",
+                                             self.name, statsd['name'])
                     continue
                 if statsd and statsd['prefix'] != '':
                     influxdb['statsd_prefix'] = statsd['prefix']
 
             # We already have a TS for the InfluxDB realm!
             if influxdb['_realm'] in self.timeseries:
-                print("[grafana-%s] linked influxdb %s has the same realm "
-                      "as a previously registered timeserie"
-                      % (self.name, influxdb['name']))
+                current_app.logger.error("[grafana-%s] linked influxdb %s has the same realm "
+                                         "as a previously registered timeserie",
+                                         self.name, influxdb['name'])
                 continue
 
             influxdb['type'] = 'influxdb'
@@ -118,8 +119,9 @@ class Grafana(object):
                 realm = realm_db.find_one({'_id': influxdb['_realm']})
                 for child_realm in realm['_all_children']:
                     if child_realm not in self.realms:
-                        print("[grafana-%s] linked influxdb %s, ignore sub-realm: %s"
-                              % (self.name, influxdb['name'], child_realm))
+                        current_app.logger.error("[grafana-%s] linked influxdb %s, "
+                                                 "ignore sub-realm: %s",
+                                                 self.name, influxdb['name'], child_realm)
                         continue
                     self.timeseries[child_realm] = influxdb
 
@@ -225,7 +227,8 @@ class Grafana(object):
 
         # Set host Graphite prefix
         hostname = host['name']
-        print("[grafana-%s] create dashboard for the host '%s'" % (self.name, hostname))
+        current_app.logger.info("[grafana-%s] create dashboard for the host '%s'",
+                                self.name, hostname)
 
         # Tags for the targets
         tags = {"host": hostname}
@@ -237,9 +240,10 @@ class Grafana(object):
                 datasource = ds_name
                 break
         if datasource is None:
-            print("----------")
-            print("[grafana-%s] no datasource for the host '%s'" % (self.name, hostname))
-            print("----------")
+            current_app.logger.info("----------")
+            current_app.logger.info("[grafana-%s] no datasource for the host '%s'",
+                                    self.name, hostname)
+            current_app.logger.info("----------")
             return False
 
         rows = []
@@ -306,7 +310,7 @@ class Grafana(object):
         services = service_db.find(search)
         for service in services:
             service['hostname'] = host['name']
-            print("[grafana-%s] - service: %s" % (self.name, service['name']))
+            current_app.logger.info("[grafana-%s] - service: %s", self.name, service['name'])
 
             # Tags for the service targets
             tags = {"host": hostname, "service": service['name']}
@@ -460,10 +464,14 @@ class Grafana(object):
         except requests.exceptions.SSLError as e:
             print("[cron_grafana] SSL connection error to grafana %s for dashboard creation: %s" %
                   (self.name, e))
+            current_app.logger.error("[cron_grafana] SSL connection error to grafana %s "
+                                     "for dashboard creation: %s", self.name, e)
             return False
         except requests.exceptions.RequestException as e:
             print("[cron_grafana] Connection error to grafana %s for dashboard creation: %s" %
                   (self.name, e))
+            current_app.logger.error("[cron_grafana] Connection error to grafana %s "
+                                     "for dashboard creation: %s", self.name, e)
             return False
 
     def get_datasources(self):
@@ -478,9 +486,13 @@ class Grafana(object):
                                     '/api/datasources', headers=headers, timeout=10)
         except requests.exceptions.SSLError as e:
             print("[cron_grafana] SSL connection error to grafana %s: %s" % (self.name, e))
+            current_app.logger.error("[cron_grafana] SSL connection error to grafana %s "
+                                     "for dashboard creation: %s", self.name, e)
             return
         except requests.exceptions.RequestException as e:
             print("[cron_grafana] Connection error to grafana %s: %s" % (self.name, e))
+            current_app.logger.error("[cron_grafana] Connection error to grafana %s "
+                                     "for dashboard creation: %s", self.name, e)
             self.connection = False
             return
         resp = response.json()
@@ -543,17 +555,15 @@ class Grafana(object):
             resp = response.json()
             # resp is as: {u'message': u'Datasource added', u'id': 4}
             if 'id' not in resp and 'message' in resp:
-                print("----------")
-                print("Grafana message: %s" % resp['message'])
-                print("----------")
+                current_app.logger.info("Grafana message: %s", resp['message'])
                 return
-            print("[grafana-%s] datasource created: '%s': id = %s"
-                  % (self.name, ds_name, resp['id']))
+            current_app.logger.info("[grafana-%s] datasource created: '%s': id = %s",
+                                    self.name, ds_name, resp['id'])
             self.datasources[ds_name] = {'id': resp['id'], 'ts_id': str(timeserie['_id'])}
 
-        print("[grafana-%s] available datasources:" % self.name)
+        current_app.logger.info("[grafana-%s] available datasources:", self.name)
         for ds_name, datasource in iteritems(self.datasources):
-            print("- %s: %s" % (ds_name, datasource))
+            current_app.logger.info("- %s: %s", ds_name, datasource)
 
     @staticmethod
     def generate_target(elements, tags, datasource):

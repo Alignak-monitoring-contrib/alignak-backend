@@ -114,10 +114,42 @@ Activate the scheduler to create Grafana panels for the host/service performance
 
   "SCHEDULER_GRAFANA_ACTIVE": false
 
+Logger configuration
+--------------------
+
+The Alignak backend sends information to a logger that is configured thanks to a JSON file.::
+
+  "LOGGER": "alignak-backend-logger.json"
+
+ All the API requests will be logged:
+    * at INFO level for the
+If the file name defined in this configuration variable is not an absolute file name, the configuration file is searched in the same directory where the *settings.json* was found.
+
+ The Alignak backend logger is configured with the content of the found configuration file, but some specific variables are used in this file:
+    * `%(logdir)s`, will be replaced with the log files directory
+    * `%(daemon)s`.log, will be replaced with the backend name
+
+ The directory where the log file will be stored is searched in this ordered directory list:
+    * /usr/local/var/log/alignak_backend
+    * /var/log/alignak_backend
+    * /usr/local/var/log/alignak
+    * /var/log/alignak
+    * /usr/local/var/log
+    * /var/log
+    * /tmp
+
+ Once a directory in this list exists and is writable, it will be retained as the log files directory.
+
+ The alignak backend name is built as a concatenation of:
+    * the `NAME` configuration variable if it not null, else 'alignak-backend'
+    * the `MONGO_DBNAME`
+
+ If the log files directory do not contain `alignak-backend`, this text is prepended.
+
 Livesynthesis history
 ---------------------
 
-To have history of livesynthesis (every minute) during xx minutes, you need to activate the history scheduler.
+To have an history of the live synthesis (every minute) during xx minutes, you need to activate the history scheduler.
 
 To activate, define the number of minutes you want to keep history, *0* to disable, example for 30 minutes::
 

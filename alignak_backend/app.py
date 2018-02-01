@@ -18,8 +18,13 @@ import re
 import sys
 import time
 import uuid
+import socket
+
 from collections import OrderedDict
 from datetime import datetime, timedelta
+
+import logging
+from logging.config import dictConfig as logger_dictConfig
 from future.utils import iteritems
 
 from eve import Eve
@@ -1887,7 +1892,7 @@ def get_settings(prev_settings):
     settings_filenames = [
         '/usr/local/etc/alignak-backend/settings.json',
         '/etc/alignak-backend/settings.json',
-        'etc/alignak-backend/settings.json',
+        os.path.abspath('./etc/alignak-backend/settings.json'),
         os.path.abspath('./etc/settings.json'),
         os.path.abspath('../etc/settings.json'),
         os.path.abspath('./settings.json')
@@ -1895,31 +1900,33 @@ def get_settings(prev_settings):
 
     # Configuration file name in environment
     if os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'):
-        settings_filenames = [os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE')]
+        settings_filenames = [os.path.abspath(os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'))]
 
     comment_re = re.compile(
         r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
         re.DOTALL | re.MULTILINE
     )
-    for filename in settings_filenames:
-        if os.path.isfile(filename):
-            with open(filename) as stream:
-                content = ''.join(stream.readlines())
-                # Looking for comments
-                match = comment_re.search(content)
-                while match:
-                    # single line comment
-                    content = content[:match.start()] + content[match.end():]
-                    match = comment_re.search(content)
+    for name in settings_filenames:
+        if not os.path.isfile(name):
+            continue
 
-                conf = json.loads(content)
-                for key, value in iteritems(conf):
-                    if key.startswith('RATE_LIMIT_') and value is not None:
-                        prev_settings[key] = tuple(value)
-                    else:
-                        prev_settings[key] = value
-                print("Using settings file: %s" % filename)
-                return
+        with open(name) as stream:
+            content = ''.join(stream.readlines())
+            # Looking for comments
+            match = comment_re.search(content)
+            while match:
+                # single line comment
+                content = content[:match.start()] + content[match.end():]
+                match = comment_re.search(content)
+
+            conf = json.loads(content)
+            for key, value in iteritems(conf):
+                if key.startswith('RATE_LIMIT_') and value is not None:
+                    prev_settings[key] = tuple(value)
+                else:
+                    prev_settings[key] = value
+            print("Using settings file: %s" % name)
+            return name
 
 
 print("--------------------------------------------------------------------------------")
@@ -1967,7 +1974,11 @@ settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
 settings['JOBS'] = []
 
 # Read configuration file to update/complete the configuration
-get_settings(settings)
+configuration_file = get_settings(settings)
+print("Application configuration file: %s" % configuration_file)
+
+if os.getenv('ALIGNAK_BACKEND_LOGGER_CONFIGURATION', None):
+    settings['LOGGER'] = os.getenv('ALIGNAK_BACKEND_LOGGER_CONFIGURATION')
 
 if os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME'):
     settings['MONGO_DBNAME'] = os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME')
@@ -2006,8 +2017,7 @@ if settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] > 0:
         }
     )
 
-if jobs:
-    settings['JOBS'] = jobs
+settings['JOBS'] = jobs
 
 print("Application settings: %s" % settings)
 
@@ -2015,6 +2025,7 @@ print("Application settings: %s" % settings)
 settings['DOMAIN'] = register_models()
 
 base_path = os.path.dirname(os.path.abspath(alignak_backend.__file__))
+print("Application base path: %s" % base_path)
 
 app = Eve(
     settings=settings,
@@ -2022,6 +2033,83 @@ app = Eve(
     auth=MyTokenAuth,
     static_folder=base_path
 )
+
+if settings.get('LOGGER', None):
+    # Alignak backend logging feature
+    def log_endpoint(_resource, _request, _payload):  # pylint: disable=unused-argument
+        """Log information about the former responded request"""
+        # custom INFO-level message is sent to the log file
+        app.logger.info('')
+        if _request.args:
+            app.logger.info('Req args: %s', _request.args.to_dict(False))
+        if _request.form:
+            app.logger.info('Req form: %s', _request.form.to_dict(False))
+        if _request.data:
+            app.logger.info('Req data: %s', _request.data)
+        if _payload:
+            app.logger.debug('Response: %s', _payload.response)
+    app.on_post_GET += log_endpoint
+    app.on_post_POST += log_endpoint
+    app.on_post_PUT += log_endpoint
+    app.on_post_PATCH += log_endpoint
+
+    # Alignak logger configuration file
+    if settings['LOGGER'] != os.path.abspath(settings['LOGGER']):
+        settings['LOGGER'] = os.path.join(os.path.dirname(configuration_file), settings['LOGGER'])
+    print("Backend logger configuration file: %s" % (settings['LOGGER']))
+
+    # Prepare log file directory
+    log_dirs = ['/usr/local/var/log/alignak-backend', '/var/log/alignak-backend',
+                '/usr/local/var/log/alignak', '/var/log/alignak',
+                '/usr/local/var/log', '/var/log']
+    for log_dir in log_dirs:
+        # Directory exists and is writable
+        if os.path.isdir(log_dir) and os.access(log_dir, os.W_OK):
+            print("Backend log directory: %s" % (log_dir))
+            break
+    else:
+        log_dir = '/tmp'
+
+    process_name = "%s_%s" % (settings['SERVER_NAME'] if settings['SERVER_NAME']
+                              else 'alignak-backend',
+                              settings['MONGO_DBNAME'])
+
+    with open(settings['LOGGER'], 'rt') as _file:
+        config = json.load(_file)
+
+        # Update the declared formats with the process name
+        for formatter in config['formatters']:
+            if 'format' not in config['formatters'][formatter]:
+                continue
+            config['formatters'][formatter]['format'] = \
+                config['formatters'][formatter]['format'].replace("%(daemon)s", process_name)
+
+        # Update the declared log file names with the log directory
+        for hdlr in config['handlers']:
+            if 'filename' not in config['handlers'][hdlr]:
+                continue
+            config['handlers'][hdlr]['filename'] = \
+                config['handlers'][hdlr]['filename'].replace("%(logdir)s", log_dir)
+            config['handlers'][hdlr]['filename'] = \
+                config['handlers'][hdlr]['filename'].replace("%(daemon)s", process_name)
+            print("Backend log file: %s" % (config['handlers'][hdlr]['filename']))
+
+    # Configure the logger, any error will raise an exception
+    logger_dictConfig(config)
+
+    app.logger.info(
+        "--------------------------------------------------------------------------------")
+    app.logger.info("%s, version %s" % (manifest['name'], manifest['version']))
+    app.logger.info("Copyright %s" % manifest['copyright'])
+    app.logger.info("License %s" % manifest['license'])
+    app.logger.info(
+        "--------------------------------------------------------------------------------")
+
+    app.logger.info("Doc: %s" % manifest['doc'])
+    app.logger.info("Release notes: %s" % manifest['release'])
+    app.logger.info(
+        "--------------------------------------------------------------------------------")
+
 # hooks pre-init
 app.on_pre_GET += pre_get
 app.on_pre_POST += pre_post
@@ -2089,7 +2177,7 @@ with app.test_request_context():
         post_internal("realm", {"name": "All", "_parent": None, "_level": 0, 'default': True},
                       True)
         default_realm = realms.find_one({'name': 'All'})
-        print("Created top level realm: %s" % default_realm)
+        app.logger.info("Created top level realm: %s", default_realm)
     # Create default usergroup if not defined
     ugs = app.data.driver.db['usergroup']
     default_ug = ugs.find_one({'name': 'All'})
@@ -2099,7 +2187,7 @@ with app.test_request_context():
             "_realm": default_realm['_id'], "_sub_realm": True
         }, True)
         default_ug = ugs.find_one({'name': 'All'})
-        print("Created top level usergroup: %s" % default_ug)
+        app.logger.info("Created top level usergroup: %s", default_ug)
     # Create default hostgroup if not defined
     hgs = app.data.driver.db['hostgroup']
     default_hg = hgs.find_one({'name': 'All'})
@@ -2109,7 +2197,7 @@ with app.test_request_context():
             "_realm": default_realm['_id'], "_sub_realm": True
         }, True)
         default_hg = hgs.find_one({'name': 'All'})
-        print("Created top level hostgroup: %s" % default_hg)
+        app.logger.info("Created top level hostgroup: %s", default_hg)
     # Create default servicegroup if not defined
     sgs = app.data.driver.db['servicegroup']
     default_sg = sgs.find_one({'name': 'All'})
@@ -2119,7 +2207,7 @@ with app.test_request_context():
             "_realm": default_realm['_id'], "_sub_realm": True
         }, True)
         default_sg = sgs.find_one({'name': 'All'})
-        print("Created top level servicegroup: %s" % default_sg)
+        app.logger.info("Created top level servicegroup: %s", default_sg)
     # Create default timeperiods if not defined
     timeperiods = app.data.driver.db['timeperiod']
     always = timeperiods.find_one({'name': '24x7'})
@@ -2136,7 +2224,7 @@ with app.test_request_context():
                                                     {u'saturday': u'00:00-24:00'},
                                                     {u'sunday': u'00:00-24:00'}]}, True)
         always = timeperiods.find_one({'name': '24x7'})
-        print("Created default Always timeperiod: %s" % always)
+        app.logger.info("Created default Always timeperiod: %s", always)
     never = timeperiods.find_one({'name': 'Never'})
     if not never:
         post_internal("timeperiod", {"name": "Never",
@@ -2144,7 +2232,7 @@ with app.test_request_context():
                                      "_realm": default_realm['_id'], "_sub_realm": True,
                                      "is_active": True}, True)
         never = timeperiods.find_one({'name': 'Never'})
-        print("Created default Never timeperiod: %s" % never)
+        app.logger.info("Created default Never timeperiod: %s", never)
 
     # Create default commands if not defined
     commands = app.data.driver.db['command']
@@ -2158,7 +2246,7 @@ with app.test_request_context():
             "_sub_realm": True
         }, True)
         internal_host_up_command = commands.find_one({'name': '_internal_host_up'})
-        print("Created default Always UP command: %s" % internal_host_up_command)
+        app.logger.info("Created default Always UP command: %s", internal_host_up_command)
     echo_command = commands.find_one({'name': '_echo'})
     if not echo_command:
         post_internal("command", {
@@ -2169,7 +2257,7 @@ with app.test_request_context():
             "_sub_realm": True
         }, True)
         echo_command = commands.find_one({'name': '_echo'})
-        print("Created default Echo command: %s" % echo_command)
+        app.logger.info("Created default Echo command: %s", echo_command)
 
     # Create dummy host if not defined
     hs = app.data.driver.db['host']
@@ -2185,7 +2273,7 @@ with app.test_request_context():
             "_sub_realm": True
         }, True)
         dummy_host = hs.find_one({'name': '_dummy'})
-        print("Created dummy host: %s" % dummy_host)
+        app.logger.info("Created dummy host: %s", dummy_host)
 
     # Create default username/user if not defined
     try:
@@ -2206,12 +2294,15 @@ with app.test_request_context():
                                "service_notifications_enabled": False,
                                "service_notification_period": always["_id"],
                                "_realm": default_realm["_id"], "_sub_realm": True}, True)
-        print("Created super admin user")
-        print("===============================================================================")
-        print(r"/!\ WARNING /!\ Change the default password according to the documentation: "
-              "http://alignak-backend.readthedocs.io/en/latest/run.html#change-default-"
-              "admin-password")
-        print("===============================================================================")
+        app.logger.info("Created super admin user")
+        app.logger.info(
+            "===============================================================================")
+        app.logger.info(
+            r"/!\ WARNING /!\ Change the default password according to the documentation: "
+            r"http://alignak-backend.readthedocs.io/en/latest/run.html"
+            r"#change-default-admin-password")
+        app.logger.info(
+            "===============================================================================")
 
     # Live synthesis management
     app.on_inserted_host += Livesynthesis.on_inserted_host
@@ -2405,6 +2496,7 @@ def cron_grafana(engine='jsonify'):
         forcegenerate = request.args.get('forcegenerate')
         if request.remote_addr not in settings['IP_CRON']:
             print('Access denied for %s' % request.remote_addr)
+            app.logger.warning('Access denied for %s' % request.remote_addr)
             return make_response("Access denied from remote host", 412)
     except Exception:
         forcegenerate = None
@@ -2423,10 +2515,10 @@ def cron_grafana(engine='jsonify'):
                 "created_dashboards": []
             }
             if not graf.connection:
-                print("[cron_grafana] %s has no connection" % grafana['name'])
+                app.logger.warning("[cron_grafana] %s has no connection" % grafana['name'])
                 continue
 
-            print("[cron_grafana] Grafana: %s" % grafana['name'])
+            app.logger.info("[cron_grafana] Grafana: %s" % grafana['name'])
 
             search = {'_is_template': False}
             search['_realm'] = {"$in": graf.realms}
@@ -2434,7 +2526,8 @@ def cron_grafana(engine='jsonify'):
                 search['_realm'] = graf.realms[0]
 
             if forcegenerate is not None:
-                print("[cron_grafana] Force regeneration of '%s' dashboards" % grafana['name'])
+                app.logger.info("[cron_grafana] Force regeneration of '%s' dashboards"
+                                % grafana['name'])
             else:
                 search['ls_grafana'] = False
                 search['ls_perf_data'] = {"$ne": ""}
@@ -2442,24 +2535,26 @@ def cron_grafana(engine='jsonify'):
 
             hosts = hosts_db.find(search)
             for host in hosts:
-                print("[cron_grafana] host: %s" % host['name'])
+                app.logger.info("[cron_grafana] host: %s" % host['name'])
 
                 # if this host do not have a TS datasource (influxdb, graphite) for grafana,
                 # do not try to create a dashboard (test before trying to create...)
                 if host['_realm'] not in graf.timeseries:
-                    print("[cron_grafana] Host '%s' is not in a timeseries enabled realm"
-                          % host['name'])
-                    print("[cron_grafana] - host realm: %s" % host['_realm'])
-                    print("[cron_grafana] - Grafana TS realms: %s" % graf.timeseries)
+                    app.logger.info("[cron_grafana] Host '%s' is not in a timeseries enabled realm"
+                                    % host['name'])
+                    app.logger.info("[cron_grafana] - host realm: %s" % host['_realm'])
+                    app.logger.info("[cron_grafana] - Grafana TS realms: %s" % graf.timeseries)
                     continue
 
                 created = graf.create_dashboard(host)
                 if created:
-                    print("[cron_grafana] created a dashboard for '%s'..." % host['name'])
+                    app.logger.info("[cron_grafana] created a dashboard for '%s'..."
+                                    % host['name'])
                     if host['name'] not in resp[grafana['name']]['created_dashboards']:
                         resp[grafana['name']]['created_dashboards'].append(host['name'])
                 else:
-                    print("[cron_grafana] dashboard creation failed for '%s'..." % host['name'])
+                    app.logger.info("[cron_grafana] dashboard creation failed for '%s'..."
+                                    % host['name'])
 
             if forcegenerate is not None:
                 continue
@@ -2483,14 +2578,14 @@ def cron_grafana(engine='jsonify'):
 
                 created = graf.create_dashboard(host)
                 if created:
-                    print("[cron_grafana] created a dashboard for '%s/%s'"
-                          % (host['name'], service['name']))
+                    app.logger.info("[cron_grafana] created a dashboard for '%s/%s'"
+                                    % (host['name'], service['name']))
                     resp[grafana['name']]['created_dashboards'].append("%s/%s"
                                                                        % (host['name'],
                                                                           service['name']))
                 else:
-                    print("[cron_grafana] dashboard creation failed for '%s/%s'"
-                          % (host['name'], service['name']))
+                    app.logger.info("[cron_grafana] dashboard creation failed for '%s/%s'"
+                                    % (host['name'], service['name']))
                 hosts_dashboards[service['host']] = True
 
         if engine == 'jsonify':

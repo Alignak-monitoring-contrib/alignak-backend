@@ -24,8 +24,14 @@
 
   "IP_CRON": ["127.0.0.1"],  /* List of IP allowed to use cron routes/endpoint of the backend */
 
-  /* Timeseries data are stored internally in the backend.
-  The timeseries scheduler will push them regularly to the configured databases
+
+  "LOGGER": "alignak-backend-logger.json",  /* Python logger configuration file */
+
+  /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
+  to the corresponding TSDB. If the TSDB is not available, metrics are stored internally
+  in the backend.
+  The timeseries scheduler will check periodially if some some metrics are existing in the
+  retention and will send them to the configured TSDB.
    BE CAREFULL, ACTIVATE THIS ON ONE BACKEND ONLY! */
   "SCHEDULER_TIMESERIES_ACTIVE": false,
   /* This scheduler will create / update dashboards in grafana.
@@ -34,5 +40,5 @@
   /* if 0, disable it, otherwise define the history in minutes.
    It will keep history each minute.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
-  "SCHEDULER_LIVESYNTHESIS_HISTORY": 0
+  "SCHEDULER_LIVESYNTHESIS_HISTORY": 60
 }

@@ -40,5 +40,5 @@
   /* if 0, disable it, otherwise define the history in minutes.
    It will keep history each minute.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
-  "SCHEDULER_LIVESYNTHESIS_HISTORY": 60
+  "SCHEDULER_LIVESYNTHESIS_HISTORY": 0
 }
