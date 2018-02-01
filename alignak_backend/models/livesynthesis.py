@@ -116,12 +116,6 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
-            'hosts_business_impact': {
-                'schema_version': 1,
-                'title': 'Hosts business impact',
-                'type': 'integer',
-                'default': 0
-            },
 
             'services_total': {
                 'schema_version': 1,
@@ -213,12 +207,6 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
-            'services_business_impact': {
-                'schema_version': 1,
-                'title': 'Services business impact',
-                'type': 'integer',
-                'default': 0
-            },
 
             # Realm
             '_realm': {
@@ -253,5 +241,18 @@ def get_schema():
                 },
             },
         },
-        'schema_deleted': {}
+        'schema_deleted': {
+            'hosts_business_impact': {
+                'schema_version': 2,
+                'title': 'Hosts business impact',
+                'type': 'integer',
+                'default': 0
+            },
+            'services_business_impact': {
+                'schema_version': 2,
+                'title': 'Services business impact',
+                'type': 'integer',
+                'default': 0
+            }
+        }
     }

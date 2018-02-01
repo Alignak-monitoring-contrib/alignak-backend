@@ -411,7 +411,7 @@ class TestGrafana(unittest2.TestCase):
 
         # test grafana class and code to create dashboard in grafana
         from alignak_backend.app import app, current_app
-        with app.app_context():
+        with app.test_request_context():
             grafana_db = current_app.data.driver.db['grafana']
             grafanas = grafana_db.find()
             for grafana in grafanas:
@@ -606,7 +606,7 @@ class TestGrafana(unittest2.TestCase):
 
         # test grafana class and code to create dashboard in grafana
         from alignak_backend.app import app, current_app
-        with app.app_context():
+        with app.test_request_context():
             grafana_db = current_app.data.driver.db['grafana']
             grafanas = grafana_db.find()
             for grafana in grafanas:

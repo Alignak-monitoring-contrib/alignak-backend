@@ -217,6 +217,49 @@ Curl example::
 	}
     ]' "http://192.168.0.10:5000/influxdb"
 
+Live synthesis
+~~~~~~~~~~~~~~
+
+As soon as an host or service check result is received by the backend (POST /logcheckresult), the backend `livesynthesis` collection is updated to reflect the global hosts and services state counters.
+
+ The live synthesis is kept up-to-date for each realm known in the backend. It contains the following counters:
+::
+
+    'hosts_total': 13,
+    'hosts_not_monitored': 0,
+    'hosts_business_impact': 0,
+    'hosts_up_hard': 3,
+    'hosts_up_soft': 0,
+    'hosts_down_hard': 14,
+    'hosts_down_soft': -4,
+    'hosts_unreachable_hard': 0,
+    'hosts_unreachable_soft': 0,
+    'hosts_acknowledged': 0,
+    'hosts_flapping': 0,
+    'hosts_in_downtime': 0,
+
+    'services_total': 89,
+    'services_not_monitored': 0,
+    'services_business_impact': 0,
+    'services_ok_hard': 8,
+    'services_ok_soft': 0,
+    'services_warning_hard': 0,
+    'services_warning_soft': 0,
+    'services_critical_hard': 83,
+    'services_critical_soft': 23,
+    'services_unknown_hard': 24,
+    'services_unknown_soft': 0,
+    'services_unreachable_hard': 4,
+    'services_unreachable_soft': 1,
+    'services_acknowledged': 0,
+    'services_flapping': 0,
+    'services_in_downtime': 0,
+
+
+As soon as the livesynthesis is changing for a realm, the Alignak backend will push the livesynthesis counters to the configured timeseries databases. As such, it will exist a fake host `alignak_livesynthesis` in the metrics and this host will have all the livesynthesis counters attached to.
+
+This feature may be disabled thanks to an environment variable. Define an environment variable named `ALIGNAK_BACKEND_LIVESYNTHESIS_TSDB` and valued with '0' to disable the livesynthesis counters sending to the TSDB.
+
 Manage retention
 ~~~~~~~~~~~~~~~~
 

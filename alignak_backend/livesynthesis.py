@@ -12,6 +12,8 @@ import pymongo
 from flask import current_app, g, request
 from eve.methods.patch import patch_internal
 
+from alignak_backend.timeseries import Timeseries
+
 
 class Livesynthesis(object):
     """
@@ -22,16 +24,14 @@ class Livesynthesis(object):
         """
             Recalculate all the live synthesis counters
         """
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LS - Recalculating...")
+        current_app.logger.debug("LS - Recalculating...")
         livesynthesis = current_app.data.driver.db['livesynthesis']
         realmsdrv = current_app.data.driver.db['realm']
         allrealms = realmsdrv.find()
         for _, realm in enumerate(allrealms):
             live_current = livesynthesis.find_one({'_realm': realm['_id']})
             if live_current is None:
-                if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                    print("     new LS for realm %s" % realm['name'])
+                current_app.logger.debug("     new LS for realm %s", realm['name'])
                 data = {
                     'hosts_total': 0,
                     'hosts_not_monitored': 0,
@@ -44,7 +44,6 @@ class Livesynthesis(object):
                     'hosts_acknowledged': 0,
                     'hosts_in_downtime': 0,
                     'hosts_flapping': 0,
-                    'hosts_business_impact': 0,
                     'services_total': 0,
                     'services_not_monitored': 0,
                     'services_ok_hard': 0,
@@ -60,7 +59,6 @@ class Livesynthesis(object):
                     'services_acknowledged': 0,
                     'services_in_downtime': 0,
                     'services_flapping': 0,
-                    'services_business_impact': 0,
                     '_realm': realm['_id']
                 }
                 livesynthesis.insert(data)
@@ -125,11 +123,13 @@ class Livesynthesis(object):
                 'ls_downtimed': True, '_realm': realm['_id']
             }).count()
 
-            if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                print("     realm %s, hosts LS: %s" % (realm['name'], data))
+            current_app.logger.debug("     realm %s, hosts LS: %s", realm['name'], data)
 
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
+
+            # Send livesynthesis to TSDB
+            Timeseries.send_livesynthesis_metrics(realm['_id'], data)
 
             # Update services live synthesis
             services = current_app.data.driver.db['service']
@@ -214,11 +214,13 @@ class Livesynthesis(object):
                 'ls_downtimed': True, '_realm': realm['_id']
             }).count()
 
-            if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                print("     realm %s, services LS: %s" % (realm['name'], data))
+            current_app.logger.debug("     realm %s, services LS: %s", realm['name'], data)
 
             lookup = {"_id": live_current['_id']}
             patch_internal('livesynthesis', data, False, False, **lookup)
+
+            # Send livesynthesis to TSDB
+            Timeseries.send_livesynthesis_metrics(realm['_id'], data)
 
     @staticmethod
     def on_inserted_host(items):
@@ -243,9 +245,12 @@ class Livesynthesis(object):
                     data = {"$inc": {"%s_%s_%s" % (typecheck, item['ls_state'].lower(),
                                                    item['ls_state_type'].lower()): 1,
                                      "%s_total" % typecheck: 1}}
-                if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                    print("LS - inserted host %s: %s..." % (item['name'], data))
+                current_app.logger.debug("LS - inserted host %s: %s...", item['name'], data)
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+                # Send livesynthesis to TSDB
+                live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+                Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
     @staticmethod
     def on_inserted_service(items):
@@ -270,9 +275,12 @@ class Livesynthesis(object):
                     data = {"$inc": {"%s_%s_%s" % (typecheck, item['ls_state'].lower(),
                                                    item['ls_state_type'].lower()): 1,
                                      "%s_total" % typecheck: 1}}
-                if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                    print("LS - inserted service %s: %s..." % (item['name'], data))
+                current_app.logger.debug("LS - inserted service %s: %s...", item['name'], data)
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+                # Send livesynthesis to TSDB
+                live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+                Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
     @staticmethod
     def on_updated_host(updated, original):
@@ -302,9 +310,12 @@ class Livesynthesis(object):
                 data = {"$inc": {minus: -1}}
                 if plus is not False:
                     data = {"$inc": {minus: -1, plus: 1}}
-                if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                    print("LS - updated host %s: %s..." % (original['name'], data))
+                current_app.logger.debug("LS - updated host %s: %s...", original['name'], data)
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+                # Send livesynthesis to TSDB
+                live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
+                Timeseries.send_livesynthesis_metrics(original['_realm'], live_current)
 
     @staticmethod
     def on_updated_service(updated, original):
@@ -336,9 +347,13 @@ class Livesynthesis(object):
                 data = {"$inc": {minus: -1}}
                 if plus is not False:
                     data = {"$inc": {minus: -1, plus: 1}}
-                if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                    print("LS - updated service %s: %s..." % (original['name'], data))
+                current_app.logger.debug("LS - updated service %s: %s...",
+                                         original['name'], data)
                 current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+                # Send livesynthesis to TSDB
+                live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
+                Timeseries.send_livesynthesis_metrics(original['_realm'], live_current)
 
     @staticmethod
     def on_deleted_host(item):
@@ -359,9 +374,12 @@ class Livesynthesis(object):
         else:
             minus = Livesynthesis.livesynthesis_to_delete('hosts', item)
             data = {"$inc": {minus: -1, 'hosts_total': -1}}
-            if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                print("LS - Deleted host %s: %s" % (item['name'], data))
+            current_app.logger.debug("LS - Deleted host %s: %s", item['name'], data)
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+            # Send livesynthesis to TSDB
+            live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+            Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
     @staticmethod
     def on_deleted_resource_host():
@@ -369,8 +387,7 @@ class Livesynthesis(object):
 
         :return: None
         """
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LS - Deleted all hosts...")
+        current_app.logger.debug("LS - Deleted all hosts...")
         ls = Livesynthesis()
         ls.recalculate()
 
@@ -393,9 +410,12 @@ class Livesynthesis(object):
         else:
             minus = Livesynthesis.livesynthesis_to_delete('services', item)
             data = {"$inc": {minus: -1, 'services_total': -1}}
-            if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-                print("LS - Deleted service %s: %s" % (item['name'], data))
+            current_app.logger.debug("LS - Deleted service %s: %s", item['name'], data)
             current_app.data.driver.db.livesynthesis.update({'_id': live_current['_id']}, data)
+
+            # Send livesynthesis to TSDB
+            live_current = livesynthesis_db.find_one({'_realm': item['_realm']})
+            Timeseries.send_livesynthesis_metrics(item['_realm'], live_current)
 
     @staticmethod
     def on_deleted_resource_service():
@@ -403,8 +423,7 @@ class Livesynthesis(object):
 
         :return: None
         """
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LS - Deleted all services...")
+        current_app.logger.debug("LS - Deleted all services...")
         # the most simple method is to recalculate the livesynthesis
         ls = Livesynthesis()
         ls.recalculate()
@@ -433,8 +452,7 @@ class Livesynthesis(object):
         # Downtime modification
         if item['ls_downtimed']:
             minus = "%s_in_downtime" % (type_check)
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LS - Deleting %s..." % minus)
+        current_app.logger.debug("LS - Deleting %s...", minus)
         return minus
 
     @staticmethod
@@ -456,8 +474,7 @@ class Livesynthesis(object):
                 and 'ls_acknowledged' not in updated and 'ls_downtimed' not in updated:
             return False, False
 
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LS - updating: %s" % updated)
+        current_app.logger.debug("LS - updating: %s", updated)
         plus = False
         minus = "%s_%s_%s" % (type_check, original['ls_state'].lower(),
                               original['ls_state_type'].lower())
@@ -512,8 +529,7 @@ class Livesynthesis(object):
         elif 'ls_downtimed' in original and original['ls_downtimed']:
             return False, False
 
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("     updating: -%s / +%s" % (minus, plus))
+        current_app.logger.debug("     updating: -%s / +%s", minus, plus)
         if minus == plus:
             return False, False
 
@@ -521,7 +537,7 @@ class Livesynthesis(object):
 
     @staticmethod
     def on_fetched_item_history(response):
-        # pylint: disable=too-many-locals
+        # pylint: disable=too-many-locals, too-many-nested-blocks
         """
         Add to response some more information.
         We manage the 2 special parameters:
@@ -539,8 +555,7 @@ class Livesynthesis(object):
         history = request.args.get('history')
         concatenation = request.args.get('concatenation')
 
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            print("LS - History: %s / %s" % (history, concatenation))
+        current_app.logger.debug("LS - History: %s / %s", history, concatenation)
         if concatenation is not None:
             # get the realm the user have access
             realm = realm_drv.find_one({'_id': response['_realm']})
@@ -551,6 +566,8 @@ class Livesynthesis(object):
                 for lives in livesynthesis:
                     livesynthesis_id.append(lives['_id'])
                     for prop in [x for x in lives if not x.startswith('_')]:
+                        if prop in ['hosts_business_impact', 'services_business_impact']:
+                            continue
                         response[prop] += lives[prop]
 
             else:
@@ -564,6 +581,8 @@ class Livesynthesis(object):
                     if lives['_id'] != response['_id']:
                         livesynthesis_id.append(lives['_id'])
                         for prop in [x for x in lives if not x.startswith('_')]:
+                            if prop in ['hosts_business_impact', 'services_business_impact']:
+                                continue
                             response[prop] += lives[prop]
 
         if history is not None:
@@ -589,8 +608,7 @@ class Livesynthesis(object):
                             response['history'][num][prop] += lsretention[prop]
                     num += 1
 
-        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
-            if 'history' in response:
-                print("LS - History: %s" % response['history'])
-            else:
-                print("LS - History: no history!")
+        if 'history' in response:
+            current_app.logger.debug("LS - History: %s", response['history'])
+        else:
+            current_app.logger.debug("LS - History: no history!")

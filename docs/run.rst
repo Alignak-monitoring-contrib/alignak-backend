@@ -17,13 +17,12 @@ Thanks to this, you can simply run:
 
     alignak-backend-uwsgi
 
-The Alignak backend logs its activity in two files that are located in */usr/local/var/log*:
+ When started with uWSGI the Alignak backend logs its activity in a file */usr/local/var/log/alignak-backend/backend-error.log*. This file is the log file built by the uWSGI server.
 
-* *alignak-backend-access.log* contains all the API HTTP requests
+.. warning:: If you do not have this file when the backend is started, make sure that the user account used to run the backend is allowed to write in the */usr/local/var/log* directory ;)
 
-* *alignak-backend-error.log* contains the other messages: start, stop, activity log, ...
+ The Alignak backend configuration allows to define and configure a logger that will log the backend API endpoints to file located in the same directory. see the configuration page for more information on how to configure this logger.
 
-.. warning:: If you do not have those files when the backend is started, make sure that the user account used to run the backend is allowed to write in the */usr/local/var/log* directory ;)
 
 To stop / reload the Alignak backend application:
 ::
@@ -46,6 +45,8 @@ Environment variables
 If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
 
 If an environment variable `ALIGNAK_BACKEND_UWSGI_FILE` exist, the `alignak-backend-uwsgi` script will use the file name defined in this variable as the uWSGI configuration file.
+
+If an environment variable `ALIGNAK_BACKEND_LIVESYNTHESIS_TSDB` exist, and its value equals '0' then the counters of the livesynthesis will not be set to the timeseries databases.
 
 
 system.d service mode
