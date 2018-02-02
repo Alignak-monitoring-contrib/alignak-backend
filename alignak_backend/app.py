@@ -2092,8 +2092,6 @@ if settings.get('LOGGER', None):
     # Alignak backend logging feature
     def log_endpoint(_resource, _request, _payload):  # pylint: disable=unused-argument
         """Log information about the former responded request"""
-        # custom INFO-level message is sent to the log file
-        app.logger.info('')
         if _request.args:
             app.logger.info('Req args: %s', _request.args.to_dict(False))
         if _request.form:
@@ -2102,6 +2100,8 @@ if settings.get('LOGGER', None):
             app.logger.info('Req data: %s', _request.data)
         if _payload:
             app.logger.debug('Response: %s', _payload.response)
+            if 'Exception on /' in _payload.response:
+                app.logger.error('Response exception: %s', _payload.response)
     app.on_post_GET += log_endpoint
     app.on_post_POST += log_endpoint
     app.on_post_PUT += log_endpoint
