@@ -1337,12 +1337,11 @@ def pre_delete_host(item):
     :type item: dict
     :return: None
     """
-    current_app.logger.debug("Deleting host: %s" % item['name'])
+    current_app.logger.debug("Deleting host: %s", item['name'])
     services_drv = current_app.data.driver.db['service']
     services = services_drv.find({'host': item['_id']})
     for service in services:
-        if 'deletion' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-            print("Deleting service: %s/%s" % (item['name'], service['name']))
+        current_app.logger.debug("Deleting service: %s/%s", item['name'], service['name'])
         lookup = {"_id": service['_id']}
         deleteitem_internal('service', False, False, **lookup)
 
@@ -2514,7 +2513,7 @@ def cron_timeseries():
 
     :return: None
     """
-    with app.test_request_context():
+    with app.app_context():
         timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
         graphite_db = current_app.data.driver.db['graphite']
         influxdb_db = current_app.data.driver.db['influxdb']
@@ -2594,23 +2593,22 @@ if settings.get('GRAFANA_DATASOURCE', True):
             'join': ('host', 'host', 'name')
         }
     }
-    filename = settings.get('GRAFANA_DATASOURCE_QUERIES', 'grafana_queries.json')
-    if os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES'):
-        filename = os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES')
-    get_grafana_configuration(filename, target_queries)
-    if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-        print("Queries: %s" % (target_queries))
+    with app.app_context():
+        filename = settings.get('GRAFANA_DATASOURCE_QUERIES', 'grafana_queries.json')
+        if os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES'):
+            filename = os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES')
+        get_grafana_configuration(filename, target_queries)
+        current_app.logger.info("Grafana - queries: %s", target_queries)
 
-    # The default minimum table configuration...
-    table_fields = {
-        "host": ["name"]
-    }
-    filename = settings.get('GRAFANA_DATASOURCE_TABLES', 'grafana_tables.json')
-    if os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES'):
-        filename = os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES')
-    get_grafana_configuration(filename, table_fields)
-    if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-        print("Tables: %s" % (table_fields))
+        # The default minimum table configuration...
+        table_fields = {
+            "host": ["name"]
+        }
+        filename = settings.get('GRAFANA_DATASOURCE_TABLES', 'grafana_tables.json')
+        if os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES'):
+            filename = os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES')
+        get_grafana_configuration(filename, table_fields)
+        current_app.logger.info("Grafana - tables: %s", table_fields)
 
     @app.route("/search", methods=['OPTIONS', 'POST'])
     def grafana_search(engine='jsonify'):
@@ -2625,8 +2623,6 @@ if settings.get('GRAFANA_DATASOURCE', True):
         :return: See upper comment
         :rtype: list
         """
-        if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-            print("Parameters: %s" % request.get_json())
         target = None
         try:
             target = request.json.get("target")
@@ -2637,9 +2633,6 @@ if settings.get('GRAFANA_DATASOURCE', True):
             resp = []
             if not target:
                 resp = sorted(target_queries.keys())
-
-            if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-                print("Response: %s" % (resp))
 
             if engine == 'jsonify':
                 return jsonify(resp)
@@ -2703,9 +2696,6 @@ if settings.get('GRAFANA_DATASOURCE', True):
         :return: See upper comment
         :rtype: list
         """
-        if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-            # print("Headers: %s" % request.headers)
-            print("Parameters: %s" % request.get_json())
         posted_data = request.json
         targets = None
         target = None
@@ -2729,8 +2719,8 @@ if settings.get('GRAFANA_DATASOURCE', True):
                 if 'join' in target_queries[target]:
                     join = target_queries[target]['join']
                 field = None
-                if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-                    print("Found in the configured queries: %s - %s" % (endpoint, search))
+                current_app.logger.debug("Grafana - query found in the configured queries: %s",
+                                         endpoint, search)
             else:
                 query = target.split(':')
                 if len(query) < 3:
@@ -2771,8 +2761,8 @@ if settings.get('GRAFANA_DATASOURCE', True):
                     embedded.append({
                         'resource': schema[field]['data_relation']['resource'], '_id': value})
 
-                if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-                    print("Request: %s - %s (%s) = %s" % (endpoint, field, field_type, value))
+                current_app.logger.debug("Grafana - built a query: %s - %s (%s) = %s",
+                                         endpoint, field, field_type, value)
 
                 search = {
                     "_is_template": False,
@@ -2796,13 +2786,12 @@ if settings.get('GRAFANA_DATASOURCE', True):
                 resp[0]["columns"].append({"text": field_title, "type": field_type})
 
             db_collection = current_app.data.driver.db[endpoint]
-            if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-                print("Query: %s" % (json.dumps(search)))
+            current_app.logger.debug("Grafana - DB query: %s", json.dumps(search))
             got = db_collection.find(search)
             for element in got:
                 if join:
-                    if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-                        print("Join query: %s / %s / %s" % (join[0], join[1], join[2]))
+                    current_app.logger.debug("Grafana - join query: %s / %s / %s",
+                                             join[0], join[1], join[2])
                     # Second join field is the collection to search in
                     db_join = current_app.data.driver.db[join[1]]
                     # First join field is the _id to search for
@@ -2828,12 +2817,10 @@ if settings.get('GRAFANA_DATASOURCE', True):
                         item.append(value)
                     else:
                         item.append(element[field_name])
-                if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-                    print("Result: %s" % item)
+                current_app.logger.debug("Grafana - found: %s", item)
                 resp[0]["rows"].append(item)
 
-            if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-                print("Response: %s" % (resp))
+            current_app.logger.debug("Grafana - response: %s", resp)
 
             if engine == 'jsonify':
                 return jsonify(resp)
@@ -2891,8 +2878,6 @@ if settings.get('GRAFANA_DATASOURCE', True):
         :return: See upper comment
         :rtype: list
         """
-        if 'grafana' in os.environ.get('ALIGNAK_BACKEND_PRINT', ''):
-            print("Headers: %s, content: %s" % (request.headers, request.get_json()))
         posted_data = request.json
         annotation = None
         annotation_query = None
@@ -2907,12 +2892,10 @@ if settings.get('GRAFANA_DATASOURCE', True):
         except Exception as e:
             abort(404, description='Bad format for posted data: %s' % str(e))
 
-        with app.test_request_context():
+        with app.app_context():
             resp = []
             hosts = []
             services = []
-
-            print("[grafana] annotations query: %s" % annotation_query)
 
             query = annotation_query.split(':')
             if len(query) < 3:
@@ -3009,8 +2992,9 @@ def cron_grafana(engine='jsonify'):
         forcegenerate = request.args.get('forcegenerate')
         if request.remote_addr not in settings['IP_CRON']:
             print('Access denied for %s' % request.remote_addr)
-            app.logger.warning('Access denied for %s' % request.remote_addr)
-            return make_response("Access denied from remote host", 412)
+            with app.app_context():
+                app.logger.warning('Access denied for %s' % request.remote_addr)
+            return make_response("Access denied from remote host %s" % request.remote_addr, 412)
     except Exception:
         forcegenerate = None
 
@@ -3116,7 +3100,7 @@ def cron_livesynthesis_history():
     :rtype: dict
     """
     minutes = settings['SCHEDULER_LIVESYNTHESIS_HISTORY']
-    with app.test_request_context():
+    with app.app_context():
         # for each livesynthesis, add into internal livesynthesisretention endpoint
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         livesynthesisretention_db = current_app.data.driver.db['livesynthesisretention']
