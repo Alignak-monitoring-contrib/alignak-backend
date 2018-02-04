@@ -23,7 +23,7 @@
             "class": "logging.handlers.TimedRotatingFileHandler",
             "level": "DEBUG",
             "formatter": "alignak_backend",
-            "filename": "%(logdir)s/%(daemon)s.log",
+            "filename": "/tmp/%(daemon)s.log",
             "when": "midnight",
             "interval": 1,
             "backupCount": 7,

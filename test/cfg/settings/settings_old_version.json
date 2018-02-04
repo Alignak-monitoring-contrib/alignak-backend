@@ -1,0 +1,41 @@
+{
+  "DEBUG": false, /* To run underlying server in debug mode, define true */
+
+  "HOST": "",           /* Backend server listening address, empty = all */
+  "PORT": 5000,         /* Backend server listening port */
+  "SERVER_NAME": null,  /* Backend server listening server name */
+
+  "X_DOMAINS": "*", /* CORS (Cross-Origin Resource Sharing) support. Accept *, empty or a list of domains */
+
+  "PAGINATION_LIMIT": 50,   /* Pagination: maximum value for number of results */
+  "PAGINATION_DEFAULT": 25, /* Pagination: default value for number of results */
+
+  /* Limit number of requests. For example, [300, 900] limit 300 requests every 15 minutes */
+  "RATE_LIMIT_GET": null,     /* Limit number of GET requests */
+  "RATE_LIMIT_POST": null,    /* Limit number of POST requests */
+  "RATE_LIMIT_PATCH": null,   /* Limit number of PATCH requests */
+  "RATE_LIMIT_DELETE": null,  /* Limit number of DELETE requests */
+
+  "MONGO_HOST": "localhost",          /* Address of MongoDB */
+  "MONGO_PORT": 27017,                /* port of MongoDB */
+  "MONGO_DBNAME": "alignak-backend",  /* Name of database in MongoDB */
+  "MONGO_USERNAME": null,             /* Username to access to MongoDB */
+  "MONGO_PASSWORD": null,             /* Password to access to MongoDB */
+
+  "IP_CRON": ["127.0.0.1"],  /* List of IP allowed to use cron routes/endpoint of the backend */
+
+  /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
+  to the corresponding TSDB. If the TSDB is not available, metrics are stored internally
+  in the backend.
+  The timeseries scheduler will check periodially if some some metrics are existing in the
+  retention and will send them to the configured TSDB.
+   BE CAREFULL, ACTIVATE THIS ON ONE BACKEND ONLY! */
+  "SCHEDULER_TIMESERIES_ACTIVE": false,
+  /* This scheduler will create / update dashboards in grafana.
+   BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+  "SCHEDULER_GRAFANA_ACTIVE": false,
+  /* if 0, disable it, otherwise define the history in minutes.
+   It will keep history each minute.
+   BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+  "SCHEDULER_LIVESYNTHESIS_HISTORY": 60
+}

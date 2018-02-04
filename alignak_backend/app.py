@@ -1955,6 +1955,7 @@ def get_settings(prev_settings):
     # Configuration file name in environment
     if os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'):
         settings_filenames = [os.path.abspath(os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'))]
+    print(settings_filenames)
 
     comment_re = re.compile(
         r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
@@ -2106,11 +2107,6 @@ if settings.get('LOGGER', None):
     app.on_post_PUT += log_endpoint
     app.on_post_PATCH += log_endpoint
 
-    # Alignak logger configuration file
-    if settings['LOGGER'] != os.path.abspath(settings['LOGGER']):
-        settings['LOGGER'] = os.path.join(os.path.dirname(configuration_file), settings['LOGGER'])
-    print("Backend logger configuration file: %s" % (settings['LOGGER']))
-
     # Prepare log file directory
     log_dirs = ['/usr/local/var/log/alignak-backend', '/var/log/alignak-backend',
                 '/usr/local/var/log/alignak', '/var/log/alignak',
@@ -2126,6 +2122,11 @@ if settings.get('LOGGER', None):
     process_name = "%s_%s" % (settings['SERVER_NAME'] if settings['SERVER_NAME']
                               else 'alignak-backend',
                               settings['MONGO_DBNAME'])
+
+    # Alignak logger configuration file
+    if settings['LOGGER'] != os.path.abspath(settings['LOGGER']):
+        settings['LOGGER'] = os.path.join(os.path.dirname(configuration_file), settings['LOGGER'])
+    print("Backend logger configuration file: %s" % (settings['LOGGER']))
 
     with open(settings['LOGGER'], 'rt') as _file:
         config = json.load(_file)
@@ -2150,19 +2151,18 @@ if settings.get('LOGGER', None):
     # Configure the logger, any error will raise an exception
     logger_dictConfig(config)
 
-    app.logger.info(
-        "--------------------------------------------------------------------------------")
-    app.logger.info("%s, version %s" % (manifest['name'], manifest['version']))
-    app.logger.info("Copyright %s" % manifest['copyright'])
-    app.logger.info("License %s" % manifest['license'])
-    app.logger.info(
-        "--------------------------------------------------------------------------------")
+app.logger.info(
+    "--------------------------------------------------------------------------------")
+app.logger.info("%s, version %s" % (manifest['name'], manifest['version']))
+app.logger.info("Copyright %s" % manifest['copyright'])
+app.logger.info("License %s" % manifest['license'])
+app.logger.info(
+    "--------------------------------------------------------------------------------")
 
-    app.logger.info("Doc: %s" % manifest['doc'])
-    app.logger.info("Release notes: %s" % manifest['release'])
-    app.logger.info(
-        "--------------------------------------------------------------------------------")
-
+app.logger.info("Doc: %s" % manifest['doc'])
+app.logger.info("Release notes: %s" % manifest['release'])
+app.logger.info(
+    "--------------------------------------------------------------------------------")
 # hooks pre-init
 app.on_pre_GET += pre_get
 app.on_pre_POST += pre_post
@@ -2416,6 +2416,7 @@ app.on_insert_serviceescalation += pre_serviceescalation_post
 
 app.on_insert_logcheckresult += pre_logcheckresult_post
 app.on_inserted_logcheckresult += after_insert_logcheckresult
+app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
 
 app.on_pre_DELETE += keep_default_items_resource
 app.on_delete_item += keep_default_items_item
@@ -2425,9 +2426,6 @@ app.on_insert_service += pre_service_post
 # hook for tree resources
 app.on_fetched_resource += on_fetched_resource_tree
 app.on_fetched_item += on_fetched_item_tree
-
-with app.test_request_context():
-    app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
 
 # Start scheduler (internal cron)
 if settings['JOBS']:
@@ -2513,7 +2511,7 @@ def cron_timeseries():
 
     :return: None
     """
-    with app.app_context():
+    with app.test_request_context():
         timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
         graphite_db = current_app.data.driver.db['graphite']
         influxdb_db = current_app.data.driver.db['influxdb']
@@ -3100,7 +3098,7 @@ def cron_livesynthesis_history():
     :rtype: dict
     """
     minutes = settings['SCHEDULER_LIVESYNTHESIS_HISTORY']
-    with app.app_context():
+    with app.test_request_context():
         # for each livesynthesis, add into internal livesynthesisretention endpoint
         livesynthesis_db = current_app.data.driver.db['livesynthesis']
         livesynthesisretention_db = current_app.data.driver.db['livesynthesisretention']
