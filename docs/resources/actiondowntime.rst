@@ -40,6 +40,7 @@ Downtimes (actiondowntime)
    | *Notified*", "boolean", "", "False", ""
    "| :ref:`processed <actiondowntime-processed>`
    | *Processed*", "boolean", "", "False", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`service <actiondowntime-service>`
    | *Service*", "**objectid**", "**True**", "****", ":ref:`service <resource-service>`"
    "| :ref:`start_time <actiondowntime-start_time>`
@@ -56,7 +57,7 @@ Downtimes (actiondowntime)
 
 .. _actiondowntime-action:
 
-``action``: Use 'add' to add a new downtime, or 'delete' to delete an downtime
+``action``: Use "add" to add a new downtime, or "delete" to delete an downtime
 
    Allowed values: [, ', a, d, d, ', ,,  , ', d, e, l, e, t, e, ', ]
 

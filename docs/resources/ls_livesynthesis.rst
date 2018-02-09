@@ -4,11 +4,13 @@ Alignak live state synthesis (livesynthesis)
 ============================================
 
 
-    The ``livesynthesis`` model is maintained by the Alignak to get an easy overview of
+    The ``livesynthesis`` model is maintained by the Alignak backend to get an easy overview of
     the monitored system state.
 
     For hosts and services, the live synthesis stores values computed from the real
     live state, each time an element state is updated:
+    - a counter containing the number of host/service not monitored (no active nor
+    passive checks enabled)
     - a counter containing the number of host/service in each state
     - a counter containing the number of host/service acknowledged
     - a counter containing the number of host/service in downtime
@@ -29,8 +31,6 @@ Alignak live state synthesis (livesynthesis)
    "| _users_read", "objectid list", "", "", ":ref:`user <resource-user>`"
    "| hosts_acknowledged
    | *Hosts ackowledged*", "integer", "", "0", ""
-   "| hosts_business_impact
-   | *Hosts business impact*", "integer", "", "0", ""
    "| hosts_down_hard
    | *Hosts Down hard*", "integer", "", "0", ""
    "| hosts_down_soft
@@ -39,6 +39,8 @@ Alignak live state synthesis (livesynthesis)
    | *Hosts flapping*", "integer", "", "0", ""
    "| hosts_in_downtime
    | *Hosts in downtime*", "integer", "", "0", ""
+   "| hosts_not_monitored
+   | *Hosts not monitored*", "integer", "", "0", ""
    "| hosts_total
    | *Hosts count*", "integer", "", "0", ""
    "| hosts_unreachable_hard
@@ -49,10 +51,9 @@ Alignak live state synthesis (livesynthesis)
    | *Hosts Up hard*", "integer", "", "0", ""
    "| hosts_up_soft
    | *Hosts Up soft*", "integer", "", "0", ""
+   "| schema_version", "integer", "", "2", ""
    "| services_acknowledged
    | *Services acknowledged*", "integer", "", "0", ""
-   "| services_business_impact
-   | *Services business impact*", "integer", "", "0", ""
    "| services_critical_hard
    | *Services Critical hard*", "integer", "", "0", ""
    "| services_critical_soft
@@ -61,6 +62,8 @@ Alignak live state synthesis (livesynthesis)
    | *Services flapping*", "integer", "", "0", ""
    "| services_in_downtime
    | *Services in downtime*", "integer", "", "0", ""
+   "| services_not_monitored
+   | *Services not monitored*", "integer", "", "0", ""
    "| services_ok_hard
    | *Services Ok hard*", "integer", "", "0", ""
    "| services_ok_soft

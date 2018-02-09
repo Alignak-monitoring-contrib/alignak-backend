@@ -49,6 +49,7 @@ Alignak command (command)
    | *Poller tag*", "string", "", "", ""
    "| :ref:`reactionner_tag <command-reactionner_tag>`
    | *Reactionner tag*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`timeout <command-timeout>`
    | *Timeout*", "integer", "", "-1", ""
 .. _command-_realm:

@@ -48,6 +48,7 @@ Host dependency (hostdependency)
    | *Notes*", "string", "", "", ""
    "| :ref:`notification_failure_criteria <hostdependency-notification_failure_criteria>`
    | *Notification criteria*", "list", "", "['d', 'u', 'p']", ""
+   "| schema_version", "integer", "", "1", ""
 .. _hostdependency-_realm:
 
 ``_realm``: Realm this element belongs to.

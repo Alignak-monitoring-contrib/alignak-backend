@@ -51,6 +51,7 @@ Service dependency (servicedependency)
    | *Notes*", "string", "", "", ""
    "| :ref:`notification_failure_criteria <servicedependency-notification_failure_criteria>`
    | *Notification criteria*", "list", "", "['u', 'c', 'w']", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`services <servicedependency-services>`
    | *Services*", "objectid list", "", "", ":ref:`service <resource-service>`"
 .. _servicedependency-_realm:

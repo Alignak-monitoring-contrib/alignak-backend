@@ -217,6 +217,28 @@ Curl example::
 	}
     ]' "http://192.168.0.10:5000/influxdb"
 
+Overall state
+~~~~~~~~~~~~~
+
+Hosts and services have a live state that is managed by Alignak and which depend on the check result.
+
+ An host state (`ls_state`) is:
+
+    * UP
+    * DOWN
+    * UNREACHABLE
+
+ A service state (`ls_state`) is:
+
+    * OK
+    * WARNING
+    * CRITICAL
+    * UNKNOWN
+    * UNREACHABLE
+
+ Host and service state may be SOFT or HARD according to the number of current check attempts. As soon as the maximum number of check attempts
+ A service state received by the backend (POST /logcheckresult), the backend `livesynthesis` collection is updated to reflect the global hosts and services state counters.
+
 Live synthesis
 ~~~~~~~~~~~~~~
 

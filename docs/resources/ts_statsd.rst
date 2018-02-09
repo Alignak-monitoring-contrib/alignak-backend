@@ -33,6 +33,7 @@ StatsD connection (statsd)
    | *Server port*", "integer", "", "8125", ""
    "| :ref:`prefix <statsd-prefix>`
    | *Metrics prefix*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
 .. _statsd-_realm:
 
 ``_realm``: Realm this element belongs to.

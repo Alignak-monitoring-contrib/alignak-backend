@@ -41,6 +41,9 @@ Graphite connection (graphite)
    | *Graphite connection name*", "**string**", "**True**", "****", ""
    "| :ref:`prefix <graphite-prefix>`
    | *Metrics prefix*", "string", "", "", ""
+   "| :ref:`realms_prefix <graphite-realms_prefix>`
+   | *Realms prefix*", "boolean", "", "True", ""
+   "| schema_version", "integer", "", "2", ""
    "| :ref:`statsd <graphite-statsd>`
    | *StatsD relation*", "objectid", "", "None", ":ref:`statsd <resource-statsd>`"
 .. _graphite-_realm:
@@ -62,6 +65,10 @@ Graphite connection (graphite)
 .. _graphite-prefix:
 
 ``prefix``: Prefix that will be prepended to the metrics sent to this TS DB.
+
+.. _graphite-realms_prefix:
+
+``realms_prefix``: Include the realms prefix for the metrics sent to this TS DB.
 
 .. _graphite-statsd:
 

@@ -37,6 +37,7 @@ Alignak users groups (usergroup)
    | *Users group name*", "**string**", "**True**", "****", ""
    "| :ref:`notes <usergroup-notes>`
    | *Notes*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`usergroups <usergroup-usergroups>`
    | *Groups*", "objectid list", "", "[]", ":ref:`usergroup <resource-usergroup>`"
    "| :ref:`users <usergroup-users>`

@@ -55,6 +55,7 @@ Alignak realm (realm)
    | *Realm name*", "**string**", "**True**", "****", ""
    "| :ref:`notes <realm-notes>`
    | *Notes*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
    "| services_critical_threshold", "integer", "", "5", ""
    "| services_warning_threshold", "integer", "", "3", ""
 .. _realm-_all_children:

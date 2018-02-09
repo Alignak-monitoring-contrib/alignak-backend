@@ -49,6 +49,7 @@ Alignak time period (timeperiod)
    | *Time period name*", "**string**", "**True**", "****", ""
    "| :ref:`notes <timeperiod-notes>`
    | *Notes*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
 .. _timeperiod-_realm:
 
 ``_realm``: Realm this element belongs to.

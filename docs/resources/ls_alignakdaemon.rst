@@ -43,6 +43,7 @@ Alignak daemons live state (alignakdaemon)
    | *Port*", "**integer**", "**True**", "****", ""
    "| :ref:`reachable <alignakdaemon-reachable>`
    | *Reachable*", "**boolean**", "**True**", "**False**", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`spare <alignakdaemon-spare>`
    | *Spare*", "**boolean**", "**True**", "**False**", ""
    "| :ref:`type <alignakdaemon-type>`
@@ -81,7 +82,7 @@ Alignak daemons live state (alignakdaemon)
 
 .. _alignakdaemon-type:
 
-``type``: Daemon type: 'arbiter', 'scheduler', 'poller', 'broker', 'reactionner', 'receiver'
+``type``: Daemon type: "arbiter", "scheduler", "poller", "broker", "reactionner", "receiver"
 
    Allowed values: [, ', a, r, b, i, t, e, r, ', ,,  , ', s, c, h, e, d, u, l, e, r, ', ,,  , ', p, o, l, l, e, r, ', ,,  , ', b, r, o, k, e, r, ', ,,  , ', r, e, a, c, t, i, o, n, n, e, r, ', ,,  , ', r, e, c, e, i, v, e, r, ', ]
 

@@ -27,6 +27,7 @@ Events log (history)
    | *Relate log chek result (if any)*", "objectid", "", "", ":ref:`logcheckresult <resource-logcheckresult>`"
    "| message
    | *History event message*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`service <history-service>`
    | *Concerned service identifier*", "objectid", "", "", ":ref:`service <resource-service>`"
    "| :ref:`service_name <history-service_name>`
