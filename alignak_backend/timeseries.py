@@ -98,12 +98,16 @@ class Timeseries(object):
         service_db = current_app.data.driver.db['service']
         for dummy, item in enumerate(items):
             host_info = host_db.find_one({'_id': item['host']})
+            if not host_info['process_perf_data']:
+                continue
             item_realm = host_info['_realm']
             item['_overall_state_id'] = host_info['_overall_state_id']
             host_name = Timeseries.sanitize_name(host_info['name'])
             service_name = ''
             if item['service'] is not None:
                 service_info = service_db.find_one({'_id': item['service']})
+                if not service_info['process_perf_data']:
+                    continue
                 service_name = Timeseries.sanitize_name(service_info['name'])
                 # todo: really? a service realm may be different from its host's realm ?
                 item_realm = service_info['_realm']
