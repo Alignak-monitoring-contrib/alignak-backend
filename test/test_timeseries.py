@@ -1707,3 +1707,121 @@ class TestTimeseries(unittest2.TestCase):
 
             self.assertItemsEqual(ref, retention_data)
             timeseriesretention_db.drop()
+
+    def test_not_process_perf_data(self):
+        # pylint: disable=too-many-locals
+        """Test that host and service names can be configured with not_process_perf_data
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+
+        # add graphite 001, realm All, with a prefix
+        data = {
+            'name': 'graphite no perf',
+            'carbon_address': '192.168.0.101',
+            'graphite_address': '192.168.0.101',
+            'prefix': 'graphite1',
+            '_realm': self.realm_all,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/graphite', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        data['_sub_realm'] = True
+        data['name'] = 'ping no perf'
+        response = requests.post(self.endpoint + '/command', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        command_ping = resp['_id']
+
+        # add host in realm All
+        data = {
+            'name': 'My host with no perf',
+            'address': '127.0.0.1',
+            'check_command': command_ping,
+            '_realm': self.realm_all,
+            '_sub_realm': False,
+            'process_perf_data': False
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        host_id = resp['_id']
+
+        # add a service for this host
+        data = {
+            'name': 'My service with no perf',
+            'host': host_id,
+            'check_command': command_ping,
+            '_realm': self.realm_all,
+            '_sub_realm': False,
+            'process_perf_data': False
+        }
+        response = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        service_id = resp['_id']
+
+        from alignak_backend.app import app, current_app
+        with app.test_request_context():
+            # Drop the collection before posting the log check result
+            timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
+            timeseriesretention_db.drop()
+
+            # add a logcheckresult for the host
+            item = {
+                'host': ObjectId(host_id),
+                'host_name': 'My host',
+                'service': None,
+                'service_name': '',
+                'state': 'WARNING',
+                'state_type': 'HARD',
+                'state_id': 0,
+                # '_overall_state_id': 0,
+                'acknowledged': False,
+                'last_check': int(time.time()),
+                'last_state': 'OK',
+                'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
+                'long_output': '',
+                'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+                '_realm': ObjectId(self.realm_all),
+                '_sub_realm': False
+            }
+            Timeseries.after_inserted_logcheckresult([item])
+
+            # add a logcheckresult for the service
+            item = {
+                'host': ObjectId(host_id),
+                'host_name': 'My host',
+                'service': ObjectId(service_id),
+                'service_name': 'My service',
+                'state': 'WARNING',
+                'state_type': 'HARD',
+                'state_id': 0,
+                # '_overall_state_id': 0,
+                'acknowledged': False,
+                'last_check': int(time.time()),
+                'last_state': 'OK',
+                'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
+                'long_output': '',
+                'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+                '_realm': ObjectId(self.realm_all),
+                '_sub_realm': False
+            }
+            Timeseries.after_inserted_logcheckresult([item])
+
+            # check data in timeseriesretention
+            retentions = timeseriesretention_db.find()
+            # No metrics exist!
+            assert retentions.count() == 0
+
+            timeseriesretention_db.drop()
