@@ -111,7 +111,7 @@ class TestTimeseries(unittest2.TestCase):
 
         :return: None
         """
-        for resource in ['grafana', 'graphite', 'influxdb']:
+        for resource in ['host', 'service', 'grafana', 'graphite', 'influxdb']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
     def test_prepare_data(self):
