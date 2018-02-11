@@ -29,5 +29,6 @@ def main():  # pragma: no cover - tested but not covered
     except Exception as e:
         print("Application run failed, exception: %s / %s" % (type(e), str(e)))
 
+
 if __name__ == "__main__":  # pragma: no cover
     main()
