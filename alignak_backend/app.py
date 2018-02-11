@@ -900,6 +900,13 @@ def pre_hostgroup_post(items):
             if def_hg:
                 item['_parent'] = def_hg['_id']
 
+        # Make sure hosts and hostgroups are a unique list (avoid duplicates)
+        if 'hosts' in item:
+            item['hosts'] = list(set(item['hosts']))
+
+        if 'hostgroups' in item:
+            item['hostgroups'] = list(set(item['hostgroups']))
+
         # Compute _level
         parent_hg = hgs_drv.find_one({'_id': item['_parent']})
         item['_level'] = parent_hg['_level'] + 1
@@ -922,6 +929,13 @@ def pre_hostgroup_patch(updates, original):
     if not g.updateGroup:
         if '_tree_parents' in updates:
             abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    # Make sure hosts and hostgroups are a unique list (avoid duplicates)
+    if 'hosts' in updates:
+        updates['hosts'] = list(set(updates['hosts']))
+
+    if 'hostgroups' in updates:
+        updates['hostgroups'] = list(set(updates['hostgroups']))
 
     if '_parent' in updates and updates['_parent'] != original['_parent']:
         hgs_drv = current_app.data.driver.db['hostgroup']
@@ -959,6 +973,13 @@ def pre_servicegroup_post(items):
             if def_sg:
                 item['_parent'] = def_sg['_id']
 
+        # Make sure services and servicegroups are a unique list (avoid duplicates)
+        if 'services' in item:
+            item['services'] = list(set(item['services']))
+
+        if 'servicegroups' in item:
+            item['servicegroups'] = list(set(item['servicegroups']))
+
         # Compute _level
         parent_sg = sgs_drv.find_one({'_id': item['_parent']})
         item['_level'] = parent_sg['_level'] + 1
@@ -981,6 +1002,13 @@ def pre_servicegroup_patch(updates, original):
     if not g.updateGroup:
         if '_tree_parents' in updates:
             abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    # Make sure services and servicegroups are a unique list (avoid duplicates)
+    if 'services' in updates:
+        updates['services'] = list(set(updates['services']))
+
+    if 'servicegroups' in updates:
+        updates['servicegroups'] = list(set(updates['servicegroups']))
 
     if '_parent' in updates and updates['_parent'] != original['_parent']:
         sgs_drv = current_app.data.driver.db['servicegroup']
@@ -1018,6 +1046,13 @@ def pre_usergroup_post(items):
             if def_ug:
                 item['_parent'] = def_ug['_id']
 
+        # Make sure users and usergroups are a unique list (avoid duplicates)
+        if 'users' in item:
+            item['users'] = list(set(item['users']))
+
+        if 'usergroups' in item:
+            item['usergroups'] = list(set(item['usergroups']))
+
         # Compute _level
         parent_ug = ugs_drv.find_one({'_id': item['_parent']})
         item['_level'] = parent_ug['_level'] + 1
@@ -1040,6 +1075,13 @@ def pre_usergroup_patch(updates, original):
     if not g.updateGroup:
         if '_tree_parents' in updates:
             abort(make_response("Updating _tree_parents is forbidden", 412))
+
+    # Make sure users and usergroups are a unique list (avoid duplicates)
+    if 'users' in updates:
+        updates['users'] = list(set(updates['users']))
+
+    if 'usergroups' in updates:
+        updates['usergroups'] = list(set(updates['usergroups']))
 
     if '_parent' in updates and updates['_parent'] != original['_parent']:
         ugs_drv = current_app.data.driver.db['usergroup']
