@@ -13,5 +13,7 @@ influxdb
 statsd
 # Force Flask version because Eve requires this!
 flask>=0.10.1,<=0.12
+# Force Werkzeug version because Eve requires this!
+werkzeug<=0.11.15
 Eve>=0.5
 uwsgi
