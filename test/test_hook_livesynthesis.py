@@ -2069,14 +2069,15 @@ class TestHookLivesynthesis(unittest2.TestCase):
         data['_realm'] = self.realm_all
         data['name'] = 'srv001_realmall'
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
-        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        params = {'where': json.dumps({'_is_template': False, 'name': 'srv001_realmall'})}
+        response = requests.get(self.endpoint + '/host', params=params, auth=self.auth)
         resp = response.json()
-        self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(len(resp['_items']), 1)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[1]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[2]['_id']
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
@@ -2089,14 +2090,15 @@ class TestHookLivesynthesis(unittest2.TestCase):
         data['_realm'] = realmAll_A_id
         data['name'] = 'srv001_realmallA'
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
-        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        params = {'where': json.dumps({'_is_template': False, 'name': 'srv001_realmallA'})}
+        response = requests.get(self.endpoint + '/host', params=params, auth=self.auth)
         resp = response.json()
-        self.assertEqual(len(resp['_items']), 3)
+        self.assertEqual(len(resp['_items']), 1)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[1]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[2]['_id']
         data['_realm'] = realmAll_A_id
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
@@ -2109,23 +2111,27 @@ class TestHookLivesynthesis(unittest2.TestCase):
         data['_realm'] = realmAll_B_id
         data['name'] = 'srv001_realmallB'
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
-        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        params = {'where': json.dumps({'_is_template': False, 'name': 'srv001_realmallB'})}
+        response = requests.get(self.endpoint + '/host', params=params, auth=self.auth)
         resp = response.json()
+        self.assertEqual(len(resp['_items']), 1)
         rh = resp['_items']
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
-        data['host'] = rh[1]['_id']
+        data['host'] = rh[0]['_id']
         data['check_command'] = rc[2]['_id']
         data['_realm'] = realmAll_B_id
         requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
 
-        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        params = {'where': json.dumps({'_is_template': False})}
+        response = requests.get(self.endpoint + '/host', params=params, auth=self.auth)
         resp = response.json()
         r = resp['_items']
-        self.assertEqual(len(r), 4)
+        self.assertEqual(len(r), 3)
 
-        response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
+        params = {'where': json.dumps({'_is_template': False})}
+        response = requests.get(self.endpoint + '/service', params=params, auth=self.auth)
         resp = response.json()
         r = resp['_items']
         self.assertEqual(len(r), 3)
