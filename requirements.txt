@@ -3,10 +3,15 @@ python-dateutil>=2.4.2
 docopt
 jsonschema
 eve-swagger
+configparser
 flask-bootstrap
 future
 flask-apscheduler
+# Force six version because influxdb requires this!
+six==1.11.0
 influxdb
 statsd
+# Force Flask version because Eve requires this!
+flask>=0.10.1,<=0.12
 Eve>=0.5
 uwsgi
