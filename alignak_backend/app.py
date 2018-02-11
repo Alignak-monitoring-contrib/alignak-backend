@@ -1737,21 +1737,32 @@ def after_insert_user(items):
 
 
 def pre_service_post(items):
-    """Check before add service.
-    We deny in case try add a service (not template) on a template host
+    """Checks before adding a service.
+    We deny in case:
+     - try adding a service (not template) on a template host
+     - try adding a service with the same name as an existing service on the same host
 
     :param items: list of items (list because can use bulk)
     :type items: list
     :return: None
     """
     hostdb = current_app.data.driver.db['host']
+    servicedb = current_app.data.driver.db['service']
     for key, _ in enumerate(items):
-        # return error if try add service (not template) on host template
+        # return error if try adding a service (not template) on an host template
         if '_is_template' not in items[key] or not items[key]['_is_template']:
             the_host = hostdb.find_one({'_id': ObjectId(items[key]['host'])})
             if the_host['_is_template']:
-                abort(make_response("Add a non template service on a template host is forbidden",
+                abort(make_response("Adding a non template service on a template host is forbidden",
                                     412))
+        # return error if try adding a service with the same name as an existing service
+        if 'host' in items[key] and 'name' in items[key]:
+            same_service = servicedb.find_one({'host': ObjectId(items[key]['host']),
+                                               'name': items[key]['name']})
+            print(same_service)
+            if same_service:
+                abort(make_response("Adding a service with the same name "
+                                    "as an existing one is forbidden", 412))
 
 
 def keep_default_items_resource(resource, delete_request, lookup):
