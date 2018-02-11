@@ -1771,13 +1771,14 @@ def keep_default_items_resource(resource, delete_request, lookup):
         elif resource == 'host':
             lookup['name'] = {'$nin': ['_dummy']}
         elif resource == 'user':
+            lookup['_id'] = {'$nin': [g.users_id]}
             lookup['name'] = {'$nin': ['admin']}
 
 
 def keep_default_items_item(resource, item):
     """
     Before deleting an item, we check if it's a default item, if yes return 412 error, otherwise
-    Eve delete it
+    Eve will delete the item
 
     :param resource: name of the resource
     :type resource: str
@@ -1800,6 +1801,8 @@ def keep_default_items_item(resource, item):
     elif resource == 'user':
         if item['name'] == 'admin':
             abort(make_response("This item is a default item and is protected", 412))
+        if item['_id'] == g.users_id:
+            abort(make_response("You cannot delete the user your are logged with!", 412))
 
 
 def on_fetched_resource_tree(resource_name, response):
