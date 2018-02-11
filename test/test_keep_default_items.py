@@ -154,3 +154,93 @@ class TestKeppDefaultItems(unittest2.TestCase):
         self.assertEqual(len(resp['_items']), 2)
         self.assertEqual(resp['_items'][0]['name'], '24x7')
         self.assertEqual(resp['_items'][1]['name'], 'Never')
+
+    def test_delete_user(self):
+        """Test delete user
+        We always keep the admin user and the currently logged-in user
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+
+        # add some users
+        data = {
+            'name': 'user1',
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/user', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # add some users
+        data = {
+            'name': 'user2',
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/user', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # delete all users
+        response = requests.delete(self.endpoint + '/user', auth=self.auth)
+        self.assertEqual('OK', resp['_status'], response)
+
+        # check we have 1 user, the admin user
+        response = requests.get(self.endpoint + '/user', params=sort_id, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 1)
+        self.assertEqual(resp['_items'][0]['name'], 'admin')
+
+    def test_token_on_creation_and_login(self):
+        """Create user with no password.
+        Login is authorized with the default password
+        User token is automatically defined on login
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+
+        # Add a new user with minimum necessary data
+        data = {
+            'name': 'other_user',
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/user',
+                                 json=data, headers=headers, auth=self.auth)
+        resp = response.json()
+        assert resp['_status'] == 'OK'
+        assert '_id' in resp
+        myself_id = resp['_id']
+        myself_etag = resp['_etag']
+
+        # check we have 2 user, the admin user and the new one
+        response = requests.get(self.endpoint + '/user', auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(resp['_items'][0]['name'], 'admin')
+        self.assertEqual(resp['_items'][1]['name'], 'other_user')
+
+        # Login with the new user account
+        params = {'username': 'other_user', 'password': 'NOPASSWORDSET'}
+        response = requests.post(self.endpoint + '/login', json=params, headers=headers)
+        resp = response.json()
+        assert 'token' in resp
+        assert resp['token'] != ''
+        auth = requests.auth.HTTPBasicAuth(resp['token'], '')
+
+        # Try to delete myself
+        headers_delete = {'Content-Type': 'application/json', 'If-Match': myself_etag}
+        response = requests.delete(self.endpoint + '/user/' + myself_id,
+                                   auth=auth, headers=headers_delete)
+        # Refused !
+        assert response.status_code == 412
+
+        # We still have 2 users!
+        response = requests.get(self.endpoint + '/user', auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 2)
+        self.assertEqual(resp['_items'][0]['name'], 'admin')
+        self.assertEqual(resp['_items'][1]['name'], 'other_user')
