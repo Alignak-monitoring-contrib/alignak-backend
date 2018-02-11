@@ -3,7 +3,7 @@ test-warnings: false
 strictness: medium
 max-line-length: 100
 autodetect: true
-pep8:
+pycodestyle:
   full: true
 pep257:
   run: false
