@@ -38,6 +38,8 @@ def get_schema():
     """
     return {
         'mongo_indexes': {
+            'index_updated': [('_updated', 1)],
+            'index_created': [('_created', 1)],
             'index_host': [('host', 1)],
             'index_host_name': [('host_name', 1)],
             'index_service': [('service', 1)],
