@@ -66,62 +66,62 @@ class Livesynthesis(object):
 
             # Update hosts live synthesis
             hosts = current_app.data.driver.db['host']
-            hosts_count = hosts.find({'_is_template': False, '_realm': realm['_id']}).count()
+            hosts_count = hosts.count({'_is_template': False, '_realm': realm['_id']})
             data = {'hosts_total': hosts_count}
 
-            data['hosts_not_monitored'] = hosts.find({
+            data['hosts_not_monitored'] = hosts.count({
                 '_is_template': False,
                 'active_checks_enabled': False, 'passive_checks_enabled': False,
                 '_realm': realm['_id']
-            }).count()
-            data['hosts_up_hard'] = hosts.find({
+            })
+            data['hosts_up_hard'] = hosts.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'UP', 'ls_state_type': 'HARD',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['hosts_down_hard'] = hosts.find({
+            })
+            data['hosts_down_hard'] = hosts.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'DOWN', 'ls_state_type': 'HARD',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['hosts_unreachable_hard'] = hosts.find({
+            })
+            data['hosts_unreachable_hard'] = hosts.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'UNREACHABLE', 'ls_state_type': 'HARD',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
+            })
 
-            data['hosts_up_soft'] = hosts.find({
+            data['hosts_up_soft'] = hosts.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'UP', 'ls_state_type': 'SOFT',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['hosts_down_soft'] = hosts.find({
+            })
+            data['hosts_down_soft'] = hosts.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'DOWN', 'ls_state_type': 'SOFT',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['hosts_unreachable_soft'] = hosts.find({
+            })
+            data['hosts_unreachable_soft'] = hosts.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'UNREACHABLE', 'ls_state_type': 'SOFT',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
+            })
 
-            data['hosts_acknowledged'] = hosts.find({
+            data['hosts_acknowledged'] = hosts.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_acknowledged': True, '_realm': realm['_id']
-            }).count()
-            data['hosts_in_downtime'] = hosts.find({
+            })
+            data['hosts_in_downtime'] = hosts.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_downtimed': True, '_realm': realm['_id']
-            }).count()
+            })
 
             current_app.logger.debug("     realm %s, hosts LS: %s", realm['name'], data)
 
@@ -133,86 +133,86 @@ class Livesynthesis(object):
 
             # Update services live synthesis
             services = current_app.data.driver.db['service']
-            services_count = services.find({'_is_template': False, '_realm': realm['_id']}).count()
+            services_count = services.count({'_is_template': False, '_realm': realm['_id']})
             data = {'services_total': services_count}
 
-            data['services_not_monitored'] = services.find({
+            data['services_not_monitored'] = services.count({
                 '_is_template': False,
                 'active_checks_enabled': False, 'passive_checks_enabled': False,
                 '_realm': realm['_id']
-            }).count()
-            data['services_ok_hard'] = services.find({
+            })
+            data['services_ok_hard'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'OK', 'ls_state_type': 'HARD',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['services_warning_hard'] = services.find({
+            })
+            data['services_warning_hard'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'WARNING', 'ls_state_type': 'HARD',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['services_critical_hard'] = services.find({
+            })
+            data['services_critical_hard'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'CRITICAL', 'ls_state_type': 'HARD',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['services_unknown_hard'] = services.find({
+            })
+            data['services_unknown_hard'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'UNKNOWN', 'ls_state_type': 'HARD',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['services_unreachable_hard'] = services.find({
+            })
+            data['services_unreachable_hard'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'UNREACHABLE', 'ls_state_type': 'HARD',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
+            })
 
-            data['services_ok_soft'] = services.find({
+            data['services_ok_soft'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'OK', 'ls_state_type': 'SOFT',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['services_warning_soft'] = services.find({
+            })
+            data['services_warning_soft'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'WARNING', 'ls_state_type': 'SOFT',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['services_critical_soft'] = services.find({
+            })
+            data['services_critical_soft'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'CRITICAL', 'ls_state_type': 'SOFT',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['services_unknown_soft'] = services.find({
+            })
+            data['services_unknown_soft'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'UNKNOWN', 'ls_state_type': 'SOFT',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
-            data['services_unreachable_soft'] = services.find({
+            })
+            data['services_unreachable_soft'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_state': 'UNREACHABLE', 'ls_state_type': 'SOFT',
                 'ls_acknowledged': False, '_realm': realm['_id']
-            }).count()
+            })
 
-            data['services_acknowledged'] = services.find({
+            data['services_acknowledged'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_acknowledged': True, '_realm': realm['_id']
-            }).count()
-            data['services_in_downtime'] = services.find({
+            })
+            data['services_in_downtime'] = services.count({
                 '_is_template': False,
                 '$or': [{'active_checks_enabled': True}, {'passive_checks_enabled': True}],
                 'ls_downtimed': True, '_realm': realm['_id']
-            }).count()
+            })
 
             current_app.logger.debug("     realm %s, services LS: %s", realm['name'], data)
 
