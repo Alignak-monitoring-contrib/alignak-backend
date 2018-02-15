@@ -45,6 +45,11 @@ def get_schema():
     :rtype: dict
     """
     return {
+        'mongo_indexes': {
+            'index_tpl': [('_is_template', 1)],
+            'index_name': [('name', 1)],
+            'index_host': [('host', 1), ('name', 1)],
+        },
         'schema': {
             'schema_version': {
                 'type': 'integer',

@@ -39,6 +39,8 @@ def get_schema():
     """
     return {
         'mongo_indexes': {
+            'index_updated': [('_updated', 1)],
+            'index_tpl': [('_is_template', 1)],
             'index_name': [('name', 1)],
         },
         'schema': {

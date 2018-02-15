@@ -1117,22 +1117,22 @@ def pre_timeseries_post(items):
     for dummy, item in enumerate(items):
         if 'grafana' in item and item['grafana'] is not None:
             # search graphite with grafana id in this realm
-            if graphite_drv.find(
-                    {'_realm': item['_realm'], 'grafana': item['grafana']}).count() > 0:
+            if graphite_drv.count(
+                    {'_realm': item['_realm'], 'grafana': item['grafana']}) > 0:
                 abort(make_response("A timeserie is yet attached to grafana in this realm", 412))
             # search influxdb with grafana id in this realm
-            if influxdb_drv.find(
-                    {'_realm': item['_realm'], 'grafana': item['grafana']}).count() > 0:
+            if influxdb_drv.count(
+                    {'_realm': item['_realm'], 'grafana': item['grafana']}) > 0:
                 abort(make_response("A timeserie is yet attached to grafana in this realm", 412))
             # get parent realms
             tsrealms = realm_drv.find_one({'_id': item['_realm']})
-            if graphite_drv.find(
+            if graphite_drv.count(
                     {'_realm': {'$in': tsrealms['_tree_parents']}, 'grafana': item['grafana'],
-                     '_sub_realm': True}).count() > 0:
+                     '_sub_realm': True}) > 0:
                 abort(make_response("A timeserie is yet attached to grafana in parent realm", 412))
-            if influxdb_drv.find(
+            if influxdb_drv.count(
                     {'_realm': {'$in': tsrealms['_tree_parents']}, 'grafana': item['grafana'],
-                     '_sub_realm': True}).count() > 0:
+                     '_sub_realm': True}) > 0:
                 abort(make_response("A timeserie is yet attached to grafana in parent realm", 412))
 
 
@@ -2515,7 +2515,7 @@ def cron_timeseries():
         timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
         graphite_db = current_app.data.driver.db['graphite']
         influxdb_db = current_app.data.driver.db['influxdb']
-        if timeseriesretention_db.find().count() > 0:
+        if timeseriesretention_db.count() > 0:
             tsc = timeseriesretention_db.find({'graphite': {'$ne': None}})
             for data in tsc:
                 graphite = graphite_db.find_one({'_id': data['graphite']})

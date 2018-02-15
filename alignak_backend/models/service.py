@@ -38,7 +38,19 @@ def get_schema():
     """
     return {
         'mongo_indexes': {
+            'index_updated': [('_updated', 1)],
+            'index_tpl': [('_is_template', 1)],
             'index_name': [('name', 1)],
+            'index_realm': [('_realm', 1), ('_is_template', 1)],
+            'index_state_1': [('_realm', 1), ('_is_template', 1),
+                              ('ls_state', 1), ('ls_state_type', 1)],
+            'index_state_2': [('_realm', 1), ('_is_template', 1),
+                              ('ls_state', 1), ('ls_state_type', 1), ('ls_acknowledged', 1)],
+            'index_state_3': [('_realm', 1), ('_is_template', 1),
+                              ('ls_state', 1), ('ls_state_type', 1), ('ls_downtimed', 1)],
+            'index_state_4': [('_realm', 1), ('_is_template', 1),
+                              ('ls_state', 1), ('ls_state_type', 1),
+                              ('active_checks_enabled', 1), ('passive_checks_enabled', 1)],
             'index_host': [('host', 1), ('name', 1)],
         },
         'schema': {
