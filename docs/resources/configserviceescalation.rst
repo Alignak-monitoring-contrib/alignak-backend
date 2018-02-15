@@ -51,6 +51,7 @@ Service escalation (serviceescalation)
    | *Notes*", "string", "", "", ""
    "| :ref:`notification_interval <serviceescalation-notification_interval>`
    | *Notifications interval*", "integer", "", "60", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`services <serviceescalation-services>`
    | *Services*", "objectid list", "", "", ":ref:`service <resource-service>`"
    "| :ref:`usergroups <serviceescalation-usergroups>`

@@ -51,6 +51,7 @@ Host escalation (hostescalation)
    | *Notes*", "string", "", "", ""
    "| :ref:`notification_interval <hostescalation-notification_interval>`
    | *Notifications interval*", "integer", "", "60", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`usergroups <hostescalation-usergroups>`
    | *Escalation users groups*", "objectid list", "", "", ":ref:`usergroup <resource-usergroup>`"
    "| :ref:`users <hostescalation-users>`

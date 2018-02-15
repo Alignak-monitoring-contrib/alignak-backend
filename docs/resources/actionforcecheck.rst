@@ -30,6 +30,7 @@ Check request (actionforcecheck)
    | *Host*", "**objectid**", "**True**", "****", ":ref:`host <resource-host>`"
    "| :ref:`processed <actionforcecheck-processed>`
    | *Processed*", "boolean", "", "False", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`service <actionforcecheck-service>`
    | *Service*", "**objectid**", "**True**", "****", ":ref:`service <resource-service>`"
    "| :ref:`user <actionforcecheck-user>`

@@ -119,8 +119,6 @@ Monitored service (service)
    | *Acknowledged*", "boolean", "", "False", ""
    "| ls_acknowledgement_type
    | *Acknowledgement type*", "integer", "", "1", ""
-   "| ls_attempt
-   | *Current attempt number*", "integer", "", "0", ""
    "| ls_current_attempt
    | *Current attempt number*", "integer", "", "0", ""
    "| :ref:`ls_downtimed <service-ls_downtimed>`
@@ -131,8 +129,6 @@ Monitored service (service)
    | *Grafana available*", "boolean", "", "False", ""
    "| :ref:`ls_grafana_panelid <service-ls_grafana_panelid>`
    | *Grafana identifier*", "integer", "", "0", ""
-   "| :ref:`ls_impact <service-ls_impact>`
-   | *Impact*", "boolean", "", "False", ""
    "| :ref:`ls_last_check <service-ls_last_check>`
    | *Last check time*", "integer", "", "0", ""
    "| :ref:`ls_last_hard_state_changed <service-ls_last_hard_state_changed>`
@@ -159,8 +155,6 @@ Monitored service (service)
    | *Latency*", "float", "", "0.0", ""
    "| :ref:`ls_long_output <service-ls_long_output>`
    | *Long output*", "string", "", "", ""
-   "| ls_max_attempts
-   | *Maximum attempts*", "integer", "", "0", ""
    "| :ref:`ls_next_check <service-ls_next_check>`
    | *Next check*", "integer", "", "0", ""
    "| :ref:`ls_output <service-ls_output>`
@@ -171,6 +165,8 @@ Monitored service (service)
    | *Performance data*", "string", "", "", ""
    "| :ref:`ls_state <service-ls_state>`
    | *State*", "string", "", "UNKNOWN", ""
+   "| :ref:`ls_state_changed <service-ls_state_changed>`
+   | *Last time state changed*", "integer", "", "0", ""
    "| :ref:`ls_state_id <service-ls_state_id>`
    | *State identifier*", "integer", "", "3", ""
    "| :ref:`ls_state_type <service-ls_state_type>`
@@ -209,6 +205,7 @@ Monitored service (service)
    | *Results modulations*", "list", "", "[]", ""
    "| :ref:`retry_interval <service-retry_interval>`
    | *Retry interval*", "integer", "", "0", ""
+   "| schema_version", "integer", "", "3", ""
    "| :ref:`service_dependencies <service-service_dependencies>`
    | *Dependencies*", "objectid list", "", "[]", ":ref:`service <resource-service>`"
    "| :ref:`snapshot_command <service-snapshot_command>`
@@ -437,10 +434,6 @@ Monitored service (service)
 
 ``ls_grafana_panelid``: Grafana panel identifier
 
-.. _service-ls_impact:
-
-``ls_impact``: Is an impact?
-
 .. _service-ls_last_check:
 
 ``ls_last_check``: Last check timestamp
@@ -515,6 +508,10 @@ Monitored service (service)
 
    Allowed values: [, ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
 
+.. _service-ls_state_changed:
+
+``ls_state_changed``: Last time this element state has changed.
+
 .. _service-ls_state_id:
 
 ``ls_state_id``: Current state identifier. O: OK, 1: WARNING, 2: CRITICAL, 3: UNKNOWN, 4: UNREACHABLE
@@ -583,7 +580,7 @@ Monitored service (service)
 
 .. _service-service_dependencies:
 
-``service_dependencies``: List of the services that this service is dependent of for notifications. A default service_dependency will exist with default values (notification_failure_criteria as 'u,c,w' and no dependency_period). 
+``service_dependencies``: List of the services that this service is dependent of for notifications. A default service_dependency will exist with default values (notification_failure_criteria as "u,c,w" and no dependency_period). 
 
 .. _service-snapshot_command:
 

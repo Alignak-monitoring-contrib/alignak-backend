@@ -449,10 +449,10 @@ class TestLogcheckresult(unittest2.TestCase):
         self.assertEqual(re[3]['message'], "OK[HARD] (False/False): Check output service 2")
         self.assertEqual(re[3]['logcheckresult'], check_id)
 
-    def test_logcheckresult_past(self):
+    def test_logcheckresult_bulk(self):
         # pylint: disable=too-many-locals
         """
-        Test log checks results - do not update the livestate when the check result is too old
+        Test log checks results - bulk posting
 
         :return: None
         """
@@ -474,6 +474,141 @@ class TestLogcheckresult(unittest2.TestCase):
         self.assertEqual(len(rh), 2)
         self.assertEqual(rh[0]['name'], "_dummy")
         self.assertEqual(rh[1]['name'], "srv001")
+
+        # Get service in the backend
+        response = requests.get(self.endpoint + '/service', params={'sort': 'name'}, auth=self.auth)
+        resp = response.json()
+        rs = resp['_items']
+        self.assertEqual(rs[0]['name'], "ping")
+
+        # -------------------------------------------
+        # Add several check results for an host
+        now = timegm(datetime.utcnow().timetuple())
+        data = [
+            {
+                "last_check": now,
+                "host": rh[0]['_id'],
+                "service": None,
+                'acknowledged': False,
+                'state_id': 0,
+                'state': 'UP',
+                'state_type': 'HARD',
+                'last_state_id': 0,
+                'last_state': 'UP',
+                'last_state_type': 'HARD',
+                'state_changed': False,
+            },
+            {
+                "last_check": now + 1,
+                "host": rh[0]['_id'],
+                "service": None,
+                'acknowledged': False,
+                'state_id': 1,
+                'state': 'DOWN',
+                'state_type': 'SOFT',
+                'last_state_id': 0,
+                'last_state': 'UP',
+                'last_state_type': 'HARD',
+                'state_changed': True
+            }
+        ]
+        response = requests.post(
+            self.endpoint + '/logcheckresult', json=data, headers=headers, auth=self.auth
+        )
+        resp = response.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        # Get check results
+        response = requests.get(
+            self.endpoint + '/logcheckresult', params=sort_id, auth=self.auth
+        )
+        resp = response.json()
+        rl = resp['_items']
+        self.assertEqual(len(rl), 2)
+        rl = resp['_items']
+
+        # Host / service ids and names are correct
+        self.assertEqual(rl[0]['host'], rh[0]['_id'])
+        self.assertEqual(rl[0]['host_name'], rh[0]['name'])
+        self.assertEqual(rl[0]['service'], None)
+        self.assertEqual(rl[0]['service_name'], '')
+        self.assertEqual(rl[0]['output'], '')
+        self.assertEqual(rl[0]['state'], 'UP')
+        self.assertEqual(rl[0]['state_id'], 0)
+        self.assertEqual(rl[0]['state_type'], 'HARD')
+
+        self.assertEqual(rl[1]['host'], rh[0]['_id'])
+        self.assertEqual(rl[1]['host_name'], rh[0]['name'])
+        self.assertEqual(rl[1]['service'], None)
+        self.assertEqual(rl[1]['service_name'], '')
+        self.assertEqual(rl[1]['output'], '')
+        self.assertEqual(rl[1]['state'], 'DOWN')
+        self.assertEqual(rl[1]['state_id'], 1)
+        self.assertEqual(rl[1]['state_type'], 'SOFT')
+
+        # Get host in the backend to check that the main live state fields got updated
+        response = requests.get(self.endpoint + '/host/' + rh[0]['_id'],
+                                params={'sort': 'name'}, auth=self.auth)
+        resp = response.json()
+        host = resp
+        self.assertEqual(host['name'], "_dummy")
+        # Check that all properties posted in the LCR data are found in
+        # the host live state corresponding property
+        for prop in host:
+            if not prop.startswith('ls_') or not prop[3:] in data:
+                continue
+            self.assertEqual(host[prop], data[prop[3:]])
+
+        # Get history
+        response = requests.get(self.endpoint + '/history', params=sort_id, auth=self.auth)
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 2)
+
+        # Host / service ids and names are correct
+        self.assertEqual(re[0]['host'], rh[0]['_id'])
+        self.assertEqual(re[0]['host_name'], rh[0]['name'])
+        self.assertEqual(re[0]['service'], None)
+        self.assertEqual(re[0]['service_name'], '')
+        self.assertEqual(re[0]['type'], "check.result")
+        self.assertEqual(re[0]['message'], "UP[HARD] (False/False): ")
+        self.assertEqual(re[0]['logcheckresult'], rl[0]['_id'])     # First LCR
+        # Host / service ids and names are correct
+        self.assertEqual(re[1]['host'], rh[0]['_id'])
+        self.assertEqual(re[1]['host_name'], rh[0]['name'])
+        self.assertEqual(re[1]['service'], None)
+        self.assertEqual(re[1]['service_name'], '')
+        self.assertEqual(re[1]['type'], "check.result")
+        self.assertEqual(re[1]['message'], "DOWN[SOFT] (False/False): ")
+        self.assertEqual(re[1]['logcheckresult'], rl[1]['_id'])     # Second LCR
+
+    def test_logcheckresult_past(self):
+        # pylint: disable=too-many-locals
+        """
+        Test log checks results - do not update the livestate when the check result is too old
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+
+        # No existing logcheckresult
+        response = requests.get(
+            self.endpoint + '/logcheckresult', params=sort_id, auth=self.auth
+        )
+        resp = response.json()
+        re = resp['_items']
+        self.assertEqual(len(re), 0)
+
+        # Get hosts in the backend
+        response = requests.get(self.endpoint + '/host', auth=self.auth,
+                                params={
+                                    'where': json.dumps({'_is_template': False}),
+                                    'sort': 'name'})
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(len(rh), 1)
+        self.assertEqual(rh[0]['name'], "srv001")
 
         # Get service in the backend
         response = requests.get(self.endpoint + '/service', params={'sort': 'name'}, auth=self.auth)
@@ -530,7 +665,7 @@ class TestLogcheckresult(unittest2.TestCase):
                                 params={'sort': 'name'}, auth=self.auth)
         resp = response.json()
         host = resp
-        self.assertEqual(host['name'], "_dummy")
+        self.assertEqual(host['name'], "srv001")
         # Check that all properties posted in the LCR data are found in
         # the host live state corresponding property
         for prop in host:
@@ -601,7 +736,7 @@ class TestLogcheckresult(unittest2.TestCase):
                                 params={'sort': 'name'}, auth=self.auth)
         resp = response.json()
         host = resp
-        self.assertEqual(host['name'], "_dummy")
+        self.assertEqual(host['name'], "srv001")
         # Check that the host live state did not get updated!
         self.assertNotEqual(host['ls_last_check'], data['last_check'])
         self.assertNotEqual(host['ls_output'], data['output'])

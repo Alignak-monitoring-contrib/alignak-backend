@@ -115,8 +115,6 @@ Monitored host (host)
    | *Acknowledged*", "boolean", "", "False", ""
    "| ls_acknowledgement_type
    | *Acknowledgement type*", "integer", "", "1", ""
-   "| ls_attempt
-   | *Current attempt number*", "integer", "", "0", ""
    "| ls_current_attempt
    | *Current attempt number*", "integer", "", "0", ""
    "| :ref:`ls_downtimed <host-ls_downtimed>`
@@ -127,10 +125,8 @@ Monitored host (host)
    | *Grafana available*", "boolean", "", "False", ""
    "| :ref:`ls_grafana_panelid <host-ls_grafana_panelid>`
    | *Grafana identifier*", "integer", "", "0", ""
-   "| :ref:`ls_impact <host-ls_impact>`
-   | *Impact*", "boolean", "", "False", ""
    "| :ref:`ls_last_check <host-ls_last_check>`
-   | *Check timestamp*", "integer", "", "0", ""
+   | *Last check time*", "integer", "", "0", ""
    "| :ref:`ls_last_hard_state_changed <host-ls_last_hard_state_changed>`
    | *Last time hard state changed*", "integer", "", "0", ""
    "| ls_last_notification
@@ -153,8 +149,6 @@ Monitored host (host)
    | *Latency*", "float", "", "0.0", ""
    "| :ref:`ls_long_output <host-ls_long_output>`
    | *Long output*", "string", "", "", ""
-   "| ls_max_attempts
-   | *Maximum attempts*", "integer", "", "0", ""
    "| :ref:`ls_next_check <host-ls_next_check>`
    | *Next check*", "integer", "", "0", ""
    "| :ref:`ls_output <host-ls_output>`
@@ -165,6 +159,8 @@ Monitored host (host)
    | *Performance data*", "string", "", "", ""
    "| :ref:`ls_state <host-ls_state>`
    | *State*", "string", "", "UNREACHABLE", ""
+   "| :ref:`ls_state_changed <host-ls_state_changed>`
+   | *State changed*", "integer", "", "0", ""
    "| :ref:`ls_state_id <host-ls_state_id>`
    | *State identifier*", "integer", "", "3", ""
    "| :ref:`ls_state_type <host-ls_state_type>`
@@ -203,6 +199,7 @@ Monitored host (host)
    | *Results modulations*", "list", "", "[]", ""
    "| :ref:`retry_interval <host-retry_interval>`
    | *Retry interval*", "integer", "", "0", ""
+   "| schema_version", "integer", "", "3", ""
    "| service_excludes", "list", "", "[]", ""
    "| service_includes", "list", "", "[]", ""
    "| service_overrides", "list", "", "[]", ""
@@ -426,10 +423,6 @@ Monitored host (host)
 
 ``ls_grafana_panelid``: Grafana panel identifier
 
-.. _host-ls_impact:
-
-``ls_impact``: Is an impact?
-
 .. _host-ls_last_check:
 
 ``ls_last_check``: Last check timestamp
@@ -499,6 +492,10 @@ Monitored host (host)
 ``ls_state``: Current state
 
    Allowed values: [, ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
+
+.. _host-ls_state_changed:
+
+``ls_state_changed``: The state has changed with the last check?
 
 .. _host-ls_state_id:
 

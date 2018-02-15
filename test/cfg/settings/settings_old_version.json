@@ -24,9 +24,6 @@
 
   "IP_CRON": ["127.0.0.1"],  /* List of IP allowed to use cron routes/endpoint of the backend */
 
-
-  "LOGGER": "alignak-backend-logger.json",  /* Python logger configuration file */
-
   /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
   to the corresponding TSDB. If the TSDB is not available, metrics are stored internally
   in the backend.
@@ -37,12 +34,6 @@
   /* This scheduler will create / update dashboards in grafana.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
   "SCHEDULER_GRAFANA_ACTIVE": false,
-  /* Enable/disable this backend instance as a Grafana datasource */
-  "GRAFANA_DATASOURCE": true,
-  /* Name of the file that contains the list of proposed queries in a Grafana table panel */
-  "GRAFANA_DATASOURCE_QUERIES": "grafana_queries.json",
-  /* Name of the file that contains the list of fields returned for a Grafana table */
-  "GRAFANA_DATASOURCE_TABLES": "grafana_tables.json",
   /* if 0, disable it, otherwise define the history in minutes.
    It will keep history each minute.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */

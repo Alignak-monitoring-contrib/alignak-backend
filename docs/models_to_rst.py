@@ -65,7 +65,7 @@ for filepath in f:
             resource_name = ''.join(['log_', resource_name])
         elif resource_name in ['userrestrictrole']:
             pass
-        elif resource_name.startswith('retention'):
+        elif resource_name in ['alignakretention']:
             pass
         elif not resource_name.startswith('action'):
             resource_name = ''.join(['config', resource_name])

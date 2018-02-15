@@ -41,6 +41,7 @@ Alignak services groups (servicegroup)
    | *Notes*", "string", "", "", ""
    "| :ref:`notes_url <servicegroup-notes_url>`
    | *Notes URL*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`servicegroups <servicegroup-servicegroups>`
    | *Groups*", "objectid list", "", "[]", ":ref:`servicegroup <resource-servicegroup>`"
    "| :ref:`services <servicegroup-services>`

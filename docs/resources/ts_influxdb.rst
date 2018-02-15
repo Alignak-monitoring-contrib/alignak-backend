@@ -43,6 +43,7 @@ InfluxDB connection (influxdb)
    | *Server port*", "integer", "", "8086", ""
    "| :ref:`prefix <influxdb-prefix>`
    | *Metrics prefix*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`statsd <influxdb-statsd>`
    | *StatsD relation*", "objectid", "", "None", ":ref:`statsd <resource-statsd>`"
 .. _influxdb-_realm:

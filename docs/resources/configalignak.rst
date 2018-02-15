@@ -72,7 +72,7 @@ Alignak configuration (alignak)
    "| illegal_macro_output_chars
    | *Illegal macros output characters*", "string", "", "", ""
    "| illegal_object_name_chars
-   | *Illegal objects name characters*", "string", "", "`~!$%^&*"|'<>?,()=", ""
+   | *Illegal objects name characters*", "string", "", "`~!$%^&*'|'<>?,()=", ""
    "| :ref:`instance_id <alignak-instance_id>`
    | *Instance identifier*", "string", "", "", ""
    "| :ref:`instance_name <alignak-instance_name>`
@@ -127,6 +127,7 @@ Alignak configuration (alignak)
    | *Process performance data*", "boolean", "", "True", ""
    "| :ref:`program_start <alignak-program_start>`
    | *Program start time*", "integer", "", "0", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`service_check_timeout <alignak-service_check_timeout>`
    | *Services checks commands timeout*", "integer", "", "60", ""
    "| :ref:`service_freshness_check_interval <alignak-service_freshness_check_interval>`

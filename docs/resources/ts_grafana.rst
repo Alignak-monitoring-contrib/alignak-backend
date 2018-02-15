@@ -36,6 +36,7 @@ Grafana connection (grafana)
    | *Server port*", "integer", "", "3000", ""
    "| :ref:`refresh <grafana-refresh>`
    | *Dashboard refresh period*", "string", "", "1m", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`ssl <grafana-ssl>`
    | *SSL*", "boolean", "", "False", ""
    "| :ref:`timezone <grafana-timezone>`

@@ -25,6 +25,8 @@ from datetime import datetime, timedelta
 
 import logging
 from logging.config import dictConfig as logger_dictConfig
+from dateutil import parser
+
 from future.utils import iteritems
 
 from eve import Eve
@@ -1335,11 +1337,11 @@ def pre_delete_host(item):
     :type item: dict
     :return: None
     """
-    current_app.logger.debug("Deleting host: %s" % item['name'])
+    current_app.logger.debug("Deleting host: %s", item['name'])
     services_drv = current_app.data.driver.db['service']
     services = services_drv.find({'host': item['_id']})
     for service in services:
-        print("Deleting service: %s/%s" % (item['name'], service['name']))
+        current_app.logger.debug("Deleting service: %s/%s", item['name'], service['name'])
         lookup = {"_id": service['_id']}
         deleteitem_internal('service', False, False, **lookup)
 
@@ -1953,6 +1955,7 @@ def get_settings(prev_settings):
     # Configuration file name in environment
     if os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'):
         settings_filenames = [os.path.abspath(os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'))]
+    print(settings_filenames)
 
     comment_re = re.compile(
         r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
@@ -1995,8 +1998,7 @@ print("-------------------------------------------------------------------------
 settings = {}
 settings['X_DOMAINS'] = '*'
 settings['X_HEADERS'] = (
-    'Authorization, If-Match,'
-    ' X-HTTP-Method-Override, Content-Type, Cache-Control, Pragma'
+    'Authorization, If-Match, X-HTTP-Method-Override, Content-Type, Cache-Control, Pragma, Options'
 )
 settings['PAGINATION_LIMIT'] = 50
 settings['PAGINATION_DEFAULT'] = 25
@@ -2090,8 +2092,6 @@ if settings.get('LOGGER', None):
     # Alignak backend logging feature
     def log_endpoint(_resource, _request, _payload):  # pylint: disable=unused-argument
         """Log information about the former responded request"""
-        # custom INFO-level message is sent to the log file
-        app.logger.info('')
         if _request.args:
             app.logger.info('Req args: %s', _request.args.to_dict(False))
         if _request.form:
@@ -2100,15 +2100,12 @@ if settings.get('LOGGER', None):
             app.logger.info('Req data: %s', _request.data)
         if _payload:
             app.logger.debug('Response: %s', _payload.response)
+            if 'Exception on /' in _payload.response:
+                app.logger.error('Response exception: %s', _payload.response)
     app.on_post_GET += log_endpoint
     app.on_post_POST += log_endpoint
     app.on_post_PUT += log_endpoint
     app.on_post_PATCH += log_endpoint
-
-    # Alignak logger configuration file
-    if settings['LOGGER'] != os.path.abspath(settings['LOGGER']):
-        settings['LOGGER'] = os.path.join(os.path.dirname(configuration_file), settings['LOGGER'])
-    print("Backend logger configuration file: %s" % (settings['LOGGER']))
 
     # Prepare log file directory
     log_dirs = ['/usr/local/var/log/alignak-backend', '/var/log/alignak-backend',
@@ -2125,6 +2122,11 @@ if settings.get('LOGGER', None):
     process_name = "%s_%s" % (settings['SERVER_NAME'] if settings['SERVER_NAME']
                               else 'alignak-backend',
                               settings['MONGO_DBNAME'])
+
+    # Alignak logger configuration file
+    if settings['LOGGER'] != os.path.abspath(settings['LOGGER']):
+        settings['LOGGER'] = os.path.join(os.path.dirname(configuration_file), settings['LOGGER'])
+    print("Backend logger configuration file: %s" % (settings['LOGGER']))
 
     with open(settings['LOGGER'], 'rt') as _file:
         config = json.load(_file)
@@ -2149,19 +2151,18 @@ if settings.get('LOGGER', None):
     # Configure the logger, any error will raise an exception
     logger_dictConfig(config)
 
-    app.logger.info(
-        "--------------------------------------------------------------------------------")
-    app.logger.info("%s, version %s" % (manifest['name'], manifest['version']))
-    app.logger.info("Copyright %s" % manifest['copyright'])
-    app.logger.info("License %s" % manifest['license'])
-    app.logger.info(
-        "--------------------------------------------------------------------------------")
+app.logger.info(
+    "--------------------------------------------------------------------------------")
+app.logger.info("%s, version %s" % (manifest['name'], manifest['version']))
+app.logger.info("Copyright %s" % manifest['copyright'])
+app.logger.info("License %s" % manifest['license'])
+app.logger.info(
+    "--------------------------------------------------------------------------------")
 
-    app.logger.info("Doc: %s" % manifest['doc'])
-    app.logger.info("Release notes: %s" % manifest['release'])
-    app.logger.info(
-        "--------------------------------------------------------------------------------")
-
+app.logger.info("Doc: %s" % manifest['doc'])
+app.logger.info("Release notes: %s" % manifest['release'])
+app.logger.info(
+    "--------------------------------------------------------------------------------")
 # hooks pre-init
 app.on_pre_GET += pre_get
 app.on_pre_POST += pre_post
@@ -2415,6 +2416,7 @@ app.on_insert_serviceescalation += pre_serviceescalation_post
 
 app.on_insert_logcheckresult += pre_logcheckresult_post
 app.on_inserted_logcheckresult += after_insert_logcheckresult
+app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
 
 app.on_pre_DELETE += keep_default_items_resource
 app.on_delete_item += keep_default_items_item
@@ -2424,9 +2426,6 @@ app.on_insert_service += pre_service_post
 # hook for tree resources
 app.on_fetched_resource += on_fetched_resource_tree
 app.on_fetched_item += on_fetched_item_tree
-
-with app.test_request_context():
-    app.on_inserted_logcheckresult += Timeseries.after_inserted_logcheckresult
 
 # Start scheduler (internal cron)
 if settings['JOBS']:
@@ -2534,6 +2533,449 @@ def cron_timeseries():
                 deleteitem_internal('timeseriesretention', False, False, **lookup)
 
 
+if settings.get('GRAFANA_DATASOURCE', True):
+    def get_grafana_configuration(cfg_file_name, queries):
+        """
+        Get the configured target queries
+
+        :param cfg_file_name: short filenam for the queries configuration (eg. grafana_queries.json)
+        :type cfg_file_name: string
+        :param queries: previous settings
+        :type queries: dict
+        :return: None
+        """
+        filenames = []
+        if os.path.isfile(os.path.abspath(cfg_file_name)):
+            filenames = [os.path.abspath(cfg_file_name)]
+        elif isinstance(cfg_file_name, list):
+            filenames = cfg_file_name
+        else:
+            filenames = [
+                '/usr/local/etc/alignak-backend/%s' % cfg_file_name,
+                '/etc/alignak-backend/%s' % cfg_file_name,
+                'etc/alignak-backend/%s' % cfg_file_name,
+                os.path.abspath('./etc/%s' % cfg_file_name),
+                os.path.abspath('../etc/%s' % cfg_file_name),
+                os.path.abspath('./%s' % cfg_file_name)
+            ]
+
+        comment_re = re.compile(
+            r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
+            re.DOTALL | re.MULTILINE
+        )
+        for name in filenames:
+            if os.path.isfile(name):
+                with open(name) as stream:
+                    content = ''.join(stream.readlines())
+                    # Looking for comments
+                    match = comment_re.search(content)
+                    while match:
+                        # single line comment
+                        content = content[:match.start()] + content[match.end():]
+                        match = comment_re.search(content)
+
+                    conf = json.loads(content)
+                    for key, value in iteritems(conf):
+                        queries[key] = value
+                    print("Using Grafana configuration file: %s" % name)
+                    return
+    # The default minimum target queries...
+    target_queries = {
+        "Hosts": {
+            'endpoint': "host",
+            'query': {"_is_template": False}
+        },
+        "Services": {
+            'endpoint': "service",
+            'query': {"_is_template": False},
+            'join': ('host', 'host', 'name')
+        }
+    }
+    with app.app_context():
+        filename = settings.get('GRAFANA_DATASOURCE_QUERIES', 'grafana_queries.json')
+        if os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES'):
+            filename = os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES')
+        get_grafana_configuration(filename, target_queries)
+        current_app.logger.info("Grafana - queries: %s", target_queries)
+
+        # The default minimum table configuration...
+        table_fields = {
+            "host": ["name"]
+        }
+        filename = settings.get('GRAFANA_DATASOURCE_TABLES', 'grafana_tables.json')
+        if os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES'):
+            filename = os.environ.get('ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES')
+        get_grafana_configuration(filename, table_fields)
+        current_app.logger.info("Grafana - tables: %s", table_fields)
+
+    @app.route("/search", methods=['OPTIONS', 'POST'])
+    def grafana_search(engine='jsonify'):
+        # pylint: disable=too-many-locals
+        """
+        Request available queries
+
+        Posted data: {u'target': u''}
+
+        Return the list of available target queries
+
+        :return: See upper comment
+        :rtype: list
+        """
+        target = None
+        try:
+            target = request.json.get("target")
+        except Exception as e:
+            abort(404, description='Bad format for posted data: %s' % str(e))
+
+        with app.app_context():
+            resp = []
+            if not target:
+                resp = sorted(target_queries.keys())
+
+            if engine == 'jsonify':
+                return jsonify(resp)
+            return json.dumps(resp)
+
+    @app.route("/query", methods=['OPTIONS', 'POST'])
+    def grafana_query(engine='jsonify'):
+        # pylint: disable=too-many-locals
+        """
+        Request object passed to datasource.query function:
+
+        {
+          "range": { "from": "2015-12-22T03:06:13.851Z", "to": "2015-12-22T06:48:24.137Z" },
+          "interval": "5s",
+          "targets": [
+            { "refId": "B", "target": "target 1" },
+            { "refId": "A", "target": "target 2" }
+          ],
+          "format": "json",
+          "maxDataPoints": 2495 //decided by the panel
+        }
+
+        Only the first target is considered. If several targets are required, an error is raised.
+
+        The target is a string that is searched in the target_queries dictionary. If found
+        the corresponding query is executed and the result is returned.
+
+        Table response from datasource.query. An array of:
+
+        [
+          {
+            "type": "table",
+            "columns": [
+              {
+                "text": "Time",
+                "type": "time",
+                "sort": true,
+                "desc": true,
+              },
+              {
+                "text": "mean",
+              },
+              {
+                "text": "sum",
+              }
+            ],
+            "rows": [
+              [
+                1457425380000,
+                null,
+                null
+              ],
+              [
+                1457425370000,
+                1002.76215352,
+                1002.76215352
+              ],
+            ]
+          }
+        ]
+        :return: See upper comment
+        :rtype: list
+        """
+        posted_data = request.json
+        targets = None
+        target = None
+        try:
+            targets = posted_data.get("targets")
+            assert targets
+            assert len(targets) == 1
+            target = targets[0]
+            target = target.get("target")
+        except AssertionError:
+            abort(404, description='Only one target is supported by this datasource.')
+        except Exception as e:
+            abort(404, description='Bad format for posted data: %s' % str(e))
+
+        with app.app_context():
+            join = None
+            if target in target_queries.keys():
+                endpoint = target_queries[target]['endpoint']
+                schema = settings['DOMAIN'][endpoint]['schema']
+                search = target_queries[target]['query']
+                if 'join' in target_queries[target]:
+                    join = target_queries[target]['join']
+                field = None
+                current_app.logger.debug("Grafana - query found in the configured queries: %s",
+                                         endpoint, search)
+            else:
+                query = target.split(':')
+                if len(query) < 3:
+                    abort(404, description='Bad format for query: %s. Query must be '
+                                           'something like endpoint:field:value.' % targets)
+
+                # Get and check valid endpoint
+                endpoint = query[0]
+                if endpoint not in settings['DOMAIN'].keys():
+                    abort(404, description='Bad endpoint for query: %s.' % endpoint)
+                schema = settings['DOMAIN'][endpoint]['schema']
+
+                # Get and check valid field name in the endpoint
+                field = query[1]
+                if field not in schema:
+                    abort(404, description='Bad field name (%s) for the endpoint: '
+                                           '%s.' % (field, endpoint))
+
+                embedded = []
+                # Get and convert value according to the field type
+                value = query[2]
+                field_type = schema[field]['type']
+                regex = False
+                if '/' in value and value[0] == '/':
+                    regex = True
+                    value = value[1:]
+                if field_type == 'float':
+                    value = float(value)
+                if field_type == 'integer':
+                    value = int(value)
+                if field_type == 'boolean':
+                    value = bool(value)
+                if field_type == 'list':
+                    value = value
+                if field_type == 'dict':
+                    value = value
+                if field_type == 'objectid':
+                    embedded.append({
+                        'resource': schema[field]['data_relation']['resource'], '_id': value})
+
+                current_app.logger.debug("Grafana - built a query: %s - %s (%s) = %s",
+                                         endpoint, field, field_type, value)
+
+                search = {
+                    "_is_template": False,
+                    field: value if not regex else {"$regex": ".*%s.*" % value}
+                }
+
+            resp = [
+                {
+                    "type": "table",
+                    "columns": [],
+                    "rows": []
+                }
+            ]
+            fields_list = table_fields[endpoint]
+            if field and field not in fields_list:
+                fields_list.append(field)
+
+            for field_name in fields_list:
+                field_type = schema[field_name]['type']
+                field_title = schema[field_name]['title']
+                resp[0]["columns"].append({"text": field_title, "type": field_type})
+
+            db_collection = current_app.data.driver.db[endpoint]
+            current_app.logger.debug("Grafana - DB query: %s", json.dumps(search))
+            got = db_collection.find(search)
+            for element in got:
+                if join:
+                    current_app.logger.debug("Grafana - join query: %s / %s / %s",
+                                             join[0], join[1], join[2])
+                    # Second join field is the collection to search in
+                    db_join = current_app.data.driver.db[join[1]]
+                    # First join field is the _id to search for
+                    joined = db_join.find_one(element[join[0]])
+                    # Third join field is the field to get
+                    element[join[0]] = joined[join[2]]
+
+                item = []
+                for field_name in fields_list:
+                    if isinstance(element[field_name], list):
+                        item.append(','.join(element[field_name]))
+                    elif field_name in ['ls_last_check', 'ls_next_check', 'ls_last_state_changed',
+                                        'ls_last_hard_state_changed', 'ls_last_time_up',
+                                        'ls_last_time_down', 'ls_last_time_unknown',
+                                        'ls_last_time_unreachable', 'ls_last_time_ok',
+                                        'ls_last_time_warning', 'ls_last_time_critical']:
+                        value = datetime.utcfromtimestamp(float(element[field_name]))
+                        value = value.strftime('%a, %d %b %Y %H:%M:%S GMT')
+                        item.append(value)
+                    elif isinstance(element[field_name], datetime):
+                        value = datetime.utcfromtimestamp(float(element[field_name]))
+                        value = value.strftime('%a, %d %b %Y %H:%M:%S GMT')
+                        item.append(value)
+                    else:
+                        item.append(element[field_name])
+                current_app.logger.debug("Grafana - found: %s", item)
+                resp[0]["rows"].append(item)
+
+            current_app.logger.debug("Grafana - response: %s", resp)
+
+            if engine == 'jsonify':
+                return jsonify(resp)
+
+            return json.dumps(resp)
+
+    @app.after_request
+    def after_request(response):
+        """Send correct headers for CORS because Eve do not manage the headers
+        for the endpoints that are not part of the inner API"""
+        origin = request.headers.get('Origin')
+        response.headers.set('Access-Control-Allow-Origin', origin)
+        response.headers.set('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.set('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        # response.headers.set('Access-Control-Allow-Credentials', 'true')
+        return response
+
+    @app.route("/annotations", methods=['OPTIONS', 'POST'])
+    def grafana_annotations(engine='jsonify'):
+        # pylint: disable=too-many-locals
+        """
+        The annotation request from the Simple JSON Datasource is a POST request to the /annotations
+        endpoint in your datasource. The JSON request body looks like this:
+
+        {
+          "range": {
+            "from": "2016-04-15T13:44:39.070Z",
+            "to": "2016-04-15T14:44:39.070Z"
+          },
+          "rangeRaw": {
+            "from": "now-1h",
+            "to": "now"
+          },
+          "annotation": {
+            "name": "deploy",
+            "datasource": "Simple JSON Datasource",
+            "iconColor": "rgba(255, 96, 96, 1)",
+            "enable": true,
+            "query": "#deploy"
+          }
+        }
+
+        Grafana expects a response containing an array of annotation objects
+        in the following format:
+        [
+          {
+            annotation: annotation, // The original annotation sent from Grafana.
+            time: time, // Time since UNIX Epoch in milliseconds. (required)
+            title: title, // The title for the annotation tooltip. (required)
+            tags: tags, // Tags for the annotation. (optional)
+            text: text // Text for the annotation. (optional)
+          }
+        ]
+
+        :return: See upper comment
+        :rtype: list
+        """
+        posted_data = request.json
+        annotation = None
+        annotation_query = None
+        try:
+            annotation = posted_data.get("annotation")
+            annotation_query = annotation.get("query")
+            time_frame = posted_data.get("range")
+            range_from = time_frame.get("from")
+            range_from_date = parser.parse(range_from)
+            range_to = time_frame.get("to")
+            range_to_date = parser.parse(range_to)
+        except Exception as e:
+            abort(404, description='Bad format for posted data: %s' % str(e))
+
+        with app.app_context():
+            resp = []
+            hosts = []
+            services = []
+
+            query = annotation_query.split(':')
+            if len(query) < 3:
+                abort(404,
+                      description='Bad format for query: %s. Query must be '
+                                  'something like endpoint:type:target.' % annotation_query)
+
+            endpoint = query[0]
+            if endpoint not in ['history', 'livestate']:
+                abort(404,
+                      description='Bad endpoint for query: %s. '
+                                  'Only history and livestate are available.' % annotation_query)
+
+            event_type = query[1]
+            hosts = query[2]
+            hosts = hosts.replace("{", "")
+            hosts = hosts.replace("}", "")
+            hosts = hosts.split(",")
+            if len(query) > 3:
+                services = query[3]
+                services = services.replace("{", "")
+                services = services.replace("}", "")
+                services = services.split(",")
+
+            if endpoint == 'history':
+                history_db = current_app.data.driver.db['history']
+                search = {
+                    "type": event_type,
+                    "host_name": {"$in": hosts},
+                    "_created": {"$gte": range_from_date, "$lte": range_to_date},
+                }
+                if services:
+                    search["service_name"] = {"$in": services}
+
+                history = history_db.find(search)
+
+                for event in history:
+                    title = event['message']
+                    if "host_name" in event and event["host_name"]:
+                        if "service_name" in event and event["service_name"]:
+                            title = "%s/%s - %s" \
+                                    % (event["host_name"], event["service_name"], event["message"])
+                        else:
+                            title = "%s - %s" \
+                                    % (event["host_name"], event["message"])
+                    item = {
+                        "annotation": annotation,
+                        "time": event['_updated'],
+                        "title": title,
+                        "tags": [event["type"]],
+                        "text": event['message']
+                    }
+                    resp.append(item)
+
+            if endpoint == 'livestate':
+                host_db = current_app.data.driver.db['host']
+                search = {
+                    "name": {"$in": hosts}, "_is_template": False
+                }
+                if services:
+                    search["name"] = {"$in": services}
+
+                hosts = host_db.find(search)
+                for host in hosts:
+                    text = "%s: %s (%s) - %s" % (host['name'],
+                                                 host['ls_state'], host['ls_state_type'],
+                                                 host['ls_output'])
+                    item = {
+                        "annotation": annotation,
+                        "time": host['_updated'],
+                        "title": host['alias'],
+                        "tags": host['tags'],
+                        "text": text
+                    }
+                    resp.append(item)
+
+            if engine == 'jsonify':
+                return jsonify(resp)
+
+            return json.dumps(resp)
+
+
 @app.route("/cron_grafana", methods=['GET'])
 def cron_grafana(engine='jsonify'):
     """
@@ -2548,8 +2990,9 @@ def cron_grafana(engine='jsonify'):
         forcegenerate = request.args.get('forcegenerate')
         if request.remote_addr not in settings['IP_CRON']:
             print('Access denied for %s' % request.remote_addr)
-            app.logger.warning('Access denied for %s' % request.remote_addr)
-            return make_response("Access denied from remote host", 412)
+            with app.app_context():
+                app.logger.warning('Access denied for %s' % request.remote_addr)
+            return make_response("Access denied from remote host %s" % request.remote_addr, 412)
     except Exception:
         forcegenerate = None
 

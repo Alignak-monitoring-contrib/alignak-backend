@@ -1,0 +1,19 @@
+{
+  "host": [
+    "name", "alias", "business_impact", "tags",
+    "active_checks_enabled", "passive_checks_enabled",
+    "_overall_state_id",
+    "ls_state", "ls_state_id", "ls_state_type", "ls_last_check",
+    "ls_acknowledged", "ls_downtimed",
+    "ls_grafana_panelid"
+  ],
+  "service": [
+    "host",
+    "name", "alias", "business_impact", "tags",
+    "active_checks_enabled", "passive_checks_enabled",
+    "_overall_state_id",
+    "ls_state", "ls_state_id", "ls_state_type", "ls_last_check",
+    "ls_acknowledged", "ls_downtimed",
+    "ls_grafana_panelid"
+  ]
+}

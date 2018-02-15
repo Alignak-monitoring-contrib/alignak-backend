@@ -80,6 +80,7 @@ Alignak user (user)
    | *Mobile*", "string", "", "", ""
    "| :ref:`password <user-password>`
    | *Password*", "string", "", "NOPASSWORDSET", ""
+   "| schema_version", "integer", "", "2", ""
    "| :ref:`service_notification_commands <user-service_notification_commands>`
    | *Service notifications commands*", "objectid list", "", "", ":ref:`command <resource-command>`"
    "| :ref:`service_notification_options <user-service_notification_options>`
@@ -96,6 +97,8 @@ Alignak user (user)
    | *Token*", "string", "", "", ""
    "| :ref:`ui_preferences <user-ui_preferences>`
    | *User preferences*", "dict", "", "{}", ""
+   "| :ref:`webui_visible <user-webui_visible>`
+   | *Web UI visible*", "boolean", "", "True", ""
 .. _user-_is_template:
 
 ``_is_template``: Indicate if this element is a template or a real element
@@ -247,6 +250,10 @@ Alignak user (user)
 .. _user-ui_preferences:
 
 ``ui_preferences``: User preferences that are used by the Web User Interface to manage the user preferences (eg. table filters, ...).
+
+.. _user-webui_visible:
+
+``webui_visible``: If not set, the Web User Interface will ignore this user.
 
 
 

@@ -808,7 +808,7 @@ def get_schema():
             },
             'ls_last_check': {
                 'schema_version': 1,
-                'title': 'Check timestamp',
+                'title': 'Last check time',
                 'comment': 'Last check timestamp',
                 'type': 'integer',
                 'default': 0

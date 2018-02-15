@@ -303,7 +303,8 @@ class Livesynthesis(object):
         if minus is not False:
             livesynthesis_db = current_app.data.driver.db['livesynthesis']
             live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
-            if live_current is None or 'not_monitored' in minus or 'not_monitored' in plus:
+            if live_current is None or 'not_monitored' in minus or (plus and
+                                                                    'not_monitored' in plus):
                 ls = Livesynthesis()
                 ls.recalculate()
             else:
@@ -474,7 +475,7 @@ class Livesynthesis(object):
                 and 'ls_acknowledged' not in updated and 'ls_downtimed' not in updated:
             return False, False
 
-        current_app.logger.debug("LS - updating: %s", updated)
+        current_app.logger.debug("LS - type_check; %s, updating: %s", type_check, updated)
         plus = False
         minus = "%s_%s_%s" % (type_check, original['ls_state'].lower(),
                               original['ls_state_type'].lower())

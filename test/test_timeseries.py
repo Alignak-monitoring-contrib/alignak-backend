@@ -4,6 +4,7 @@
 This test check preparation of timeseries
 """
 
+from __future__ import print_function
 import time
 import os
 import copy
@@ -47,8 +48,8 @@ class TestTimeseries(unittest2.TestCase):
         cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
-                                  '/tmp/uwsgi.pid'])
-        time.sleep(3)
+                                  '/tmp/uwsgi.pid', '--logto=/tmp/alignak_backend_tsdb.log'])
+        time.sleep(2)
 
         cls.endpoint = 'http://127.0.0.1:5000'
 
@@ -64,6 +65,7 @@ class TestTimeseries(unittest2.TestCase):
         response = requests.get(cls.endpoint + '/realm', auth=cls.auth)
         resp = response.json()
         cls.realm_all = resp['_items'][0]['_id']
+        print("Realm All: %s" % cls.realm_all)
 
         # add more realms
         data = {"name": "All A", "_parent": cls.realm_all}
@@ -102,6 +104,10 @@ class TestTimeseries(unittest2.TestCase):
         :return: None
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+        with open("/tmp/alignak_backend_tsdb.log") as f:
+            for line in f:
+                print(line)
+        os.unlink("/tmp/alignak_backend_tsdb.log")
         time.sleep(2)
 
     @classmethod
@@ -542,6 +548,7 @@ class TestTimeseries(unittest2.TestCase):
 
         :return: None
         """
+        # print("***Realm All: %s" % self.realm_all)
         headers = {'Content-Type': 'application/json'}
         data = {
             'name': 'realm A',

@@ -7,6 +7,7 @@ This test check grafana and create dashboard + graphs
 from __future__ import print_function
 import os
 import json
+from datetime import datetime, timedelta
 import time
 import shlex
 from random import randint
@@ -106,7 +107,7 @@ class TestGrafana(unittest2.TestCase):
     @classmethod
     def setUp(cls):
         """
-        Delete resources in backend
+        Create resources in the backend
 
         :return: None
         """
@@ -154,6 +155,8 @@ class TestGrafana(unittest2.TestCase):
             del data['realm']
         data['_realm'] = cls.realmAll_A1
         data['name'] = "srv002"
+        data['alias'] = "Server #2"
+        data['tags'] = ["t2"]
         data['ls_last_check'] = int(time.time())
         data['ls_perf_data'] = "rta=14.581000ms;1000.000000;3000.000000;0.000000 pl=0%;100;100;0"
         response = requests.post(cls.endpoint + '/host', json=data, headers=headers, auth=cls.auth)
@@ -724,6 +727,14 @@ class TestGrafana(unittest2.TestCase):
         :return: None
         """
         headers = {'Content-Type': 'application/json'}
+
+        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
+            del os.environ['ALIGNAK_BACKEND_PRINT']
+        # if 'ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES' in os.environ:
+        #     del os.environ['ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES']
+        # if 'ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES' in os.environ:
+        #     del os.environ['ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES']
+
         # Create grafana in realm All + subrealm
         data = {
             'name': 'grafana All',
@@ -848,6 +859,7 @@ class TestGrafana(unittest2.TestCase):
                 mockreq.post('http://192.168.0.101:3000/api/dashboards/db', json='true')
 
                 dashboards = json.loads(cron_grafana(engine='jsondumps'))
+                print("Dashboards: %s" % dashboards)
                 # Created a dashboard for the host srv001 (it has perf_data in the host check)
                 assert len(dashboards['grafana All']['created_dashboards']) == 1
                 assert dashboards['grafana All']['created_dashboards'][0] == 'srv001'

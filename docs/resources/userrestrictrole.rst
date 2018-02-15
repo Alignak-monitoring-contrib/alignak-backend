@@ -7,7 +7,7 @@ User role restriction (userrestrictrole)
     The ``userrestrictrole`` model is an internal data model used to define the CRUD
     rights for an Alignak backend user.
 
-    This allows to define, for a user and a given realm, the create, read, update, and
+    This allows to defined, for a user and a given realm, the create, read, update, and
     delete rights on each backend endpoint.
     
 
@@ -23,6 +23,7 @@ User role restriction (userrestrictrole)
    | *Concerned realm*", "**objectid**", "**True**", "****", ":ref:`realm <resource-realm>`"
    "| :ref:`resource <userrestrictrole-resource>`
    | *Concerned resource*", "string", "", "*", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`sub_realm <userrestrictrole-sub_realm>`
    | *Sub-realms*", "boolean", "", "False", ""
    "| user

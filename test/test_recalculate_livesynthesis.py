@@ -42,7 +42,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         assert exit_code == 0
         time.sleep(1)
 
-        cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+        cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
                                   '/tmp/uwsgi.pid'])
@@ -131,7 +131,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         requests.delete(self.endpoint + '/livesynthesis', auth=self.auth)
         self.p.kill()
         time.sleep(3)
-        self.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+        self.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                    '--socket', '0.0.0.0:5000',
                                    '--protocol=http', '--enable-threads', '--pidfile',
                                    '/tmp/uwsgi.pid'])

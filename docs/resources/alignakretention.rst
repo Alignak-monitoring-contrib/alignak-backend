@@ -8,7 +8,7 @@ Host/service data retention from scheduler of Alignak (alignakretention)
     Alignak retention feature.
     
 
-.. image:: ../_static/configalignakretention.png
+.. image:: ../_static/alignakretention.png
 
 
 .. csv-table:: Properties
@@ -16,5 +16,6 @@ Host/service data retention from scheduler of Alignak (alignakretention)
 
    "| _user", "objectid", "", "", ":ref:`user <resource-user>`"
    "| host", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
 
 

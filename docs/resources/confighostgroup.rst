@@ -45,6 +45,7 @@ Alignak hosts groups (hostgroup)
    | *Notes*", "string", "", "", ""
    "| :ref:`notes_url <hostgroup-notes_url>`
    | *Notes URL*", "string", "", "", ""
+   "| schema_version", "integer", "", "1", ""
 .. _hostgroup-_level:
 
 ``_level``: Level in the hierarchy

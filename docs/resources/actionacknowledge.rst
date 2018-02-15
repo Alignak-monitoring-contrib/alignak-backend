@@ -38,6 +38,7 @@ Acknowledges (actionacknowledge)
    | *Persistent*", "boolean", "", "True", ""
    "| :ref:`processed <actionacknowledge-processed>`
    | *Processed*", "boolean", "", "False", ""
+   "| schema_version", "integer", "", "1", ""
    "| :ref:`service <actionacknowledge-service>`
    | *Service*", "**objectid**", "**True**", "****", ":ref:`service <resource-service>`"
    "| :ref:`sticky <actionacknowledge-sticky>`
@@ -54,7 +55,7 @@ Acknowledges (actionacknowledge)
 
 .. _actionacknowledge-action:
 
-``action``: Use 'add' to add a new acknowledge, or 'delete' to delete an acknowledge
+``action``: Use "add" to add a new acknowledge, or "delete" to delete an acknowledge
 
    Allowed values: [, ', a, d, d, ', ,,  , ', d, e, l, e, t, e, ', ]
 
