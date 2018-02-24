@@ -27,6 +27,14 @@
 
   "LOGGER": "alignak-backend-logger.json",  /* Python logger configuration file */
 
+  /* Address of Alignak arbiter
+  The Alignak backend will use this adress to notify Alignak about backend newly created items
+  Set to an empty value to disable this feature
+  Notes:
+  - / characters must be \ escaped!
+  */
+  "ALIGNAK_URL": "http:\/\/127.0.0.1:7770",
+
   /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
   to the corresponding TSDB. If the TSDB is not available, metrics are stored internally
   in the backend.

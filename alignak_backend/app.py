@@ -25,6 +25,9 @@ from datetime import datetime, timedelta
 
 import logging
 from logging.config import dictConfig as logger_dictConfig
+
+import requests
+
 from dateutil import parser
 
 from future.utils import iteritems
@@ -203,6 +206,22 @@ class MyValidator(Validator):
     def _validate_schema_version(self, schema_version, field, value):
         """Validate 'schema_version' field (always valid)"""
         return
+
+
+def notify_alignak(notification='reload_configuration'):
+    """Send a notification to the Alignak arbiter if configured"""
+    if not settings['ALIGNAK_URL'] or not notification:
+        return
+
+    headers = None
+    try:
+        current_app.logger.warning("Notifying Alignak for: %s..." % notification)
+        response = requests.get(settings['ALIGNAK_URL'] + '/' + notification,
+                                headers=headers, timeout=10)
+        resp = response.json()
+        current_app.logger.warning("Notified, response: %s..." % resp)
+    except Exception as exp:
+        current_app.logger.error("Alignak notification failed: %s..." % str(exp))
 
 
 # Hooks used to check user's rights
@@ -1235,6 +1254,9 @@ def after_insert_realm(items):
         }, False, False, **lookup)
         g.updateRealm = False
 
+    # Notify Alignak
+    notify_alignak(notification='reload_configuration')
+
 
 def after_update_realm(updated, original):
     """
@@ -1535,6 +1557,9 @@ def after_insert_host(items):
         etags[item['_etag']] = etag
     if etags:
         g.replace_etags = etags
+
+    # Notify Alignak
+    notify_alignak(notification='reload_configuration')
 
 
 def pre_service_patch(updates, original):
@@ -2027,6 +2052,8 @@ settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] = 0
 settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
 settings['JOBS'] = []
 
+settings['ALIGNAK_URL'] = ''
+
 # Read configuration file to update/complete the configuration
 configuration_file = get_settings(settings)
 print("Application configuration file: %s" % configuration_file)
@@ -2079,7 +2106,7 @@ print("Application settings: %s" % settings)
 settings['DOMAIN'] = register_models()
 
 base_path = os.path.dirname(os.path.abspath(alignak_backend.__file__))
-print("Application base path: %s" % base_path)
+# print("Application base path: %s" % base_path)
 
 app = Eve(
     settings=settings,
