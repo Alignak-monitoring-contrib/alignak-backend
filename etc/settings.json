@@ -7,8 +7,8 @@
 
   "X_DOMAINS": "*", /* CORS (Cross-Origin Resource Sharing) support. Accept *, empty or a list of domains */
 
-  "PAGINATION_LIMIT": 50,   /* Pagination: maximum value for number of results */
-  "PAGINATION_DEFAULT": 25, /* Pagination: default value for number of results */
+  "PAGINATION_LIMIT": 5000,   /* Pagination: maximum value for number of results */
+  "PAGINATION_DEFAULT": 50,   /* Pagination: default value for number of results */
 
   /* Limit number of requests. For example, [300, 900] limit 300 requests every 15 minutes */
   "RATE_LIMIT_GET": null,     /* Limit number of GET requests */
