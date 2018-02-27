@@ -1828,7 +1828,6 @@ def pre_service_post(items):
         if 'host' in items[key] and 'name' in items[key]:
             same_service = servicedb.find_one({'host': ObjectId(items[key]['host']),
                                                'name': items[key]['name']})
-            print(same_service)
             if same_service:
                 abort(make_response("Adding a service with the same name "
                                     "as an existing one is forbidden", 412))
@@ -1980,7 +1979,6 @@ def get_settings(prev_settings):
     # Configuration file name in environment
     if os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'):
         settings_filenames = [os.path.abspath(os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'))]
-    print(settings_filenames)
 
     comment_re = re.compile(
         r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
