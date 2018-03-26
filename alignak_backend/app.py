@@ -2178,14 +2178,14 @@ if settings.get('LOGGER', None):
 
 app.logger.info(
     "--------------------------------------------------------------------------------")
-app.logger.info("%s, version %s" % (manifest['name'], manifest['version']))
-app.logger.info("Copyright %s" % manifest['copyright'])
-app.logger.info("License %s" % manifest['license'])
+app.logger.info("%s, version %s", manifest['name'], manifest['version'])
+app.logger.info("Copyright %s", manifest['copyright'])
+app.logger.info("License %s", manifest['license'])
 app.logger.info(
     "--------------------------------------------------------------------------------")
 
-app.logger.info("Doc: %s" % manifest['doc'])
-app.logger.info("Release notes: %s" % manifest['release'])
+app.logger.info("Doc: %s", manifest['doc'])
+app.logger.info("Release notes: %s", manifest['release'])
 app.logger.info(
     "--------------------------------------------------------------------------------")
 # hooks pre-init
@@ -3016,7 +3016,7 @@ def cron_grafana(engine='jsonify'):
         if request.remote_addr not in settings['IP_CRON']:
             print('Access denied for %s' % request.remote_addr)
             with app.app_context():
-                app.logger.warning('Access denied for %s' % request.remote_addr)
+                app.logger.warning('Access denied for %s', request.remote_addr)
             return make_response("Access denied from remote host %s" % request.remote_addr, 412)
     except Exception:
         forcegenerate = None
@@ -3035,7 +3035,7 @@ def cron_grafana(engine='jsonify'):
                 "created_dashboards": []
             }
             if not graf.connection:
-                app.logger.warning("[cron_grafana] %s has no connection" % grafana['name'])
+                app.logger.warning("[cron_grafana] %s has no connection", grafana['name'])
                 continue
 
             app.logger.info("[cron_grafana] Grafana: %s" % grafana['name'])
@@ -3046,8 +3046,8 @@ def cron_grafana(engine='jsonify'):
                 search['_realm'] = graf.realms[0]
 
             if forcegenerate is not None:
-                app.logger.info("[cron_grafana] Force regeneration of '%s' dashboards"
-                                % grafana['name'])
+                app.logger.info("[cron_grafana] Force regeneration of '%s' dashboards",
+                                grafana['name'])
             else:
                 search['ls_grafana'] = False
                 search['ls_perf_data'] = {"$ne": ""}
@@ -3055,26 +3055,27 @@ def cron_grafana(engine='jsonify'):
 
             hosts = hosts_db.find(search)
             for host in hosts:
-                app.logger.info("[cron_grafana] host: %s" % host['name'])
+                app.logger.info("[cron_grafana] host: %s", host['name'])
 
                 # if this host do not have a TS datasource (influxdb, graphite) for grafana,
                 # do not try to create a dashboard (test before trying to create...)
                 if host['_realm'] not in graf.timeseries:
-                    app.logger.info("[cron_grafana] Host '%s' is not in a timeseries enabled realm"
-                                    % host['name'])
-                    app.logger.info("[cron_grafana] - host realm: %s" % host['_realm'])
-                    app.logger.info("[cron_grafana] - Grafana TS realms: %s" % graf.timeseries)
+                    app.logger.info("[cron_grafana] Host '%s' is not in a timeseries enabled realm",
+                                    host['name'])
+                    app.logger.info("[cron_grafana] - host realm: %s", host['_realm'])
+                    app.logger.info("[cron_grafana] - Grafana TS realms: %s",
+                                    graf.timeseries)
                     continue
 
                 created = graf.create_dashboard(host)
                 if created:
-                    app.logger.info("[cron_grafana] created a dashboard for '%s'..."
-                                    % host['name'])
+                    app.logger.info("[cron_grafana] created a dashboard for '%s'...",
+                                    host['name'])
                     if host['name'] not in resp[grafana['name']]['created_dashboards']:
                         resp[grafana['name']]['created_dashboards'].append(host['name'])
                 else:
-                    app.logger.info("[cron_grafana] dashboard creation failed for '%s'..."
-                                    % host['name'])
+                    app.logger.info("[cron_grafana] dashboard creation failed for '%s'...",
+                                    host['name'])
 
             if forcegenerate is not None:
                 continue
@@ -3098,14 +3099,14 @@ def cron_grafana(engine='jsonify'):
 
                 created = graf.create_dashboard(host)
                 if created:
-                    app.logger.info("[cron_grafana] created a dashboard for '%s/%s'"
-                                    % (host['name'], service['name']))
+                    app.logger.info("[cron_grafana] created a dashboard for '%s/%s'",
+                                    host['name'], service['name'])
                     resp[grafana['name']]['created_dashboards'].append("%s/%s"
                                                                        % (host['name'],
                                                                           service['name']))
                 else:
-                    app.logger.info("[cron_grafana] dashboard creation failed for '%s/%s'"
-                                    % (host['name'], service['name']))
+                    app.logger.info("[cron_grafana] dashboard creation failed for '%s/%s'",
+                                    host['name'], service['name'])
                 hosts_dashboards[service['host']] = True
 
         if engine == 'jsonify':
