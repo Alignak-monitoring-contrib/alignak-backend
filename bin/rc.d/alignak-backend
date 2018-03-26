@@ -112,6 +112,7 @@ alignak_backend_stop()
 {
     echo "Stopping ${name}..."
     pkill -2 -F ${alignak_backend_pid_file}
+    echo "Stopped"
 }
 
 [ -z "${alignak_backend_enable}" ] && alignak_backend_enable="NO"

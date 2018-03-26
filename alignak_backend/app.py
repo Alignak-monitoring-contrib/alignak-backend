@@ -2133,9 +2133,9 @@ if settings.get('LOGGER', None):
     app.on_post_PATCH += log_endpoint
 
     # Prepare log file directory
-    log_dirs = ['/usr/local/var/log/alignak-backend', '/var/log/alignak-backend',
-                '/usr/local/var/log/alignak', '/var/log/alignak',
-                '/usr/local/var/log', '/var/log']
+    log_dirs = ['/var/log/alignak-backend', '/usr/local/var/log/alignak-backend',
+                '/var/log/alignak', '/usr/local/var/log/alignak',
+                '/var/log', '/usr/local/var/log']
     for log_dir in log_dirs:
         # Directory exists and is writable
         if os.path.isdir(log_dir) and os.access(log_dir, os.W_OK):
