@@ -3038,7 +3038,7 @@ def cron_grafana(engine='jsonify'):
                 app.logger.warning("[cron_grafana] %s has no connection", grafana['name'])
                 continue
 
-            app.logger.info("[cron_grafana] Grafana: %s" % grafana['name'])
+            app.logger.info("[cron_grafana] Grafana: %s", grafana['name'])
 
             search = {'_is_template': False}
             search['_realm'] = {"$in": graf.realms}
