@@ -26,7 +26,8 @@ from alignak_backend import __name__ as __pkg_name__
 package = import_module('alignak_backend')
 
 data_files = [('etc/alignak-backend',
-               ['etc/settings.json', 'etc/alignak-backend-logger.json', 'etc/uwsgi.ini']),
+               ['etc/settings.json', 'etc/alignak-backend-logger.json', 'etc/uwsgi.ini',
+                'etc/grafana_queries.json', 'etc/grafana_tables.json']),
               ('bin',
                ['bin/alignak-backend-uwsgi']),
               ('var/log/alignak-backend', [])]
