@@ -1,25 +1,118 @@
 #!/bin/sh
 
+# Configuration settings for alignak_backend in /etc/rc.conf:
 # $FreeBSD$
 #
 # PROVIDE: alignak_backend
 # REQUIRE: LOGIN
 # KEYWORD: shutdown
+#
+# alignak_backend_enable (bool):
+#   Default value: "NO"
+#   Flag that determines whether Alignak backend is enabled.
+#
+# alignak_backend_wsgi (string):
+#   Default value: /usr/local/etc/alignak-backend/alignak-backend.wsgi
+#   Wsgi application for the Alignak backend
+#
+# alignak_backend_log (bool):
+#   Set to "NO" by default.
+#   Set it to "YES" to enable alignak_backend logging to file
+#   Default output to /var/log/alignak_backend/alignak_backend.log
+#
+# alignak_backend_log_file (string):
+#   Default value: "/var/log/${name}/${name}.log"
+#   Log file name.
+#
+# alignak_backend_lpid_file (string):
+#   Default value: "/var/run/${name}/${name}.pid"
+#   PID file name.
+#
+# alignak_backend_processes (integer):
+#   Default value: 4
+#   uWsgi workers count.
+#
+# alignak_backend_group (string):
+#   Default value: "alignak"
+#   Default group for the running uWsgi
+#
+# alignak_backend_user (string):
+#   Default value: "alignak"
+#   Default user for the running uWsgi
+#
+# alignak_backend_host (string):
+#   Default value: "127.0.0.1"
+#   Interface listened to.
+#
+# alignak_backend_port (integer):
+#   Default value: 5000
+#   Port listened to.
+#
+# alignak_backend_metrics (bool):
+#   Set to "NO" by default.
+#   Set it to "YES" to enable to make uWsgi send its metrics to a carbon instance.
+#   Default carbon instance is 127.0.0.1:2003
+#
+# alignak_backend_carbon (string):
+#   Default value: "127.0.0.1:2003"
+#   Carbon instance interface. Use IP address because DNS resolution raises errors!
+#
 
 . /etc/rc.subr
 
 name="alignak_backend"
 rcvar="alignak_backend_enable"
 
-alignak_backend_configfile="/usr/local/etc/alignak-backend/uwsgi.ini"
-command="/usr/local/bin/uwsgi"
-command_interpreter="/usr/local/bin/python2.7"
-pidfile="/var/run/alignak_backend.pid"
-command_args="--ini ${alignak_backend_configfile} -d /dev/null --pidfile ${pidfile}"
-
-required_files="${alignak_backend_configfile}"
-
 load_rc_config "${name}"
+
+: ${alignak_backend_enable="NO"}
+: ${alignak_backend_wsgi="/usr/local/etc/alignak-backend/alignak-backend.wsgi"}
+: ${alignak_backend_log="NO"}
+: ${alignak_backend_log_file="/var/log/${name}/${name}.log"}
+: ${alignak_backend_pid_file="/var/run/${name}/${name}.pid"}
+: ${alignak_backend_processes="4"}
+: ${alignak_backend_group="alignak"}
+: ${alignak_backend_user="alignak"}
+: ${alignak_backend_host="127.0.0.1"}
+: ${alignak_backend_port="5000"}
+: ${alignak_backend_metrics="NO"}
+: ${alignak_backend_carbon="127.0.0.1:2003"}
+
+if checkyesno alignak_backend_log; then
+  alignak_backend_log_options="--logger file:${alignak_backend_log_file}"
+fi
+
+if checkyesno alignak_backend_metrics; then
+  alignak_backend_metrics_options="--carbon ${alignak_backend_carbon}"
+fi
+
+command="/usr/local/bin/uwsgi"
+command_args="--master --daemonize /dev/null --wsgi-file ${alignak_backend_wsgi} --pidfile ${alignak_backend_pid_file} --http ${alignak_backend_host}:${alignak_backend_port} --processes ${alignak_backend_processes} --uid ${alignak_backend_user} --gid ${alignak_backend_group} ${alignak_backend_log_options} ${alignak_backend_metrics_options}"
+
+stop_cmd="${name}_stop"
+start_cmd="${name}_start"
+start_precmd="${name}_precmd"
+
+required_files="${alignak_backend_wsgi}"
+
+alignak_backend_precmd()
+{
+    /usr/bin/install -d -o ${alignak_backend_user} -g ${alignak_backend_group} -m 755 /var/log/${name}
+    /usr/bin/install -d -o ${alignak_backend_user} -g ${alignak_backend_group} -m 755 /var/run/${name}
+}
+
+alignak_backend_start()
+{
+    echo "Starting ${name}..."
+    /usr/local/bin/uwsgi ${command_args}
+    echo "Started"
+}
+
+alignak_backend_stop()
+{
+    echo "Stopping ${name}..."
+    pkill -2 -F ${alignak_backend_pid_file}
+}
 
 [ -z "${alignak_backend_enable}" ] && alignak_backend_enable="NO"
 
