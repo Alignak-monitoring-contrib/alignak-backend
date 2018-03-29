@@ -24,7 +24,7 @@
 #   Default value: "/var/log/${name}/${name}.log"
 #   Log file name.
 #
-# alignak_backend_lpid_file (string):
+# alignak_backend_pid_file (string):
 #   Default value: "/var/run/${name}/${name}.pid"
 #   PID file name.
 #

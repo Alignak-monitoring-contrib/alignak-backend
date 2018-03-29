@@ -1506,7 +1506,8 @@ def pre_host_patch(updates, original):
                     services_drv = current_app.data.driver.db['service']
                     services = services_drv.find({'host': original['_id']})
                     for service in services:
-                        if service['ls_state_type'] == 'HARD':
+                        # Only for HARD states and monitored services
+                        if service['ls_state_type'] == 'HARD' and service['_overall_state_id'] < 5:
                             overall_state = max(overall_state, service['_overall_state_id'])
 
             # Get the host services overall states
