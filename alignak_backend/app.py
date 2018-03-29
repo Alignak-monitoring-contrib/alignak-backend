@@ -1332,6 +1332,9 @@ def after_delete_realm(item):
         }, False, False, **lookup)
         g.updateRealm = False
 
+    # Notify Alignak
+    notify_alignak(notification='reload_configuration')
+
 
 def after_delete_resource_realm():
     """
@@ -1376,6 +1379,9 @@ def after_delete_host(item):
     :return: None
     """
     current_app.logger.debug("Deleted host: %s", item['name'])
+
+    # Notify Alignak
+    notify_alignak(notification='reload_configuration')
 
 
 # Alignak
