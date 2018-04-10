@@ -51,6 +51,32 @@ Nevertheless, the pip installation provides:
 
 All this stuff is available in the repository *bin* directory.
 
+For freeBSD system service
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
+
+    # Enable the system service
+    echo 'alignak_backend_enable="YES"' >> /etc/rc.conf
+    # Declare the configuration file
+    echo 'alignak_backend_config="/root/git/DCS_IPM/config/alignak-backend/settings.json"' >> /etc/rc.conf
+    # Enable uwsgi log
+    echo 'alignak_backend_log="YES"' >> /etc/rc.conf
+    # Define network interface
+    echo 'alignak_backend_host="0.0.0.0"' >> /etc/rc.conf
+    echo 'alignak_backend_port="5000"' >> /etc/rc.conf
+    # # # Send uWsgi metrics to Graphite
+    echo 'alignak_backend_metrics="YES"' >> /etc/rc.conf
+    echo 'alignak_backend_carbon="127.0.0.1:2003 --carbon-root uwsgi -s /tmp/uwsgi.sock"' >> /etc/rc.conf
+
+
+    # Check all the available configuration variables in the /usr/local/etc/rc.d/alignak-backend file!
+
+
+    # Alignak-backend
+    service alignak-backend status
+    service alignak-backend stop
+    service alignak-backend start
+
 With pip
 ~~~~~~~~
 

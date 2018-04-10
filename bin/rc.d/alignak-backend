@@ -15,6 +15,10 @@
 #   Default value: /usr/local/etc/alignak-backend/alignak-backend.wsgi
 #   Wsgi application for the Alignak backend
 #
+# alignak_backend_config (string):
+#   Default value: /usr/local/etc/alignak-backend/settings.json
+#   Configuration file for the Alignak backend
+#
 # alignak_backend_log (bool):
 #   Set to "NO" by default.
 #   Set it to "YES" to enable alignak_backend logging to file
@@ -67,6 +71,7 @@ load_rc_config "${name}"
 
 : ${alignak_backend_enable="NO"}
 : ${alignak_backend_wsgi="/usr/local/etc/alignak-backend/alignak-backend.wsgi"}
+: ${alignak_backend_config="/usr/local/etc/alignak-backend/settings.json"}
 : ${alignak_backend_log="NO"}
 : ${alignak_backend_log_file="/var/log/${name}/${name}.log"}
 : ${alignak_backend_pid_file="/var/run/${name}/${name}.pid"}
@@ -88,6 +93,10 @@ fi
 
 command="/usr/local/bin/uwsgi"
 command_args="--master --daemonize /dev/null --wsgi-file ${alignak_backend_wsgi} --pidfile ${alignak_backend_pid_file} --http ${alignak_backend_host}:${alignak_backend_port} --processes ${alignak_backend_processes} --uid ${alignak_backend_user} --gid ${alignak_backend_group} ${alignak_backend_log_options} ${alignak_backend_metrics_options}"
+
+# Alignak backend need to get ALIGNAK_BACKEND_CONFIGURATION_FILE for its configuration
+ALIGNAK_BACKEND_CONFIGURATION_FILE=${alignak_backend_config}
+echo "Alignak backend configuration is: $ALIGNAK_BACKEND_CONFIGURATION_FILE"
 
 stop_cmd="${name}_stop"
 start_cmd="${name}_start"
