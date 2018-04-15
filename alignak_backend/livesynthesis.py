@@ -303,8 +303,8 @@ class Livesynthesis(object):
         if minus is not False:
             livesynthesis_db = current_app.data.driver.db['livesynthesis']
             live_current = livesynthesis_db.find_one({'_realm': original['_realm']})
-            if live_current is None or 'not_monitored' in minus or (plus and
-                                                                    'not_monitored' in plus):
+            if live_current is None or 'not_monitored' in minus \
+                    or (plus and 'not_monitored' in plus):
                 ls = Livesynthesis()
                 ls.recalculate()
             else:

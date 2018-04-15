@@ -482,8 +482,8 @@ class Grafana(object):
         """
         headers = {"Authorization": "Bearer " + self.api_key}
         try:
-            response = requests.get(self.scheme + '://' + self.host + ':' + self.port +
-                                    '/api/datasources', headers=headers, timeout=10)
+            url = "%s://%s:%s/api/datasources" % (self.scheme, self.host, self.port)
+            response = requests.get(url, headers=headers, timeout=10)
         except requests.exceptions.SSLError as e:
             print("[cron_grafana] SSL connection error to grafana %s: %s" % (self.name, e))
             current_app.logger.error("[cron_grafana] SSL connection error to grafana %s "
@@ -538,8 +538,8 @@ class Grafana(object):
                     "name": ds_name,
                     "type": "graphite",
                     "access": "proxy",
-                    "url": "http://" + timeserie['graphite_address'] + ":" +
-                           str(timeserie['graphite_port']),
+                    "url": "http://%s:%s" % (timeserie['graphite_address'],
+                                             timeserie['graphite_port']),
                     "basicAuth": False,
                     "basicAuthUser": "",
                     "basicAuthPassword": "",
