@@ -405,7 +405,14 @@ class Template(object):  # pylint: disable=too-many-public-methods
             if field_name not in fields:
                 continue
             if isinstance(field_value, dict):
-                fields[field_name].update(field_value)
+                # Update a dictionary makes it take the value of the 'oldest' template.
+                # We do not want this, we want to get the 'youngest' value... so iterate
+                # the dictionary keys to update only if it does not still exist
+                # saved = deepcopy(field_value)
+                for key in field_value:
+                    if key not in fields[field_name]:
+                        fields[field_name][key] = field_value[key]
+                # fields[field_name].update(field_value)
             elif isinstance(field_value, list):
                 fields[field_name][:0] = field_value
 
@@ -433,11 +440,7 @@ class Template(object):  # pylint: disable=too-many-public-methods
             not_updated_fields.append(field_name)
         item['_template_fields'] = []
 
-        # Whether host is a template or not...
-        is_a_template = False
-        if '_is_template' in item:
-            is_a_template = item['_is_template']
-
+        # If has some templates...
         if '_templates' in item and item['_templates']:
             for host_template in item['_templates']:
                 if not ObjectId.is_valid(host_template):
@@ -454,18 +457,17 @@ class Template(object):  # pylint: disable=too-many-public-methods
                         item[field_name] = field_value
                         item['_template_fields'].append(field_name)
 
-            # Cumulate fields only if item is not a template
-            if not is_a_template:
-                Template.get_inherited_fields(item, cumulated_fields, tpl_type='host')
-                for (field_name, field_value) in iteritems(cumulated_fields):
-                    if isinstance(field_value, dict):
-                        item[field_name] = field_value
-                    elif isinstance(field_value, list):
-                        seen = set()
-                        seen_add = seen.add
-                        item[field_name] = [x for x in field_value
-                                            if not (x in seen or seen_add(x))]
-                    item['_template_fields'].append(field_name)
+            # Cumulate fields from inherited templates
+            Template.get_inherited_fields(item, cumulated_fields, tpl_type='host')
+            for (field_name, field_value) in iteritems(cumulated_fields):
+                if isinstance(field_value, dict):
+                    item[field_name] = field_value
+                elif isinstance(field_value, list):
+                    seen = set()
+                    seen_add = seen.add
+                    item[field_name] = [x for x in field_value
+                                        if not (x in seen or seen_add(x))]
+                item['_template_fields'].append(field_name)
 
             schema = host_schema()
             for key in schema['schema']:
@@ -527,11 +529,7 @@ class Template(object):  # pylint: disable=too-many-public-methods
             not_updated_fields.append(field_name)
         item['_template_fields'] = []
 
-        # Whether service is a template or not...
-        is_a_template = False
-        if '_is_template' in item:
-            is_a_template = item['_is_template']
-
+        # If has some templates...
         if '_templates' in item and item['_templates'] != []:
             for service_template in item['_templates']:
                 if not ObjectId.is_valid(service_template):
@@ -547,18 +545,17 @@ class Template(object):  # pylint: disable=too-many-public-methods
                             item[field_name] = field_value
                             item['_template_fields'].append(field_name)
 
-            # Cumulate fields only if item is not a template
-            if not is_a_template:
-                Template.get_inherited_fields(item, cumulated_fields, tpl_type='service')
-                for (field_name, field_value) in iteritems(cumulated_fields):
-                    if isinstance(field_value, dict):
-                        item[field_name] = field_value
-                    elif isinstance(field_value, list):
-                        seen = set()
-                        seen_add = seen.add
-                        item[field_name] = [x for x in field_value
-                                            if not (x in seen or seen_add(x))]
-                    item['_template_fields'].append(field_name)
+            # Cumulate fields from inherited templates
+            Template.get_inherited_fields(item, cumulated_fields, tpl_type='service')
+            for (field_name, field_value) in iteritems(cumulated_fields):
+                if isinstance(field_value, dict):
+                    item[field_name] = field_value
+                elif isinstance(field_value, list):
+                    seen = set()
+                    seen_add = seen.add
+                    item[field_name] = [x for x in field_value
+                                        if not (x in seen or seen_add(x))]
+                item['_template_fields'].append(field_name)
 
             schema = service_schema()
             for key in schema['schema']:
@@ -661,11 +658,7 @@ class Template(object):  # pylint: disable=too-many-public-methods
             not_updated_fields.append(field_name)
         item['_template_fields'] = []
 
-        # Whether user is a template or not...
-        is_a_template = False
-        if '_is_template' in item:
-            is_a_template = item['_is_template']
-
+        # If has some templates...
         if '_templates' in item and item['_templates']:
             for user_template in item['_templates']:
                 if not ObjectId.is_valid(user_template):
@@ -680,18 +673,17 @@ class Template(object):  # pylint: disable=too-many-public-methods
                             item[field_name] = field_value
                             item['_template_fields'].append(field_name)
 
-            # Cumulate fields only if item is not a template
-            if not is_a_template:
-                Template.get_inherited_fields(item, cumulated_fields, tpl_type='user')
-                for (field_name, field_value) in iteritems(cumulated_fields):
-                    if isinstance(field_value, dict):
-                        item[field_name] = field_value
-                    elif isinstance(field_value, list):
-                        seen = set()
-                        seen_add = seen.add
-                        item[field_name] = [x for x in field_value
-                                            if not (x in seen or seen_add(x))]
-                    item['_template_fields'].append(field_name)
+            # Cumulate fields from inherited templates
+            Template.get_inherited_fields(item, cumulated_fields, tpl_type='user')
+            for (field_name, field_value) in iteritems(cumulated_fields):
+                if isinstance(field_value, dict):
+                    item[field_name] = field_value
+                elif isinstance(field_value, list):
+                    seen = set()
+                    seen_add = seen.add
+                    item[field_name] = [x for x in field_value
+                                        if not (x in seen or seen_add(x))]
+                item['_template_fields'].append(field_name)
 
             schema = user_schema()
             for key in schema['schema']:
