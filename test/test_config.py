@@ -89,7 +89,7 @@ class TestConfig(unittest2.TestCase):
         # Get backend configuration
         response = requests.get(self.endpoint + '/backendconfig')
         resp = response.json()
-        assert resp == {u'PAGINATION_DEFAULT': 25, u'PAGINATION_LIMIT': 50}
+        assert resp == {u'PAGINATION_DEFAULT': 50, u'PAGINATION_LIMIT': 5000}
 
     def test_version_endpoint(self):
         """Get backend version

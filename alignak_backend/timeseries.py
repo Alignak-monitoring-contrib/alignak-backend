@@ -215,15 +215,9 @@ class Timeseries(object):
         :return: realms name separed by .
         :rtype: str
         """
-        # print("******Realm All: %s" % realm_id)
         prefix_realm = ''
         realm_db = current_app.data.driver.db['realm']
-        # print("******Realm id: %s" % realm_id)
-        # realms = realm_db.find()
-        # for realm in realms:
-        #     print("******Realm: %s (%s)" % (realm['name'], realm['_id']))
         realm_info = realm_db.find_one({'_id': realm_id})
-        # print("******Realm info: %s" % realm_info)
         if realm_info['_tree_parents']:
             realms = realm_db.find({'_id': {"$in": realm_info['_tree_parents']}}).sort("_level")
             for realm in realms:
