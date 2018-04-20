@@ -17,4 +17,6 @@ flask>=0.10.1,<=0.12
 werkzeug<=0.11.15
 # Set Eve as minimum 0.7.8 because 0.7.7 breaks the Travis build
 Eve>=0.7.8
-uwsgi
+
+# uWSGI server - a recommended Web server to run the application in a production environment
+# uwsgi

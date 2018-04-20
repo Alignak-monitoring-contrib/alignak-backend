@@ -62,7 +62,7 @@ setup(
     install_requires=[
         'python-dateutil>=2.4.2', 'flask-bootstrap', 'docopt', 'jsonschema',
         'eve-swagger', 'configparser', 'future', 'influxdb', 'flask-apscheduler',
-        'werkzeug<=0.11.15', 'flask>=0.10.1,<=0.12', 'Eve>=0.7.8', 'uwsgi', 'statsd'
+        'werkzeug<=0.11.15', 'flask>=0.10.1,<=0.12', 'Eve>=0.7.8', 'statsd'
     ],
 
     # Entry points (if some) ...
