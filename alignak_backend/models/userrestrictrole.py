@@ -85,7 +85,7 @@ def get_schema():
                     'host', 'hostgroup', 'hostdependency', 'hostescalation',
                     'service', 'servicegroup', 'servicedependency', 'serviceescalation',
                     'grafana', 'graphite', 'influxdb', 'statsd',
-                    'timeseriesretention',
+                    'timeseriesretention', 'aligank_notifications',
                     'livesynthesis', 'livesynthesisretention',
                     'logcheckresult', 'history'
                 ],

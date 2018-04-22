@@ -208,20 +208,23 @@ class MyValidator(Validator):
         return
 
 
-def notify_alignak(notification='reload_configuration'):
+def notify_alignak(event=None, parameters=None, notification=None):
     """Send a notification to the Alignak arbiter if configured"""
-    if not settings['ALIGNAK_URL'] or not notification:
+    if not settings['ALIGNAK_URL'] or not event:
         return
 
-    headers = None
     try:
-        current_app.logger.warning("Notifying Alignak for: %s..." % notification)
-        response = requests.get(settings['ALIGNAK_URL'] + '/' + notification,
-                                headers=headers, timeout=10)
-        resp = response.json()
-        current_app.logger.warning("Notified, response: %s..." % resp)
+        current_app.logger.info("Logging an Alignak notification: %s / %s (%s)"
+                                % (event, parameters, notification))
+        data = {'event': event}
+        if parameters:
+            data['parameters'] = parameters
+        if notification:
+            data['notification'] = notification
+        response, _, _, _, _ = post_internal('alignak_notifications', data, True)
+        current_app.logger.debug("Notification: %s" % response)
     except Exception as exp:
-        current_app.logger.error("Alignak notification failed: %s..." % str(exp))
+        current_app.logger.error("Alignak notification log failed: %s" % str(exp))
 
 
 # Hooks used to check user's rights
@@ -1254,8 +1257,8 @@ def after_insert_realm(items):
         }, False, False, **lookup)
         g.updateRealm = False
 
-    # Notify Alignak
-    notify_alignak(notification='reload_configuration')
+        # Notify Alignak
+        notify_alignak(event='creation', parameters='realm:%s' % item['name'])
 
 
 def after_update_realm(updated, original):
@@ -1333,7 +1336,7 @@ def after_delete_realm(item):
         g.updateRealm = False
 
     # Notify Alignak
-    notify_alignak(notification='reload_configuration')
+    notify_alignak(event='deletion', parameters='realm:%s' % item['name'])
 
 
 def after_delete_resource_realm():
@@ -1381,7 +1384,7 @@ def after_delete_host(item):
     current_app.logger.debug("Deleted host: %s", item['name'])
 
     # Notify Alignak
-    notify_alignak(notification='reload_configuration')
+    notify_alignak(event='deletion', parameters='host:%s' % item['name'])
 
 
 # Alignak
@@ -1559,14 +1562,15 @@ def after_insert_host(items):
 
         # Host overall was computed, update the host overall state
         lookup = {"_id": item['_id']}
-        (_, _, etag, _) = patch_internal('host', {"_overall_state_id": overall_state}, False, False,
-                                         **lookup)
+        (_, _, etag, _) = patch_internal('host', {"_overall_state_id": overall_state},
+                                         False, False, **lookup)
         etags[item['_etag']] = etag
+
+        # Notify Alignak
+        notify_alignak(event='creation', parameters='host:%s' % item['name'])
+
     if etags:
         g.replace_etags = etags
-
-    # Notify Alignak
-    notify_alignak(notification='reload_configuration')
 
 
 def pre_service_patch(updates, original):
@@ -2051,8 +2055,12 @@ settings['PORT'] = 5000
 settings['SERVER_NAME'] = None
 settings['DEBUG'] = False
 
+settings['SCHEDULER_ALIGNAK_ACTIVE'] = True
+settings['SCHEDULER_ALIGNAK_PERIOD'] = 300
 settings['SCHEDULER_TIMESERIES_ACTIVE'] = False
+settings['SCHEDULER_TIMESERIES_PERIOD'] = 10
 settings['SCHEDULER_GRAFANA_ACTIVE'] = False
+settings['SCHEDULER_GRAFANA_PERIOD'] = 120
 settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] = 0
 settings['SCHEDULER_TIMEZONE'] = 'Etc/GMT'
 settings['JOBS'] = []
@@ -2079,7 +2087,7 @@ if settings['SCHEDULER_TIMESERIES_ACTIVE']:
             'func': 'alignak_backend.scheduler:cron_cache',
             'args': (),
             'trigger': 'interval',
-            'seconds': 10
+            'seconds': settings['SCHEDULER_TIMESERIES_PERIOD']
         }
     )
 if settings['SCHEDULER_GRAFANA_ACTIVE']:
@@ -2089,7 +2097,7 @@ if settings['SCHEDULER_GRAFANA_ACTIVE']:
             'func': 'alignak_backend.scheduler:cron_grafana',
             'args': (),
             'trigger': 'interval',
-            'seconds': 120
+            'seconds': settings['SCHEDULER_GRAFANA_PERIOD']
         }
     )
 if settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] > 0:
@@ -2099,7 +2107,17 @@ if settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] > 0:
             'func': 'alignak_backend.scheduler:cron_livesynthesis_history',
             'args': (),
             'trigger': 'interval',
-            'seconds': 60
+            'seconds': settings['SCHEDULER_LIVESYNTHESIS_HISTORY']
+        }
+    )
+if settings['SCHEDULER_ALIGNAK_ACTIVE']:
+    jobs.append(
+        {
+            'id': 'cron_alignak',
+            'func': 'alignak_backend.scheduler:cron_alignak',
+            'args': (),
+            'trigger': 'interval',
+            'seconds': settings['SCHEDULER_ALIGNAK_PERIOD']
         }
     )
 
@@ -2534,6 +2552,52 @@ def backend_version():
     """
     my_version = {"version": manifest['version']}
     return jsonify(my_version)
+
+
+@app.route("/cron_alignak")
+def cron_alignak():
+    """
+    Cron used to notify Alignak about some events: configuration reload, ...
+
+    :return: None
+    """
+    with app.test_request_context():
+        alignak_notifications_db = app.data.driver.db['alignak_notifications']
+        current_app.logger.warning("[cron_alignak]: %d notifications"
+                                   % alignak_notifications_db.count())
+        if not alignak_notifications_db.count():
+            return
+
+        sent = set()
+        notifications = alignak_notifications_db.find()
+        for data in notifications:
+            current_app.logger.warning("[cron_alignak]: %s" % data)
+            headers = {'Content-Type': 'application/json'}
+            params = {
+                "event": data['event'],
+                "parameters": data['parameters']
+            }
+            url = "%s/%s" % (settings['ALIGNAK_URL'], data['notification'])
+
+            try:
+                if data['notification'] not in sent:
+                    current_app.logger.warning("[cron_alignak]: Notifying Alignak: %s / %s"
+                                               % (url, params))
+                    response = requests.post(url=url, headers=headers, json=params, timeout=10)
+                    current_app.logger.warning("[cron_alignak]: Notified, response: %s"
+                                               % response.json())
+            # except NewConnectionError:
+            #     current_app.logger.warning("Alignak is not available for notification")
+            except Exception as exp:
+                current_app.logger.warning("[cron_alignak]: Alignak notification failed: %s..."
+                                           % str(exp))
+            finally:
+                # Delete
+                lookup = {"_id": data['_id']}
+                deleteitem_internal('alignak_notifications', False, False, **lookup)
+                current_app.logger.warning("[cron_alignak]: Deleted notification: %s" % data['_id'])
+                # Sent!
+                sent.add(data['notification'])
 
 
 @app.route("/cron_timeseries")
