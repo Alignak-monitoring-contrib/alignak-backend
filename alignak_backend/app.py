@@ -19,6 +19,10 @@ import sys
 import time
 import uuid
 import socket
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 from collections import OrderedDict
 from datetime import datetime, timedelta
@@ -31,6 +35,8 @@ import requests
 from dateutil import parser
 
 from future.utils import iteritems
+
+import pymongo
 
 from eve import Eve
 from eve.auth import TokenAuth
@@ -2038,6 +2044,10 @@ settings['PAGINATION_LIMIT'] = 50
 settings['PAGINATION_DEFAULT'] = 25
 settings['AUTH_FIELD'] = None
 
+# Use MONGO_URI to overpass the MONGO_HOST, MONGO_PORT...
+# settings['MONGO_URI'] = 'mongodb://[username:password@]host1[:port1][,host2[:port2],...[,
+# hostN[:portN]]][/[database][?options]]'
+# settings['MONGO_URI'] = "mongodb://localhost:27017/alignak-backend"
 settings['MONGO_HOST'] = 'localhost'
 settings['MONGO_PORT'] = 27017
 settings['MONGO_DBNAME'] = 'alignak-backend'
@@ -2059,6 +2069,7 @@ settings['SCHEDULER_ALIGNAK_ACTIVE'] = True
 settings['SCHEDULER_ALIGNAK_PERIOD'] = 300
 settings['SCHEDULER_TIMESERIES_ACTIVE'] = False
 settings['SCHEDULER_TIMESERIES_PERIOD'] = 10
+settings['SCHEDULER_TIMESERIES_LIMIT'] = 100
 settings['SCHEDULER_GRAFANA_ACTIVE'] = False
 settings['SCHEDULER_GRAFANA_PERIOD'] = 120
 settings['SCHEDULER_LIVESYNTHESIS_HISTORY'] = 0
@@ -2071,11 +2082,25 @@ settings['ALIGNAK_URL'] = ''
 configuration_file = get_settings(settings)
 print("Application configuration file: %s" % configuration_file)
 
+if settings.get('MONGO_URI', None) is None:
+    settings['MONGO_URI'] = "mongodb://%s:%s/%s" \
+                            % (settings['MONGO_HOST'], settings['MONGO_PORT'],
+                               settings['MONGO_DBNAME'])
+
 if os.getenv('ALIGNAK_BACKEND_LOGGER_CONFIGURATION', None):
     settings['LOGGER'] = os.getenv('ALIGNAK_BACKEND_LOGGER_CONFIGURATION')
 
-if os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME'):
-    settings['MONGO_DBNAME'] = os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME')
+if os.environ.get('ALIGNAK_BACKEND_MONGO_URI'):
+    settings['MONGO_URI'] = os.environ.get('ALIGNAK_BACKEND_MONGO_URI')
+else:
+    if os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME'):
+        parsed_url = urlparse(settings['MONGO_URI'], 'mongodb:')
+        settings['MONGO_URI'] = "%s://%s/%s" \
+                                % (parsed_url.scheme, parsed_url.netloc,
+                                   os.environ.get('ALIGNAK_BACKEND_MONGO_DBNAME'))
+        if parsed_url.params:
+            settings['MONGO_URI'] = "%s?%s" \
+                                    % (settings['MONGO_URI'], parsed_url.params)
 
 # scheduler config
 jobs = []
@@ -2124,6 +2149,7 @@ if settings['SCHEDULER_ALIGNAK_ACTIVE']:
 settings['JOBS'] = jobs
 
 print("Application settings: %s" % settings)
+print('MongoDB connection string: %s' % settings['MONGO_URI'])
 
 # Add model schema to the configuration
 settings['DOMAIN'] = register_models()
@@ -2563,10 +2589,11 @@ def cron_alignak():
     """
     with app.test_request_context():
         alignak_notifications_db = app.data.driver.db['alignak_notifications']
-        current_app.logger.warning("[cron_alignak]: %d notifications"
-                                   % alignak_notifications_db.count())
         if not alignak_notifications_db.count():
             return
+
+        current_app.logger.warning("[cron_alignak]: %d notifications"
+                                   % alignak_notifications_db.count())
 
         sent = set()
         notifications = alignak_notifications_db.find()
@@ -2612,7 +2639,12 @@ def cron_timeseries():
         graphite_db = current_app.data.driver.db['graphite']
         influxdb_db = current_app.data.driver.db['influxdb']
         if timeseriesretention_db.count() > 0:
-            tsc = timeseriesretention_db.find({'graphite': {'$ne': None}})
+            tsc = timeseriesretention_db.find({'graphite': {'$ne': None}})\
+                .sort('_id')\
+                .limit(settings['SCHEDULER_TIMESERIES_LIMIT'])
+            if tsc.count():
+                current_app.logger.warning("[cron_timeseries]: "
+                                           "flushing %d Graphite metrics" % tsc.count())
             for data in tsc:
                 graphite = graphite_db.find_one({'_id': data['graphite']})
                 if not Timeseries.send_to_timeseries_graphite([data], graphite):
@@ -2620,7 +2652,12 @@ def cron_timeseries():
                 lookup = {"_id": data['_id']}
                 deleteitem_internal('timeseriesretention', False, False, **lookup)
 
-            tsc = timeseriesretention_db.find({'influxdb': {'$ne': None}})
+            tsc = timeseriesretention_db.find({'influxdb': {'$ne': None}})\
+                .sort('_id')\
+                .limit(settings['SCHEDULER_TIMESERIES_LIMIT'])
+            if tsc.count():
+                current_app.logger.warning("[cron_timeseries]: "
+                                           "flushing %d InfluxDB metrics" % tsc.count())
             for data in tsc:
                 influxdb = influxdb_db.find_one({'_id': data['influxdb']})
                 if not Timeseries.send_to_timeseries_influxdb([data], influxdb):

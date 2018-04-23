@@ -307,13 +307,20 @@ class Timeseries(object):
             # manage prefix of graphite server
             if graphite['prefix'] != '':
                 prefix = graphite['prefix'] + '.' + prefix
+            current_app.logger.debug("[tsdb] data: %s", ('.'.join([prefix, d['name']]),
+                                                         (int(d['timestamp']), d['value'])))
             send_data.append(('.'.join([prefix, d['name']]),
                               (int(d['timestamp']), d['value'])))
         carbon = CarbonIface(graphite['carbon_address'], graphite['carbon_port'])
         try:
+            current_app.logger.debug("[tsdb] sending %d data to Graphite (%s:%s)...",
+                                     len(send_data),
+                                     graphite['carbon_address'], graphite['carbon_port'])
             carbon.send_data(send_data)
             return True
-        except:  # pylint: disable=W0702
+        except Exception as exp:
+            current_app.logger.warning("Failed sending metrics to Graphite, exception: %s",
+                                       str(exp))
             return False
 
     @staticmethod
