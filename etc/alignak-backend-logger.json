@@ -36,6 +36,11 @@
             "level": "INFO",
             "handlers": ["alignak_backend"],
             "propagate": "no"
+        },
+        "apscheduler.executors.default": {
+            "level": "ERROR",
+            "handlers": ["alignak_backend"],
+            "propagate": "no"
         }
     },
 

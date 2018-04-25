@@ -17,7 +17,10 @@ The backend uses a configuration file that is located in one of these folders:
 
 If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
 
-It's a JSON structured file.
+It's a JSON structured file. **Note** the the / (slash) characters used inside the variables values need to be escaped with a \!
+
+If an environment variable `ALIGNAK_BACKEND_MONGO_URI` exist, it will replace the one defined in the settings file for the MongoDB connection string.
+If an environment variable `ALIGNAK_BACKEND_MONGO_DBNAME` exist, it will replace the one defined in the settings file and will be used as the database name.
 
 Debug section
 -------------
@@ -101,6 +104,12 @@ The username and password to access MongoDB and the database defined previously:
     "MONGO_PASSWORD": null,
 
 
+In place of all these configuration variables you can more simply define a Mongo connection string that will take precedence over the formerly defined variables:
+::
+    "MONGO_URI": "mongodb:\/\/[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][\/[database][?options]]"
+
+**Note** the slashes escaping...
+
 Timeseries databases
 --------------------
 
@@ -154,3 +163,22 @@ To have an history of the live synthesis (every minute) during xx minutes, you n
 To activate, define the number of minutes you want to keep history, *0* to disable, example for 30 minutes::
 
   "SCHEDULER_LIVESYNTHESIS_HISTORY": 30
+
+Grafana datasource
+------------------
+
+The Grafana datasource available queries are defined in a json file which name is declared in:
+::
+
+    "GRAFANA_DATASOURCE_QUERIES": "grafana_queries.json"
+
+This configuration file variable may be overloaded with an environment variable: `ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES`.
+
+The Grafana datasource tables available are defined in a json file which name is declared in:
+::
+
+    "GRAFANA_DATASOURCE_TABLES": "grafana_tables.json"
+
+This configuration file variable may be overloaded with an environment variable: `ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES`.
+
+
