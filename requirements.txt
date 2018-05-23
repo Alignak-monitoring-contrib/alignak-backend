@@ -11,12 +11,13 @@ flask-apscheduler
 six==1.11.0
 influxdb
 statsd
-# Force Flask version because Eve requires this!
-flask>=0.10.1,<=0.12
+# Force Flask version >= 1.0 because Eve recent version requires this!
+flask>=1.0
 # Force Werkzeug version because Eve requires this!
-werkzeug<=0.11.15
-# Set Eve as minimum 0.7.8 because 0.7.7 breaks the Travis build
-Eve>=0.7.8
+# werkzeug<=0.11.15
+# Set Eve as 0.7.9 because >=0.8.0 is not yet compatible
+Eve==0.7.9
 
 # uWSGI server - a recommended Web server to run the application in a production environment
+# uncomment this to install from the Python repository if not installed by the server packaging
 # uwsgi
