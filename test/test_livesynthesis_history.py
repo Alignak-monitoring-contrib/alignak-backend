@@ -322,6 +322,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
                 # print("insert %d" % insert)
                 exit_code = subprocess.call(jsondata)
                 assert exit_code == 0
+        # time.sleep(5)
 
     @classmethod
     def tearDownClass(cls):
