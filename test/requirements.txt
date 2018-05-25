@@ -3,20 +3,20 @@
 
 unittest2
 # Web test
-webtest
+WebTest==2.0.29
 # Use py.test as test-runner
-pytest
-pytest-cov
-# Let coverage use the most recent version
-coverage
+pytest==3.6.0
+pytest-cov==2.5.1
+# code coverage
+coverage==4.5.1
 # Report coverage results to coveralls.io
-coveralls
+coveralls==1.3.0
 # Static code analysis libraries
-pylint
-pycodestyle
-pep257
+pycodestyle==2.4.0
+pylint==1.9.1
+pep257==0.7.0
 # uWSGI server
-uwsgi
+uWSGI==2.0.17
 # Mock
-mock
-requests_mock
+mock==2.0.0
+requests-mock==1.4.0

@@ -2054,7 +2054,8 @@ settings['MONGO_DBNAME'] = 'alignak-backend'
 
 settings['RESOURCE_METHODS'] = ['GET', 'POST', 'DELETE']
 settings['ITEM_METHODS'] = ['GET', 'PATCH', 'DELETE']
-settings['XML'] = False
+# settings['XML'] = False
+settings['JSON'] = True
 # Allow $regex in filtering ...
 # Default is ['$where', '$regex']
 settings['MONGO_QUERY_BLACKLIST'] = ['$where']
