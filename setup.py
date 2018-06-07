@@ -34,6 +34,9 @@ data_files = [('etc/alignak-backend',
 if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
     data_files.append(('etc/rc.d', ['bin/rc.d/alignak-backend']))
 
+with open('README.rst') as f:
+    long_description = f.read()
+
 setup(
     name=__pkg_name__,
     version=__version__,
@@ -46,7 +49,8 @@ setup(
     keywords="alignak monitoring backend",
     url=__git_url__,
     description=package.__doc__.strip(),
-    long_description=open('README.rst').read(),
+    long_description=long_description,
+    long_description_content_type='',
 
     classifiers = __classifiers__,
 
@@ -60,9 +64,9 @@ setup(
     # Dependencies (if some) ...
     # Set Flask dependency because of a forced dependency in Eve...
     install_requires=[
-        'python-dateutil>=2.4.2', 'flask-bootstrap', 'docopt', 'jsonschema',
+        'python-dateutil', 'flask-bootstrap', 'docopt', 'jsonschema',
         'eve-swagger', 'configparser', 'future', 'influxdb', 'flask-apscheduler',
-        'werkzeug<=0.11.15', 'flask>=0.10.1,<=0.12', 'Eve>=0.7.8', 'statsd'
+        'werkzeug', 'flask', 'Eve', 'statsd'
     ],
 
     # Entry points (if some) ...
