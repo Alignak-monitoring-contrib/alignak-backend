@@ -92,7 +92,7 @@ if checkyesno alignak_backend_metrics; then
 fi
 
 command="/usr/local/bin/uwsgi"
-command_args="--master --daemonize /dev/null --wsgi-file ${alignak_backend_wsgi} --pidfile ${alignak_backend_pid_file} --http ${alignak_backend_host}:${alignak_backend_port} --processes ${alignak_backend_processes} --uid ${alignak_backend_user} --gid ${alignak_backend_group} ${alignak_backend_log_options} ${alignak_backend_metrics_options}"
+command_args="--master --enable-threads --daemonize /dev/null --wsgi-file ${alignak_backend_wsgi} --pidfile ${alignak_backend_pid_file} --http ${alignak_backend_host}:${alignak_backend_port} --processes ${alignak_backend_processes} --uid ${alignak_backend_user} --gid ${alignak_backend_group} ${alignak_backend_log_options} ${alignak_backend_metrics_options}"
 
 # Alignak backend need to get ALIGNAK_BACKEND_CONFIGURATION_FILE for its configuration
 export ALIGNAK_BACKEND_CONFIGURATION_FILE=${alignak_backend_config}
