@@ -17,7 +17,7 @@ The backend uses a configuration file that is located in one of these folders:
 
 If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
 
-It's a JSON structured file. **Note** the the / (slash) characters used inside the variables values need to be escaped with a \!
+It's a JSON structured file. **Note** that the / (slash) characters used inside the variables values need to be escaped with a \!
 
 If an environment variable `ALIGNAK_BACKEND_MONGO_URI` exist, it will replace the one defined in the settings file for the MongoDB connection string.
 If an environment variable `ALIGNAK_BACKEND_MONGO_DBNAME` exist, it will replace the one defined in the settings file and will be used as the database name.
@@ -104,8 +104,7 @@ The username and password to access MongoDB and the database defined previously:
     "MONGO_PASSWORD": null,
 
 
-In place of all these configuration variables you can more simply define a Mongo connection string that will take precedence over the formerly defined variables:
-::
+In place of all these configuration variables you can more simply define a Mongo connection string that will take precedence over the formerly defined variables::
     "MONGO_URI": "mongodb:\/\/[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][\/[database][?options]]"
 
 **Note** the slashes escaping...
