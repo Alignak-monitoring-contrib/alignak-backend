@@ -7,7 +7,7 @@ configparser
 flask-bootstrap
 future
 flask-apscheduler
-# Force six version because influxdb requires this!
+# Force six version because influxdb requires this!
 six==1.11.0
 influxdb
 statsd
