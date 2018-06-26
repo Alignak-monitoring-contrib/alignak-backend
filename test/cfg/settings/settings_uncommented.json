@@ -1,0 +1,44 @@
+{
+  "DEBUG": false,
+
+  "HOST": "",
+  "PORT": 5000,
+  "SERVER_NAME": null,
+
+  "X_DOMAINS": "*",
+
+  "PAGINATION_LIMIT": 5000,
+  "PAGINATION_DEFAULT": 50,
+
+  "RATE_LIMIT_GET": null,
+  "RATE_LIMIT_POST": null,
+  "RATE_LIMIT_PATCH": null,
+  "RATE_LIMIT_DELETE": null,
+
+  "MONGO_URI": "mongodb:\/\/localhost:27017\/alignak-backend",
+  "MONGO_HOST": "localhost",
+  "MONGO_PORT": 27017,
+  "MONGO_DBNAME": "alignak-backend",
+  "MONGO_USERNAME": null,
+  "MONGO_PASSWORD": null,
+
+  "IP_CRON": ["127.0.0.1"],
+
+
+  "LOGGER": "alignak-backend-logger.json",
+
+  "ALIGNAK_URL": "http:\/\/127.0.0.1:7770",
+
+  "SCHEDULER_ALIGNAK_ACTIVE": false,
+  "SCHEDULER_ALIGNAK_PERIOD": 10,
+
+  "SCHEDULER_TIMESERIES_ACTIVE": false,
+  "SCHEDULER_TIMESERIES_PERIOD": 10,
+  "SCHEDULER_GRAFANA_ACTIVE": false,
+  "SCHEDULER_GRAFANA_PERIOD": 120,
+
+  "GRAFANA_DATASOURCE": true,
+  "GRAFANA_DATASOURCE_QUERIES": "grafana_queries.json",
+  "GRAFANA_DATASOURCE_TABLES": "grafana_tables.json",
+  "SCHEDULER_LIVESYNTHESIS_HISTORY": 60
+}

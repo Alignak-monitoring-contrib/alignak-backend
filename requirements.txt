@@ -2,6 +2,7 @@
 python-dateutil>=2.4.2
 docopt
 jsonschema
+jsmin==2.2.2
 eve-swagger
 configparser
 flask-bootstrap
@@ -20,4 +21,4 @@ Eve==0.7.9
 
 # uWSGI server - a recommended Web server to run the application in a production environment
 # uncomment this to install from the Python repository if not installed by the server packaging
-# uwsgi
+# uwsgi==0.2.16
