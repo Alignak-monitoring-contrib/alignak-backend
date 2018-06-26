@@ -218,7 +218,7 @@ class Timeseries(object):
         prefix_realm = ''
         realm_db = current_app.data.driver.db['realm']
         realm_info = realm_db.find_one({'_id': realm_id})
-        if realm_info['_tree_parents']:
+        if realm_info.get('_tree_parents', []):
             realms = realm_db.find({'_id': {"$in": realm_info['_tree_parents']}}).sort("_level")
             for realm in realms:
                 prefix_realm += realm['name'] + "."
@@ -256,7 +256,7 @@ class Timeseries(object):
 
         searches = [{'_realm': item_realm}]
         realm_info = realm_db.find_one({'_id': item_realm})
-        for realm in realm_info['_tree_parents']:
+        for realm in realm_info.get('_tree_parents', []):
             searches.append({'_realm': realm, '_sub_realm': True})
 
         # get graphite servers to send to

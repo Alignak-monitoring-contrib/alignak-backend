@@ -11,6 +11,7 @@ import shlex
 import subprocess
 import copy
 from datetime import datetime, timedelta
+from freezegun import freeze_time
 import requests
 import unittest2
 from eve.utils import date_to_str
@@ -23,6 +24,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
     maxDiff = None
 
     @classmethod
+    @freeze_time("2017-06-01 18:30:00")
     def setUpClass(cls):
         # pylint: disable=too-many-locals
         """
@@ -154,6 +156,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
                 # print("insert %d" % insert)
                 exit_code = subprocess.call(jsondata)
                 assert exit_code == 0
+        # print("Inserted %d retention items" % insert)
 
         # update ls_* in services and hosts
         data = {
@@ -278,6 +281,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
                 # print("insert %d" % insert)
                 exit_code = subprocess.call(jsondata)
                 assert exit_code == 0
+        # print("Inserted %d retention items" % insert)
 
         datas = {
             'ls_state': 'CRITICAL',
@@ -303,6 +307,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         response = requests.get(cls.endpoint + '/livesynthesis', params=sort_id, auth=cls.auth)
         resp = response.json()
         rl = resp['_items']
+        # print("Got %d ls items" % len(rl))
         for item in rl:
             for i in range(1, 2):
                 data = copy.deepcopy(item)
@@ -313,8 +318,8 @@ class TestHookLivesynthesis(unittest2.TestCase):
                         del data[prop]
                 data['_created'] = date_to_str(datetime.utcnow() - timedelta(seconds=60 * i))
                 jsondata = shlex.split(
-                    'mongo %s --eval "db.livesynthesisretention.insert("' % os.environ[
-                        'ALIGNAK_BACKEND_MONGO_DBNAME'])
+                    'mongo %s --eval "db.livesynthesisretention.insert("'
+                    % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
                 jsondata[-1] = jsondata[-1] + json.dumps(data, separators=(',', ':')) + ")"
                 jsondata[-1] = jsondata[-1].replace('"' + item['_id'] + '"',
                                                     "ObjectId('%s')" % item['_id'])
@@ -323,6 +328,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
                 exit_code = subprocess.call(jsondata)
                 assert exit_code == 0
         # time.sleep(5)
+        # print("Inserted %d retention items" % insert)
 
     @classmethod
     def tearDownClass(cls):
@@ -334,6 +340,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
 
+    @freeze_time("2017-06-01 18:30:00")
     def test_01_get_history_realm_all(self):
         """
         Test get all resources and one item have all history in the response
@@ -446,6 +453,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
             del resp['history'][(i - 1)]['_created']
             self.assertEqual(resp['history'][(i - 1)], ref_old)
 
+    @freeze_time("2017-06-01 18:30:00")
     def test_02_get_history_realm_all_a(self):
         """
         Test get all resources and one item have all history in the response
@@ -558,6 +566,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
             del resp['history'][(i - 1)]['_created']
             self.assertEqual(resp['history'][(i - 1)], ref_old)
 
+    @freeze_time("2017-06-01 18:30:00")
     def test_03_get_concatenation(self):
         """
         Test get item give concatenation of all livesynthesis in children realm
@@ -601,6 +610,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertItemsEqual(ref, resp)
         self.assertEqual(ref, resp)
 
+    @freeze_time("2017-06-01 18:30:00")
     def test_04_get_history_concatenation(self):
         """
         Test get item give concatenation of all livesynthesis in children realm +
@@ -704,6 +714,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
             del resp['history'][(i - 1)]['_created']
             self.assertEqual(resp['history'][(i - 1)], ref_old)
 
+    @freeze_time("2017-06-01 18:30:00")
     def test_05_get_concatenation_restrict_user(self):
         # pylint: disable=too-many-locals
         """
@@ -886,6 +897,7 @@ class TestHookLivesynthesis(unittest2.TestCase):
         self.assertItemsEqual(ref, resp)
         self.assertEqual(ref, resp)
 
+    @freeze_time("2017-06-01 18:30:00")
     def test_06_cron_retention(self):
         """
         Test the cron create new entry in retention and delete old values
