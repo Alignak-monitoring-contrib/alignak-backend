@@ -1542,6 +1542,9 @@ def after_insert_host(items):
     """
     etags = {}
     for dummy, item in enumerate(items):
+        if item['_is_template']:
+            continue
+
         overall_state = 0
 
         active_checked = item['active_checks_enabled']
