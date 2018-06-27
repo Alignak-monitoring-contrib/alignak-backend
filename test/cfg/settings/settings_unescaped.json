@@ -32,6 +32,8 @@
   The Alignak backend will use this adress to notify Alignak about backend newly created
   or deleted items
   Set to an empty value to disable this feature
+  Notes:
+  - / characters must be \ escaped!
   */
   "ALIGNAK_URL": "http://127.0.0.1:7770",
 
@@ -39,10 +41,10 @@
   Every SCHEDULER_ALIGNAK_PERIOD, an event is raised to the ALIGNAK_URL if an host/realm/user
   was created or deleted
 
-  Only raise notifications every 10 minutes
+  Short period for tests
   */
-  "SCHEDULER_ALIGNAK_ACTIVE": true,
-  "SCHEDULER_ALIGNAK_PERIOD": 600,
+  "SCHEDULER_ALIGNAK_ACTIVE": false,
+  "SCHEDULER_ALIGNAK_PERIOD": 10,
 
   /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
   to the corresponding TSDB. If the TSDB is not available, metrics are stored internally

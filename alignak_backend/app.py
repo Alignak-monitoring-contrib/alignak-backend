@@ -37,6 +37,7 @@ from dateutil import parser
 from future.utils import iteritems
 
 import pymongo
+from jsmin import jsmin
 
 from eve import Eve
 from eve.auth import TokenAuth
@@ -2000,24 +2001,13 @@ def get_settings(prev_settings):
     if os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'):
         settings_filenames = [os.path.abspath(os.environ.get('ALIGNAK_BACKEND_CONFIGURATION_FILE'))]
 
-    comment_re = re.compile(
-        r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
-        re.DOTALL | re.MULTILINE
-    )
     for name in settings_filenames:
         if not os.path.isfile(name):
             continue
 
-        with open(name) as stream:
-            content = ''.join(stream.readlines())
-            # Looking for comments
-            match = comment_re.search(content)
-            while match:
-                # single line comment
-                content = content[:match.start()] + content[match.end():]
-                match = comment_re.search(content)
-
-            conf = json.loads(content)
+        with open(name) as json_file:
+            minified = jsmin(json_file.read())
+            conf = json.loads(minified)
             for key, value in iteritems(conf):
                 if key.startswith('RATE_LIMIT_') and value is not None:
                     prev_settings[key] = tuple(value)
@@ -2696,22 +2686,11 @@ if settings.get('GRAFANA_DATASOURCE', True):
                 os.path.abspath('./%s' % cfg_file_name)
             ]
 
-        comment_re = re.compile(
-            r'(^)?[^\S\n]*/(?:\*(.*?)\*/[^\S\n]*|/[^\n]*)($)?',
-            re.DOTALL | re.MULTILINE
-        )
         for name in filenames:
             if os.path.isfile(name):
-                with open(name) as stream:
-                    content = ''.join(stream.readlines())
-                    # Looking for comments
-                    match = comment_re.search(content)
-                    while match:
-                        # single line comment
-                        content = content[:match.start()] + content[match.end():]
-                        match = comment_re.search(content)
-
-                    conf = json.loads(content)
+                with open(name) as json_file:
+                    minified = jsmin(json_file.read())
+                    conf = json.loads(minified)
                     for key, value in iteritems(conf):
                         queries[key] = value
                     print("Using Grafana configuration file: %s" % name)

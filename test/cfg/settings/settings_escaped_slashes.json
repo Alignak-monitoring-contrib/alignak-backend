@@ -16,7 +16,7 @@
   "RATE_LIMIT_PATCH": null,   /* Limit number of PATCH requests */
   "RATE_LIMIT_DELETE": null,  /* Limit number of DELETE requests */
 
-  "MONGO_URI": "mongodb://localhost:27017/alignak-backend",
+  "MONGO_URI": "mongodb:\/\/localhost:27017\/alignak-backend",
   "MONGO_HOST": "localhost",          /* Address of MongoDB */
   "MONGO_PORT": 27017,                /* port of MongoDB */
   "MONGO_DBNAME": "alignak-backend",  /* Name of database in MongoDB */
@@ -32,17 +32,19 @@
   The Alignak backend will use this adress to notify Alignak about backend newly created
   or deleted items
   Set to an empty value to disable this feature
+  Notes:
+  - / characters must be \ escaped!
   */
-  "ALIGNAK_URL": "http://127.0.0.1:7770",
+  "ALIGNAK_URL": "http:\/\/127.0.0.1:7770",
 
   /* Alignak event reporting scheduler
   Every SCHEDULER_ALIGNAK_PERIOD, an event is raised to the ALIGNAK_URL if an host/realm/user
   was created or deleted
 
-  Only raise notifications every 10 minutes
+  Short period for tests
   */
-  "SCHEDULER_ALIGNAK_ACTIVE": true,
-  "SCHEDULER_ALIGNAK_PERIOD": 600,
+  "SCHEDULER_ALIGNAK_ACTIVE": false,
+  "SCHEDULER_ALIGNAK_PERIOD": 10,
 
   /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
   to the corresponding TSDB. If the TSDB is not available, metrics are stored internally

@@ -14,7 +14,6 @@ import subprocess
 import requests
 import unittest2
 import pytest
-# from pytest import capsys
 
 
 class TestStart(unittest2.TestCase):
@@ -92,6 +91,29 @@ class TestStart(unittest2.TestCase):
         for resource in ['host', 'service', 'command', 'history']:
             requests.delete('http://127.0.0.1:5000/' + resource, auth=auth)
 
+    @classmethod
+    def setUpClass(cls):
+        """
+        This method:
+          * delete mongodb database
+          * start the backend with uwsgi
+          * log in the backend and get the token
+          * get the realm
+
+        :return: None
+        """
+        # Set test mode for Alignak backend
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
+        os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
+
+        # Delete used mongo DBs
+        exit_code = subprocess.call(
+            shlex.split(
+                'mongo %s --eval "db.dropDatabase()"' % os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'])
+        )
+        assert exit_code == 0
+
     def test_start_application_uwsgi(self):
         """ Start alignak backend with uwsgi"""
 
@@ -135,10 +157,40 @@ class TestStart(unittest2.TestCase):
         os.chdir(dir_path)
 
     def test_start_application(self):
-        """ Start application stand alone"""
+        """ Start application stand alone - default JSON (commented) configuration file"""
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
+            '../test/cfg/settings/settings.json'
+        self._start_and_stop_app()
+
+    def test_start_application_json_uncommented(self):
+        """ Start application stand alone - uncommented JSON configuration file"""
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
+            '../test/cfg/settings/settings_uncommented.json'
+        self._start_and_stop_app()
         os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
             '../test/cfg/settings/settings.json'
 
+    def test_start_application_json_escaped(self):
+        """ Start application stand alone - escaped JSON configuration file
+        Text fields containing / character are escaped as with a backslahs
+        """
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
+            '../test/cfg/settings/settings_escaped_slashes.json'
+        self._start_and_stop_app()
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
+            '../test/cfg/settings/settings.json'
+
+    def test_start_application_json_unescaped(self):
+        """ Start application stand alone - unescaped JSON configuration file
+        Text fields containing / character need to be escaped with a backslahs
+        """
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
+            '../test/cfg/settings/settings_unescaped.json'
+        self._start_and_stop_app()
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = \
+            '../test/cfg/settings/settings.json'
+
+    def _start_and_stop_app(self):
         if os.path.exists('/tmp/alignak-backend_alignak-backend.log'):
             os.remove('/tmp/alignak-backend_alignak-backend.log')
 
@@ -155,7 +207,7 @@ class TestStart(unittest2.TestCase):
             for line in iter(process.stdout.readline, b''):
                 print("... " + line.rstrip())
             for line in iter(process.stderr.readline, b''):
-                print("... " + line.rstrip())
+                print("xxx " + line.rstrip())
 
         time.sleep(3)
         self._backend_clean()
@@ -164,16 +216,28 @@ class TestStart(unittest2.TestCase):
 
         print("Killing backend...")
         process.terminate()
+        p_stdout = []
+        found = False
         for line in iter(process.stdout.readline, b''):
+            p_stdout.append(str(line).rstrip())
             print(">>> " + str(line).rstrip())
+            if b'Application settings:' in line:
+                # Not escaped URL!
+                if b"http://127.0.0.1:7770" in line:
+                    found = True
+        assert found
 
         login = False
+        p_stderr = []
         for line in iter(process.stderr.readline, b''):
+            p_stderr.append(str(line).rstrip())
             print("*** " + str(line).rstrip())
             line = str(line)
             if 'POST /login HTTP/1.1' in line:
                 login = True
         assert login
+
+        return p_stdout, p_stderr
 
         # Do not run correctly on Travis
         # todo: reactivate when problem is found !
