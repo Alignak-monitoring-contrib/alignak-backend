@@ -10,7 +10,7 @@ Service escalation (serviceescalation)
     and the possibilities behind this Alignak feature.
     
 
-.. image:: ../_static/configserviceescalation.png
+.. image:: ../_static/config_serviceescalation.png
 
 
 .. csv-table:: Properties
@@ -78,7 +78,7 @@ Service escalation (serviceescalation)
 
 ``escalation_options``: List of the notifications types this escalation is concerned with. This escalation will be used only if the host is in one of the states specified in this property.
 
-   Allowed values: [, ', w, ', ,,  , ', c, ', ,,  , ', x, ', ,,  , ', r, ', ]
+   Allowed values: ['w', 'c', 'x', 'r']
 
 .. _serviceescalation-escalation_period:
 

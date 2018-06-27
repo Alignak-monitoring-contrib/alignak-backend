@@ -8,7 +8,7 @@ Alignak hosts groups (hostgroup)
 
     
 
-.. image:: ../_static/confighostgroup.png
+.. image:: ../_static/config_hostgroup.png
 
 
 .. csv-table:: Properties

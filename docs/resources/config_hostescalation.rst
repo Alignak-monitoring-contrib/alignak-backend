@@ -10,7 +10,7 @@ Host escalation (hostescalation)
     and the possibilities behind this Alignak feature.
     
 
-.. image:: ../_static/confighostescalation.png
+.. image:: ../_static/config_hostescalation.png
 
 
 .. csv-table:: Properties
@@ -76,7 +76,7 @@ Host escalation (hostescalation)
 
 ``escalation_options``: List of the notifications types this escalation is concerned with. This escalation will be used only if the host is in one of the states specified in this property.
 
-   Allowed values: [, ', d, ', ,,  , ', x, ', ,,  , ', r, ', ]
+   Allowed values: ['d', 'x', 'r']
 
 .. _hostescalation-escalation_period:
 

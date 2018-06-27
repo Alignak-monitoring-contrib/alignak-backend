@@ -64,14 +64,20 @@ from alignak_backend import __name__ as __pkg_name__
 
 package = import_module('alignak_backend')
 
-data_files = [('etc/alignak-backend',
-               ['etc/settings.json', 'etc/alignak-backend-logger.json', 'etc/uwsgi.ini',
-                'etc/grafana_queries.json', 'etc/grafana_tables.json', 'etc/alignak-backend.wsgi']),
-              ('bin',
-               ['bin/alignak-backend-uwsgi']),
-              ('var/log/alignak-backend', [])]
-if 'bsd' in sys.platform or 'dragonfly' in sys.platform:
-    data_files.append(('etc/rc.d', ['bin/rc.d/alignak-backend']))
+# Get default configuration files recursively
+data_files = [
+    ('share/alignak-backend', ['requirements.txt']),
+    ('share/alignak-backend', ['bin/post-install.sh',
+                               'bin/alignak-backend-log-rotate',
+                               'bin/alignak-backend-uwsgi'])
+]
+for dir in ['etc', 'bin/rc.d', 'bin/systemd']:
+    for subdir, dirs, files in os.walk(dir):
+        # Configuration directory
+        target = os.path.join('share/alignak-backend', subdir)
+        package_files = [os.path.join(subdir, file) for file in files]
+        if package_files:
+            data_files.append((target, package_files))
 
 setup(
     name=__pkg_name__,
@@ -82,24 +88,41 @@ setup(
     # metadata for upload to PyPI
     author=__author__,
     author_email=__author_email__,
-    keywords="alignak monitoring backend",
-    url=__git_url__,
+    url=__doc_url__,
+    download_url=__git_url__,
     description=package.__doc__.strip(),
     long_description=long_description,
-    long_description_content_type='',
+    long_description_content_type='text/x-rst',
 
     classifiers = __classifiers__,
 
-    zip_safe=False,
+    keywords='python monitoring alignak nagios shinken',
 
-    packages=find_packages(),
+    project_urls={
+        'Presentation': 'http://alignak.net',
+        'Documentation': 'http://docs.alignak.net/en/latest/',
+        'Source': 'https://github.com/alignak-monitoring-contrib/alignak-backed/',
+        'Tracker': 'https://github.com/alignak-monitoring-contrib/alignak-backend/issues',
+        'Contributions': 'https://github.com/alignak-monitoring-contrib/'
+    },
+
+    # Package data
+    packages=find_packages(exclude=['docs', 'test']),
+    include_package_data=True,
 
     # Where to install distributed files
     data_files = data_files,
 
-    # Dependencies (if some) ...
-    # Set Flask dependency because of a forced dependency in Eve...
+    # Unzip Egg
+    zip_safe=False,
+    platforms='any',
+
+    # Dependencies...
     install_requires=requirements,
+    dependency_links=[
+        # Use the standard PyPi repository
+        "https://pypi.python.org/simple/",
+    ],
 
     # Entry points (if some) ...
     entry_points={

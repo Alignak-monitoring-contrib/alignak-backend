@@ -20,7 +20,7 @@ Alignak time period (timeperiod)
     and calendar dates.
     
 
-.. image:: ../_static/configtimeperiod.png
+.. image:: ../_static/config_timeperiod.png
 
 
 .. csv-table:: Properties

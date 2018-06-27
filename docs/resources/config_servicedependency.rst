@@ -9,7 +9,7 @@ Service dependency (servicedependency)
     See the Alignak documentation regarding the dependency check management.
     
 
-.. image:: ../_static/configservicedependency.png
+.. image:: ../_static/config_servicedependency.png
 
 
 .. csv-table:: Properties
@@ -90,7 +90,7 @@ Service dependency (servicedependency)
 
 ``execution_failure_criteria``: See Alginak doc about dependency checks.
 
-   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', p, ', ,,  , ', n, ', ]
+   Allowed values: ['o', 'w', 'u', 'c', 'p', 'n']
 
 .. _servicedependency-hostgroups:
 
@@ -116,7 +116,7 @@ Service dependency (servicedependency)
 
 ``notification_failure_criteria``: See Alginak doc about dependency checks.
 
-   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', p, ', ,,  , ', n, ', ]
+   Allowed values: ['o', 'w', 'u', 'c', 'p', 'n']
 
 .. _servicedependency-services:
 

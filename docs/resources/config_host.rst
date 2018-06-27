@@ -10,7 +10,7 @@ Monitored host (host)
     Alignak framework.
     
 
-.. image:: ../_static/confighost.png
+.. image:: ../_static/config_host.png
 
 
 .. csv-table:: Properties
@@ -279,7 +279,7 @@ Monitored host (host)
 
 ``business_impact``: The business impact level indicates the level of importance of this element. The highest value the most important is the element.
 
-   Allowed values: [, 0, ,,  , 1, ,,  , 2, ,,  , 3, ,,  , 4, ,,  , 5, ]
+   Allowed values: [0, 1, 2, 3, 4, 5]
 
 .. _host-business_impact_modulations:
 
@@ -293,7 +293,7 @@ Monitored host (host)
 
 ``business_rule_host_notification_options``: Not yet implemented (#146)
 
-   Allowed values: [, ', d, ', ,,  , ', u, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
+   Allowed values: ['d', 'u', 'r', 'f', 's', 'n']
 
 .. _host-business_rule_output_template:
 
@@ -303,7 +303,7 @@ Monitored host (host)
 
 ``business_rule_service_notification_options``: Not yet implemented (#146)
 
-   Allowed values: [, ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
+   Allowed values: ['w', 'u', 'c', 'r', 'f', 's', 'n']
 
 .. _host-business_rule_smart_notifications:
 
@@ -361,13 +361,13 @@ Monitored host (host)
 
 ``flap_detection_options``: States involved in the flapping detection logic.
 
-   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ]
+   Allowed values: ['o', 'd', 'x']
 
 .. _host-freshness_state:
 
 ``freshness_state``: Passive checks only. The state that will be forced by Alignak when the freshness check fails.
 
-   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ]
+   Allowed values: ['o', 'd', 'x']
 
 .. _host-freshness_threshold:
 
@@ -393,7 +393,7 @@ Monitored host (host)
 
 ``initial_state``: Alignak sets this default state until a check happen
 
-   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ]
+   Allowed values: ['o', 'd', 'x']
 
 .. _host-labels:
 
@@ -435,7 +435,7 @@ Monitored host (host)
 
 ``ls_last_state``: Former state
 
-   Allowed values: [, ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
+   Allowed values: ['UP', 'DOWN', 'UNREACHABLE']
 
 .. _host-ls_last_state_changed:
 
@@ -445,7 +445,7 @@ Monitored host (host)
 
 ``ls_last_state_type``: Former state type
 
-   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
+   Allowed values: ['HARD', 'SOFT']
 
 .. _host-ls_last_time_down:
 
@@ -491,7 +491,7 @@ Monitored host (host)
 
 ``ls_state``: Current state
 
-   Allowed values: [, ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
+   Allowed values: ['UP', 'DOWN', 'UNREACHABLE']
 
 .. _host-ls_state_changed:
 
@@ -501,13 +501,13 @@ Monitored host (host)
 
 ``ls_state_id``: Current state identifier. O: UP, 1: DOWN, 2/3: NOT USED, 4: UNREACHABLE
 
-   Allowed values: [, 0, ,,  , 1, ,,  , 2, ,,  , 3, ,,  , 4, ]
+   Allowed values: [0, 1, 2, 3, 4]
 
 .. _host-ls_state_type:
 
 ``ls_state_type``: Current state type
 
-   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
+   Allowed values: ['HARD', 'SOFT']
 
 .. _host-macromodulations:
 
@@ -541,7 +541,7 @@ Monitored host (host)
 
 ``notification_options``: List of the notifications types that can be sent.
 
-   Allowed values: [, ', d, ', ,,  , ', x, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
+   Allowed values: ['d', 'x', 'r', 'f', 's', 'n']
 
 .. _host-notification_period:
 
@@ -587,7 +587,7 @@ Monitored host (host)
 
 ``stalking_options``: When enabled for a specific state, Alignak will add an information log for each element check even if the state did not changed.
 
-   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ]
+   Allowed values: ['o', 'd', 'x']
 
 .. _host-statusmap_image:
 

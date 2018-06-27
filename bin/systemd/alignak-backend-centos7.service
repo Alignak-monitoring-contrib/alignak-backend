@@ -1,0 +1,47 @@
+[Unit]
+Description=uWSGI instance to serve Alignak backend
+After=network.target
+
+[Service]
+# Environment variables - may be overriden in the /etc/default/alignak-backend
+Environment=ALIGNAK_BACKEND_CONFIGURATION_FILE=/usr/local/share/alignak-backend/etc/settings.json
+Environment=ALIGNAK_BACKEND_PID=/var/run/alignak-backend/alignak-backend.pid
+Environment=ALIGNAK_BACKEND_LOG=/var/log/alignak-backend/alignak-backend.log
+Environment=ALIGNAK_BACKEND_UWSGI_LOG=/var/log/uwsgi/alignak-backend.log
+Environment=ALIGNAK_BACKEND_HOST=127.0.0.1
+Environment=ALIGNAK_BACKEND_PORT=5000
+Environment=ALIGNAK_BACKEND_PROCESSES=4
+Environment=ALIGNAK_USER=alignak
+Environment=ALIGNAK_GROUP=alignak
+EnvironmentFile=-/etc/default/alignak-backend
+
+# Pre-Execution
+ExecStartPre=/bin/mkdir -p /var/run/alignak-backend
+ExecStartPre=/bin/chown alignak:alignak /var/run/alignak-backend
+ExecStartPre=/bin/mkdir -p /var/log/uwsgi
+ExecStartPre=/bin/chown alignak:alignak /var/log/uwsgi
+ExecStartPre=/bin/mkdir -p /var/log/alignak-backend
+ExecStartPre=/bin/chown alignak:alignak /var/log/alignak-backend
+
+# PID file as required to uWsgi
+PIDFile=/var/run/alignak-backend/alignak-backend.pid
+
+ExecStart=/usr/sbin/uwsgi --master --enable-threads --plugin python --wsgi-file /usr/local/share/alignak-backend/etc/alignak-backend.wsgi --daemonize ${ALIGNAK_BACKEND_UWSGI_LOG} --pidfile ${ALIGNAK_BACKEND_PID} --logto /${ALIGNAK_BACKEND_LOG} --uid ${ALIGNAK_USER} --gid ${ALIGNAK_GROUP} --http-socket ${ALIGNAK_BACKEND_HOST}:${ALIGNAK_BACKEND_PORT} --processes ${ALIGNAK_BACKEND_PROCESSES} --ini /usr/local/share/alignak-backend/etc/uwsgi-service.ini
+
+# See man systemd.kill
+KillMode=process
+KillSignal=SIGINT
+TimeoutStopSec=15
+
+Restart=always
+
+# See man systemd.service
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+# Graceful reload
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
