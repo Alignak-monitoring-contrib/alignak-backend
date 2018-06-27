@@ -2,22 +2,22 @@ from alignak_backend.models import register_models
 
 from graphviz import Digraph
 
-dot = Digraph(format='png',)
-#dot.node_attr.update(color='lightblue2', style='filled')
-#dot.graph_attr.update(nodesep='0.1')
+dot = Digraph(format='png')
+# dot.node_attr.update(color='lightblue2', style='filled')
+# dot.graph_attr.update(nodesep='0.1')
 dot.graph_attr.update(size="140,140")
-#dot.edge_attr.update(weight='2.1')
+# dot.edge_attr.update(weight='2.1')
 
 models = register_models()
 
-for name, schema in models.iteritems():
+for name, schema in models.items():
     color = ''
     if name == 'host':
        color = 'red'
     elif name == 'service':
        color = 'green'
     dot.node(name, color=color)
-    for key, value in schema['schema'].iteritems():
+    for key, value in schema['schema'].items():
         style = 'dashed'
         if 'required' in value and value['required']:
             style = 'solid'

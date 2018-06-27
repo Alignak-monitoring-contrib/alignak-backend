@@ -8,7 +8,7 @@ Alignak configuration (alignak)
 
     
 
-.. image:: ../_static/configalignak.png
+.. image:: ../_static/config_alignak.png
 
 
 .. csv-table:: Properties

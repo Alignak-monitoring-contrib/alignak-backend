@@ -10,7 +10,7 @@ Monitored service (service)
     Alignak framework.
     
 
-.. image:: ../_static/configservice.png
+.. image:: ../_static/config_service.png
 
 
 .. csv-table:: Properties
@@ -278,7 +278,7 @@ Monitored service (service)
 
 ``business_impact``: The business impact level indicates the level of importance of this element. The highest value the most important is the element.
 
-   Allowed values: [, 0, ,,  , 1, ,,  , 2, ,,  , 3, ,,  , 4, ,,  , 5, ]
+   Allowed values: [0, 1, 2, 3, 4, 5]
 
 .. _service-business_impact_modulations:
 
@@ -292,7 +292,7 @@ Monitored service (service)
 
 ``business_rule_host_notification_options``: Not yet implemented (#146)
 
-   Allowed values: [, ', d, ', ,,  , ', u, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
+   Allowed values: ['d', 'u', 'r', 'f', 's', 'n']
 
 .. _service-business_rule_output_template:
 
@@ -302,7 +302,7 @@ Monitored service (service)
 
 ``business_rule_service_notification_options``: Not yet implemented (#146)
 
-   Allowed values: [, ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
+   Allowed values: ['w', 'u', 'c', 'r', 'f', 's', 'n']
 
 .. _service-business_rule_smart_notifications:
 
@@ -364,13 +364,13 @@ Monitored service (service)
 
 ``flap_detection_options``: States involved in the flapping detection logic.
 
-   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', c, ', ,,  , ', u, ', ,,  , ', x, ', ]
+   Allowed values: ['o', 'w', 'c', 'u', 'x']
 
 .. _service-freshness_state:
 
 ``freshness_state``: Passive checks only. The state that will be forced by Alignak when the freshness check fails.
 
-   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', c, ', ,,  , ', u, ', ,,  , ', x, ', ]
+   Allowed values: ['o', 'w', 'c', 'u', 'x']
 
 .. _service-freshness_threshold:
 
@@ -404,7 +404,7 @@ Monitored service (service)
 
 ``initial_state``: Alignak sets this default state until a check happen
 
-   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', c, ', ,,  , ', u, ', ,,  , ', x, ', ]
+   Allowed values: ['o', 'w', 'c', 'u', 'x']
 
 .. _service-is_volatile:
 
@@ -446,7 +446,7 @@ Monitored service (service)
 
 ``ls_last_state``: Former state
 
-   Allowed values: [, ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
+   Allowed values: ['OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UNREACHABLE']
 
 .. _service-ls_last_state_changed:
 
@@ -456,7 +456,7 @@ Monitored service (service)
 
 ``ls_last_state_type``: Former state type
 
-   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
+   Allowed values: ['HARD', 'SOFT']
 
 .. _service-ls_last_time_critical:
 
@@ -506,7 +506,7 @@ Monitored service (service)
 
 ``ls_state``: Current state
 
-   Allowed values: [, ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
+   Allowed values: ['OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UNREACHABLE']
 
 .. _service-ls_state_changed:
 
@@ -516,13 +516,13 @@ Monitored service (service)
 
 ``ls_state_id``: Current state identifier. O: OK, 1: WARNING, 2: CRITICAL, 3: UNKNOWN, 4: UNREACHABLE
 
-   Allowed values: [, 0, ,,  , 1, ,,  , 2, ,,  , 3, ,,  , 4, ]
+   Allowed values: [0, 1, 2, 3, 4]
 
 .. _service-ls_state_type:
 
 ``ls_state_type``: Current state type
 
-   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
+   Allowed values: ['HARD', 'SOFT']
 
 .. _service-macromodulations:
 
@@ -556,7 +556,7 @@ Monitored service (service)
 
 ``notification_options``: List of the notifications types that can be sent.
 
-   Allowed values: [, ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', x, ', ,,  , ', n, ', ]
+   Allowed values: ['w', 'u', 'c', 'r', 'f', 's', 'x', 'n']
 
 .. _service-notification_period:
 
@@ -602,7 +602,7 @@ Monitored service (service)
 
 ``stalking_options``: When enabled for a specific state, Alignak will add an information log for each element check even if the state did not changed.
 
-   Allowed values: [, ', o, ', ,,  , ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', x, ', ]
+   Allowed values: ['o', 'w', 'u', 'c', 'x']
 
 .. _service-tags:
 

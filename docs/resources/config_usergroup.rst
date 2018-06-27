@@ -8,7 +8,7 @@ Alignak users groups (usergroup)
 
     
 
-.. image:: ../_static/configusergroup.png
+.. image:: ../_static/config_usergroup.png
 
 
 .. csv-table:: Properties

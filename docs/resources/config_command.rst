@@ -16,7 +16,7 @@ Alignak command (command)
      - for the notifications sent to inform the users of the detected problems
     
 
-.. image:: ../_static/configcommand.png
+.. image:: ../_static/config_command.png
 
 
 .. csv-table:: Properties

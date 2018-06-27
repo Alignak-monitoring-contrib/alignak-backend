@@ -100,7 +100,7 @@ Check result log (logcheckresult)
 
 ``last_state``: 
 
-   Allowed values: [, ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ,,  , ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ]
+   Allowed values: ['OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UP', 'DOWN', 'UNREACHABLE']
 
 .. _logcheckresult-last_state_changed:
 
@@ -110,7 +110,7 @@ Check result log (logcheckresult)
 
 ``last_state_type``: 
 
-   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
+   Allowed values: ['HARD', 'SOFT']
 
 .. _logcheckresult-last_time_0:
 
@@ -144,7 +144,7 @@ Check result log (logcheckresult)
 
 ``state``: 
 
-   Allowed values: [, ', U, P, ', ,,  , ', D, O, W, N, ', ,,  , ', U, N, R, E, A, C, H, A, B, L, E, ', ,,  , ', O, K, ', ,,  , ', W, A, R, N, I, N, G, ', ,,  , ', C, R, I, T, I, C, A, L, ', ,,  , ', U, N, K, N, O, W, N, ', ]
+   Allowed values: ['UP', 'DOWN', 'UNREACHABLE', 'OK', 'WARNING', 'CRITICAL', 'UNKNOWN']
 
 .. _logcheckresult-state_changed:
 
@@ -154,7 +154,7 @@ Check result log (logcheckresult)
 
 ``state_type``: 
 
-   Allowed values: [, ', H, A, R, D, ', ,,  , ', S, O, F, T, ', ]
+   Allowed values: ['HARD', 'SOFT']
 
 
 

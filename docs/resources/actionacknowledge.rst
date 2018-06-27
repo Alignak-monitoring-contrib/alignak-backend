@@ -57,7 +57,7 @@ Acknowledges (actionacknowledge)
 
 ``action``: Use "add" to add a new acknowledge, or "delete" to delete an acknowledge
 
-   Allowed values: [, ', a, d, d, ', ,,  , ', d, e, l, e, t, e, ', ]
+   Allowed values: ['add', 'delete']
 
 .. _actionacknowledge-comment:
 

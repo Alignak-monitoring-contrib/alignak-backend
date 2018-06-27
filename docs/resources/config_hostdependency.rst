@@ -9,7 +9,7 @@ Host dependency (hostdependency)
     See the Alignak documentation regarding the dependency check management.
     
 
-.. image:: ../_static/confighostdependency.png
+.. image:: ../_static/config_hostdependency.png
 
 
 .. csv-table:: Properties
@@ -81,7 +81,7 @@ Host dependency (hostdependency)
 
 ``execution_failure_criteria``: See Alginak doc about dependency checks.
 
-   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ,,  , ', p, ', ,,  , ', n, ', ]
+   Allowed values: ['o', 'd', 'x', 'p', 'n']
 
 .. _hostdependency-hostgroups:
 
@@ -107,7 +107,7 @@ Host dependency (hostdependency)
 
 ``notification_failure_criteria``: See Alginak doc about dependency checks.
 
-   Allowed values: [, ', o, ', ,,  , ', d, ', ,,  , ', x, ', ,,  , ', p, ', ,,  , ', n, ', ]
+   Allowed values: ['o', 'd', 'x', 'p', 'n']
 
 
 

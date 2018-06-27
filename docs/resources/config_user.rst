@@ -11,7 +11,7 @@ Alignak user (user)
     program user that will connect to the Alginak backend to provide information.
     
 
-.. image:: ../_static/configuser.png
+.. image:: ../_static/config_user.png
 
 
 .. csv-table:: Properties
@@ -175,7 +175,7 @@ Alignak user (user)
 
 ``host_notification_options``: List of the notifications types that can be sent.
 
-   Allowed values: [, ', d, ', ,,  , ', u, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
+   Allowed values: ['d', 'u', 'r', 'f', 's', 'n']
 
 .. _user-host_notification_period:
 
@@ -225,7 +225,7 @@ Alignak user (user)
 
 ``service_notification_options``: List of the notifications types that can be sent.
 
-   Allowed values: [, ', w, ', ,,  , ', u, ', ,,  , ', c, ', ,,  , ', r, ', ,,  , ', f, ', ,,  , ', s, ', ,,  , ', n, ', ]
+   Allowed values: ['w', 'u', 'c', 'r', 'f', 's', 'n']
 
 .. _user-service_notification_period:
 

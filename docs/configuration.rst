@@ -6,7 +6,7 @@ Configuration
 Introduction
 ------------
 
-The backend uses a configuration file that is located in one of these folders:
+The backend uses a configuration file that it searchs for in one of these folders:
 
    * /usr/local/etc/alignak_backend/settings.json
    * /etc/alignak_backend/settings.json
@@ -15,17 +15,94 @@ The backend uses a configuration file that is located in one of these folders:
    * ../etc/settings.json
    * ./settings.json
 
-If an environment variable `ALIGNAK_BACKEND_CONFIGURATION_FILE` exist, the file name defined in this variable takes precedence over the default files list.
+.. note:: tha the default installation directory is not in this list; this to avoid using the default shipped file by mistake !
 
-It's a JSON structured file. **Note** that the / (slash) characters used inside the variables values need to be escaped with a \!
+The best solution to define which configuration file is to be used is to set an envionment variable. If ``ALIGNAK_BACKEND_CONFIGURATION_FILE`` is defined, the file name defined in this variable takes precedence over the default files list.
 
-If an environment variable `ALIGNAK_BACKEND_MONGO_URI` exist, it will replace the one defined in the settings file for the MongoDB connection string.
-If an environment variable `ALIGNAK_BACKEND_MONGO_DBNAME` exist, it will replace the one defined in the settings file and will be used as the database name.
+.. warning:: it is not recommended to use the default shipped configuration file because an update of the installed application will almost surely replace the content of this file and you will loose any modification you did in the file!
+
+the configuration file is a JSON structured file in which comments are allowed. the default shipped file is commented to explain all the configuration variables::
+
+   {
+     "DEBUG": false, /* To run underlying server in debug mode, define true */
+
+     "HOST": "",           /* Backend server listening address, empty = all */
+     "PORT": 5000,         /* Backend server listening port */
+     "SERVER_NAME": null,  /* Backend server listening server name */
+
+     "X_DOMAINS": "*", /* CORS (Cross-Origin Resource Sharing) support. Accept *, empty or a list of domains */
+
+     "PAGINATION_LIMIT": 5000,   /* Pagination: maximum value for number of results */
+     "PAGINATION_DEFAULT": 50,   /* Pagination: default value for number of results */
+
+     /* Limit number of requests. For example, [300, 900] limit 300 requests every 15 minutes */
+     "RATE_LIMIT_GET": null,     /* Limit number of GET requests */
+     "RATE_LIMIT_POST": null,    /* Limit number of POST requests */
+     "RATE_LIMIT_PATCH": null,   /* Limit number of PATCH requests */
+     "RATE_LIMIT_DELETE": null,  /* Limit number of DELETE requests */
+
+     "MONGO_URI": "mongodb://localhost:27017/alignak-backend",
+     "MONGO_HOST": "localhost",          /* Address of MongoDB */
+     "MONGO_PORT": 27017,                /* port of MongoDB */
+     "MONGO_DBNAME": "alignak-backend",  /* Name of database in MongoDB */
+     "MONGO_USERNAME": null,             /* Username to access to MongoDB */
+     "MONGO_PASSWORD": null,             /* Password to access to MongoDB */
+
+     "IP_CRON": ["127.0.0.1"],  /* List of IP allowed to use cron routes/endpoint of the backend */
+
+
+     "LOGGER": "alignak-backend-logger.json",  /* Python logger configuration file */
+
+     /* Address of Alignak arbiter
+     The Alignak backend will use this adress to notify Alignak about backend newly created
+     or deleted items
+     Set to an empty value to disable this feature
+     */
+     "ALIGNAK_URL": "http://127.0.0.1:7770",
+
+     /* Alignak event reporting scheduler
+     Every SCHEDULER_ALIGNAK_PERIOD, an event is raised to the ALIGNAK_URL if an host/realm/user
+     was created or deleted
+
+     Only raise notifications every 10 minutes
+     */
+     "SCHEDULER_ALIGNAK_ACTIVE": true,
+     "SCHEDULER_ALIGNAK_PERIOD": 600,
+
+     /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
+     to the corresponding TSDB. If the TSDB is not available, metrics are stored internally
+     in the backend.
+     The timeseries scheduler will check periodially if some some metrics are existing in the
+     retention and will send them to the configured TSDB.
+      BE CAREFULL, ACTIVATE THIS ON ONE BACKEND ONLY! */
+     "SCHEDULER_TIMESERIES_ACTIVE": false,
+     "SCHEDULER_TIMESERIES_PERIOD": 10,
+     /* This scheduler will create / update dashboards in grafana.
+      BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+     "SCHEDULER_GRAFANA_ACTIVE": false,
+     "SCHEDULER_GRAFANA_PERIOD": 120,
+     /* Enable/disable this backend instance as a Grafana datasource */
+     "GRAFANA_DATASOURCE": true,
+     /* Name of the file that contains the list of proposed queries in a Grafana table panel */
+     "GRAFANA_DATASOURCE_QUERIES": "grafana_queries.json",
+     /* Name of the file that contains the list of fields returned for a Grafana table */
+     "GRAFANA_DATASOURCE_TABLES": "grafana_tables.json",
+     /* if 0, disable it, otherwise define the history in minutes.
+      It will keep history each minute.
+      BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
+     "SCHEDULER_LIVESYNTHESIS_HISTORY": 60
+   }
+
+
+If an environment variable `ALIGNAK_BACKEND_LOGGER_CONFIGURATION` exist, it will override the one defined in the settings file for the logger configuration file.
+
+If an environment variable `ALIGNAK_BACKEND_MONGO_URI` exist, it will overrid the one defined in the settings file for the MongoDB connection string.
+If an environment variable `ALIGNAK_BACKEND_MONGO_DBNAME` exist, it will overrid the one defined in the settings file and will be used as the database name.
 
 Debug section
 -------------
 
-By default, debug mode is disabled, if you want to activate it, modify for::
+By default, debug mode is disabled, if you want to activate it (developer mode...), modify for::
 
     "DEBUG": true,
 
@@ -105,8 +182,10 @@ The username and password to access MongoDB and the database defined previously:
 
 
 In place of all these configuration variables you can more simply define a Mongo connection string that will take precedence over the formerly defined variables::
-    "MONGO_URI": "mongodb:\/\/[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][\/[database][?options]]"
 
+    "MONGO_URI": "mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]"
+
+If the ``MONGO_URI`` variable is not empty it takes precedence over the ``MONGO_HOST``, ``MONGO_PORT``, ... definitions.
 **Note** the slashes escaping...
 
 Timeseries databases
@@ -171,13 +250,13 @@ The Grafana datasource available queries are defined in a json file which name i
 
     "GRAFANA_DATASOURCE_QUERIES": "grafana_queries.json"
 
-This configuration file variable may be overloaded with an environment variable: `ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES`.
+This configuration file variable may be overriden with an environment variable: `ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES`.
 
 The Grafana datasource tables available are defined in a json file which name is declared in:
 ::
 
     "GRAFANA_DATASOURCE_TABLES": "grafana_tables.json"
 
-This configuration file variable may be overloaded with an environment variable: `ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES`.
+This configuration file variable may be overriden with an environment variable: `ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES`.
 
 

@@ -20,7 +20,7 @@ Alignak realm (realm)
     the resources defined in upper realms.
     
 
-.. image:: ../_static/configrealm.png
+.. image:: ../_static/config_realm.png
 
 
 .. csv-table:: Properties
