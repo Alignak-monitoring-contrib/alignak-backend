@@ -8,7 +8,7 @@ Alignak services groups (servicegroup)
 
     
 
-.. image:: ../_static/configservicegroup.png
+.. image:: ../_static/config_servicegroup.png
 
 
 .. csv-table:: Properties

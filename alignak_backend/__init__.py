@@ -8,7 +8,7 @@
     This module is an Alignak REST backend
 """
 # Application version and manifest
-VERSION = (1, 4, 11)
+VERSION = (1, 4, 11, 2)
 
 __application__ = u"Alignak_Backend"
 __short_version__ = '.'.join((str(each) for each in VERSION[:2]))
@@ -29,9 +29,18 @@ __classifiers__ = [
     'Intended Audience :: System Administrators',
     'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
     'Natural Language :: English',
-    'Programming Language :: Python',
+    'Operating System :: POSIX',
+    'Operating System :: POSIX :: Linux',
+    'Operating System :: POSIX :: BSD :: FreeBSD',
+    'Topic :: System',
     'Topic :: System :: Monitoring',
-    'Topic :: System :: Systems Administration'
+    'Topic :: System :: Networking :: Monitoring',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
 ]
 
 # Application manifest

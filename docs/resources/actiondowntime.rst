@@ -59,7 +59,7 @@ Downtimes (actiondowntime)
 
 ``action``: Use "add" to add a new downtime, or "delete" to delete an downtime
 
-   Allowed values: [, ', a, d, d, ', ,,  , ', d, e, l, e, t, e, ', ]
+   Allowed values: ['add', 'delete']
 
 .. _actiondowntime-comment:
 

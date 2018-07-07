@@ -84,7 +84,7 @@ Alignak daemons live state (alignakdaemon)
 
 ``type``: Daemon type: "arbiter", "scheduler", "poller", "broker", "reactionner", "receiver"
 
-   Allowed values: [, ', a, r, b, i, t, e, r, ', ,,  , ', s, c, h, e, d, u, l, e, r, ', ,,  , ', p, o, l, l, e, r, ', ,,  , ', b, r, o, k, e, r, ', ,,  , ', r, e, a, c, t, i, o, n, n, e, r, ', ,,  , ', r, e, c, e, i, v, e, r, ', ]
+   Allowed values: ['arbiter', 'scheduler', 'poller', 'broker', 'reactionner', 'receiver']
 
 
 

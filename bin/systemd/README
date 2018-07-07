@@ -1,0 +1,9 @@
+# This directory contains systemd service units for different system installation:
+# - alignak-backend.service:
+#   This is the default recommended installation with uWsgi and Python 3 plugin
+#
+# - alignak-backend.uwsgi2.service:
+#   This is for an installation with uWsgi and Python 2 plugin
+#
+# - alignak-backend.uwsgi2.service:
+#   This is for an installation with uWsgi and Python 2 plugin

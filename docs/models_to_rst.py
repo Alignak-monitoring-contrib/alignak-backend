@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2015-2015: Alignak team, see AUTHORS.txt file for contributors
+# Copyright (C) 2015-2018: Alignak team, see AUTHORS.txt file for contributors
 #
 # This file is part of Alignak.
 #
@@ -68,8 +68,9 @@ for filepath in f:
         elif resource_name in ['alignakretention']:
             pass
         elif not resource_name.startswith('action'):
-            resource_name = ''.join(['config', resource_name])
+            resource_name = ''.join(['config_', resource_name])
 
+        print("Creating: %s" % resource_name)
         target = open(''.join(['resources/', resource_name, '.rst']), 'w')
         target.write('.. _resource-%s:' % (py_mod.get_name()))
         target.write("\n\n")
@@ -107,7 +108,8 @@ for filepath in f:
             comment = schema[field].get('comment', '')
             allowed = schema[field].get('allowed', None)
             if allowed:
-                comment = "%s \n\n Allowed values: %s" % (str(comment), ', '.join(str(allowed)))
+                comment = "%s \n\n Allowed values: %s" % (str(comment), str(allowed))
+                print("Allowed: %s" % str(allowed))
             required = ''
             if 'required' in schema[field]:
                 if schema[field]['required']:
@@ -145,7 +147,7 @@ for filepath in f:
             comment = schema[field].get('comment', '')
             allowed = schema[field].get('allowed', None)
             if allowed:
-                comment = "%s\n\n   Allowed values: %s" % (str(comment), ', '.join(str(allowed)))
+                comment = "%s\n\n   Allowed values: %s" % (str(comment), str(allowed))
             if not comment:
                 continue
 

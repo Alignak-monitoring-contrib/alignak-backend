@@ -12,11 +12,11 @@
 #   Flag that determines whether Alignak backend is enabled.
 #
 # alignak_backend_wsgi (string):
-#   Default value: /usr/local/etc/alignak-backend/alignak-backend.wsgi
+#   Default value: /usr/local/share/alignak-backend/etc/alignak-backend.wsgi
 #   Wsgi application for the Alignak backend
 #
 # alignak_backend_config (string):
-#   Default value: /usr/local/etc/alignak-backend/settings.json
+#   Default value: /usr/local/share/alignak-backend/etc/settings.json
 #   Configuration file for the Alignak backend
 #
 # alignak_backend_log (bool):
@@ -70,8 +70,8 @@ rcvar="alignak_backend_enable"
 load_rc_config "${name}"
 
 : ${alignak_backend_enable="NO"}
-: ${alignak_backend_wsgi="/usr/local/etc/alignak-backend/alignak-backend.wsgi"}
-: ${alignak_backend_config="/usr/local/etc/alignak-backend/settings.json"}
+: ${alignak_backend_wsgi="/usr/local/share/alignak-backend/etc/alignak-backend.wsgi"}
+: ${alignak_backend_config="/usr/local/share/alignak-backend/etc/settings.json"}
 : ${alignak_backend_log="NO"}
 : ${alignak_backend_log_file="/var/log/${name}/${name}.log"}
 : ${alignak_backend_pid_file="/var/run/${name}/${name}.pid"}

@@ -1,4 +1,5 @@
 # Python requirements for unit tests
+# Include main application requirements
 -r ../requirements.txt
 
 unittest2
