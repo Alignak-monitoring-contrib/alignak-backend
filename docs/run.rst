@@ -57,6 +57,107 @@ To stop / reload the Alignak backend application::
     $ kill -SIGINT `cat /tmp/alignak-backend.pid`
 
 
+FreeBSD service
+---------------
+
+After the installation you must copy system service script::
+
+   sudo cp /usr/local/share/alignak-backend/bin/alignak-backend /usr/local/etc/rc.d
+
+
+A post-installation script is shipped with the installed files. If you do not run this script you must ensure that:
+
+   - it exists an ``alignak`` user account (or update the service configuration)
+   - default directories exist and are properly owned
+
+Else you can run this script::
+
+   sudo /usr/local/share/alignak-backend/post-install.sh
+
+This script is copied during the installation in the default installation directory: */usr/local/share/alignak-backend*. It is creating the default ``alignak`` user account, creates some directories and owns them to the ``alignak`` user, checks the Python packages dependencies listed in the default installation directory *requirements.txt* file.
+
+You can then configure the service::
+
+   echo 'alignak_backend_enable="YES"' >> /etc/rc.conf
+
+   # Activate uwsgi logging
+   echo 'alignak_backend_log="YES"' >> /etc/rc.conf
+
+   # Local interface to listen to
+   echo 'alignak_backend_host="0.0.0.0"' >> /etc/rc.conf
+   echo 'alignak_backend_port="5000"' >> /etc/rc.conf
+
+   # Send backend metrics to Graphite
+   echo 'alignak_backend_metrics="YES"' >> /etc/rc.conf
+   echo 'alignak_backend_carbon="10.0.2.21:2003 --carbon-root uwsgi -s /tmp/uwsgi.sock"' >> /etc/rc.conf
+
+   # Configure the workers count
+   echo 'alignak_backend_processes="6"' >> /etc/rc.conf
+
+   # Define the backend configuration file location
+   echo 'alignak_backend_config="/usr/local/share/alignak-backend/etc/settings.json"' >> /etc/rc.conf
+
+Some other configuration variables exist, please see the */usr/local/etc/rc.d/alignak-backend* service file for some more information.
+
+You can then run::
+
+   service alignak-backend status
+      Alignak backend configuration is: /usr/local/share/alignak-backend/etc/settings.json
+      alignak_backend is not running.
+
+or start the Alignak backend::
+
+   service alignak-backend start
+      Alignak backend configuration is: /usr/local/share/alignak-backend/etc/settings.json
+      Starting alignak_backend...
+      Started
+
+and check it is running correctly::
+
+   tail -n 100 -f /var/log/alignak_backend/alignak_backend.log
+      *** Starting uWSGI 2.0.16 (64bit) on [Sat Jul  7 10:21:41 2018] ***
+      compiled with version: 4.2.1 Compatible FreeBSD Clang 4.0.0 (tags/RELEASE_400/final 297347) on 03 July 2018 09:22:02
+      os: FreeBSD-11.1-RELEASE FreeBSD 11.1-RELEASE #0 r321309: Fri Jul 21 02:08:28 UTC 2017     root@releng2.nyi.freebsd.org:/usr/obj/usr/src/sys/GENERIC
+      nodename: freebsd
+      machine: amd64
+      clock source: unix
+      detected number of CPU cores: 1
+      current working directory: /
+      writing pidfile to /var/run/alignak_backend/alignak_backend.pid
+      detected binary path: /usr/local/bin/uwsgi-2.7
+      !!! no internal routing support, rebuild with pcre support !!!
+      dropping root privileges as early as possible
+      setgid() to 1002
+      setuid() to 1002
+      your processes number limit is 6656
+      your memory page size is 4096 bytes
+      detected max file descriptor number: 57960
+      lock engine: POSIX semaphores
+      thunder lock: disabled (you can enable it with --thunder-lock)
+      uWSGI http bound on 0.0.0.0:5000 fd 7
+      uwsgi socket 0 bound to TCP address 127.0.0.1:31400 (port auto-assigned) fd 6
+      dropping root privileges after socket binding
+      Python version: 2.7.15 (default, May 26 2018, 01:11:09)  [GCC 4.2.1 Compatible FreeBSD Clang 4.0.0 (tags/RELEASE_400/final 297347)]
+      Python main interpreter initialized at 0x803471000
+      dropping root privileges after plugin initialization
+      python threads support enabled
+      your server socket listen backlog is limited to 100 connections
+      your mercy for graceful operations on workers is 60 seconds
+      mapped 364520 bytes (355 KB) for 4 cores
+      *** Operational MODE: preforking ***
+      --------------------------------------------------------------------------------
+      Alignak_Backend, version 1.4.11.2
+      Copyright (c) 2015-2018 - Alignak team
+      License GNU Affero General Public License, version 3
+      --------------------------------------------------------------------------------
+      Doc: http://alignak-backend.readthedocs.org
+      Release notes: Alignak REST Backend database
+      --------------------------------------------------------------------------------
+      Using settings file: /usr/local/share/alignak-backend/etc/settings.json
+      Application configuration file: /usr/local/share/alignak-backend/etc/settings.json
+      Application settings: {u'GRAFANA_DATASOURCE_QUERIES': u'grafana_queries.json', 'JOBS': [{'seconds': 60, 'trigger': 'interval', 'args': (), 'id': 'cron_livesynthesis_history', 'func': 'alignak_backend.scheduler:cron_livesynthesis_history'}, {'seconds': 600, 'trigger': 'interval', 'args': (), 'id': 'cron_alignak', 'func': 'alignak_backend.scheduler:cron_alignak'}], 'PAGINATION_DEFAULT': 50, 'SCHEDULER_TIMESERIES_LIMIT': 100, 'AUTH_FIELD': None, 'ALIGNAK_URL': u'http://127.0.0.1:7770', u'RATE_LIMIT_POST': None, 'SCHEDULER_TIMESERIES_PERIOD': 10, u'MONGO_USERNAME': None, 'SERVER_NAME': None, 'X_HEADERS': 'Authorization, If-Match, X-HTTP-Method-Override, Content-Type, Cache-Control, Pragma, Options', 'X_DOMAINS': u'*', 'SCHEDULER_TIMESERIES_ACTIVE': False, 'PORT': 5000, 'JSON': True, u'RATE_LIMIT_DELETE': None, 'SCHEDULER_GRAFANA_PERIOD': 120, 'SCHEDULER_TIMEZONE': 'Etc/GMT', u'MONGO_PASSWORD': None, 'MONGO_PORT': 27017, 'RESOURCE_METHODS': ['GET', 'POST', 'DELETE'], 'MONGO_DBNAME': u'alignak-backend', 'SCHEDULER_LIVESYNTHESIS_HISTORY': 60, 'HOST': u'', u'GRAFANA_DATASOURCE_TABLES': u'grafana_tables.json', 'DEBUG': False, u'RATE_LIMIT_PATCH': None, 'PAGINATION_LIMIT': 5000, u'LOGGER': u'alignak-backend-logger.json', u'IP_CRON': [u'127.0.0.1'], 'SCHEDULER_GRAFANA_ACTIVE': False, 'ITEM_METHODS': ['GET', 'PATCH', 'DELETE'], 'SCHEDULER_ALIGNAK_ACTIVE': True, u'RATE_LIMIT_GET': None, 'MONGO_HOST': u'localhost', 'MONGO_QUERY_BLACKLIST': ['$where'], u'GRAFANA_DATASOURCE': True, u'MONGO_URI': u'mongodb://localhost:27017/alignak-backend', 'SCHEDULER_ALIGNAK_PERIOD': 600}
+      MongoDB connection string: mongodb://localhost:27017/alignak-backend
+
 Systemd service
 ---------------
 
