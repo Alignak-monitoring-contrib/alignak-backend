@@ -180,7 +180,7 @@ elif [ "${output_type}" = "rpm" ]; then
       --architecture all \
       --license AGPL \
       --version ${version} \
-      --name "${pkg_name}" \
+      --name "${python_prefix}-${pkg_name}" \
       --description "${pkg_description}" \
       --url "${pkg_url}" \
       --vendor "${pkg_team}" \
