@@ -66,7 +66,7 @@ jobs:
         - ./package.sh $TRAVIS_BRANCH $TRAVIS_PYTHON_VERSION deb
         # Not yet available
         # ./package.sh $TRAVIS_BRANCH $TRAVIS_PYTHON_VERSION freebsd;
-      if: (branch IN (master, develop)) OR (tags IS present)
+      if: branch IN (master, develop)
       deploy:
       - provider: bintray
         skip_cleanup: true
