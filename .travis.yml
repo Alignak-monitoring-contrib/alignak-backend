@@ -44,6 +44,7 @@ jobs:
     - stage: Pypi deployment
       python: 3.6
       script: echo "Deploying to PyPi..."
+      if: (branch IN (master, develop)) OR (tag IS present)
       deploy:
       - provider: pypi
         distributions: "sdist bdist_wheel"
@@ -131,7 +132,6 @@ jobs:
       install:
         # Install packaging requirements
         - echo "Installing packaging requirements..."
-        - sudo apt-get install -y rpm
         - sudo pip install virtualenv virtualenv-tools
         - sudo pip install --upgrade distribute
       script:
@@ -142,7 +142,7 @@ jobs:
       deploy:
       - provider: bintray
         skip_cleanup: true
-        file: dist/.bintray-rpm.json
+        file: dist/.bintray-freebsd.json
         on:
           all_branches: true
           tags: true
