@@ -273,7 +273,7 @@ Or you can simply use the standard package tool to install Alignak::
       -rwxrwxr-x 1 root root 3758 juil.  1 11:01 post-install.sh*
       -rw-rw-r-- 1 root root  507 juil.  1 11:01 requirements.txt
 
-   # It installed the Alignak systemctl services
+   # It installed the Alignak systemd services
    ll /lib/systemd/system/alignak*
       -rw-r--r-- 1 root root 1715 juil.  1 11:12 /lib/systemd/system/alignak-backend.service
 
@@ -288,8 +288,9 @@ Or you can simply use the standard package tool to install Alignak::
 
 A post-installation script (repository *bin/post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
 
+.. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
-It is recommended to install a log rotation because the Alignak backend log may be realltyy verbose ! Using the ``logrotate`` is easy. Create a file */etc/logrotate.d/alignak-backend* with this content::
+It is recommended to install a log rotation because the Alignak backend log may be really verbose ! Using the ``logrotate`` is easy. A default file is shipped with the installation script and copied to the */etc/logrotate.d/alignak-backend* with this content::
 
    "/var/log/alignak-backend/*.log" {
      copytruncate
@@ -360,7 +361,7 @@ Once the download sources are set, you can simply use the standard package tool 
 
         Name and summary matches only, use "search all" for everything.
 
-   yum info alignak
+   yum info alignak-backend
       Loaded plugins: fastestmirror
       Loading mirror speeds from cached hostfile
        * base: mirrors.atosworldline.com
@@ -394,17 +395,26 @@ Or you can simply use the standard package tool to install Alignak and its depen
       -rwxrwxr-x. 1 root root 2179 Jun 22  2018 post-install.sh
       -rw-rw-r--. 1 root root 1889 Jun 22  2018 requirements.txt
 
-Contrary to the debian installer, no post-installation script is started nor system services are installed. You must then::
+A post-installation script (repository *bin/post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
 
-   sudo /usr/local/share/alignak/post-install.sh
+.. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
-This will install the Alignak required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
+It is recommended to install a log rotation because the Alignak backend log may be really verbose ! Using the ``logrotate`` is easy. A default file is shipped with the installation script and copied to the */etc/logrotate.d/alignak-backend* with this content::
 
-.. note:: as stated :ref:`formerly in this document <Installation/requirements>`, this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
+   "/var/log/alignak-backend/*.log" {
+     copytruncate
+     daily
+     rotate 5
+     compress
+     delaycompress
+     missingok
+     notifempty
+   }
+
 
 To terminate the installation of the system services you must::
 
-   sudo cp /usr/local/share/alignak/bin/systemd/alignak* /lib/systemd/system
+   sudo cp /usr/local/share/alignak-backend/bin/systemd/alignak* /lib/systemd/system
 
    ll /lib/systemd/system
       -rw-r--r--. 1 root root  777 May 24 17:48 /lib/systemd/system/alignak-arbiter@.service
@@ -517,7 +527,7 @@ You can install it from source::
     cd alignak-backend
     sudo pip install .
 
-You can then apply the same procedures as when instalilng with pip to prepare your system.
+You can then apply the same procedures as when installing with pip to prepare your system.
 
 For contributors
 ~~~~~~~~~~~~~~~~

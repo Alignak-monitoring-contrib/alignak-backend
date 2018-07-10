@@ -23,6 +23,8 @@ fi
 
 echo "-----"
 echo "Alignak-backend post-install"
+echo "User account: $ACCOUNT"
+echo "Installation prefix: $PREFIX"
 echo "-----"
 
 echo "Detecting OS platform"
