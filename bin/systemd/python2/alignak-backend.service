@@ -24,7 +24,7 @@ ExecStartPre=/bin/chown alignak:alignak /var/log/alignak-backend
 # PID file as required to uWsgi
 PIDFile=/var/run/alignak-backend/alignak-backend.pid
 
-ExecStart=/usr/bin/uwsgi --master --enable-threads --plugin python3 --wsgi-file /usr/local/share/alignak-backend/etc/alignak-backend.wsgi --daemonize ${ALIGNAK_BACKEND_UWSGI_LOG} --pidfile ${ALIGNAK_BACKEND_PID} --logto /${ALIGNAK_BACKEND_LOG} --uid ${ALIGNAK_USER} --gid ${ALIGNAK_GROUP} --http-socket ${ALIGNAK_BACKEND_HOST}:${ALIGNAK_BACKEND_PORT} --processes ${ALIGNAK_BACKEND_PROCESSES} --ini /usr/local/share/alignak-backend/etc/uwsgi-service.ini
+ExecStart=/usr/bin/uwsgi --master --enable-threads --plugin python --wsgi-file /usr/local/share/alignak-backend/etc/alignak-backend.wsgi --daemonize ${ALIGNAK_BACKEND_UWSGI_LOG} --pidfile ${ALIGNAK_BACKEND_PID} --logto /${ALIGNAK_BACKEND_LOG} --uid ${ALIGNAK_USER} --gid ${ALIGNAK_GROUP} --http-socket ${ALIGNAK_BACKEND_HOST}:${ALIGNAK_BACKEND_PORT} --processes ${ALIGNAK_BACKEND_PROCESSES} --ini /usr/local/share/alignak-backend/etc/uwsgi-service.ini
 
 # See man systemd.kill
 KillMode=process

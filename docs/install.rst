@@ -9,7 +9,7 @@ Requirements
 Python
 ~~~~~~~
 
-To use the Alignak backend, you first need to have a Python interpreter installed on your system.
+To use the Alignak backend, you first need to have a Python interpreter installed on your system. As of now, Python 2.7 is the most tested version.
 
 To check if Python is installed::
 
@@ -26,7 +26,17 @@ Many systems or Linux distributions (Debian and Ubuntu) are shipped with both Py
    $ python3 --version
    Python 3.5.2
 
-It is also important to install the ``pip`` for Python 3::
+It is also mandatory to have a ``pip`` installed::
+
+   # For Debian-like
+   $ sudo apt install python-pip
+
+   # For CentOS-like
+   $ sudo yum install python-pip
+
+If you intend to use Python 3, follow the next recommendations.
+
+Install the ``pip`` for Python 3::
 
    # For Debian-like
    $ sudo apt install python3-pip
@@ -35,10 +45,6 @@ It is also important to install the ``pip`` for Python 3::
 
    # For CentOS-like
    $ sudo yum install python34-pip
-
-For a CentOS7 Linux, you must install Python 3::
-
-   $ sudo yum install python34
 
 As defined in some PEP, the ``python`` command is mapped to Python 2. This may be a little tricky to use Python 3 per default. Thanks to ``update-alternatives`` it is easy to choose the default Python interpreter::
 
@@ -77,6 +83,8 @@ As defined in some PEP, the ``python`` command is mapped to Python 2. This may b
    Python 2.7.12
 
 .. note:: that you may need to choose Python 2 as the default interpreter for some operations on your system :/
+
+.. warning:: ``update-alternatives`` is not easy to manage with CentOS7. You would rather choose a python version and get stucked with this version!
 
 MongoDB
 ~~~~~~~
@@ -264,14 +272,13 @@ Or you can simply use the standard package tool to install Alignak::
    # Check Alignak installation
    # It copied the default shipped files and sample configuration.
    ll /usr/local/share/alignak-backend/
-      total 28
-      drwxrwxr-x 4 root root 4096 juil.  1 11:02 ./
-      drwxr-xr-x 9 root root 4096 juil.  1 11:02 ../
-      -rwxrwxr-x 1 root root  572 juil.  1 11:01 alignak-backend-uwsgi*
-      drwxrwxr-x 4 root root 4096 juil.  1 11:02 bin/
-      drwxrwxr-x 2 root root 4096 juil.  1 11:02 etc/
-      -rwxrwxr-x 1 root root 3758 juil.  1 11:01 post-install.sh*
-      -rw-rw-r-- 1 root root  507 juil.  1 11:01 requirements.txt
+      total 16
+      -rw-rw-r--. 1 root root  122 10 juil. 21:03 alignak-backend-log-rotate
+      -rwxrwxr-x. 1 root root  584 10 juil. 21:03 alignak-backend-uwsgi
+      drwxr-xr-x. 4 root root   33 11 juil. 04:54 bin
+      drwxr-xr-x. 2 root root  187 11 juil. 04:54 etc
+      -rwxrwxr-x. 1 root root 4009 10 juil. 21:03 post-install.sh
+      -rw-rw-r--. 1 root root  527 10 juil. 21:03 requirements.txt
 
    # It installed the Alignak systemd services
    ll /lib/systemd/system/alignak*
@@ -349,53 +356,51 @@ Once the download sources are set, you can simply use the standard package tool 
        * extras: mirrors.atosworldline.com
        * updates: mirrors.standaloneinstaller.com
       =========================================================================== N/S matched: alignak ===========================================================================
-      alignak.noarch : Alignak, modern Nagios compatible monitoring framework
-      alignak-all.noarch : Meta-package to pull in all alignak
-      alignak-arbiter.noarch : Alignak Arbiter
-      alignak-broker.noarch : Alignak Broker
-      alignak-common.noarch : Alignak Common
-      alignak-poller.noarch : Alignak Poller
-      alignak-reactionner.noarch : Alignak Reactionner
-      alignak-receiver.noarch : Alignak Poller
-      alignak-scheduler.noarch : Alignak Scheduler
+      ...
+      ...
+      python-alignak-backend.noarch : Alignak backend, REST API and MongoDB backend for Alignak
+      python3-alignak-backend.noarch : Alignak backend, REST API and MongoDB backend for Alignak
+
 
         Name and summary matches only, use "search all" for everything.
 
-   yum info alignak-backend
-      Loaded plugins: fastestmirror
+   yum info python-alignak-backend
+      Modules complémentaires chargés : fastestmirror
       Loading mirror speeds from cached hostfile
-       * base: mirrors.atosworldline.com
-       * epel: mirror.speedpartner.de
-       * extras: mirrors.atosworldline.com
-       * updates: mirrors.standaloneinstaller.com
-      Available Packages
-      Name        : alignak
-      Arch        : noarch
-      Version     : 1.1.0rc5_test
-      Release     : 1
-      Size        : 816 k
-      Repo        : alignak-testing
-      Summary     : Alignak, modern Nagios compatible monitoring framework
-      URL         : http://alignak.net
-      License     : AGPL
-      Description : Alignak, modern Nagios compatible monitoring framework
+       * base: distrib-coffee.ipsl.jussieu.fr
+       * epel: mirrors.ircam.fr
+       * extras: ftp.pasteur.fr
+       * updates: centos.quelquesmots.fr
+      Paquets disponibles
+      Nom                 : python-alignak-backend
+      Architecture        : noarch
+      Version             : 1.4.13_dev
+      Révision            : 1
+      Taille              : 1.2 M
+      Dépôt               : Alignak-rpm-testing
+      Résumé              : Alignak backend, REST API and MongoDB backend for Alignak
+      URL                 : http://alignak.net
+      Licence             : AGPL
+      Description         : Alignak backend, REST API and MongoDB backend for Alignak
 
 
 Or you can simply use the standard package tool to install Alignak and its dependencies.
  ::
 
-   sudo yum install alignak
+   sudo yum install python-alignak-backend
 
-   # Check Alignak installation
+   # Check Alignak backend installation
    # It copied the default shipped files and sample configuration.
-   ll /usr/local/share/alignak/
-      total 8
-      drwxr-xr-x. 5 root root   49 May 24 17:52 bin
-      drwxr-xr-x. 6 root root  144 May 24 17:52 etc
-      -rwxrwxr-x. 1 root root 2179 Jun 22  2018 post-install.sh
-      -rw-rw-r--. 1 root root 1889 Jun 22  2018 requirements.txt
+   ll /usr/local/share/alignak-backend/
+      total 16
+      -rw-rw-r--. 1 root root  122 10 juil. 21:03 alignak-backend-log-rotate
+      -rwxrwxr-x. 1 root root  584 10 juil. 21:03 alignak-backend-uwsgi
+      drwxr-xr-x. 4 root root   33 11 juil. 04:54 bin
+      drwxr-xr-x. 2 root root  187 11 juil. 04:54 etc
+      -rwxrwxr-x. 1 root root 4009 10 juil. 21:03 post-install.sh
+      -rw-rw-r--. 1 root root  527 10 juil. 21:03 requirements.txt
 
-A post-installation script (repository *bin/post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
+A post-installation script (repository *bin/post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-backend*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
 
 .. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
@@ -414,9 +419,9 @@ It is recommended to install a log rotation because the Alignak backend log may 
 
 To terminate the installation of the system services you must::
 
-   sudo cp /usr/local/share/alignak-backend/bin/systemd/alignak* /lib/systemd/system
+   sudo cp /usr/local/share/alignak-backend/bin/systemd/alignak-backend-centos7.service /lib/systemd/system/alignak-backend.service
 
-   ll /lib/systemd/system
+   ll /etc/systemd/system
       -rw-r--r--. 1 root root  777 May 24 17:48 /lib/systemd/system/alignak-arbiter@.service
       -rw-r--r--. 1 root root  770 May 24 17:48 /lib/systemd/system/alignak-broker@.service
       -rw-r--r--. 1 root root  770 May 24 17:48 /lib/systemd/system/alignak-poller@.service
@@ -425,8 +430,8 @@ To terminate the installation of the system services you must::
       -rw-r--r--. 1 root root  791 May 24 17:48 /lib/systemd/system/alignak-scheduler@.service
       -rw-r--r--. 1 root root 1286 May 24 17:48 /lib/systemd/system/alignak.service
 
-   sudo systemctl enable alignak
-      Created symlink from /etc/systemd/system/multi-user.target.wants/alignak.service to /usr/lib/systemd/system/alignak.service.
+   sudo systemctl enable alignak-backend
+      Created symlink from /etc/systemd/system/multi-user.target.wants/alignak-backend.service to /usr/lib/systemd/system/alignak-backend.service.
 
 .. note:: more information about the default shipped configuration is available :ref: `on this page <configuration/default_configuration>`.
 

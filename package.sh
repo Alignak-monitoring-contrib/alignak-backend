@@ -127,7 +127,7 @@ elif [ "${git_branch}" = "develop" ]; then
 else
    # Version
 #   version="${version}-${git_branch}"
-   version="-${git_branch}"
+   version="${git_branch}"
 
    # Updating deploy script for any other branch / tag
    sed -i -e "s|\"sed_package_name\"|\"${pkg_name}\"|g" dist/.bintray-${output_type}.json
@@ -199,15 +199,14 @@ elif [ "${output_type}" = "rpm" ]; then
       --architecture all \
       --license AGPL \
       --version ${version} \
-      --name "${python_prefix}-${pkg_name}" \
+      --name "${pkg_name}" \
       --description "${pkg_description}" \
       --url "${pkg_url}" \
       --vendor "${pkg_team}" \
       --maintainer "${pkg_team}" \
-      --python-fix-name \
       --python-package-name-prefix "${python_prefix}" \
       --python-scripts-executable "python" \
-      --python-install-lib "/usr/lib/${python_prefix}/dist-packages" \
+      --python-install-lib "/usr/lib/python${python_version}/site-packages" \
       --python-bin 'python' \
       --python-pip 'pip' \
       --python-install-data '/usr/local' \

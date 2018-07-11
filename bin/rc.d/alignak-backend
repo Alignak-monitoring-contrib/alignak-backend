@@ -101,6 +101,7 @@ echo "Alignak backend configuration is: $ALIGNAK_BACKEND_CONFIGURATION_FILE"
 stop_cmd="${name}_stop"
 start_cmd="${name}_start"
 start_precmd="${name}_precmd"
+restart_cmd="${name}_restart"
 
 required_files="${alignak_backend_wsgi}"
 
@@ -120,7 +121,14 @@ alignak_backend_start()
 alignak_backend_stop()
 {
     echo "Stopping ${name}..."
-    pkill -2 -F ${alignak_backend_pid_file}
+    /usr/local/bin/uwsgi --stop ${alignak_backend_pid_file}
+    echo "Stopped"
+}
+
+alignak_backend_restart()
+{
+    echo "Stopping ${name}..."
+    /usr/local/bin/uwsgi --restart ${alignak_backend_pid_file}
     echo "Stopped"
 }
 
