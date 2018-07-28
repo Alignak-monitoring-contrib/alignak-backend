@@ -1,5 +1,16 @@
 .. _tutorial:
 
+Using backend with alignak-backend-cli
+======================================
+
+
+The Alignak backend may be used with a command line tool ``alignak-backend-cli`` which must be installed separately. Install this tool the same way you installed the Alignak backend (distro package, pip, source, ...) and enjoy...
+
+The ``alignak-backend-cli`` documentation is available on `Read the docs <http://alignak-backend-client.readthedocs.io/en/latest/?badge=develop>`_ but the tool has an online doc::
+
+   alignak-backend-cli -
+
+
 Using backend with CURL
 =======================
 

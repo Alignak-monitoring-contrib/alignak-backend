@@ -20,7 +20,7 @@
       "includePattern": "./dist/(.*\\.deb)",
       "uploadPattern": "$1",
       "matrixParams": {
-        "override": 1,
+        "override": "1",
         "deb_distribution": "jessie,Stretch,Trusty,xenial,Yakkety,Zesty,Artful",
         "deb_component": "main",
         "deb_architecture": "all"

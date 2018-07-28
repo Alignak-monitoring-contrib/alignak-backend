@@ -67,6 +67,34 @@ It is used to:
 Installation
 ------------
 
+From Alignak packages repositories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+More information in the online Alignak backend documentation. Here is only an abstract...
+
+Debian::
+
+    # Alignak DEB stable packages
+    sudo echo deb https://dl.bintray.com/alignak/alignak-deb-stable xenial main | sudo tee -a /etc/apt/sources.list.d/alignak.list
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv D401AB61
+
+    sudo apt-get update
+    sudo apt install alignak-backend
+
+CentOS::
+
+    sudo vi /etc/yum.repos.d/alignak-stable.repo:
+       [Alignak-rpm-stable]
+       name=Alignak RPM stable packages
+       baseurl=https://dl.bintray.com/alignak/alignak-rpm-stable
+       gpgcheck=0
+       repo_gpgcheck=0
+       enabled=1
+
+    sudo yum repolist
+
+    sudo yum install python-alignak-backend
+
 From PyPI
 ~~~~~~~~~
 To install the package from PyPI::

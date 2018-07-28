@@ -104,7 +104,7 @@ if [ "${git_branch}" = "master" ]; then
 elif [ "${git_branch}" = "develop" ]; then
    # Version
 #   version="${version}-dev"
-   version="-dev"
+   version="dev"
 
    # Updating deploy script for Alignak develop version
    sed -i -e "s|\"sed_package_name\"|\"${pkg_name}\"|g" dist/.bintray-${output_type}.json
