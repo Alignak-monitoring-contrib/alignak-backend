@@ -206,7 +206,7 @@ You can install uWsgi with the python packaging::
 To get pip3 for Python 3 packages installation::
 
    sudo apt-get install python3-pip
-   sudo pip install uWSGI
+   sudo pip3 install uWSGI
 
 If you prefer using your Unix/Linux ditribution packaging to install uWSGI and the alignak backend, please refer to your distribution packages for installing. You will also need to install the uWSGI Python plugin.
 
@@ -225,7 +225,7 @@ As an example on CentOS (for python 2)::
 
    sudo yum install uwsgi uwsgi-plugin-python
 
-.. warning:: If you get some errors with the plugins, you will need to set some options in the alignak backend */usr/local/etc/alignak-backend/uwsgi.ini* configuration file. See this configuration file commented accordingly.
+.. warning:: If you get some errors with the plugins, you will need to set some options in the alignak backend */usr/local/share/alignak-backend/etc/uwsgi.ini* configuration file. See this configuration file commented accordingly.
 
 Install on Debian-like Linux
 ----------------------------
@@ -297,7 +297,7 @@ A post-installation script (repository *bin/post-install.sh*) is started at the 
 
 .. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
-It is recommended to install a log rotation because the Alignak backend log may be really verbose ! Using the ``logrotate`` is easy. A default file is shipped with the installation script and copied to the */etc/logrotate.d/alignak-backend* with this content::
+It is recommended to set-up a log rotation because the Alignak backend log may be really verbose! Using the ``logrotate`` is easy. A default file is shipped with the installation script and copied to the */etc/logrotate.d/alignak-backend* with this content::
 
    "/var/log/alignak-backend/*.log" {
      copytruncate
@@ -308,6 +308,18 @@ It is recommended to install a log rotation because the Alignak backend log may 
      missingok
      notifempty
    }
+
+A log rotation file for uWsgi is also shipped with the installation script and copied to the */etc/logrotate.d/uwsgi* with this content::
+
+    "/var/log/uwsgi/alignak-backend.log" {
+      copytruncate
+      daily
+      rotate 5
+      compress
+      delaycompress
+      missingok
+      notifempty
+    }
 
 
 Install on RHEL-like Linux
@@ -347,47 +359,44 @@ The Alignak packages repositories contain several version of the application. Th
 Once the download sources are set, you can simply use the standard package tool to have more information about Alignak packages and available versions.
  ::
 
-   yum search alignak
-   # Note that it exists some Alignak packages in the EPEL repository but it is an old version. Contact us for more information...
-      Loaded plugins: fastestmirror
-      Loading mirror speeds from cached hostfile
-       * base: mirrors.atosworldline.com
-       * epel: mirror.speedpartner.de
-       * extras: mirrors.atosworldline.com
-       * updates: mirrors.standaloneinstaller.com
-      =========================================================================== N/S matched: alignak ===========================================================================
-      ...
-      ...
-      python-alignak-backend.noarch : Alignak backend, REST API and MongoDB backend for Alignak
-      python3-alignak-backend.noarch : Alignak backend, REST API and MongoDB backend for Alignak
+   yum search alignak-backend
+        Loaded plugins: fastestmirror
+        Loading mirror speeds from cached hostfile
+        * base: mirrors.atosworldline.com
+        * epel: mirror.speedpartner.de
+        * extras: mirrors.atosworldline.com
+        * updates: mirrors.standaloneinstaller.com
+        =========================================================================== N/S matched: alignak ===========================================================================
+        ...
+        ...
+        alignak-backend.noarch : Alignak backend, REST API and MongoDB backend for Alignak
+        alignak-backend-client.noarch : Alignak backend client, python client for Alignak Backend
+        alignak-backend-import.noarch : Alignak backend importation script for Nagios configuration files
 
-
-        Name and summary matches only, use "search all" for everything.
-
-   yum info python-alignak-backend
-      Modules complémentaires chargés : fastestmirror
-      Loading mirror speeds from cached hostfile
-       * base: distrib-coffee.ipsl.jussieu.fr
-       * epel: mirrors.ircam.fr
-       * extras: ftp.pasteur.fr
-       * updates: centos.quelquesmots.fr
-      Paquets disponibles
-      Nom                 : python-alignak-backend
-      Architecture        : noarch
-      Version             : 1.4.13_dev
-      Révision            : 1
-      Taille              : 1.2 M
-      Dépôt               : Alignak-rpm-testing
-      Résumé              : Alignak backend, REST API and MongoDB backend for Alignak
-      URL                 : http://alignak.net
-      Licence             : AGPL
-      Description         : Alignak backend, REST API and MongoDB backend for Alignak
-
+   yum info alignak-backend
+        Modules complémentaires chargés : fastestmirror
+        Loading mirror speeds from cached hostfile
+        * base: ftp.rezopole.net
+        * epel: mirror.miletic.net
+        * extras: mirror.plusserver.com
+        * updates: ftp.rezopole.net
+        Paquets installés
+        Nom                 : alignak-backend
+        Architecture        : noarch
+        Version             : 1.4.14
+        Révision            : 1
+        Taille              : 4.7 M
+        Dépôt               : installed
+        Depuis le dépôt     : Alignak-rpm-testing
+        Résumé              : Alignak backend, REST API and MongoDB backend for Alignak
+        URL                 : http://alignak.net
+        Licence             : AGPL
+        Description         : Alignak backend, REST API and MongoDB backend for Alignak
 
 Or you can simply use the standard package tool to install Alignak and its dependencies.
  ::
 
-   sudo yum install python-alignak-backend
+   sudo yum install alignak-backend
 
    # Check Alignak backend installation
    # It copied the default shipped files and sample configuration.
@@ -400,11 +409,15 @@ Or you can simply use the standard package tool to install Alignak and its depen
       -rwxrwxr-x. 1 root root 4009 10 juil. 21:03 post-install.sh
       -rw-rw-r--. 1 root root  527 10 juil. 21:03 requirements.txt
 
-A post-installation script (repository *bin/post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-backend*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
+A post-installation script (repository *bin/post-install.sh*) must be executed at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-backend*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
+
+ ::
+
+    sudo /usr/local/share/alignak-backend/post-install.sh
 
 .. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
-It is recommended to install a log rotation because the Alignak backend log may be really verbose ! Using the ``logrotate`` is easy. A default file is shipped with the installation script and copied to the */etc/logrotate.d/alignak-backend* with this content::
+It is recommended to set-up a log rotation because the Alignak backend log may be really verbose! Using the ``logrotate`` is easy. A default file is shipped with the installation script and copied to the */etc/logrotate.d/alignak-backend* with this content::
 
    "/var/log/alignak-backend/*.log" {
      copytruncate
@@ -416,33 +429,40 @@ It is recommended to install a log rotation because the Alignak backend log may 
      notifempty
    }
 
+A log rotation file for uWsgi is also shipped with the installation script and copied to the */etc/logrotate.d/uwsgi* with this content::
+
+    "/var/log/uwsgi/alignak-backend.log" {
+      copytruncate
+      daily
+      rotate 5
+      compress
+      delaycompress
+      missingok
+      notifempty
+    }
+
 
 To terminate the installation of the system services you must::
 
-   sudo cp /usr/local/share/alignak-backend/bin/systemd/alignak-backend-centos7.service /lib/systemd/system/alignak-backend.service
+   # For Python 2 installation
+   sudo cp /usr/local/share/alignak-backend/bin/systemd/python2/alignak-backend-centos7.service /etc/systemd/system/alignak-backend.service
+
+   # For Python 3 installation
+   sudo cp /usr/local/share/alignak-backend/bin/systemd/python3/alignak-backend-centos7.service /etc/systemd/system/alignak-backend.service
 
    ll /etc/systemd/system
-      -rw-r--r--. 1 root root  777 May 24 17:48 /lib/systemd/system/alignak-arbiter@.service
-      -rw-r--r--. 1 root root  770 May 24 17:48 /lib/systemd/system/alignak-broker@.service
-      -rw-r--r--. 1 root root  770 May 24 17:48 /lib/systemd/system/alignak-poller@.service
-      -rw-r--r--. 1 root root  805 May 24 17:48 /lib/systemd/system/alignak-reactionner@.service
-      -rw-r--r--. 1 root root  784 May 24 17:48 /lib/systemd/system/alignak-receiver@.service
-      -rw-r--r--. 1 root root  791 May 24 17:48 /lib/systemd/system/alignak-scheduler@.service
-      -rw-r--r--. 1 root root 1286 May 24 17:48 /lib/systemd/system/alignak.service
+      -rw-r--r--. 1 root root  777 May 24 17:48 /lib/systemd/system/alignak-backend.service
 
    sudo systemctl enable alignak-backend
       Created symlink from /etc/systemd/system/multi-user.target.wants/alignak-backend.service to /usr/lib/systemd/system/alignak-backend.service.
 
-.. note:: more information about the default shipped configuration is available :ref: `on this page <configuration/default_configuration>`.
-
-
-Once you achieved this tricky part, running Alignak daemons is easy. All you need is to inform the Alignak daemons where they will find the configuration to use and start the `alignak` system service. All this is explained :ref:`in this chapter <run_alignak/services_systemd>`.
+.. note:: beware of the different system unit services scripts...
 
 
 Install on FreeBSD Unix
 -----------------------
 
-There is no package available currentmy for FreeBSD. You can install with pip as explained hereunder.
+There is no package available currently for FreeBSD. You can install with pip as explained hereunder.
 
 Install with pip
 ----------------
@@ -476,25 +496,6 @@ Installation with ``pip``::
       alignak user and members of its group alignak are granted 775 on /usr/local/var/log/alignak-backend
       Add your own user account as a member of alignak group to run daemons from your shell!
       Created.
-
-Configure Linux systemd services
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-::
-
-   # Set-up system services
-   $ sudo cp /usr/local/share/alignak-backend/bin/systemd/alignak-backend.service /lib/systemd/system
-   # Note that if you are using default Python 2 as default interpreter, you must edit the service file
-   # and replace `--plugin python3` with `--plugin python`!
-
-   $ sudo systemctl enable alignak-backend
-   Created symlink from /etc/systemd/system/multi-user.target.wants/alignak-backend.service to /lib/systemd/system/alignak-backend.service.
-
-   $ sudo systemctl status alignak-backend
-   ● alignak-backend.service - uWSGI instance to serve Alignak backend
-      Loaded: loaded (/lib/systemd/system/alignak-backend.service; enabled; vendor preset: enabled)
-      Active: inactive (dead)
-
-   $ sudo systemctl start alignak-backend
 
 Configure freeBSD system service
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

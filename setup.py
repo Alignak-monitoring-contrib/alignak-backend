@@ -66,9 +66,10 @@ package = import_module('alignak_backend')
 
 # Get default configuration files recursively
 data_files = [
-    ('share/alignak-backend', ['requirements.txt']),
-    ('share/alignak-backend', ['bin/post-install.sh',
-                               'bin/alignak-backend-log-rotate',
+    ('share/alignak-backend', ['requirements.txt',
+                               'bin/post-install.sh',
+                               'bin/log-rotate-alignak-backend',
+                               'bin/log-rotate-uwsgi',
                                'bin/alignak-backend-uwsgi'])
 ]
 for dir in ['etc', 'bin/rc.d', 'bin/systemd']:

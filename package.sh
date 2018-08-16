@@ -102,14 +102,13 @@ if [ "${git_branch}" = "master" ]; then
       exit 1
    fi
 elif [ "${git_branch}" = "develop" ]; then
-   # Version
-#   version="${version}-dev"
-   version="dev"
+   # Version is version number + develop
+   version="${version}-develop"
+#   version="-dev"
 
    # Updating deploy script for Alignak develop version
    sed -i -e "s|\"sed_package_name\"|\"${pkg_name}\"|g" dist/.bintray-${output_type}.json
-   sed -i -e "s|\"sed_version_name\"|\"develop-${version_date}\"|g" dist/.bintray-${output_type}.json
-#   sed -i -e "s|\"sed_version_name\"|\"${version_date}\"|g" dist/.bintray-${output_type}.json
+   sed -i -e "s|\"sed_version_name\"|\"${version}-${version_date}\"|g" dist/.bintray-${output_type}.json
    sed -i -e "s|\"sed_version_desc\"|\"Development version\"|g" dist/.bintray-${output_type}.json
    sed -i -e "s|\"sed_version_released\"|\"${version_date}\"|g" dist/.bintray-${output_type}.json
 
@@ -126,12 +125,11 @@ elif [ "${git_branch}" = "develop" ]; then
    fi
 else
    # Version
-#   version="${version}-${git_branch}"
-   version="${git_branch}"
+   version="${version}-${git_branch}"
+#   version="${git_branch}"
 
    # Updating deploy script for any other branch / tag
    sed -i -e "s|\"sed_package_name\"|\"${pkg_name}\"|g" dist/.bintray-${output_type}.json
-#   sed -i -e "s|\"sed_version_name\"|\"$1\"|g" dist/.bintray-${output_type}.json
    sed -i -e "s|\"sed_version_name\"|\"${version}-${version_date}\"|g" dist/.bintray-${output_type}.json
    sed -i -e "s|\"sed_version_desc\"|\"Branch $1 version\"|g" dist/.bintray-${output_type}.json
    sed -i -e "s|\"sed_version_released\"|\"${version_date}\"|g" dist/.bintray-${output_type}.json
