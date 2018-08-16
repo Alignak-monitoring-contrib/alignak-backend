@@ -185,7 +185,7 @@ Configuring MongoDB is not mandatory because the Alignak backend do not require 
    Successfully added user: { "user" : "alignak", "roles" : [ "readWrite", "dbAdmin" ] }
 
    > db.test.save( { test: "test" } )
-   # This will create atest collection in the database, which will create the DB in mongo server
+   # This will create a test collection in the database, which will create the DB in mongo server
 
    > show dbs
    admin    0.000GB
@@ -220,7 +220,7 @@ As an example on Debian (for python 3)::
 
 As an example on CentOS (for python 2)::
 
-   # Il faut les dépôts EPEL !
+   # You need EPEL repository!
    sudo yum install epel-release
 
    sudo yum install uwsgi uwsgi-plugin-python
