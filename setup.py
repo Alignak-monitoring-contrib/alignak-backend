@@ -101,7 +101,7 @@ setup(
     project_urls={
         'Presentation': 'http://alignak.net',
         'Documentation': 'http://docs.alignak.net/en/latest/',
-        'Source': 'https://github.com/alignak-monitoring-contrib/alignak-backed/',
+        'Source': 'https://github.com/alignak-monitoring-contrib/alignak-backend/',
         'Tracker': 'https://github.com/alignak-monitoring-contrib/alignak-backend/issues',
         'Contributions': 'https://github.com/alignak-monitoring-contrib/'
     },
