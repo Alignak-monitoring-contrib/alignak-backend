@@ -125,8 +125,11 @@ elif [ "${git_branch}" = "develop" ]; then
    fi
 else
    # Version
-   version="${version}-${git_branch}"
-#   version="${git_branch}"
+   if [ "${git_branch}" = "${version}" ]; then
+      version="${git_branch}"
+   else
+      version="${version}-${git_branch}"
+   fi
 
    # Updating deploy script for any other branch / tag
    sed -i -e "s|\"sed_package_name\"|\"${pkg_name}\"|g" dist/.bintray-${output_type}.json
