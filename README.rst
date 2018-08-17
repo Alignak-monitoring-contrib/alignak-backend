@@ -4,31 +4,31 @@ Alignak Backend
 *Python Eve REST Backend for Alignak monitoring framework*
 
 .. image:: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend.svg?branch=develop
-   :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend
+    :target: https://travis-ci.org/Alignak-monitoring-contrib/alignak-backend
     :alt: Develop branch build status
 
 .. image:: https://landscape.io/github/Alignak-monitoring-contrib/alignak-backend/develop/landscape.svg?style=flat
-   :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-backend/develop
+    :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-backend/develop
     :alt: Development code static analysis
 
 .. image:: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-backend/branch/develop/graph/badge.svg
-  :target: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-backend
+    :target: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-backend
     :alt: Development code coverage
 
 .. image:: http://readthedocs.org/projects/alignak-backend/badge/?version=develop
-   :target: http://alignak-backend.readthedocs.io/en/latest/?badge=develop
+    :target: http://alignak-backend.readthedocs.io/en/latest/?badge=develop
     :alt: Development documentation Status
 
 .. image:: https://badge.fury.io/py/alignak_backend.svg
-   :target: https://badge.fury.io/py/alignak_backend
+    :target: https://badge.fury.io/py/alignak_backend
     :alt: Most recent PyPi version
 
 .. image:: https://img.shields.io/badge/IRC-%23alignak-1e72ff.svg?style=flat
-   :target: http://webchat.freenode.net/?channels=%23alignak
+    :target: http://webchat.freenode.net/?channels=%23alignak
     :alt: Join the chat #alignak on freenode.net
 
 .. image:: https://img.shields.io/badge/License-AGPL%20v3-blue.svg
-   :target: http://www.gnu.org/licenses/agpl-3.0
+    :target: http://www.gnu.org/licenses/agpl-3.0
     :alt: License AGPL v3
 
 
