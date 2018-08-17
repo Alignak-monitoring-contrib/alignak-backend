@@ -418,7 +418,7 @@ A post-installation script (repository *bin/post-install.sh*) must be executed a
 
  ::
 
-    sudo /usr/local/share/alignak-backend/post-install.sh
+    sudo /usr/local/share/alignak-backend/python-post-install.sh
 
 .. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
