@@ -269,7 +269,7 @@ Or you can simply use the standard package tool to install Alignak::
 
    sudo apt install alignak-backend
 
-   # Check Alignak installation
+   # Check Alignak backend installation
    # It copied the default shipped files and sample configuration.
    ll /usr/local/share/alignak-backend/
       total 16
@@ -280,7 +280,7 @@ Or you can simply use the standard package tool to install Alignak::
       -rwxrwxr-x. 1 root root 4009 10 juil. 21:03 post-install.sh
       -rw-rw-r--. 1 root root  527 10 juil. 21:03 requirements.txt
 
-   # It installed the Alignak systemd services
+   # It installed the Alignak backend systemd service
    ll /lib/systemd/system/alignak*
       -rw-r--r-- 1 root root 1715 juil.  1 11:12 /lib/systemd/system/alignak-backend.service
 
@@ -293,7 +293,7 @@ Or you can simply use the standard package tool to install Alignak::
 
 .. note:: that immediately after the installation the *alignak-backend* service is enabled and started! This is a side effect of the packaging tool that is used (*fpm*).
 
-A post-installation script (repository *bin/post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
+A post-installation script (repository *bin/post-install.sh*) is started at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-backend*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
 
 .. note:: this hack is necessary to be sure that we use the expected versions of the needed Python libraries...
 
@@ -308,6 +308,18 @@ It is recommended to set-up a log rotation because the Alignak backend log may b
      missingok
      notifempty
    }
+
+A log rotation file for uWsgi is also shipped with the installation script and copied to the */etc/logrotate.d/alignak-backend-uwsgi* with this content::
+
+    "/var/log/uwsgi/alignak-backend.log" {
+      copytruncate
+      daily
+      rotate 5
+      compress
+      delaycompress
+      missingok
+      notifempty
+    }
 
 A log rotation file for uWsgi is also shipped with the installation script and copied to the */etc/logrotate.d/uwsgi* with this content::
 
@@ -401,13 +413,6 @@ Or you can simply use the standard package tool to install Alignak and its depen
    # Check Alignak backend installation
    # It copied the default shipped files and sample configuration.
    ll /usr/local/share/alignak-backend/
-      total 16
-      -rw-rw-r--. 1 root root  122 10 juil. 21:03 alignak-backend-log-rotate
-      -rwxrwxr-x. 1 root root  584 10 juil. 21:03 alignak-backend-uwsgi
-      drwxr-xr-x. 4 root root   33 11 juil. 04:54 bin
-      drwxr-xr-x. 2 root root  187 11 juil. 04:54 etc
-      -rwxrwxr-x. 1 root root 4009 10 juil. 21:03 post-install.sh
-      -rw-rw-r--. 1 root root  527 10 juil. 21:03 requirements.txt
 
 A post-installation script (repository *bin/post-install.sh*) must be executed at the end of the installation procedure to install the required Python packages. This script is copied during the installation in the default installation directory: */usr/local/share/alignak-backend*. It is using the Python pip tool to get the Python packages listed in the default installation directory *requirements.txt* file.
 
@@ -428,6 +433,18 @@ It is recommended to set-up a log rotation because the Alignak backend log may b
      missingok
      notifempty
    }
+
+A log rotation file for uWsgi is also shipped with the installation script and copied to the */etc/logrotate.d/alignak-backend-uwsgi* with this content::
+
+    "/var/log/uwsgi/alignak-backend.log" {
+      copytruncate
+      daily
+      rotate 5
+      compress
+      delaycompress
+      missingok
+      notifempty
+    }
 
 A log rotation file for uWsgi is also shipped with the installation script and copied to the */etc/logrotate.d/uwsgi* with this content::
 

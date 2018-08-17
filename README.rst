@@ -11,13 +11,9 @@ Alignak Backend
    :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-backend/develop
     :alt: Development code static analysis
 
-.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-backend/badge.svg?branch=develop&service=github
-   :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-backend?branch=develop
+.. image:: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-backend/branch/develop/graph/badge.svg
+  :target: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-backend
     :alt: Development code coverage
-
-.. image:: http://readthedocs.org/projects/alignak-backend/badge/?version=latest
-   :target: http://alignak-backend.readthedocs.io/en/latest/?badge=latest
-    :alt: Latest documentation Status
 
 .. image:: http://readthedocs.org/projects/alignak-backend/badge/?version=develop
    :target: http://alignak-backend.readthedocs.io/en/latest/?badge=develop
