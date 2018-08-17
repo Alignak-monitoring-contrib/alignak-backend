@@ -78,7 +78,7 @@ then
       echo "Installed."
    else
       echo "pip3 is not available. You can install it by typing: sudo apt install python3-pip"
-      echo "You can then run: sudo /usr/local/var/log/alignak-backend/post-install.sh"
+      echo "You can then run: sudo $PREFIX/share/alignak-backend/post-install.sh"
       exit 1
    fi
 else
@@ -93,7 +93,7 @@ else
          echo "Installed."
       else
          echo "pip is not available. You can install it by typing: sudo apt install python-pip"
-         echo "You can then run: /usr/local/var/log/alignak-backend/post-install.sh"
+         echo "You can then run: $PREFIX/share/alignak-backend/post-install.sh"
          exit 1
       fi
    else

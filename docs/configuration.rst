@@ -6,22 +6,22 @@ Configuration
 Introduction
 ------------
 
-The backend uses a configuration file that it searchs for in one of these folders:
+The Alignak backend uses a configuration file that it searchs for in one of these folders:
 
-   * /usr/local/etc/alignak_backend/settings.json
-   * /etc/alignak_backend/settings.json
-   * etc/alignak_backend/settings.json
+   * /usr/local/etc/alignak-backend/settings.json
+   * /etc/alignak-backend/settings.json
+   * etc/alignak-backend/settings.json
    * ./etc/settings.json
    * ../etc/settings.json
    * ./settings.json
 
-.. note:: tha the default installation directory is not in this list; this to avoid using the default shipped file by mistake !
+.. note:: that the default installation directory is not in this list; this to avoid using the default shipped file by mistake !
 
-The best solution to define which configuration file is to be used is to set an envionment variable. If ``ALIGNAK_BACKEND_CONFIGURATION_FILE`` is defined, the file name defined in this variable takes precedence over the default files list.
+The best solution to define which configuration file is to be used is to set an environment variable. If ``ALIGNAK_BACKEND_CONFIGURATION_FILE`` is defined, the file name defined in this variable takes precedence over the default files list.
 
 .. warning:: it is not recommended to use the default shipped configuration file because an update of the installed application will almost surely replace the content of this file and you will loose any modification you did in the file!
 
-the configuration file is a JSON structured file in which comments are allowed. the default shipped file is commented to explain all the configuration variables::
+The configuration file is a JSON structured file in which comments are allowed. the default shipped file is commented to explain all the configuration variables::
 
    {
      "DEBUG": false, /* To run underlying server in debug mode, define true */
@@ -96,8 +96,8 @@ the configuration file is a JSON structured file in which comments are allowed. 
 
 If an environment variable `ALIGNAK_BACKEND_LOGGER_CONFIGURATION` exist, it will override the one defined in the settings file for the logger configuration file.
 
-If an environment variable `ALIGNAK_BACKEND_MONGO_URI` exist, it will overrid the one defined in the settings file for the MongoDB connection string.
-If an environment variable `ALIGNAK_BACKEND_MONGO_DBNAME` exist, it will overrid the one defined in the settings file and will be used as the database name.
+If an environment variable `ALIGNAK_BACKEND_MONGO_URI` exist, it will override the one defined in the settings file for the MongoDB connection string.
+If an environment variable `ALIGNAK_BACKEND_MONGO_DBNAME` exist, it will override the one defined in the settings file and will be used as the database name.
 
 Debug section
 -------------
@@ -107,10 +107,10 @@ By default, debug mode is disabled, if you want to activate it (developer mode..
     "DEBUG": true,
 
 
-Webserver configuration
------------------------
-
 It's used in case you want to run the backend in developer mode.
+
+Web server configuration
+------------------------
 
 Define IP listening (empty value = listen on all IP)::
 
@@ -246,17 +246,15 @@ Grafana datasource
 ------------------
 
 The Grafana datasource available queries are defined in a json file which name is declared in:
-::
+ ::
 
     "GRAFANA_DATASOURCE_QUERIES": "grafana_queries.json"
 
 This configuration file variable may be overriden with an environment variable: `ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES`.
 
 The Grafana datasource tables available are defined in a json file which name is declared in:
-::
+ ::
 
     "GRAFANA_DATASOURCE_TABLES": "grafana_tables.json"
 
 This configuration file variable may be overriden with an environment variable: `ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES`.
-
-
