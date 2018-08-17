@@ -179,10 +179,8 @@ if [ "${output_type}" = "deb" ]; then
       --vendor "${pkg_team}" \
       --maintainer "${pkg_team}" \
       --python-package-name-prefix "${python_prefix}" \
-      --python-scripts-executable "python" \
+      --python-scripts-executable "/usr/bin/env python" \
       --python-install-lib "/usr/lib/${python_prefix}/dist-packages" \
-      --python-bin 'python' \
-      --python-pip 'pip' \
       --python-install-data '/usr/local' \
       --python-install-bin '/usr/local/bin' \
       --no-python-dependencies \
@@ -206,10 +204,8 @@ elif [ "${output_type}" = "rpm" ]; then
       --vendor "${pkg_team}" \
       --maintainer "${pkg_team}" \
       --python-package-name-prefix "${python_prefix}" \
-      --python-scripts-executable "python" \
+      --python-scripts-executable "/usr/bin/env python" \
       --python-install-lib "/usr/lib/python${python_version}/site-packages" \
-      --python-bin 'python' \
-      --python-pip 'pip' \
       --python-install-data '/usr/local' \
       --python-install-bin '/usr/local/bin' \
       --no-python-dependencies \
@@ -231,6 +227,8 @@ else
       --maintainer "${pkg_team}" \
       --python-bin 'python' \
       --python-pip 'pip' \
+      --python-scripts-executable "/usr/bin/env python" \
+      --python-install-lib "/usr/lib/python${python_version}/site-packages" \
       --python-install-data '/usr/local' \
       --python-install-bin '/usr/local/bin' \
       --no-python-dependencies \
