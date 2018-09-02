@@ -45,6 +45,15 @@ def get_schema():
     :rtype: dict
     """
     return {
+        'mongo_indexes': {
+            'index_updated': [('_updated', 1)],
+            'index_created': [('_created', 1)],
+            'index_host': [('host', 1)],
+            'index_host_name': [('host_name', 1)],
+            'index_service': [('service', 1)],
+            'index_service_name': [('service_name', 1)],
+            'index_host_service_name': [('host_name', 1), ('service_name', 1)],
+        },
         'schema': {
             'schema_version': {
                 'type': 'integer',

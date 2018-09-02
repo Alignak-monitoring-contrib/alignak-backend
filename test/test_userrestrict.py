@@ -30,8 +30,9 @@ class TestUserrestrict(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -78,7 +79,7 @@ class TestUserrestrict(unittest2.TestCase):
         time.sleep(2)
 
     def crud_command(self, my_auth, resource='command', name='test', crud='crud', extra_data=None):
-        # pylint: disable=too-many-arguments
+        # pylint: disable=too-many-locals, too-many-arguments
         """Create, read, update and delete a command
 
         :return: None

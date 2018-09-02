@@ -20,11 +20,12 @@ TS cache (timeseriesretention)
    "| host
    | *Stored metric host*", "**string**", "**True**", "****", ""
    "| influxdb
-   | *Graphite relation*", "objectid", "", "None", ":ref:`influxdb <resource-influxdb>`"
+   | *InfluxDB relation*", "objectid", "", "None", ":ref:`influxdb <resource-influxdb>`"
    "| name
    | *Stored metric name*", "**string**", "**True**", "****", ""
    "| realm
    | *Stored metric host/service realm*", "**string**", "**True**", "****", ""
+   "| schema_version", "integer", "", "1", ""
    "| service
    | *Stored metric service*", "**string**", "**True**", "****", ""
    "| timestamp

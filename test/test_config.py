@@ -34,8 +34,9 @@ class TestConfig(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -78,7 +79,7 @@ class TestConfig(unittest2.TestCase):
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
-        os.unlink("/tmp/alignak_backend.log")
+        # os.unlink("/tmp/alignak_backend.log")
 
     def test_config_endpoint(self):
         """Get backend configuration
@@ -88,7 +89,7 @@ class TestConfig(unittest2.TestCase):
         # Get backend configuration
         response = requests.get(self.endpoint + '/backendconfig')
         resp = response.json()
-        assert resp == {u'PAGINATION_DEFAULT': 25, u'PAGINATION_LIMIT': 50}
+        assert resp == {u'PAGINATION_DEFAULT': 50, u'PAGINATION_LIMIT': 5000}
 
     def test_version_endpoint(self):
         """Get backend version

@@ -32,8 +32,9 @@ class TestTemplatesUpdate(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-templates-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -99,7 +100,7 @@ class TestTemplatesUpdate(unittest2.TestCase):
         for resource in ['host', 'service', 'command']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
-    def _create_templates(self):
+    def _create_templates(self):  # pylint: disable=too-many-locals
         """Create hosts and services templates - from the linux-nrpe pack
 
         :return: None

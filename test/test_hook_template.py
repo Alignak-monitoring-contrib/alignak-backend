@@ -35,8 +35,9 @@ class TestHookTemplate(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-templates-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -48,7 +49,7 @@ class TestHookTemplate(unittest2.TestCase):
         cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
-                                  '/tmp/uwsgi.pid'])
+                                  '/tmp/uwsgi.pid', '--logto', '/tmp/alignak-backend.log'])
         time.sleep(3)
 
         cls.endpoint = 'http://127.0.0.1:5000'
@@ -214,7 +215,7 @@ class TestHookTemplate(unittest2.TestCase):
             'check_command': rc[2]['_id'],
             '_is_template': True,
             'tags': ['tag-1'],
-            'customs': {'key1': 'value1'},
+            'customs': {'key1': 'value1-A', 'key2': 'value2'},
             '_realm': self.realm_all
         }
         response = requests.post(self.endpoint + '/host', json=data, headers=headers,
@@ -233,7 +234,7 @@ class TestHookTemplate(unittest2.TestCase):
 
         # The host template has some specific fields
         self.assertEqual(rh[1]['tags'], ['tag-1'])
-        self.assertEqual(rh[1]['customs'], {'key1': 'value1'})
+        self.assertEqual(rh[1]['customs'], {'key1': 'value1-A', 'key2': 'value2'})
 
         # Create a service template linked to the newly created host template
         data = {
@@ -250,7 +251,7 @@ class TestHookTemplate(unittest2.TestCase):
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
         rs = resp['_items']
-        # Only 1 service in the backend, and it is the newly created service template
+        # Only 1 service template in the backend, and it is the newly created service template
         self.assertEqual(len(rs), 1)
         self.assertEqual(rs[0]['name'], "service-tpl-A")
         self.assertEqual(rs[0]['_is_template'], True)
@@ -262,7 +263,7 @@ class TestHookTemplate(unittest2.TestCase):
             '_is_template': True,
             '_templates': [host_template_id],
             'tags': ['tag-2', 'tag-3'],
-            'customs': {'key2': 'value2', 'key3': 'value3'},
+            'customs': {'key1': 'value1-A-1', 'key3': 'value3'},
             '_realm': self.realm_all
         }
         response = requests.post(self.endpoint + '/host', json=data, headers=headers,
@@ -287,21 +288,31 @@ class TestHookTemplate(unittest2.TestCase):
         for key in schema['schema']:
             if not key.startswith('_') and not key.startswith('ls_'):
                 template_fields_ref.append(key)
-        # we remove in reference the fields defined in the host directly
+
+        # We remove in reference the fields defined in the host directly
         if 'name' in template_fields_ref:
             template_fields_ref.remove('name')
         if 'check_command' in template_fields_ref:
             template_fields_ref.remove('check_command')
-        if 'tags' in template_fields_ref:
-            template_fields_ref.remove('tags')
-        if 'customs' in template_fields_ref:
-            template_fields_ref.remove('customs')
-        # we compare the _template_fields in the backend and our reference
+
+        # Not for customs nor tags because they are cumulative fields inherited from the templates!
+        # if 'tags' in template_fields_ref:
+        #     template_fields_ref.remove('tags')
+        # if 'customs' in template_fields_ref:
+        #     template_fields_ref.remove('customs')
+
+        # we compare the _template_fields in the backend and our reference:
+        # host fields should not be in the template_fields
         self.assertItemsEqual(rh[2]['_template_fields'], template_fields_ref)
 
         # The host template has some specific fields and cumulated fields are not inherited
-        self.assertEqual(rh[2]['tags'], ['tag-2', 'tag-3'])
-        self.assertEqual(rh[2]['customs'], {'key2': 'value2', 'key3': 'value3'})
+        # - tag-1 inherited from the template A ! And tag-2/tag-3 from itself
+        self.assertEqual(rh[2]['tags'], ['tag-1', 'tag-2', 'tag-3'])
+        # - key1 and key3 values from the the template A ! And key2 from itself
+        # The new template value takes precedence !
+        self.assertEqual(rh[2]['customs'], {'key1': 'value1-A-1',
+                                            'key2': 'value2',
+                                            'key3': 'value3'})
 
         host_template_id = rh[2]['_id']
 
@@ -332,7 +343,9 @@ class TestHookTemplate(unittest2.TestCase):
         data = {
             'name': 'host-1',
             '_templates': [host_template_id],
-            '_realm': self.realm_all
+            '_realm': self.realm_all,
+            'tags': ['tag-host', 'tag-host2'],
+            'customs': {'key1': 'value1-host', 'key4': 'value4'},
         }
         response = requests.post(self.endpoint + '/host', json=data,
                                  headers=headers, auth=self.auth)
@@ -357,9 +370,11 @@ class TestHookTemplate(unittest2.TestCase):
         # we compare the _template_fields in the backend and our reference
         self.assertItemsEqual(rh[3]['_template_fields'], template_fields_ref)
 
-        # The host has some fields that were cumulated from its linked template
-        self.assertEqual(rh[3]['tags'], ['tag-1', 'tag-2', 'tag-3'])
-        self.assertEqual(rh[3]['customs'], {'key1': 'value1', 'key2': 'value2', 'key3': 'value3'})
+        # The host has some fields that were inherited from its linked templates and from itself
+        self.assertEqual(rh[3]['tags'], ['tag-1', 'tag-2', 'tag-3',
+                                         'tag-host', 'tag-host2'])
+        self.assertEqual(rh[3]['customs'], {'key1': 'value1-host', 'key2': 'value2',
+                                            'key3': 'value3', 'key4': 'value4'})
         self.assertEqual(rh[3]['check_command'], rc[1]['_id'])
 
         # Check that services got created
@@ -380,6 +395,128 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(rs[2]['_is_template'], False)
         self.assertIn(rs[2]['name'], ["service-tpl-A", "service-tpl-B"])
         self.assertEqual(rs[3]['_is_template'], False)
+
+    def test_host_templates_with_templates_no_check_command(self):
+        """Test host templates linked to other templates - one of them do not have a check comand
+        Test templates ordering for check_command and custom values overriding
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        sort_id = {'sort': '_id'}
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
+        # Check if command right in backend
+        response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(len(resp['_items']), 3)
+        rc = resp['_items']
+        self.assertEqual(rc[2]['name'], "ping")
+
+        # Create a template
+        data = {
+            'name': 'tpl-X',
+            'check_command': rc[2]['_id'],
+            '_is_template': True,
+            'tags': ['tag-1'],
+            'customs': {'key1': 'value1-x'},
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Check if host template is in the backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        host_template_id = rh[1]['_id']
+
+        # Create a service template linked to the newly created host template
+        data = {
+            'name': 'service-tpl-X',
+            'host': host_template_id,
+            'check_command': rc[2]['_id'],
+            '_is_template': True,
+            '_realm': self.realm_all
+        }
+        ret = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        resp = ret.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        # Create a second host template NOT templated from the first one - no check_command
+        data = {
+            'name': 'tpl-Y',
+            'check_command': None,
+            '_is_template': True,
+            'tags': ['tag-2', 'tag-3'],
+            'customs': {'key1': 'value1-y', 'key2': 'value2'},
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Check if host template is in the backend
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        host_template_id2 = rh[2]['_id']
+
+        # Create an host linked to both templates
+        data = {
+            'name': 'host-X-Y',
+            '_templates': [host_template_id2, host_template_id],
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/host', json=data,
+                                 headers=headers, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[1]['name'], "tpl-X")
+        self.assertEqual(rh[2]['name'], "tpl-Y")
+        self.assertEqual(rh[3]['name'], "host-X-Y")
+
+        # The host has some fields that were cumulated from its linked template
+        self.assertEqual(set(rh[3]['tags']), set(['tag-1', 'tag-2', 'tag-3']))
+        self.assertEqual(rh[3]['customs'], {'key1': 'value1-y', 'key2': 'value2'})
+        # Inherited check command is the one defined in the last template in the templates list!
+        # Issue #503!
+        self.assertEqual(rh[3]['check_command'], rc[2]['_id'])
+
+        # Create an host linked to both templates - reverse templates order
+        data = {
+            'name': 'host-Y-X',
+            '_templates': [host_template_id, host_template_id2],
+            '_realm': self.realm_all
+        }
+        response = requests.post(self.endpoint + '/host', json=data,
+                                 headers=headers, auth=self.auth)
+        resp = response.json()
+        self.assertEqual(resp['_status'], 'OK')
+
+        response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
+        resp = response.json()
+        rh = resp['_items']
+        self.assertEqual(rh[1]['name'], "tpl-X")
+        self.assertEqual(rh[2]['name'], "tpl-Y")
+        self.assertEqual(rh[3]['name'], "host-X-Y")
+        self.assertEqual(rh[4]['name'], "host-Y-X")
+
+        # The host has some fields that were cumulated from its linked template
+        self.assertEqual(set(rh[4]['tags']), set(['tag-1', 'tag-2', 'tag-3']))
+        self.assertEqual(rh[4]['customs'], {'key1': 'value1-x', 'key2': 'value2'})
+        # Inherited check command is the one defined in the last template in the templates list!
+        # Issue #504!
+        self.assertEqual(rh[4]['check_command'], None)
 
     def test_host_multiple_template_update(self):
         """Test the host have multiple templates and modify field in first or second and

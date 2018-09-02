@@ -1,7 +1,7 @@
 .. _resource-livesynthesisretention:
 
-LS history (livesynthesisretention)
-===================================
+Alignak live state history (livesynthesisretention)
+===================================================
 
 
     The ``livesynthesisretention`` model is a cache used internally by the backend to store the
@@ -16,32 +16,59 @@ LS history (livesynthesisretention)
 .. csv-table:: Properties
    :header: "Property", "Type", "Required", "Default", "Relation"
 
-   "| hosts_acknowledged", "integer", "", "0", ""
-   "| hosts_business_impact", "integer", "", "0", ""
-   "| hosts_down_hard", "integer", "", "0", ""
-   "| hosts_down_soft", "integer", "", "0", ""
-   "| hosts_flapping", "integer", "", "0", ""
-   "| hosts_in_downtime", "integer", "", "0", ""
-   "| hosts_total", "integer", "", "0", ""
-   "| hosts_unreachable_hard", "integer", "", "0", ""
-   "| hosts_unreachable_soft", "integer", "", "0", ""
-   "| hosts_up_hard", "integer", "", "0", ""
-   "| hosts_up_soft", "integer", "", "0", ""
+   "| hosts_acknowledged
+   | *Hosts ackowledged*", "integer", "", "0", ""
+   "| hosts_down_hard
+   | *Hosts Down hard*", "integer", "", "0", ""
+   "| hosts_down_soft
+   | *Hosts Down soft*", "integer", "", "0", ""
+   "| hosts_flapping
+   | *Hosts flapping*", "integer", "", "0", ""
+   "| hosts_in_downtime
+   | *Hosts in downtime*", "integer", "", "0", ""
+   "| hosts_not_monitored
+   | *Hosts not monitored*", "integer", "", "0", ""
+   "| hosts_total
+   | *Hosts count*", "integer", "", "0", ""
+   "| hosts_unreachable_hard
+   | *Hosts Unreachable hard*", "integer", "", "0", ""
+   "| hosts_unreachable_soft
+   | *Hosts Unreachable soft*", "integer", "", "0", ""
+   "| hosts_up_hard
+   | *Hosts Up hard*", "integer", "", "0", ""
+   "| hosts_up_soft
+   | *Hosts Up soft*", "integer", "", "0", ""
    "| livesynthesis", "**objectid**", "**True**", "****", ":ref:`livesynthesis <resource-livesynthesis>`"
-   "| services_acknowledged", "integer", "", "0", ""
-   "| services_business_impact", "integer", "", "0", ""
-   "| services_critical_hard", "integer", "", "0", ""
-   "| services_critical_soft", "integer", "", "0", ""
-   "| services_flapping", "integer", "", "0", ""
-   "| services_in_downtime", "integer", "", "0", ""
-   "| services_ok_hard", "integer", "", "0", ""
-   "| services_ok_soft", "integer", "", "0", ""
-   "| services_total", "integer", "", "0", ""
-   "| services_unknown_hard", "integer", "", "0", ""
-   "| services_unknown_soft", "integer", "", "0", ""
-   "| services_unreachable_hard", "integer", "", "0", ""
-   "| services_unreachable_soft", "integer", "", "0", ""
-   "| services_warning_hard", "integer", "", "0", ""
-   "| services_warning_soft", "integer", "", "0", ""
+   "| schema_version", "integer", "", "2", ""
+   "| services_acknowledged
+   | *Services acknowledged*", "integer", "", "0", ""
+   "| services_critical_hard
+   | *Services Critical hard*", "integer", "", "0", ""
+   "| services_critical_soft
+   | *Services Criticl soft*", "integer", "", "0", ""
+   "| services_flapping
+   | *Services flapping*", "integer", "", "0", ""
+   "| services_in_downtime
+   | *Services in downtime*", "integer", "", "0", ""
+   "| services_not_monitored
+   | *Services not monitored*", "integer", "", "0", ""
+   "| services_ok_hard
+   | *Services Ok hard*", "integer", "", "0", ""
+   "| services_ok_soft
+   | *Services Ok soft*", "integer", "", "0", ""
+   "| services_total
+   | *Services count*", "integer", "", "0", ""
+   "| services_unknown_hard
+   | *Services Unknown hard*", "integer", "", "0", ""
+   "| services_unknown_soft
+   | *Services Unknown soft*", "integer", "", "0", ""
+   "| services_unreachable_hard
+   | *Services Unreachable hard*", "integer", "", "0", ""
+   "| services_unreachable_soft
+   | *Services Unreachable soft*", "integer", "", "0", ""
+   "| services_warning_hard
+   | *Services Warning hard*", "integer", "", "0", ""
+   "| services_warning_soft
+   | *Services Warning soft*", "integer", "", "0", ""
 
 

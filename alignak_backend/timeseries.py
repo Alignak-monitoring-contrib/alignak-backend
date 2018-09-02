@@ -7,14 +7,16 @@
     This module manages the timeseries carbon / influxdb
 """
 from __future__ import print_function
+import os
 import re
+import time
 from flask import current_app
 from influxdb import InfluxDBClient
 import statsd
 
 from eve.methods.post import post_internal
 from alignak_backend.carboniface import CarbonIface
-from alignak_backend.perfdata import PerfDatas
+from alignak_backend.perfdata import PerfDatas, Metric
 
 
 class Timeseries(object):
@@ -50,6 +52,39 @@ class Timeseries(object):
         return sanitized
 
     @staticmethod
+    def send_livesynthesis_metrics(realm_uuid, livesynthesis):
+        """Called to send the livesynthesis metrics to the configured TSDB
+
+        :param items: List of logcheckresult inserted
+        :type items: list
+        :return: None
+        """
+        ls = {'perf_data': []}
+        for counter in livesynthesis:
+            if counter.startswith('_'):
+                continue
+            current_app.logger.debug("   - counter: %s", counter)
+            ls['perf_data'].append("%s=%d" % (counter, livesynthesis[counter]))
+
+        ls['perf_data'] = " ".join(ls['perf_data'])
+        current_app.logger.debug("   - perf_data: %s", ls['perf_data'])
+
+        ts = Timeseries.prepare_data(ls)
+        send_data = []
+        for d in ts['data']:
+            send_data.append({
+                "realm": Timeseries.get_realms_prefix(realm_uuid),
+                "host": 'alignak_livesynthesis',
+                "service": '',
+                "timestamp": int(time.time()),
+                "name": d['name'],
+                # Cast as a string to bypass int/float real value
+                "value": str(d['value']),
+                "uom": d['uom']
+            })
+        Timeseries.send_to_timeseries_db(send_data, realm_uuid)
+
+    @staticmethod
     def after_inserted_logcheckresult(items):
         """Called by EVE HOOK (app.on_inserted_logcheckresult)
 
@@ -60,16 +95,22 @@ class Timeseries(object):
         host_db = current_app.data.driver.db['host']
         service_db = current_app.data.driver.db['service']
         for dummy, item in enumerate(items):
-            ts = Timeseries.prepare_data(item)
             host_info = host_db.find_one({'_id': item['host']})
+            if not host_info['process_perf_data']:
+                continue
             item_realm = host_info['_realm']
+            item['_overall_state_id'] = host_info['_overall_state_id']
             host_name = Timeseries.sanitize_name(host_info['name'])
             service_name = ''
             if item['service'] is not None:
                 service_info = service_db.find_one({'_id': item['service']})
+                if not service_info['process_perf_data']:
+                    continue
                 service_name = Timeseries.sanitize_name(service_info['name'])
                 # todo: really? a service realm may be different from its host's realm ?
                 item_realm = service_info['_realm']
+                item['_overall_state_id'] = service_info['_overall_state_id']
+            ts = Timeseries.prepare_data(item)
             send_data = []
             for d in ts['data']:
                 send_data.append({
@@ -98,6 +139,21 @@ class Timeseries(object):
         }
 
         perfdata = PerfDatas(item['perf_data'])
+
+        # Add a metric for the item state (host, service)
+        if 'state_id' in item:
+            metric = Metric("alignak_state_id=%s" % item['state_id'])
+            if metric.name is not None:
+                perfdata.metrics[metric.name] = metric
+
+        # Add a metric for an item overall state (host, service)
+        if '_overall_state_id' in item:
+            if item['_overall_state_id'] == 5:
+                item['_overall_state_id'] = -1
+            metric = Metric("alignak_overall_state_id=%s" % item['_overall_state_id'])
+            if metric.name is not None:
+                perfdata.metrics[metric.name] = metric
+
         for measurement in perfdata.metrics:
             fields = perfdata.metrics[measurement].__dict__
             # case we have .timestamp in the name
@@ -162,7 +218,7 @@ class Timeseries(object):
         prefix_realm = ''
         realm_db = current_app.data.driver.db['realm']
         realm_info = realm_db.find_one({'_id': realm_id})
-        if realm_info['_tree_parents']:
+        if realm_info.get('_tree_parents', []):
             realms = realm_db.find({'_id': {"$in": realm_info['_tree_parents']}}).sort("_level")
             for realm in realms:
                 prefix_realm += realm['name'] + "."
@@ -200,7 +256,7 @@ class Timeseries(object):
 
         searches = [{'_realm': item_realm}]
         realm_info = realm_db.find_one({'_id': item_realm})
-        for realm in realm_info['_tree_parents']:
+        for realm in realm_info.get('_tree_parents', []):
             searches.append({'_realm': realm, '_sub_realm': True})
 
         # get graphite servers to send to
@@ -251,13 +307,20 @@ class Timeseries(object):
             # manage prefix of graphite server
             if graphite['prefix'] != '':
                 prefix = graphite['prefix'] + '.' + prefix
+            current_app.logger.debug("[tsdb] data: %s", ('.'.join([prefix, d['name']]),
+                                                         (int(d['timestamp']), d['value'])))
             send_data.append(('.'.join([prefix, d['name']]),
                               (int(d['timestamp']), d['value'])))
         carbon = CarbonIface(graphite['carbon_address'], graphite['carbon_port'])
         try:
+            current_app.logger.debug("[tsdb] sending %d data to Graphite (%s:%s)...",
+                                     len(send_data),
+                                     graphite['carbon_address'], graphite['carbon_port'])
             carbon.send_data(send_data)
             return True
-        except:  # pylint: disable=W0702
+        except Exception as exp:
+            current_app.logger.warning("Failed sending metrics to Graphite, exception: %s",
+                                       str(exp))
             return False
 
     @staticmethod

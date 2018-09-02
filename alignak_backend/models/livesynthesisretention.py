@@ -12,7 +12,7 @@ def get_name(friendly=False):
     :rtype: str
     """
     if friendly:  # pragma: no cover
-        return 'LS history'
+        return 'Alignak live state history'
     return 'livesynthesisretention'
 
 
@@ -33,14 +33,6 @@ def get_doc():  # pragma: no cover
 def get_schema():
     """Schema structure of this resource
 
-    For an element type and a state, store values computed from the hosts/services livestate:
-    - a counter containing the number of element_type in the state
-    - a percentage of element_type in the state
-    - a counter containing the number of element_type in the state and acknowledged
-    - a counter containing the number of element_type in the state and in downtime
-    - a counter containing the number of element_type in the state and flapping
-    - the maximum business impact of the element_type in the state
-
     :return: schema dictionary
     :rtype: dict
     """
@@ -49,135 +41,162 @@ def get_schema():
         'schema': {
             'schema_version': {
                 'type': 'integer',
-                'default': 1,
+                'default': 2,
             },
             'hosts_total': {
                 'schema_version': 1,
+                'title': 'Hosts count',
+                'type': 'integer',
+                'default': 0,
+            },
+            'hosts_not_monitored': {
+                'schema_version': 2,
+                'title': 'Hosts not monitored',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_up_hard': {
                 'schema_version': 1,
+                'title': 'Hosts Up hard',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_up_soft': {
                 'schema_version': 1,
+                'title': 'Hosts Up soft',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_down_hard': {
                 'schema_version': 1,
+                'title': 'Hosts Down hard',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_down_soft': {
                 'schema_version': 1,
+                'title': 'Hosts Down soft',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_unreachable_hard': {
                 'schema_version': 1,
+                'title': 'Hosts Unreachable hard',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_unreachable_soft': {
                 'schema_version': 1,
+                'title': 'Hosts Unreachable soft',
                 'type': 'integer',
                 'default': 0,
             },
             'hosts_acknowledged': {
                 'schema_version': 1,
+                'title': 'Hosts ackowledged',
                 'type': 'integer',
                 'default': 0
             },
             'hosts_in_downtime': {
                 'schema_version': 1,
+                'title': 'Hosts in downtime',
                 'type': 'integer',
                 'default': 0
             },
             'hosts_flapping': {
                 'schema_version': 1,
+                'title': 'Hosts flapping',
                 'type': 'integer',
                 'default': 0
             },
-            'hosts_business_impact': {
-                'schema_version': 1,
-                'type': 'integer',
-                'default': 0
-            },
+
             'services_total': {
                 'schema_version': 1,
+                'title': 'Services count',
+                'type': 'integer',
+                'default': 0,
+            },
+            'services_not_monitored': {
+                'schema_version': 2,
+                'title': 'Services not monitored',
                 'type': 'integer',
                 'default': 0,
             },
             'services_ok_hard': {
                 'schema_version': 1,
+                'title': 'Services Ok hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_ok_soft': {
                 'schema_version': 1,
+                'title': 'Services Ok soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_warning_hard': {
                 'schema_version': 1,
+                'title': 'Services Warning hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_warning_soft': {
                 'schema_version': 1,
+                'title': 'Services Warning soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_critical_hard': {
                 'schema_version': 1,
+                'title': 'Services Critical hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_critical_soft': {
                 'schema_version': 1,
+                'title': 'Services Criticl soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_unknown_hard': {
                 'schema_version': 1,
+                'title': 'Services Unknown hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_unknown_soft': {
                 'schema_version': 1,
+                'title': 'Services Unknown soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_unreachable_hard': {
                 'schema_version': 1,
+                'title': 'Services Unreachable hard',
                 'type': 'integer',
                 'default': 0,
             },
             'services_unreachable_soft': {
                 'schema_version': 1,
+                'title': 'Services Unreachable soft',
                 'type': 'integer',
                 'default': 0,
             },
             'services_acknowledged': {
                 'schema_version': 1,
+                'title': 'Services acknowledged',
                 'type': 'integer',
                 'default': 0
             },
             'services_in_downtime': {
                 'schema_version': 1,
+                'title': 'Services in downtime',
                 'type': 'integer',
                 'default': 0
             },
             'services_flapping': {
                 'schema_version': 1,
-                'type': 'integer',
-                'default': 0
-            },
-            'services_business_impact': {
-                'schema_version': 1,
+                'title': 'Services flapping',
                 'type': 'integer',
                 'default': 0
             },
@@ -190,5 +209,18 @@ def get_schema():
                 'required': True,
             }
         },
-        'schema_deleted': {}
+        'schema_deleted': {
+            'hosts_business_impact': {
+                'schema_version': 2,
+                'title': 'Hosts business impact',
+                'type': 'integer',
+                'default': 0
+            },
+            'services_business_impact': {
+                'schema_version': 2,
+                'title': 'Services business impact',
+                'type': 'integer',
+                'default': 0
+            }
+        }
     }

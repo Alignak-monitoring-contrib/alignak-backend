@@ -29,8 +29,9 @@ class TestOverallState(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -92,7 +93,7 @@ class TestOverallState(unittest2.TestCase):
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
-        # Check if command right in backend
+        # Check if command exists in the backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 3)
@@ -185,7 +186,7 @@ class TestOverallState(unittest2.TestCase):
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
-        # Check if command right in backend
+        # Check if command exists in the backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 3)
@@ -230,6 +231,7 @@ class TestOverallState(unittest2.TestCase):
         rh = resp['_items']
         # Host _overall_state_id did not changed
         self.assertEqual(3, rh[0]['_overall_state_id'])
+        # _updated did not changed
         new_updated = rh[0]['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -258,6 +260,7 @@ class TestOverallState(unittest2.TestCase):
         rh = resp['_items']
         # Host _overall_state_id did not changed
         self.assertEqual(3, rh[0]['_overall_state_id'])
+        # _updated did not changed
         new_updated = rh[0]['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -300,6 +303,7 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 3 (unreachable)
         self.assertEqual(3, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -323,6 +327,7 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field did not changed!
         self.assertEqual(3, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -346,6 +351,7 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 0 (host up)
         self.assertEqual(0, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -369,6 +375,7 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 3 (host unreachable)
         self.assertEqual(3, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -392,6 +399,7 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 4 (host down)
         self.assertEqual(4, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -414,6 +422,7 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 1 (host down and ack)
         self.assertEqual(1, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -437,10 +446,11 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 2 (host down and downtimed)
         self.assertEqual(2, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
-    def test_update_host_and_services(self):
+    def test_update_host_and_services(self):  # pylint: disable=too-many-locals
         """Test host overall state computation when updating live state of an host and its services
 
         :return: None
@@ -451,7 +461,7 @@ class TestOverallState(unittest2.TestCase):
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
-        # Check if command right in backend
+        # Check if command exists in the backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 3)
@@ -567,6 +577,7 @@ class TestOverallState(unittest2.TestCase):
         ls_host = response.json()
         # _overall_state_id field is 0 (host up)
         self.assertEqual(0, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -620,6 +631,7 @@ class TestOverallState(unittest2.TestCase):
                                 params=sort_id, auth=self.auth)
         ls_host = response.json()
         self.assertEqual(3, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -678,6 +690,7 @@ class TestOverallState(unittest2.TestCase):
                                 params=sort_id, auth=self.auth)
         ls_host = response.json()
         self.assertEqual(4, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -708,6 +721,7 @@ class TestOverallState(unittest2.TestCase):
                                 params=sort_id, auth=self.auth)
         ls_host = response.json()
         self.assertEqual(2, ls_host['_overall_state_id'])
+        # _updated did not changed
         new_updated = ls_host['_updated']
         self.assertEqual(updated, new_updated)
 
@@ -727,7 +741,7 @@ class TestOverallState(unittest2.TestCase):
         resp = response.json()
         self.assertEqual('OK', resp['_status'], resp)
 
-        # Check if command right in backend
+        # Check if command exists in the backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
         rc = resp['_items']
@@ -922,7 +936,7 @@ class TestOverallState(unittest2.TestCase):
         data = json.loads(open('cfg/command_ping.json').read())
         data['_realm'] = self.realm_all
         requests.post(self.endpoint + '/command', json=data, headers=headers, auth=self.auth)
-        # Check if command right in backend
+        # Check if command exists in the backend
         response = requests.get(self.endpoint + '/command', params=sort_id, auth=self.auth)
         resp = response.json()
         self.assertEqual(len(resp['_items']), 3)

@@ -34,8 +34,9 @@ class TestRetention(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-templates-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -179,8 +180,7 @@ class TestRetention(unittest2.TestCase):
             self.endpoint + '/alignakretention/' + re[0]['_id'], json=data, headers=headers_put,
             auth=self.auth2
         )
-        resp = response.json()
-        self.assertEqual(resp['_status'], 'ERR', resp)
+        assert response.status_code == 412
 
         # test user 'user2' can put data on data of user 'admin', but of course the user need have
         # the _id and the _etag

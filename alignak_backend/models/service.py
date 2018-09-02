@@ -37,10 +37,26 @@ def get_schema():
     :rtype: dict
     """
     return {
+        'mongo_indexes': {
+            'index_updated': [('_updated', 1)],
+            'index_tpl': [('_is_template', 1)],
+            'index_name': [('name', 1)],
+            'index_realm': [('_realm', 1), ('_is_template', 1)],
+            'index_state_1': [('_realm', 1), ('_is_template', 1),
+                              ('ls_state', 1), ('ls_state_type', 1)],
+            'index_state_2': [('_realm', 1), ('_is_template', 1),
+                              ('ls_state', 1), ('ls_state_type', 1), ('ls_acknowledged', 1)],
+            'index_state_3': [('_realm', 1), ('_is_template', 1),
+                              ('ls_state', 1), ('ls_state_type', 1), ('ls_downtimed', 1)],
+            'index_state_4': [('_realm', 1), ('_is_template', 1),
+                              ('ls_state', 1), ('ls_state_type', 1),
+                              ('active_checks_enabled', 1), ('passive_checks_enabled', 1)],
+            'index_host': [('host', 1), ('name', 1)],
+        },
         'schema': {
             'schema_version': {
                 'type': 'integer',
-                'default': 1,
+                'default': 3,
             },
             # Importation source
             'imported_from': {
@@ -818,13 +834,6 @@ def get_schema():
                 'type': 'boolean',
                 'default': False
             },
-            'ls_impact': {
-                'schema_version': 1,
-                'title': 'Impact',
-                'comment': 'Is an impact?',
-                'type': 'boolean',
-                'default': False
-            },
             'ls_last_check': {
                 'schema_version': 1,
                 'title': 'Last check time',
@@ -855,6 +864,8 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
+
+            # Not in the service LCR
             'ls_next_check': {
                 'schema_version': 1,
                 'title': 'Next check',
@@ -892,13 +903,6 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
-            'ls_max_attempts': {
-                'schema_version': 1,
-                'title': 'Maximum attempts',
-                'comment': '',
-                'type': 'integer',
-                'default': 0
-            },
             'ls_latency': {
                 'schema_version': 1,
                 'title': 'Latency',
@@ -922,16 +926,14 @@ def get_schema():
                 'default': False
             },
 
-            # todo - Attempt number - difference with ls_current_attemp?
-            'ls_attempt': {
-                'schema_version': 1,
-                'title': 'Current attempt number',
-                'comment': '',
+            # Last time state changed
+            'ls_state_changed': {
+                'schema_version': 2,
+                'title': 'Last time state changed',
+                'comment': 'Last time this element state has changed.',
                 'type': 'integer',
                 'default': 0
             },
-
-            # Last time hard state changed
             'ls_last_hard_state_changed': {
                 'schema_version': 1,
                 'title': 'Last time hard state changed',
@@ -1103,5 +1105,27 @@ def get_schema():
                 'default': []
             }
         },
-        'schema_deleted': {}
+        'schema_deleted': {
+            'ls_impact': {
+                'schema_version': 2,
+                'title': 'Impact',
+                'comment': 'Is an impact?',
+                'type': 'boolean',
+                'default': False
+            },
+            'ls_attempt': {
+                'schema_version': 2,
+                'title': 'Current attempt number',
+                'comment': '',
+                'type': 'integer',
+                'default': 0
+            },
+            'ls_max_attempts': {
+                'schema_version': 3,
+                'title': 'Maximum attempts',
+                'comment': '',
+                'type': 'integer',
+                'default': 0
+            },
+        }
     }

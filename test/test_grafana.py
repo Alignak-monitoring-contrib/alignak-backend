@@ -7,6 +7,7 @@ This test check grafana and create dashboard + graphs
 from __future__ import print_function
 import os
 import json
+from datetime import datetime, timedelta
 import time
 import shlex
 from random import randint
@@ -37,8 +38,9 @@ class TestGrafana(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -50,7 +52,7 @@ class TestGrafana(unittest2.TestCase):
         cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
-                                  '/tmp/uwsgi.pid', '--logto=/tmp/alignak_backend.log'])
+                                  '/tmp/uwsgi.pid', '--logto=/tmp/alignak_backend_grafana.log'])
         time.sleep(3)
 
         cls.endpoint = 'http://127.0.0.1:5000'
@@ -100,12 +102,12 @@ class TestGrafana(unittest2.TestCase):
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
         time.sleep(2)
-        os.unlink("/tmp/alignak_backend.log")
+        os.unlink("/tmp/alignak_backend_grafana.log")
 
     @classmethod
     def setUp(cls):
         """
-        Delete resources in backend
+        Create resources in the backend
 
         :return: None
         """
@@ -153,6 +155,8 @@ class TestGrafana(unittest2.TestCase):
             del data['realm']
         data['_realm'] = cls.realmAll_A1
         data['name'] = "srv002"
+        data['alias'] = "Server #2"
+        data['tags'] = ["t2"]
         data['ls_last_check'] = int(time.time())
         data['ls_perf_data'] = "rta=14.581000ms;1000.000000;3000.000000;0.000000 pl=0%;100;100;0"
         response = requests.post(cls.endpoint + '/host', json=data, headers=headers, auth=cls.auth)
@@ -410,7 +414,7 @@ class TestGrafana(unittest2.TestCase):
 
         # test grafana class and code to create dashboard in grafana
         from alignak_backend.app import app, current_app
-        with app.app_context():
+        with app.test_request_context():
             grafana_db = current_app.data.driver.db['grafana']
             grafanas = grafana_db.find()
             for grafana in grafanas:
@@ -605,7 +609,7 @@ class TestGrafana(unittest2.TestCase):
 
         # test grafana class and code to create dashboard in grafana
         from alignak_backend.app import app, current_app
-        with app.app_context():
+        with app.test_request_context():
             grafana_db = current_app.data.driver.db['grafana']
             grafanas = grafana_db.find()
             for grafana in grafanas:
@@ -723,6 +727,14 @@ class TestGrafana(unittest2.TestCase):
         :return: None
         """
         headers = {'Content-Type': 'application/json'}
+
+        if 'ALIGNAK_BACKEND_PRINT' in os.environ:
+            del os.environ['ALIGNAK_BACKEND_PRINT']
+        # if 'ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES' in os.environ:
+        #     del os.environ['ALIGNAK_BACKEND_GRAFANA_DATASOURCE_QUERIES']
+        # if 'ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES' in os.environ:
+        #     del os.environ['ALIGNAK_BACKEND_GRAFANA_DATASOURCE_TABLES']
+
         # Create grafana in realm All + subrealm
         data = {
             'name': 'grafana All',
@@ -746,18 +758,20 @@ class TestGrafana(unittest2.TestCase):
         # force request of cron_grafana in the backend
         response = requests.get(self.endpoint + '/cron_grafana')
         resp = response.json()
+        print("Response: %s" % resp)
         assert len(resp) == 2
         assert not resp['grafana All']['connection']
         assert not resp['grafana 2']['connection']
 
-        myfile = open("/tmp/alignak_backend.log")
-        lines = myfile.readlines()
-        for line in lines:
-            print("- %s" % line)
-        assert 'Connection error to grafana grafana All' in lines[-5]
-        assert '[cron_grafana] grafana All has no connection' in lines[-4]
-        assert 'Connection error to grafana grafana 2' in lines[-3]
-        assert '[cron_grafana] grafana 2 has no connection' in lines[-2]
+        # No more prints ...
+        # myfile = open("/tmp/alignak_backend.log")
+        # lines = myfile.readlines()
+        # for line in lines:
+        #     print("- %s" % line)
+        # assert 'Connection error to grafana grafana All' in lines[-3]
+        # # assert '[cron_grafana] grafana All has no connection' in lines[-4]
+        # assert 'Connection error to grafana grafana 2' in lines[-2]
+        # # assert '[cron_grafana] grafana 2 has no connection' in lines[-2]
 
     def test_cron_grafana_service(self):
         """
@@ -847,6 +861,7 @@ class TestGrafana(unittest2.TestCase):
                 mockreq.post('http://192.168.0.101:3000/api/dashboards/db', json='true')
 
                 dashboards = json.loads(cron_grafana(engine='jsondumps'))
+                print("Dashboards: %s" % dashboards)
                 # Created a dashboard for the host srv001 (it has perf_data in the host check)
                 assert len(dashboards['grafana All']['created_dashboards']) == 1
                 assert dashboards['grafana All']['created_dashboards'][0] == 'srv001'

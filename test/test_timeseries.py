@@ -4,6 +4,7 @@
 This test check preparation of timeseries
 """
 
+from __future__ import print_function
 import time
 import os
 import copy
@@ -33,8 +34,9 @@ class TestTimeseries(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -46,8 +48,8 @@ class TestTimeseries(unittest2.TestCase):
         cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
-                                  '/tmp/uwsgi.pid'])
-        time.sleep(3)
+                                  '/tmp/uwsgi.pid', '--logto=/tmp/alignak_backend_tsdb.log'])
+        time.sleep(2)
 
         cls.endpoint = 'http://127.0.0.1:5000'
 
@@ -63,6 +65,7 @@ class TestTimeseries(unittest2.TestCase):
         response = requests.get(cls.endpoint + '/realm', auth=cls.auth)
         resp = response.json()
         cls.realm_all = resp['_items'][0]['_id']
+        print("Realm All: %s" % cls.realm_all)
 
         # add more realms
         data = {"name": "All A", "_parent": cls.realm_all}
@@ -101,6 +104,10 @@ class TestTimeseries(unittest2.TestCase):
         :return: None
         """
         subprocess.call(['uwsgi', '--stop', '/tmp/uwsgi.pid'])
+        with open("/tmp/alignak_backend_tsdb.log") as f:
+            for line in f:
+                print(line)
+        os.unlink("/tmp/alignak_backend_tsdb.log")
         time.sleep(2)
 
     @classmethod
@@ -110,7 +117,7 @@ class TestTimeseries(unittest2.TestCase):
 
         :return: None
         """
-        for resource in ['grafana', 'graphite', 'influxdb']:
+        for resource in ['host', 'service', 'grafana', 'graphite', 'influxdb']:
             requests.delete(cls.endpoint + '/' + resource, auth=cls.auth)
 
     def test_prepare_data(self):
@@ -124,6 +131,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -204,6 +212,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 0,
                     'uom': ''
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
                 {
                     'name': 'rta',
                     'value': 0.083,
@@ -241,6 +251,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -263,7 +274,9 @@ class TestTimeseries(unittest2.TestCase):
                     'name': 'em0_out_octet',
                     'value': 86608341539,
                     'uom': ''
-                }
+                },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -280,6 +293,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -318,6 +332,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 7381,
                     'uom': 'MB'
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -329,6 +345,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -367,6 +384,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 8317,
                     'uom': 'MB'
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -385,6 +404,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -408,6 +428,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 1083,
                     'uom': 'c'
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -425,6 +447,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            '_overall_state_id': 0,
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -514,6 +537,8 @@ class TestTimeseries(unittest2.TestCase):
                     'value': 100,
                     'uom': '%'
                 },
+                {'name': 'alignak_state_id', 'uom': '', 'value': 0},
+                {'name': 'alignak_overall_state_id', 'uom': '', 'value': 0},
             ]
         }
         self.assertItemsEqual(reference['data'], ret['data'])
@@ -523,6 +548,7 @@ class TestTimeseries(unittest2.TestCase):
 
         :return: None
         """
+        # print("***Realm All: %s" % self.realm_all)
         headers = {'Content-Type': 'application/json'}
         data = {
             'name': 'realm A',
@@ -697,6 +723,10 @@ class TestTimeseries(unittest2.TestCase):
         }
         from alignak_backend.app import app, current_app
         with app.test_request_context():
+            # Drop the collection before posting the log check result
+            timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
+            timeseriesretention_db.drop()
+
             # test with timeseries not available, it must be quick (< 3 seconds), because have
             # 2 graphites and 1 influx, so (2 + 1) * 1 second timeout * 2 (code execution between
             # each tries send to timeseries)
@@ -724,6 +754,12 @@ class TestTimeseries(unittest2.TestCase):
                 })
             ref = [
                 # InfluxDB
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'74.827003', 'host': u'srv001',
                  'realm': u'All', 'name': u'rta', 'service': u'', 'graphite': None, 'uom': u'ms'},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'100', 'host': u'srv001',
@@ -746,6 +782,12 @@ class TestTimeseries(unittest2.TestCase):
                  'realm': u'All', 'name': u'pl_max', 'service': u'', 'graphite': None, 'uom': u'%'},
 
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'74.827003', 'host': u'srv001', 'realm': u'All',
                  'name': u'rta', 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u'ms'},
                 {'influxdb': None, 'value': u'100', 'host': u'srv001', 'realm': u'All',
@@ -770,6 +812,12 @@ class TestTimeseries(unittest2.TestCase):
                  'graphite': ObjectId(graphite_001), 'uom': u'%'},
 
                 # Graphite 002
+                {'influxdb': None, 'value': u'3', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv001',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
                 {'influxdb': None, 'value': u'74.827003', 'host': u'srv001', 'realm': u'All',
                  'name': u'rta', 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u'ms'},
                 {'influxdb': None, 'value': u'100', 'host': u'srv001', 'realm': u'All',
@@ -808,6 +856,7 @@ class TestTimeseries(unittest2.TestCase):
             'state': 'OK',
             'state_type': 'HARD',
             'state_id': 0,
+            # '_overall_state_id': 0, not existing for test purpose
             'acknowledged': False,
             'last_check': int(time.time()),
             'last_state': 'OK',
@@ -845,6 +894,12 @@ class TestTimeseries(unittest2.TestCase):
 
             ref = [
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_overall_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'32.02453', 'host': u'srv003',
                  'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'uom': u'ms'},
@@ -872,6 +927,12 @@ class TestTimeseries(unittest2.TestCase):
                  'graphite': ObjectId(graphite_001), 'uom': u'%'},
 
                 # Influx 001
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'srv003', 'realm': u'All.All A.All A1',
+                 'name': u'alignak_state_id', 'service': u'', 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'32.02453',
                  'host': u'srv003', 'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': None, 'uom': u'ms'},
@@ -980,6 +1041,12 @@ class TestTimeseries(unittest2.TestCase):
 
             ref = [
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_overall_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'32.02453', 'host': u'srv003',
                  'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'uom': u'ms'},
@@ -1007,6 +1074,12 @@ class TestTimeseries(unittest2.TestCase):
                 # that is not able to detect if connection is available (UDP)!
 
                 # Influx 001
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_overall_state_id', 'service': u'',
+                 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'srv003',
+                 'realm': u'All.All A.All A1', 'name': u'alignak_state_id', 'service': u'',
+                 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'32.02453',
                  'host': u'srv003', 'realm': u'All.All A.All A1', 'name': u'rta', 'service': u'',
                  'graphite': None, 'uom': u'ms'},
@@ -1052,6 +1125,10 @@ class TestTimeseries(unittest2.TestCase):
             '_sub_realm': True
         }
         with app.test_request_context():
+            # Drop the collection before posting the log check result
+            timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
+            timeseriesretention_db.drop()
+
             # test with timeseries not available, it must be quick (< 3 seconds), because have
             # 3 graphites and 1 influx, so (3 + 1) * 1 second timeout * 2 (code execution
             # between each tries send to timeseries)
@@ -1061,7 +1138,6 @@ class TestTimeseries(unittest2.TestCase):
             assert execution_time < 8
 
             # check data in timeseriesretention
-            timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
             retentions = timeseriesretention_db.find()
             retention_data = []
             for retention in retentions:
@@ -1078,6 +1154,12 @@ class TestTimeseries(unittest2.TestCase):
 
             ref = [
                 # Graphite 001
+                {'influxdb': None, 'value': u'3', 'host': u'srv002',
+                 'realm': u'All.All A', 'name': u'alignak_overall_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'srv002',
+                 'realm': u'All.All A', 'name': u'alignak_state_id', 'service': u'',
+                 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'32.02453', 'host': u'srv002',
                  'realm': u'All.All A', 'name': u'rta', 'service': u'',
                  'graphite': ObjectId(graphite_001), 'uom': u'ms'},
@@ -1098,6 +1180,12 @@ class TestTimeseries(unittest2.TestCase):
                 # Nothing for Graphite 2 because it is not sub-realm!
 
                 # Influx 001
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3',
+                 'host': u'srv002', 'realm': u'All.All A', 'name': u'alignak_overall_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'srv002', 'realm': u'All.All A', 'name': u'alignak_state_id',
+                 'service': u'', 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'32.02453',
                  'host': u'srv002', 'realm': u'All.All A', 'name': u'rta', 'service': u'',
                  'graphite': None, 'uom': u'ms'},
@@ -1119,7 +1207,7 @@ class TestTimeseries(unittest2.TestCase):
 
     def test_sanitized_host_service_names(self):
         # pylint: disable=too-many-locals
-        """Test that host and service names are sanitize before sending date
+        """Test that host and service names are sanitized before sending date
 
         :return: None
         """
@@ -1196,42 +1284,48 @@ class TestTimeseries(unittest2.TestCase):
         self.assertEqual('OK', resp['_status'], resp)
         host_id = resp['_id']
 
-        # add a service for this host
-        data = {
-            'name': 'My service',
-            'host': host_id,
-            'check_command': command_ping,
-            '_realm': self.realm_all,
-            '_sub_realm': False
-        }
-        response = requests.post(self.endpoint + '/service', json=data, headers=headers,
-                                 auth=self.auth)
-        resp = response.json()
-        self.assertEqual('OK', resp['_status'], resp)
-        service_id = resp['_id']
-
-        # === Test now with an host in realm All ===
-        # add logcheckresult for host001
-        # Metrics sent to Graphite 1, Graphite 2 and InfluxDB
-        item = {
-            'host': ObjectId(host_id),
-            'host_name': 'My host',
-            'service': ObjectId(service_id),
-            'service_name': 'My service',
-            'state': 'OK',
-            'state_type': 'HARD',
-            'state_id': 0,
-            'acknowledged': False,
-            'last_check': int(time.time()),
-            'last_state': 'OK',
-            'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
-            'long_output': '',
-            'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
-            '_realm': ObjectId(self.realm_all),
-            '_sub_realm': False
-        }
         from alignak_backend.app import app, current_app
         with app.test_request_context():
+            # Drop the collection before posting the log check result
+            timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
+            timeseriesretention_db.drop()
+
+            # add a service for this host
+            data = {
+                'name': 'My service',
+                'host': host_id,
+                'check_command': command_ping,
+                '_realm': self.realm_all,
+                '_sub_realm': False
+            }
+            response = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                     auth=self.auth)
+            resp = response.json()
+            self.assertEqual('OK', resp['_status'], resp)
+            service_id = resp['_id']
+
+            # === Test now with an host in realm All ===
+            # add logcheckresult for host001
+            # Metrics sent to Graphite 1, Graphite 2 and InfluxDB
+            item = {
+                'host': ObjectId(host_id),
+                'host_name': 'My host',
+                'service': ObjectId(service_id),
+                'service_name': 'My service',
+                'state': 'WARNING',
+                'state_type': 'HARD',
+                'state_id': 0,
+                # '_overall_state_id': 0,
+                'acknowledged': False,
+                'last_check': int(time.time()),
+                'last_state': 'OK',
+                'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
+                'long_output': '',
+                'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+                '_realm': ObjectId(self.realm_all),
+                '_sub_realm': False
+            }
+
             # test with timeseries not available, it must be quick (< 3 seconds), because have
             # 2 graphites and 1 influx, so (2 + 1) * 1 second timeout * 2 (code execution between
             # each tries send to timeseries)
@@ -1241,7 +1335,6 @@ class TestTimeseries(unittest2.TestCase):
             assert execution_time < 6
 
             # check data in timeseriesretention
-            timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
             retentions = timeseriesretention_db.find()
             retention_data = []
             for retention in retentions:
@@ -1257,6 +1350,118 @@ class TestTimeseries(unittest2.TestCase):
                 })
             ref = [
                 # InfluxDB
+                {'influxdb': ObjectId(influxdb_001), 'value': u'1',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_total',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_not_monitored',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_flapping',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_acknowledged',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_in_downtime',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_down_hard',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_down_soft',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_up_hard',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_up_soft',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'1',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_unreachable_hard',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_unreachable_soft',
+                 'service': u'', 'graphite': None, 'uom': u''},
+
+                {'influxdb': ObjectId(influxdb_001), 'value': u'1',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_total',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_flapping',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_not_monitored',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_acknowledged',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_in_downtime',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_ok_hard',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_ok_soft',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_warning_hard',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_warning_soft',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_critical_hard',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_critical_soft',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unreachable_hard',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unreachable_soft',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'1',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unknown_hard',
+                 'service': u'', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0',
+                 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unknown_soft',
+                 'service': u'', 'graphite': None, 'uom': u''},
+
+                {'influxdb': ObjectId(influxdb_001), 'value': u'3', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'My_service', 'graphite': None, 'uom': u''},
+                {'influxdb': ObjectId(influxdb_001), 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'My_service', 'graphite': None, 'uom': u''},
                 {'influxdb': ObjectId(influxdb_001), 'value': u'74.827003', 'host': u'My_host',
                  'realm': u'All', 'name': u'rta', 'service': u'My_service',
                  'graphite': None, 'uom': u'ms'},
@@ -1283,6 +1488,92 @@ class TestTimeseries(unittest2.TestCase):
                  'graphite': None, 'uom': u'%'},
 
                 # Graphite 001
+                {'influxdb': None, 'value': u'1', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_total',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_flapping',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_not_monitored',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_acknowledged',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_in_downtime',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_down_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_down_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_up_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_up_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'1', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_unreachable_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_unreachable_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+
+                {'influxdb': None, 'value': u'1', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_total',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_flapping',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_not_monitored',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_acknowledged',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_in_downtime',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_ok_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_ok_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_warning_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_warning_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_critical_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_critical_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unreachable_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unreachable_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'1', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unknown_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unknown_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_001), 'uom': u''},
+
+                {'influxdb': None, 'value': u'3', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'My_service', 'graphite': ObjectId(graphite_001), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'My_service', 'graphite': ObjectId(graphite_001), 'uom': u''},
                 {'influxdb': None, 'value': u'74.827003', 'host': u'My_host', 'realm': u'All',
                  'name': u'rta', 'service': u'My_service',
                  'graphite': ObjectId(graphite_001), 'uom': u'ms'},
@@ -1309,6 +1600,92 @@ class TestTimeseries(unittest2.TestCase):
                  'graphite': ObjectId(graphite_001), 'uom': u'%'},
 
                 # Graphite 002
+                {'influxdb': None, 'value': u'1', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_total',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_flapping',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_not_monitored',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_acknowledged',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_in_downtime',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_down_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_down_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_up_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_up_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'1', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_unreachable_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'hosts_unreachable_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+
+                {'influxdb': None, 'value': u'1', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_total',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_flapping',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_not_monitored',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_acknowledged',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_in_downtime',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_ok_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_ok_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_warning_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_warning_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_critical_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_critical_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unreachable_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unreachable_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'1', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unknown_hard',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'alignak_livesynthesis',
+                 'realm': u'All', 'name': u'services_unknown_soft',
+                 'service': u'', 'graphite': ObjectId(graphite_002), 'uom': u''},
+
+                {'influxdb': None, 'value': u'3', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_overall_state_id',
+                 'service': u'My_service', 'graphite': ObjectId(graphite_002), 'uom': u''},
+                {'influxdb': None, 'value': u'0', 'host': u'My_host',
+                 'realm': u'All', 'name': u'alignak_state_id',
+                 'service': u'My_service', 'graphite': ObjectId(graphite_002), 'uom': u''},
                 {'influxdb': None, 'value': u'74.827003', 'host': u'My_host', 'realm': u'All',
                  'name': u'rta', 'service': u'My_service',
                  'graphite': ObjectId(graphite_002), 'uom': u'ms'},
@@ -1336,4 +1713,122 @@ class TestTimeseries(unittest2.TestCase):
             ]
 
             self.assertItemsEqual(ref, retention_data)
+            timeseriesretention_db.drop()
+
+    def test_not_process_perf_data(self):
+        # pylint: disable=too-many-locals
+        """Test that host and service names can be configured with not_process_perf_data
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+
+        # add graphite 001, realm All, with a prefix
+        data = {
+            'name': 'graphite no perf',
+            'carbon_address': '192.168.0.101',
+            'graphite_address': '192.168.0.101',
+            'prefix': 'graphite1',
+            '_realm': self.realm_all,
+            '_sub_realm': True
+        }
+        response = requests.post(self.endpoint + '/graphite', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+
+        # Add command
+        data = json.loads(open('cfg/command_ping.json').read())
+        data['_realm'] = self.realm_all
+        data['_sub_realm'] = True
+        data['name'] = 'ping no perf'
+        response = requests.post(self.endpoint + '/command', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        command_ping = resp['_id']
+
+        # add host in realm All
+        data = {
+            'name': 'My host with no perf',
+            'address': '127.0.0.1',
+            'check_command': command_ping,
+            '_realm': self.realm_all,
+            '_sub_realm': False,
+            'process_perf_data': False
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        host_id = resp['_id']
+
+        # add a service for this host
+        data = {
+            'name': 'My service with no perf',
+            'host': host_id,
+            'check_command': command_ping,
+            '_realm': self.realm_all,
+            '_sub_realm': False,
+            'process_perf_data': False
+        }
+        response = requests.post(self.endpoint + '/service', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        service_id = resp['_id']
+
+        from alignak_backend.app import app, current_app
+        with app.test_request_context():
+            # Drop the collection before posting the log check result
+            timeseriesretention_db = current_app.data.driver.db['timeseriesretention']
+            timeseriesretention_db.drop()
+
+            # add a logcheckresult for the host
+            item = {
+                'host': ObjectId(host_id),
+                'host_name': 'My host',
+                'service': None,
+                'service_name': '',
+                'state': 'WARNING',
+                'state_type': 'HARD',
+                'state_id': 0,
+                # '_overall_state_id': 0,
+                'acknowledged': False,
+                'last_check': int(time.time()),
+                'last_state': 'OK',
+                'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
+                'long_output': '',
+                'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+                '_realm': ObjectId(self.realm_all),
+                '_sub_realm': False
+            }
+            Timeseries.after_inserted_logcheckresult([item])
+
+            # add a logcheckresult for the service
+            item = {
+                'host': ObjectId(host_id),
+                'host_name': 'My host',
+                'service': ObjectId(service_id),
+                'service_name': 'My service',
+                'state': 'WARNING',
+                'state_type': 'HARD',
+                'state_id': 0,
+                # '_overall_state_id': 0,
+                'acknowledged': False,
+                'last_check': int(time.time()),
+                'last_state': 'OK',
+                'output': 'PING OK - Packet loss = 0%, RTA = 0.08 ms',
+                'long_output': '',
+                'perf_data': "rta=74.827003ms;100.000000;110.000000;0.000000 pl=0%;10;;0",
+                '_realm': ObjectId(self.realm_all),
+                '_sub_realm': False
+            }
+            Timeseries.after_inserted_logcheckresult([item])
+
+            # check data in timeseriesretention
+            retentions = timeseriesretention_db.find()
+            # No metrics exist!
+            assert retentions.count() == 0
+
             timeseriesretention_db.drop()

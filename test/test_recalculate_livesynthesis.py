@@ -30,8 +30,9 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -41,7 +42,7 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         assert exit_code == 0
         time.sleep(1)
 
-        cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+        cls.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                   '--socket', '0.0.0.0:5000',
                                   '--protocol=http', '--enable-threads', '--pidfile',
                                   '/tmp/uwsgi.pid'])
@@ -111,12 +112,10 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         if 'realm' in data:
             del data['realm']
         data['_realm'] = self.realm_all
-        # data['_is_template'] = False
         requests.post(self.endpoint + '/host', json=data, headers=headers, auth=self.auth)
         response = requests.get(self.endpoint + '/host', params=sort_id, auth=self.auth)
         resp = response.json()
         rh = resp['_items']
-        self.assertFalse(rh[2]['_is_template'])
 
         # Add service
         data = json.loads(open('cfg/service_srv001_ping.json').read())
@@ -127,14 +126,12 @@ class TestRecalculateLivesynthesis(unittest2.TestCase):
         # Check if service right in backend
         response = requests.get(self.endpoint + '/service', params=sort_id, auth=self.auth)
         resp = response.json()
-        rs = resp['_items']
-        self.assertEqual(rs[0]['name'], "ping")
-        self.assertFalse(rs[0]['_is_template'])
+        self.assertEqual(len(resp['_items']), 1)
 
         requests.delete(self.endpoint + '/livesynthesis', auth=self.auth)
         self.p.kill()
         time.sleep(3)
-        self.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignakbackend:app',
+        self.p = subprocess.Popen(['uwsgi', '--plugin', 'python', '-w', 'alignak_backend.app:app',
                                    '--socket', '0.0.0.0:5000',
                                    '--protocol=http', '--enable-threads', '--pidfile',
                                    '/tmp/uwsgi.pid'])

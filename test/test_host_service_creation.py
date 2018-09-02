@@ -34,8 +34,9 @@ class TestHookTemplate(unittest2.TestCase):
         :return: None
         """
         # Set test mode for Alignak backend
-        os.environ['TEST_ALIGNAK_BACKEND'] = '1'
+        os.environ['ALIGNAK_BACKEND_TEST'] = '1'
         os.environ['ALIGNAK_BACKEND_MONGO_DBNAME'] = 'alignak-backend-test'
+        os.environ['ALIGNAK_BACKEND_CONFIGURATION_FILE'] = './cfg/settings/settings.json'
 
         # Delete used mongo DBs
         exit_code = subprocess.call(
@@ -380,3 +381,50 @@ class TestHookTemplate(unittest2.TestCase):
         self.assertEqual(service['name'], "service_2")
         self.assertEqual(service['_realm'], self.sub_realm)
         self.assertEqual(service['check_command'], self.default_service_check_command)
+
+    def test_service_duplicate_forbidden(self):
+        """Create a new service with same name as an existing one if forbidden
+
+        :return: None
+        """
+        headers = {'Content-Type': 'application/json'}
+        # create a host
+        data = {
+            'name': 'host_1',
+            '_templates': [self.default_host]
+        }
+        response = requests.post(self.endpoint + '/host', json=data, headers=headers,
+                                 auth=self.auth)
+        resp = response.json()
+        self.assertEqual('OK', resp['_status'], resp)
+        host1_id = resp['_id']
+
+        # Create a service
+        data = {
+            'host': host1_id,
+            'name': 'service_1'
+        }
+        resp = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        resp = resp.json()
+        assert '_id' in resp
+        assert '_created' in resp
+        assert '_updated' in resp
+        # service was created with only an host and a name information...
+
+        # Get the newly created service
+        response = requests.get(self.endpoint + '/service/' + resp['_id'], auth=self.auth)
+        service = response.json()
+        self.assertEqual(service['name'], "service_1")
+        self.assertEqual(service['_realm'], self.realm_all)
+        self.assertEqual(service['check_command'], self.default_service_check_command)
+
+        # Create a service
+        data = {
+            'host': host1_id,
+            'name': 'service_1'
+        }
+        resp = requests.post(self.endpoint + '/service', json=data, headers=headers, auth=self.auth)
+        assert resp.status_code == 412
+        # response text is not forwarded before Flask 0.12.2!
+        # assert resp.text == "Adding a service with the same name as an existing one is forbidden"
+        # service was not created because of a same name pre-existing service

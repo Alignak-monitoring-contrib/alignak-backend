@@ -11,13 +11,9 @@ Alignak Backend
     :target: https://landscape.io/github/Alignak-monitoring-contrib/alignak-backend/develop
     :alt: Development code static analysis
 
-.. image:: https://coveralls.io/repos/Alignak-monitoring-contrib/alignak-backend/badge.svg?branch=develop&service=github
-    :target: https://coveralls.io/github/Alignak-monitoring-contrib/alignak-backend?branch=develop
+.. image:: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-backend/branch/develop/graph/badge.svg
+    :target: https://codecov.io/gh/Alignak-monitoring-contrib/alignak-backend
     :alt: Development code coverage
-
-.. image:: http://readthedocs.org/projects/alignak-backend/badge/?version=latest
-    :target: http://alignak-backend.readthedocs.io/en/latest/?badge=latest
-    :alt: Latest documentation Status
 
 .. image:: http://readthedocs.org/projects/alignak-backend/badge/?version=develop
     :target: http://alignak-backend.readthedocs.io/en/latest/?badge=develop
@@ -67,18 +63,44 @@ It is used to:
 Installation
 ------------
 
+From Alignak packages repositories
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+More information in the online Alignak backend documentation. Here is only an abstract...
+
+Debian::
+
+    # Alignak DEB stable packages
+    sudo echo deb https://dl.bintray.com/alignak/alignak-deb-stable xenial main | sudo tee -a /etc/apt/sources.list.d/alignak.list
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv D401AB61
+
+    sudo apt-get update
+    sudo apt install alignak-backend
+
+CentOS::
+
+    sudo vi /etc/yum.repos.d/alignak-stable.repo:
+       [Alignak-rpm-stable]
+       name=Alignak RPM stable packages
+       baseurl=https://dl.bintray.com/alignak/alignak-rpm-stable
+       gpgcheck=0
+       repo_gpgcheck=0
+       enabled=1
+
+    sudo yum repolist
+
+    sudo yum install python-alignak-backend
+
 From PyPI
 ~~~~~~~~~
-To install the package from PyPI:
-::
+To install the package from PyPI::
 
    sudo pip install alignak-backend
 
 
 From source files
 ~~~~~~~~~~~~~~~~~
-To install the package from the source files:
-::
+To install the package from the source files::
 
    git clone https://github.com/Alignak-monitoring-contrib/alignak-backend
    cd alignak-backend
@@ -90,8 +112,7 @@ Documentation
 
 The Alignak backend documentation is available on `Read the docs <http://alignak-backend.readthedocs.io/en/latest/?badge=develop>`_ or in the */docs* folder of this repository.
 
-To build the doc:
-::
+To build the doc::
 
     cd docs
     python models_to_rst.py
@@ -111,4 +132,5 @@ Bugs, issues and contributing
 -----------------------------
 
 Please report any issue using the project `issues page <https://github.com/Alignak-monitoring-contrib/alignak-backend/issues>`_.
+
 

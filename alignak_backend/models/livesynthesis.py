@@ -23,11 +23,13 @@ def get_doc():  # pragma: no cover
     :rtype: str
     """
     return """
-    The ``livesynthesis`` model is maintained by the Alignak to get an easy overview of
+    The ``livesynthesis`` model is maintained by the Alignak backend to get an easy overview of
     the monitored system state.
 
     For hosts and services, the live synthesis stores values computed from the real
     live state, each time an element state is updated:
+    - a counter containing the number of host/service not monitored (no active nor
+    passive checks enabled)
     - a counter containing the number of host/service in each state
     - a counter containing the number of host/service acknowledged
     - a counter containing the number of host/service in downtime
@@ -43,14 +45,25 @@ def get_schema():
     :rtype: dict
     """
     return {
+        'mongo_indexes': {
+            'index_tpl': [('_is_template', 1)],
+            'index_name': [('name', 1)],
+            'index_host': [('host', 1), ('name', 1)],
+        },
         'schema': {
             'schema_version': {
                 'type': 'integer',
-                'default': 1,
+                'default': 2,
             },
             'hosts_total': {
                 'schema_version': 1,
                 'title': 'Hosts count',
+                'type': 'integer',
+                'default': 0,
+            },
+            'hosts_not_monitored': {
+                'schema_version': 2,
+                'title': 'Hosts not monitored',
                 'type': 'integer',
                 'default': 0,
             },
@@ -108,16 +121,16 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
-            'hosts_business_impact': {
-                'schema_version': 1,
-                'title': 'Hosts business impact',
-                'type': 'integer',
-                'default': 0
-            },
 
             'services_total': {
                 'schema_version': 1,
                 'title': 'Services count',
+                'type': 'integer',
+                'default': 0,
+            },
+            'services_not_monitored': {
+                'schema_version': 2,
+                'title': 'Services not monitored',
                 'type': 'integer',
                 'default': 0,
             },
@@ -199,12 +212,6 @@ def get_schema():
                 'type': 'integer',
                 'default': 0
             },
-            'services_business_impact': {
-                'schema_version': 1,
-                'title': 'Services business impact',
-                'type': 'integer',
-                'default': 0
-            },
 
             # Realm
             '_realm': {
@@ -239,5 +246,18 @@ def get_schema():
                 },
             },
         },
-        'schema_deleted': {}
+        'schema_deleted': {
+            'hosts_business_impact': {
+                'schema_version': 2,
+                'title': 'Hosts business impact',
+                'type': 'integer',
+                'default': 0
+            },
+            'services_business_impact': {
+                'schema_version': 2,
+                'title': 'Services business impact',
+                'type': 'integer',
+                'default': 0
+            }
+        }
     }

@@ -7,8 +7,8 @@
 
   "X_DOMAINS": "*", /* CORS (Cross-Origin Resource Sharing) support. Accept *, empty or a list of domains */
 
-  "PAGINATION_LIMIT": 50,   /* Pagination: maximum value for number of results */
-  "PAGINATION_DEFAULT": 25, /* Pagination: default value for number of results */
+  "PAGINATION_LIMIT": 5000,   /* Pagination: maximum value for number of results */
+  "PAGINATION_DEFAULT": 50,   /* Pagination: default value for number of results */
 
   /* Limit number of requests. For example, [300, 900] limit 300 requests every 15 minutes */
   "RATE_LIMIT_GET": null,     /* Limit number of GET requests */
@@ -16,6 +16,7 @@
   "RATE_LIMIT_PATCH": null,   /* Limit number of PATCH requests */
   "RATE_LIMIT_DELETE": null,  /* Limit number of DELETE requests */
 
+  "MONGO_URI": "mongodb://localhost:27017/alignak-backend",
   "MONGO_HOST": "localhost",          /* Address of MongoDB */
   "MONGO_PORT": 27017,                /* port of MongoDB */
   "MONGO_DBNAME": "alignak-backend",  /* Name of database in MongoDB */
@@ -24,6 +25,25 @@
 
   "IP_CRON": ["127.0.0.1"],  /* List of IP allowed to use cron routes/endpoint of the backend */
 
+
+  "LOGGER": "alignak-backend-logger.json",  /* Python logger configuration file */
+
+  /* Address of Alignak arbiter
+  The Alignak backend will use this adress to notify Alignak about backend newly created
+  or deleted items
+  Set to an empty value to disable this feature
+  */
+  "ALIGNAK_URL": "http://127.0.0.1:7770",
+
+  /* Alignak event reporting scheduler
+  Every SCHEDULER_ALIGNAK_PERIOD, an event is raised to the ALIGNAK_URL if an host/realm/user
+  was created or deleted
+
+  Only raise notifications every 10 minutes
+  */
+  "SCHEDULER_ALIGNAK_ACTIVE": true,
+  "SCHEDULER_ALIGNAK_PERIOD": 600,
+
   /* As soon as a Graphite or Influx is existing in the backend, the received metrics are sent
   to the corresponding TSDB. If the TSDB is not available, metrics are stored internally
   in the backend.
@@ -31,9 +51,17 @@
   retention and will send them to the configured TSDB.
    BE CAREFULL, ACTIVATE THIS ON ONE BACKEND ONLY! */
   "SCHEDULER_TIMESERIES_ACTIVE": false,
+  "SCHEDULER_TIMESERIES_PERIOD": 10,
   /* This scheduler will create / update dashboards in grafana.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */
   "SCHEDULER_GRAFANA_ACTIVE": false,
+  "SCHEDULER_GRAFANA_PERIOD": 120,
+  /* Enable/disable this backend instance as a Grafana datasource */
+  "GRAFANA_DATASOURCE": true,
+  /* Name of the file that contains the list of proposed queries in a Grafana table panel */
+  "GRAFANA_DATASOURCE_QUERIES": "grafana_queries.json",
+  /* Name of the file that contains the list of fields returned for a Grafana table */
+  "GRAFANA_DATASOURCE_TABLES": "grafana_tables.json",
   /* if 0, disable it, otherwise define the history in minutes.
    It will keep history each minute.
    BE CAREFULL, ACTIVATE IT ONLY ON ONE BACKEND */

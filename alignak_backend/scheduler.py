@@ -9,6 +9,15 @@
 import alignak_backend.app
 
 
+def cron_alignak():
+    """
+    It's the scheduler used to notify Alignak
+
+    :return: None
+    """
+    alignak_backend.app.cron_alignak()
+
+
 def cron_cache():
     """
     It's the scheduler used to send to graphite / influxdb retention perfdata if previously

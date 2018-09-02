@@ -35,6 +35,10 @@ def get_schema():
     :rtype: dict
     """
     return {
+        'mongo_indexes': {
+            'index_updated': [('_updated', 1)],
+            'index_name': [('name', 1)],
+        },
         'schema': {
             'schema_version': {
                 'type': 'integer',

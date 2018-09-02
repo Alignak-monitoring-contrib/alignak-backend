@@ -38,6 +38,11 @@ def get_schema():
     :rtype: dict
     """
     return {
+        'mongo_indexes': {
+            'index_updated': [('_updated', 1)],
+            'index_tpl': [('_is_template', 1)],
+            'index_name': [('name', 1)],
+        },
         'schema': {
             'schema_version': {
                 'type': 'integer',
@@ -184,7 +189,7 @@ def get_schema():
             'webui_visible': {
                 'schema_version': 2,
                 'title': 'Web UI visible',
-                'comment': 'If not set, the Web User Interface will not take car of this user.',
+                'comment': 'If not set, the Web User Interface will ignore this user.',
                 'type': 'boolean',
                 'default': True
             },

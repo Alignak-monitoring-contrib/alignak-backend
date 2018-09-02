@@ -62,7 +62,7 @@ Retentions resources:
    :maxdepth: 2
    :glob:
 
-   resources/retention*
+   resources/alignakretention
 
 Log
 ---
