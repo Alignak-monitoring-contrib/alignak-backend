@@ -5,20 +5,20 @@
 unittest2
 
 # Web test
-WebTest==2.0.29
+WebTest
 
 # Use py.test as test-runner
-pytest==3.6.0
-pytest-cov==2.5.1
+pytest
+pytest-cov
 
 # Tests time freeze
 freezegun
 
 # code coverage
-coverage==4.5.1
+coverage
 
 # Report coverage results to coveralls.io
-coveralls==1.3.0
+coveralls
 
 # Static code analysis libraries
 pycodestyle==2.4.0
@@ -26,8 +26,8 @@ pylint==1.9.1
 pep257==0.7.0
 
 # uWSGI server
-uWSGI==2.0.17
+uWSGI
 
 # Mock
-mock==2.0.0
-requests-mock==1.4.0
+mock
+requests-mock
